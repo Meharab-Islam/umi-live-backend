@@ -2956,11 +2956,19 @@ export async function promoteToMainSeat(req, res) {
     const seatNumberParam = req.body?.seatNumber ?? req.body?.seat_number ?? req.params?.seatNumber;
     const userIdParam = req.body?.userId ?? req.body?.user_id;
 
-    const rooms = await query('SELECT id, room_id, host_id, status, total_seats FROM live_rooms WHERE room_id = ? AND status = "live"', [roomId]);
+    const rooms = await query('SELECT id, room_id, host_id, status, total_seats, live_type FROM live_rooms WHERE room_id = ? AND status = "live"', [roomId]);
     if (rooms.length === 0) {
       return res.status(404).json({ success: false, message: 'Live room is not active or does not exist.' });
     }
     const room = rooms[0];
+
+    // Promote to Main Seat is strictly for Video Live rooms (in Audio Live only Switch Seat is supported)
+    if (room.live_type === 'audio') {
+      return res.status(400).json({
+        success: false,
+        message: 'Promote to main seat is only available for Video Live rooms. In Audio Live, please use Switch Seat.',
+      });
+    }
 
     // Check caller permission: Host or Platform Admin
     let isAuthorized = (callerId === room.host_id) || (callerRole === 'admin') || (callerRole === 'superadmin');

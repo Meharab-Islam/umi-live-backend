@@ -4756,8 +4756,8 @@ export const API_SPEC = {
       "category": "live-seats",
       "method": "POST",
       "path": "/api/mobile/live/rooms/:roomId/seats/make-main",
-      "summary": "[🎥 Video Live & Audio] Promote / Swap Co-host Seat to Main Seat",
-      "description": "**Stream Type**: 🎥🎙️ Applicable to both Video Live & Audio Live rooms.\n\nPromotes a co-host or guest from their current seat (e.g., Seat 2, Seat 3...) to the Main Seat (Seat 1 / Main Stage). Performs an atomic database swap: the selected user moves to Seat 1 (is_main_seat = 1), and the previous occupant of Seat 1 is moved into the guest's seat. Invalidates Redis room caches, and broadcasts real-time Socket.IO events main_seat_swapped and seat_updated with action swap_main to all room participants.\n\n**Route Aliases**:\n- POST /api/mobile/live/rooms/:roomId/seats/make-main\n- POST /api/mobile/live/rooms/:roomId/seats/swap-main\n- POST /api/mobile/live/rooms/:roomId/seats/promote-main\n- POST /api/mobile/live/rooms/:roomId/seats/:seatNumber/promote",
+      "summary": "[🎥 Video Live Exclusive] Promote / Swap Co-host Seat to Main Seat",
+      "description": "**Stream Type**: 🎥 Video Live exclusive feature. (In Audio Live rooms, this is not applicable—users directly use Switch Seat: POST /api/mobile/live/rooms/:roomId/seats/switch).\n\nPromotes a co-host or guest from their current seat (e.g., Seat 2, Seat 3...) to the Main Seat (Seat 1 / Main Stage). Performs an atomic database swap: the selected user moves to Seat 1 (is_main_seat = 1), and the previous occupant of Seat 1 is moved into the guest's seat. Invalidates Redis room caches, and broadcasts real-time Socket.IO events main_seat_swapped and seat_updated with action swap_main to all room participants.\n\n**Route Aliases**:\n- POST /api/mobile/live/rooms/:roomId/seats/make-main\n- POST /api/mobile/live/rooms/:roomId/seats/swap-main\n- POST /api/mobile/live/rooms/:roomId/seats/promote-main\n- POST /api/mobile/live/rooms/:roomId/seats/:seatNumber/promote",
       "requiresAuth": true,
       "requestHeaders": [
         {
@@ -4830,10 +4830,10 @@ export const API_SPEC = {
         },
         {
           "status": 400,
-          "description": "Invalid seat or empty seat.",
+          "description": "Invalid seat, empty seat, or room is audio live.",
           "example": {
             "success": false,
-            "message": "Seat 2 is empty. Only occupied seats can be promoted to the main seat."
+            "message": "Promote to main seat is only available for Video Live rooms. In Audio Live, please use Switch Seat."
           }
         },
         {
@@ -4845,7 +4845,7 @@ export const API_SPEC = {
           }
         }
       ],
-      "liveType": "both"
+      "liveType": "video"
     },
     {
       "id": "wallet-packages",
