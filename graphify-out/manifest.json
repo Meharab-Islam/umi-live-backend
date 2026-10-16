@@ -1234,5 +1234,17 @@
     "seen": 1792144747.157197,
     "ast_hash": "375c9aebb031eb6620270a08f6243e50",
     "semantic_hash": ""
+  },
+  "deploy.sh": {
+    "mtime": 1792153889.9128296,
+    "seen": 1792153904.662861,
+    "ast_hash": "96b0551385481cbd1ef90bb71fb12847",
+    "semantic_hash": ""
+  },
+  "DEPLOYMENT_GUIDE.md": {
+    "mtime": 1792154128.8215263,
+    "seen": 1792154136.258568,
+    "ast_hash": "df2d8bbb33bd877f4bac3d5f7e764e5b",
+    "semantic_hash": ""
   }
 }

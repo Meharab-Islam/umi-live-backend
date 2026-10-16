@@ -528,9 +528,9 @@
     "semantic_hash": ""
   },
   "admin-panel/src/api/apiSpec.js": {
-    "mtime": 1792150043.2540283,
-    "seen": 1792150064.123907,
-    "ast_hash": "7745859a97c8f7317a5d538e9e88310e",
+    "mtime": 1792150539.775268,
+    "seen": 1792150563.461146,
+    "ast_hash": "56355402afd16c523e229e55d4c4d690",
     "semantic_hash": ""
   },
   "admin-panel/src/pages/ApiDocs.jsx": {
@@ -540,9 +540,9 @@
     "semantic_hash": ""
   },
   "backend/src/routes/docsRoutes.js": {
-    "mtime": 1792150024.2271187,
-    "seen": 1792150064.125709,
-    "ast_hash": "322ffe4dc5515bbe1d05687324042a60",
+    "mtime": 1792150518.462091,
+    "seen": 1792150563.463007,
+    "ast_hash": "6b4ef62fb708728d73f56df9cbc8fdfe",
     "semantic_hash": ""
   },
   "backend/src/controllers/mobile/authController.js": {
@@ -558,9 +558,9 @@
     "semantic_hash": ""
   },
   "backend/src/controllers/mobile/liveController.js": {
-    "mtime": 1792141540.2263184,
-    "seen": 1792141677.1182258,
-    "ast_hash": "2741fd503c76fa96132d1fffee1644f5",
+    "mtime": 1792150152.9865508,
+    "seen": 1792150563.462703,
+    "ast_hash": "39738ef082ad339f5557e521e077aacf",
     "semantic_hash": ""
   },
   "backend/src/controllers/mobile/packageController.js": {
@@ -1233,6 +1233,12 @@
     "mtime": 1792144717.7278972,
     "seen": 1792144747.157197,
     "ast_hash": "375c9aebb031eb6620270a08f6243e50",
+    "semantic_hash": ""
+  },
+  "deploy.sh": {
+    "mtime": 1792153889.9128296,
+    "seen": 1792153904.662861,
+    "ast_hash": "96b0551385481cbd1ef90bb71fb12847",
     "semantic_hash": ""
   }
 }
