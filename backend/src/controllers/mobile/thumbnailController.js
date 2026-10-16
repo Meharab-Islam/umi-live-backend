@@ -51,7 +51,7 @@ export async function getUserActiveThumbnailsMap(userId) {
 export async function getThumbnailCatalog(req, res) {
   try {
     const userId = req.user?.id || (req.query.user_id ? parseInt(req.query.user_id, 10) : null) || (req.query.userId ? parseInt(req.query.userId, 10) : null);
-    const cacheKey = 'thumbnails:catalog';
+    const cacheKey = 'thumbnails:mobile:catalog';
 
     const thumbnails = await cache.getOrSet(cacheKey, 300, async () => {
       const rows = await query(`
@@ -63,7 +63,7 @@ export async function getThumbnailCatalog(req, res) {
           validity_days,
           is_active
         FROM special_thumbnails
-        WHERE is_active = 1
+        WHERE is_active = 1 AND (is_custom = 0 OR is_custom IS NULL)
         ORDER BY price ASC, id ASC
       `);
       return rows || [];
@@ -112,7 +112,7 @@ export async function getThumbnailCatalog(req, res) {
  * Mobile My Owned Thumbnails
  * GET /api/mobile/thumbnails/my-thumbnails
  * Authenticated endpoint returning all thumbnails owned by the requesting user.
- * Displays is_active (equipped status), days remaining, and expiration state.
+ * Displays is_active (equipped status), days remaining, expiration state, and is_custom.
  */
 export async function getMyThumbnails(req, res) {
   try {
@@ -137,7 +137,9 @@ export async function getMyThumbnails(req, res) {
           GREATEST(0, TIMESTAMPDIFF(SECOND, NOW(), ut.expires_at)) as seconds_remaining,
           st.name as thumbnail_name,
           st.image_url,
-          st.validity_days
+          st.validity_days,
+          st.is_custom,
+          st.uploader_id
         FROM user_thumbnails ut
         JOIN special_thumbnails st ON ut.thumbnail_id = st.id
         WHERE ut.user_id = ?
@@ -150,6 +152,8 @@ export async function getMyThumbnails(req, res) {
         name: row.thumbnail_name,
         image_url: row.image_url,
         validity_days: row.validity_days,
+        is_custom: Boolean(row.is_custom),
+        uploader_id: row.uploader_id,
         start_date: row.start_date,
         expires_at: row.expires_at,
         days_remaining: row.days_remaining,
@@ -376,5 +380,296 @@ export async function toggleThumbnail(req, res) {
   } catch (err) {
     console.error('toggleThumbnail error:', err);
     return res.status(500).json({ success: false, message: 'Failed to update thumbnail active state.', error: err.message });
+  }
+}
+
+/**
+ * Mobile Custom Thumbnail Upload Configuration
+ * GET /api/mobile/thumbnails/upload-config
+ * Public/Authenticated endpoint: returns admin-configured coin fee and validity days for custom thumbnail uploads.
+ */
+export async function getCustomThumbnailUploadConfig(req, res) {
+  try {
+    const userId = req.user?.id;
+    const settings = await cache.getOrSet('thumbnails:upload_config', 60, async () => {
+      const rows = await query(`
+        SELECT key_name, key_value FROM system_settings 
+        WHERE key_name IN ('custom_thumbnail_upload_coin_cost', 'custom_thumbnail_validity_days', 'custom_thumbnail_pricing_tiers')
+      `);
+      const map = {};
+      (rows || []).forEach((r) => {
+        map[r.key_name] = r.key_value;
+      });
+      return map;
+    });
+
+    let pricingTiers = [
+      { days: 7, coins: 200 },
+      { days: 15, coins: 350 },
+      { days: 30, coins: 500 },
+      { days: 90, coins: 1200 }
+    ];
+
+    if (settings.custom_thumbnail_pricing_tiers) {
+      try {
+        const parsed = typeof settings.custom_thumbnail_pricing_tiers === 'string'
+          ? JSON.parse(settings.custom_thumbnail_pricing_tiers)
+          : settings.custom_thumbnail_pricing_tiers;
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          pricingTiers = parsed.map((t) => ({
+            days: parseInt(t.days, 10),
+            coins: parseInt(t.coins, 10),
+          })).filter((t) => !isNaN(t.days) && !isNaN(t.coins) && t.days > 0);
+        }
+      } catch (e) {
+        console.warn('Error parsing custom_thumbnail_pricing_tiers:', e.message);
+      }
+    }
+
+    const defaultTier = pricingTiers.find((t) => t.days === 30) || pricingTiers[0] || { days: 30, coins: 500 };
+    const uploadCoinCost = defaultTier.coins;
+    const validityDays = defaultTier.days;
+
+    let userCoins = 0;
+    if (userId) {
+      const userRows = await query('SELECT coins FROM users WHERE id = ?', [userId]);
+      if (userRows && userRows.length > 0) {
+        userCoins = userRows[0].coins || 0;
+      }
+    }
+
+    return res.json({
+      success: true,
+      pricing_tiers: pricingTiers,
+      default_tier: defaultTier,
+      upload_coin_cost: uploadCoinCost,
+      validity_days: validityDays,
+      user_coins: userCoins,
+      can_afford: userCoins >= pricingTiers[0]?.coins,
+    });
+  } catch (err) {
+    console.error('getCustomThumbnailUploadConfig error:', err);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to fetch custom thumbnail upload configuration.',
+      error: err.message,
+    });
+  }
+}
+
+/**
+ * Mobile Custom Thumbnail Upload (User uploads custom room background/thumbnail with coin deduction)
+ * POST /api/mobile/thumbnails/upload
+ * POST /api/mobile/thumbnails/custom-upload
+ * 
+ * Rules:
+ * 1. Admin configures pricing plans (days vs coins) in system_settings ('custom_thumbnail_pricing_tiers').
+ * 2. User selects desired duration plan (days: 7, 15, 30, 90, etc.). If omitted, defaults to 30 days plan.
+ * 3. User pays the coin cost from their coin balance. If insufficient, returns 400.
+ * 4. The thumbnail is created with is_custom = 1 and uploader_id = userId, and added to the user's purchased thumbnails.
+ * 5. The thumbnail is NEVER listed in the public store catalog for others to purchase (filtered by is_custom = 0).
+ * 6. If the user is currently hosting an active live room, updates the active room's background image immediately.
+ */
+export async function uploadCustomThumbnail(req, res) {
+  try {
+    const userId = req.user.id;
+
+    // 1. Resolve uploaded file or image URL
+    let imageUrl = null;
+    if (req.file) {
+      imageUrl = `/uploads/rooms/${req.file.filename}`;
+    } else if (req.body.image_url && req.body.image_url.trim()) {
+      imageUrl = req.body.image_url.trim();
+    } else if (req.body.thumbnail_url && req.body.thumbnail_url.trim()) {
+      imageUrl = req.body.thumbnail_url.trim();
+    } else if (req.body.background_image && req.body.background_image.trim()) {
+      imageUrl = req.body.background_image.trim();
+    }
+
+    if (!imageUrl) {
+      return res.status(400).json({
+        success: false,
+        message: 'Thumbnail image is required. Please provide a file upload (field: image or thumbnail) or valid image_url.',
+      });
+    }
+
+    // 2. Fetch system settings for custom thumbnail pricing plans
+    const settingsRows = await query(`
+      SELECT key_name, key_value FROM system_settings 
+      WHERE key_name IN ('custom_thumbnail_upload_coin_cost', 'custom_thumbnail_validity_days', 'custom_thumbnail_pricing_tiers')
+    `);
+    const settingsMap = {};
+    (settingsRows || []).forEach((r) => {
+      settingsMap[r.key_name] = r.key_value;
+    });
+
+    let pricingTiers = [
+      { days: 7, coins: 200 },
+      { days: 15, coins: 350 },
+      { days: 30, coins: 500 },
+      { days: 90, coins: 1200 }
+    ];
+
+    if (settingsMap.custom_thumbnail_pricing_tiers) {
+      try {
+        const parsed = typeof settingsMap.custom_thumbnail_pricing_tiers === 'string'
+          ? JSON.parse(settingsMap.custom_thumbnail_pricing_tiers)
+          : settingsMap.custom_thumbnail_pricing_tiers;
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          pricingTiers = parsed.map((t) => ({
+            days: parseInt(t.days, 10),
+            coins: parseInt(t.coins, 10),
+          })).filter((t) => !isNaN(t.days) && !isNaN(t.coins) && t.days > 0);
+        }
+      } catch (e) {
+        console.warn('Error parsing custom_thumbnail_pricing_tiers:', e.message);
+      }
+    }
+
+    // 3. Resolve requested duration / tier
+    const rawRequestedDays = req.body.days || req.body.duration_days || req.body.validity_days;
+    let selectedTier = null;
+
+    if (rawRequestedDays !== undefined && rawRequestedDays !== null && String(rawRequestedDays).trim() !== '') {
+      const requestedDays = parseInt(String(rawRequestedDays).trim(), 10);
+      selectedTier = pricingTiers.find((t) => t.days === requestedDays);
+      if (!selectedTier) {
+        return res.status(400).json({
+          success: false,
+          message: `Invalid duration '${requestedDays}' days. Available duration plans: ${pricingTiers.map((t) => `${t.days} Days (${t.coins} Coins)`).join(', ')}`,
+          available_tiers: pricingTiers,
+        });
+      }
+    } else {
+      // Default to 30-day tier or first tier
+      selectedTier = pricingTiers.find((t) => t.days === 30) || pricingTiers[0] || { days: 30, coins: 500 };
+    }
+
+    const coinCost = selectedTier.coins;
+    const validityDays = selectedTier.days;
+
+    // 4. Check user balance
+    const [user] = await query('SELECT id, coins, full_name, avatar_url FROM users WHERE id = ?', [userId]);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found.' });
+    }
+
+    if (coinCost > 0 && user.coins < coinCost) {
+      return res.status(400).json({
+        success: false,
+        message: `Insufficient coin balance for the ${validityDays}-day plan. This requires ${coinCost} coins, but you currently have ${user.coins} coins.`,
+        required_coins: coinCost,
+        current_coins: user.coins,
+        selected_plan: selectedTier,
+        available_plans: pricingTiers,
+      });
+    }
+
+    const customName = (req.body.name && req.body.name.trim())
+      ? req.body.name.trim()
+      : `${user.full_name || 'My'} Custom Thumbnail`;
+
+    // 4. Database SSOT Mutation:
+    // a) Deduct coins if cost > 0
+    if (coinCost > 0) {
+      await query('UPDATE users SET coins = coins - ? WHERE id = ?', [coinCost, userId]);
+      await query(`
+        INSERT INTO transactions (user_id, type, amount, description, status)
+        VALUES (?, 'coin_purchase', ?, ?, 'completed')
+      `, [userId, coinCost, `Custom Room Background Thumbnail Upload Fee: ${customName}`]);
+    }
+
+    // b) Insert into special_thumbnails with is_custom = 1 and uploader_id = userId
+    // Note: Since is_custom = 1, it will NEVER appear in the public store/catalog!
+    const thumbResult = await query(`
+      INSERT INTO special_thumbnails 
+      (name, image_url, price, validity_days, is_active, is_custom, uploader_id)
+      VALUES (?, ?, ?, ?, 1, 1, ?)
+    `, [customName, imageUrl, coinCost, validityDays, userId]);
+
+    const newThumbnailId = thumbResult.insertId;
+
+    // c) Unequip previously active thumbnails for this user
+    await query('UPDATE user_thumbnails SET is_equipped = 0 WHERE user_id = ?', [userId]);
+
+    // d) Insert into user_thumbnails (User's owned / purchased list) with is_equipped = 1
+    const subResult = await query(`
+      INSERT INTO user_thumbnails 
+      (user_id, thumbnail_id, start_date, expires_at, status, is_equipped)
+      VALUES (?, ?, NOW(), DATE_ADD(NOW(), INTERVAL ? DAY), 'active', 1)
+    `, [userId, newThumbnailId, validityDays]);
+
+    const subscriptionId = subResult.insertId;
+    const [insertedSub] = await query('SELECT expires_at FROM user_thumbnails WHERE id = ?', [subscriptionId]);
+    const expiresAt = insertedSub ? insertedSub.expires_at : null;
+
+    // 5. If user currently has an active hosted live room, update that room's background immediately
+    const activeRooms = await query(
+      "SELECT id, room_id FROM live_rooms WHERE host_id = ? AND status = 'live' LIMIT 1",
+      [userId]
+    );
+
+    let updatedActiveRoom = null;
+    if (activeRooms && activeRooms.length > 0) {
+      const activeRoom = activeRooms[0];
+      await query('UPDATE live_rooms SET background_image = ? WHERE id = ?', [imageUrl, activeRoom.id]);
+      await cache.del(`live:room:${activeRoom.room_id}`);
+      await cache.del(`live:room:details:${activeRoom.room_id}`);
+      await cache.delByPattern('live:active_rooms*');
+
+      if (req.io) {
+        const socketPayload = {
+          roomId: activeRoom.room_id,
+          room_id: activeRoom.room_id,
+          background_image_url: imageUrl,
+          thumbnail_url: imageUrl,
+          background_thumbnail: imageUrl,
+          updated_by: userId,
+        };
+        req.io.to(activeRoom.room_id).emit('room_background_updated', socketPayload);
+        req.io.to(activeRoom.room_id).emit('room_thumbnail_updated', socketPayload);
+      }
+      updatedActiveRoom = activeRoom.room_id;
+    }
+
+    // 6. Instant Redis Invalidation
+    await cache.del(`user:thumbnails:${userId}`);
+    await cache.del(`user:thumbnails:active_map:${userId}`);
+    await cache.del(`user:balance:${userId}`);
+    await cache.del(`user:${userId}`);
+    await cache.del(`mobile:user:profile:${userId}`);
+    await cache.del('thumbnails:mobile:catalog');
+    await cache.del('thumbnails:catalog');
+
+    const remainingCoins = user.coins - coinCost;
+
+    return res.status(201).json({
+      success: true,
+      message: `Custom thumbnail "${customName}" uploaded and activated successfully!`,
+      thumbnail: {
+        subscription_id: subscriptionId,
+        thumbnail_id: newThumbnailId,
+        id: newThumbnailId,
+        name: customName,
+        image_url: imageUrl,
+        price: coinCost,
+        validity_days: validityDays,
+        is_equipped: true,
+        is_active: true,
+        is_custom: true,
+        uploader_id: userId,
+        expires_at: expiresAt,
+      },
+      coin_cost: coinCost,
+      remaining_coins: remainingCoins,
+      active_room_updated: updatedActiveRoom,
+    });
+  } catch (err) {
+    console.error('uploadCustomThumbnail error:', err);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to upload custom thumbnail.',
+      error: err.message,
+    });
   }
 }

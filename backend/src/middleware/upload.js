@@ -114,6 +114,30 @@ export const optionalAvatarUpload = (req, res, next) => {
 };
 
 /**
+ * Mobile Live Room Background / Media Upload Middleware
+ * Automatically handles multipart/form-data for room cover/background thumbnail updates.
+ */
+export const optionalRoomMediaUpload = (req, res, next) => {
+  const contentType = req.headers['content-type'] || '';
+  if (contentType.includes('multipart/form-data')) {
+    req.uploadCategory = 'rooms';
+    return upload.any()(req, res, (err) => {
+      if (err) {
+        return res.status(400).json({
+          success: false,
+          message: err.message || 'Room media upload failed.',
+        });
+      }
+      if (req.files && req.files.length > 0) {
+        req.file = req.files[0];
+      }
+      next();
+    });
+  }
+  next();
+};
+
+/**
  * Mobile Feed Post Media Upload Middleware
  * Handles single or multiple media attachments (images, videos, audio).
  * Supports any field name and multiple file uploads.

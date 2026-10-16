@@ -313,8 +313,12 @@ export async function initializeDatabase() {
         price INT NOT NULL DEFAULT 1000,
         validity_days INT NOT NULL DEFAULT 30,
         is_active BOOLEAN DEFAULT TRUE,
+        is_custom TINYINT(1) NOT NULL DEFAULT 0,
+        uploader_id INT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        INDEX idx_custom (is_custom),
+        INDEX idx_uploader (uploader_id)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     `);
 
@@ -664,6 +668,12 @@ export async function initializeDatabase() {
       await connection.query(`
         ALTER TABLE posts MODIFY COLUMN media_type ENUM('image','video','audio','multiple','none') DEFAULT 'none';
       `);
+      await connection.query(`
+        ALTER TABLE special_thumbnails ADD COLUMN IF NOT EXISTS is_custom TINYINT(1) NOT NULL DEFAULT 0;
+      `);
+      await connection.query(`
+        ALTER TABLE special_thumbnails ADD COLUMN IF NOT EXISTS uploader_id INT NULL;
+      `);
     } catch (migErr) {
       console.warn('[DB Migration Warning]:', migErr.message);
     }
@@ -737,7 +747,10 @@ export async function initializeDatabase() {
         ('coin_to_diamond_ratio', '1.0', 'Conversion ratio: diamonds awarded per 1 coin sent'),
         ('admin_gift_commission_percent', '15.0', 'Admin commission percentage on coin gifts when diamond mode is false'),
         ('agency_gift_commission_percent', '10.0', 'Agency commission percentage on host coin gifts when diamond mode is false'),
-        ('user_transfer_commission_percent', '5.0', 'Admin commission percentage on peer-to-peer coin transfers')
+        ('user_transfer_commission_percent', '5.0', 'Admin commission percentage on peer-to-peer coin transfers'),
+        ('custom_thumbnail_upload_coin_cost', '500', 'Required coin balance deducted when a user uploads a custom room background thumbnail'),
+        ('custom_thumbnail_validity_days', '30', 'Default validity duration in days for user-uploaded custom thumbnails'),
+        ('custom_thumbnail_pricing_tiers', '[{\"days\": 7, \"coins\": 200}, {\"days\": 15, \"coins\": 350}, {\"days\": 30, \"coins\": 500}, {\"days\": 90, \"coins\": 1200}]', 'Dynamic pricing tiers (days vs coins) for user-uploaded custom room background thumbnails')
         ON DUPLICATE KEY UPDATE key_value = VALUES(key_value);
       `);
 

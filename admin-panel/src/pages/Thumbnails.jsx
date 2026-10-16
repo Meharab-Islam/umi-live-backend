@@ -16,9 +16,12 @@ import {
   ExternalLink,
   Award,
   Layers,
+  Sliders,
+  Calendar,
 } from 'lucide-react';
 import specialItemApi from '../api/specialItemApi';
 import { adminApi } from '../api/adminApi';
+import settingsApi from '../api/settingsApi';
 import userApi from '../api/userApi';
 import { resolveAssetUrl } from '../api/client';
 import Loader from '../components/Loader';
@@ -140,6 +143,73 @@ export default function Thumbnails({ onToast, embedded = false }) {
   // Delete modal
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [deleting, setDeleting] = useState(false);
+
+  // Custom Thumbnail Duration & Pricing Plans
+  const [pricingModalOpen, setPricingModalOpen] = useState(false);
+  const [pricingTiers, setPricingTiers] = useState([
+    { days: 7, coins: 200 },
+    { days: 15, coins: 350 },
+    { days: 30, coins: 500 },
+    { days: 90, coins: 1200 },
+  ]);
+  const [savingTiers, setSavingTiers] = useState(false);
+
+  const fetchPricingTiers = useCallback(async () => {
+    try {
+      const res = await settingsApi.getSettings();
+      if (res.success && res.settings) {
+        const found = res.settings.find((s) => s.key_name === 'custom_thumbnail_pricing_tiers');
+        if (found && found.key_value) {
+          const parsed = JSON.parse(found.key_value);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setPricingTiers(parsed);
+          }
+        }
+      }
+    } catch (e) {}
+  }, []);
+
+  useEffect(() => {
+    fetchPricingTiers();
+  }, [fetchPricingTiers]);
+
+  const handleTierChange = (index, field, val) => {
+    setPricingTiers((prev) => {
+      const copy = [...prev];
+      copy[index] = { ...copy[index], [field]: parseInt(val, 10) || 0 };
+      return copy;
+    });
+  };
+
+  const handleAddTier = () => {
+    setPricingTiers((prev) => [...prev, { days: 60, coins: 800 }]);
+  };
+
+  const handleRemoveTier = (index) => {
+    if (pricingTiers.length <= 1) {
+      onToast('You must keep at least 1 duration plan.', 'warning');
+      return;
+    }
+    setPricingTiers((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleSaveTiers = async () => {
+    try {
+      setSavingTiers(true);
+      const valStr = JSON.stringify(pricingTiers);
+      await settingsApi.updateSetting(
+        'custom_thumbnail_pricing_tiers',
+        valStr,
+        'Dynamic pricing tiers (days vs coins) for user-uploaded custom room background thumbnails'
+      );
+      onToast('Custom thumbnail duration pricing plans saved successfully!', 'success');
+      setPricingModalOpen(false);
+    } catch (err) {
+      onToast(err.message, 'error');
+    } finally {
+      setSavingTiers(false);
+    }
+  };
 
   const fetchThumbnails = useCallback(async () => {
     try {
@@ -377,7 +447,17 @@ export default function Thumbnails({ onToast, embedded = false }) {
           </p>
         </div>
 
-        <div style={{ display: 'flex', gap: '8px' }}>
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+          <button
+            type="button"
+            className="btn btn-secondary btn-sm"
+            onClick={() => setPricingModalOpen(true)}
+            style={{ borderRadius: '8px', padding: '0.45rem 0.95rem', gap: '6px', fontWeight: 700 }}
+            title="Configure user custom thumbnail upload duration & coins"
+          >
+            <Sliders size={14} color="#ec4899" />
+            <span>Upload Pricing Plans</span>
+          </button>
           <button
             type="button"
             className="btn btn-secondary btn-sm"
@@ -584,9 +664,16 @@ export default function Thumbnails({ onToast, embedded = false }) {
                   />
 
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <strong style={{ fontSize: '0.94rem', color: 'var(--text-main)', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {item.name}
-                    </strong>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                      <strong style={{ fontSize: '0.94rem', color: 'var(--text-main)', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {item.name}
+                      </strong>
+                      {Boolean(item.is_custom) && (
+                        <span className="badge badge-warning" style={{ fontSize: '0.65rem', padding: '1px 6px' }} title={`Uploaded by user #${item.uploader_id}`}>
+                          Custom
+                        </span>
+                      )}
+                    </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px', flexWrap: 'wrap' }}>
                       <span style={{ fontSize: '0.76rem', color: '#06b6d4', fontWeight: 700 }}>
                         ⏳ {item.validity_days} Days
@@ -1257,6 +1344,119 @@ export default function Thumbnails({ onToast, embedded = false }) {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* USER CUSTOM THUMBNAIL DURATION & PRICING PLANS MODAL */}
+      {pricingModalOpen && (
+        <div className="modal-overlay" onClick={(e) => { if (e.target === e.currentTarget) setPricingModalOpen(false); }}>
+          <div className="modal-box" style={{ maxWidth: '580px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+              <div style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Calendar size={20} color="#ec4899" />
+                <span>Custom Thumbnail Duration Pricing Plans</span>
+              </div>
+              <button
+                type="button"
+                className="btn btn-secondary btn-sm"
+                onClick={() => setPricingModalOpen(false)}
+                style={{ borderRadius: '50%', width: '32px', height: '32px', padding: 0 }}
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <p style={{ fontSize: '0.84rem', color: 'var(--text-dim)', marginBottom: '1rem', lineHeight: 1.5 }}>
+              Set how many days a user-uploaded custom room thumbnail remains active and how many coins it costs for each plan (কত দিনের জন্য কত কয়েন লাগবে).
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.25rem' }}>
+              {pricingTiers.map((tier, idx) => (
+                <div
+                  key={idx}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    background: 'var(--bg-secondary)',
+                    padding: '0.65rem 0.85rem',
+                    borderRadius: '8px',
+                    border: '1px solid var(--border-color)',
+                    flexWrap: 'wrap',
+                  }}
+                >
+                  <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-dim)', minWidth: '55px' }}>
+                    Plan #{idx + 1}
+                  </span>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <label style={{ fontSize: '0.78rem', color: 'var(--text-dim)' }}>Days:</label>
+                    <input
+                      type="number"
+                      min="1"
+                      step="1"
+                      className="input-field"
+                      style={{ width: '80px', padding: '0.35rem 0.5rem' }}
+                      value={tier.days}
+                      onChange={(e) => handleTierChange(idx, 'days', e.target.value)}
+                    />
+                    <span style={{ fontSize: '0.78rem', color: '#06b6d4', fontWeight: 600 }}>Days 📅</span>
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <label style={{ fontSize: '0.78rem', color: 'var(--text-dim)' }}>Coins:</label>
+                    <input
+                      type="number"
+                      min="0"
+                      step="10"
+                      className="input-field"
+                      style={{ width: '100px', padding: '0.35rem 0.5rem' }}
+                      value={tier.coins}
+                      onChange={(e) => handleTierChange(idx, 'coins', e.target.value)}
+                    />
+                    <span style={{ fontSize: '0.78rem', color: '#f59e0b', fontWeight: 600 }}>Coins 🪙</span>
+                  </div>
+
+                  <button
+                    type="button"
+                    className="btn btn-danger btn-sm"
+                    style={{ marginLeft: 'auto', padding: '0.3rem 0.55rem' }}
+                    onClick={() => handleRemoveTier(idx)}
+                    title="Remove plan"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
+              <button
+                type="button"
+                className="btn btn-secondary btn-sm"
+                onClick={handleAddTier}
+                style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+              >
+                <Plus size={14} />
+                <span>Add Plan</span>
+              </button>
+
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button type="button" className="btn btn-secondary" onClick={() => setPricingModalOpen(false)}>
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={handleSaveTiers}
+                  disabled={savingTiers}
+                  style={{ background: '#ec4899', borderColor: '#db2777' }}
+                >
+                  {savingTiers ? 'Saving...' : 'Save Pricing Plans'}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

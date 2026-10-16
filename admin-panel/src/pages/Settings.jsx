@@ -21,6 +21,10 @@ import {
   Sliders,
   Calculator,
   DollarSign,
+  Image as ImageIcon,
+  Plus,
+  Trash2,
+  Calendar,
 } from 'lucide-react';
 import settingsApi from '../api/settingsApi';
 import Loader from '../components/Loader';
@@ -30,6 +34,65 @@ export default function Settings({ onToast }) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [showActionPassword, setShowActionPassword] = useState(false);
+
+  // Dynamic Custom Thumbnail Duration & Pricing Plans
+  const [pricingTiers, setPricingTiers] = useState([
+    { days: 7, coins: 200 },
+    { days: 15, coins: 350 },
+    { days: 30, coins: 500 },
+    { days: 90, coins: 1200 },
+  ]);
+
+  useEffect(() => {
+    if (settings.custom_thumbnail_pricing_tiers) {
+      try {
+        const parsed = typeof settings.custom_thumbnail_pricing_tiers === 'string'
+          ? JSON.parse(settings.custom_thumbnail_pricing_tiers)
+          : settings.custom_thumbnail_pricing_tiers;
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setPricingTiers(parsed);
+        }
+      } catch (e) {}
+    }
+  }, [settings.custom_thumbnail_pricing_tiers]);
+
+  const handleTierChange = (index, field, val) => {
+    setPricingTiers((prev) => {
+      const copy = [...prev];
+      copy[index] = { ...copy[index], [field]: parseInt(val, 10) || 0 };
+      return copy;
+    });
+  };
+
+  const handleAddTier = () => {
+    setPricingTiers((prev) => [...prev, { days: 60, coins: 800 }]);
+  };
+
+  const handleRemoveTier = (index) => {
+    if (pricingTiers.length <= 1) {
+      onToast('You must keep at least 1 duration plan.', 'warning');
+      return;
+    }
+    setPricingTiers((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleSaveTiers = async () => {
+    try {
+      setSaving(true);
+      const valStr = JSON.stringify(pricingTiers);
+      await settingsApi.updateSetting(
+        'custom_thumbnail_pricing_tiers',
+        valStr,
+        'Dynamic pricing tiers (days vs coins) for user-uploaded custom room background thumbnails'
+      );
+      setSettings((prev) => ({ ...prev, custom_thumbnail_pricing_tiers: valStr }));
+      onToast('Thumbnail duration pricing tiers saved successfully!', 'success');
+    } catch (err) {
+      onToast(err.message, 'error');
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const fetchSettings = async () => {
     try {
@@ -777,6 +840,117 @@ export default function Settings({ onToast }) {
             <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: '4px', display: 'block' }}>
               Default: <code style={{ color: '#c4b5fd' }}>admin123</code>. You can change this to any secure alphanumeric key.
             </span>
+          </div>
+        </div>
+
+        {/* Custom Room Thumbnail & Background Upload Settings */}
+        <div className="panel-card">
+          <div className="panel-header">
+            <div className="panel-title">
+              <ImageIcon size={20} color="#ec4899" />
+              <span>Custom Room Thumbnail & Background Duration Pricing</span>
+            </div>
+            <span className="badge badge-success" style={{ fontSize: '0.72rem' }}>User Monetization</span>
+          </div>
+
+          <p style={{ fontSize: '0.82rem', color: 'var(--text-dim)', marginBottom: '1.25rem', lineHeight: 1.5 }}>
+            Configure how many days a user-uploaded custom thumbnail remains active and how many coins it costs for each duration tier. 
+            When uploaded, this custom thumbnail is automatically added to the user's <strong>Purchased / Owned Thumbnails</strong> and can be activated directly for their live room. 
+            These user-uploaded thumbnails are <em>private to the user</em> and will <strong>never</strong> appear in the public store catalog for other users to purchase.
+          </p>
+
+          {/* Dynamic Pricing Plans Table / Cards */}
+          <div style={{ background: 'rgba(236, 72, 153, 0.05)', borderRadius: '12px', border: '1px solid rgba(236, 72, 153, 0.25)', padding: '1.25rem', marginBottom: '1.25rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.75rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Calendar size={18} color="#ec4899" />
+                <span style={{ fontWeight: 700, fontSize: '0.92rem', color: '#f472b6' }}>
+                  Duration Plans & Coin Pricing Tiers (কত দিনের জন্য কত কয়েন)
+                </span>
+              </div>
+              <button
+                type="button"
+                className="btn btn-secondary btn-sm"
+                onClick={handleAddTier}
+                style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+              >
+                <Plus size={15} />
+                <span>Add Duration Plan</span>
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              {pricingTiers.map((tier, idx) => (
+                <div
+                  key={idx}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '1rem',
+                    background: 'var(--bg-secondary)',
+                    padding: '0.75rem 1rem',
+                    borderRadius: '8px',
+                    border: '1px solid var(--border-color)',
+                    flexWrap: 'wrap',
+                  }}
+                >
+                  <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-dim)', minWidth: '60px' }}>
+                    Plan #{idx + 1}
+                  </span>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <label style={{ fontSize: '0.8rem', color: 'var(--text-dim)' }}>Validity (Days):</label>
+                    <input
+                      type="number"
+                      min="1"
+                      step="1"
+                      className="input-field"
+                      style={{ width: '90px', padding: '0.35rem 0.6rem' }}
+                      value={tier.days}
+                      onChange={(e) => handleTierChange(idx, 'days', e.target.value)}
+                    />
+                    <span style={{ fontSize: '0.8rem', color: '#06b6d4', fontWeight: 600 }}>Days 📅</span>
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <label style={{ fontSize: '0.8rem', color: 'var(--text-dim)' }}>Cost (Coins):</label>
+                    <input
+                      type="number"
+                      min="0"
+                      step="10"
+                      className="input-field"
+                      style={{ width: '110px', padding: '0.35rem 0.6rem' }}
+                      value={tier.coins}
+                      onChange={(e) => handleTierChange(idx, 'coins', e.target.value)}
+                    />
+                    <span style={{ fontSize: '0.8rem', color: '#f59e0b', fontWeight: 600 }}>Coins 🪙</span>
+                  </div>
+
+                  <button
+                    type="button"
+                    className="btn btn-danger btn-sm"
+                    style={{ marginLeft: 'auto', padding: '0.35rem 0.65rem' }}
+                    onClick={() => handleRemoveTier(idx)}
+                    title="Remove duration plan"
+                  >
+                    <Trash2 size={15} />
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
+              <button
+                type="button"
+                className="btn btn-primary btn-sm"
+                onClick={handleSaveTiers}
+                disabled={saving}
+                style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#ec4899', borderColor: '#db2777' }}
+              >
+                <Save size={15} />
+                <span>Save Duration Pricing Plans</span>
+              </button>
+            </div>
           </div>
         </div>
 

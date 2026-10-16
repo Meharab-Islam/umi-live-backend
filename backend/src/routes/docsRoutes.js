@@ -3342,6 +3342,107 @@ export const API_SPEC = {
       "liveType": "both"
     },
     {
+      "id": "live-update-room-background",
+      "category": "live-rooms",
+      "method": "PUT",
+      "path": "/api/mobile/live/rooms/:roomId/background",
+      "summary": "[🎥🎙️ Video & Audio Live] Update Room Background Thumbnail (Image Upload, Preset ID, or URL)",
+      "description": "**Stream Type**: 🎥🎙️ Applicable to both Video Live & Audio Live rooms.\n\nUpdates the room's live background thumbnail image. Can be invoked by the Room Host, Admin, or Room Moderator.\n\n**Late Joining & State Sync**:\n- Instantly commits the new background image to the MySQL database.\n- Flushes Redis caches (`live:room:{roomId}`, `live:room:details:{roomId}`, `live:active_rooms*`).\n- Any late-joining user calling `POST /api/mobile/live/rooms/:roomId/join` or `GET /api/mobile/live/rooms/:roomId` immediately receives this updated thumbnail in `room.background_image_url`, `room.thumbnail_url`, and `room.background_thumbnail` along with their LiveKit token.\n- Emits real-time Socket.IO events `room_background_updated` and `room_thumbnail_updated` to all active participants currently inside the room.\n\n**Input Flexibility**:\n1. Direct file upload via `multipart/form-data` with field name `image` or `thumbnail`.\n2. JSON body with `thumbnail_id` referencing an active `special_thumbnails` item.\n3. JSON body with direct `thumbnail_url` or `background_image`.\n4. Clear background to null by passing `\"\"`, `\"null\"`, or `null`.",
+      "requiresAuth": true,
+      "requestHeaders": [
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>",
+          "required": true,
+          "description": "JWT Bearer token of Host, Admin, or Moderator"
+        },
+        {
+          "name": "Content-Type",
+          "value": "multipart/form-data or application/json",
+          "required": false
+        }
+      ],
+      "parameters": [
+        {
+          "name": "roomId",
+          "type": "string",
+          "in": "path",
+          "required": true,
+          "description": "Room ID (e.g. 'room-nila-101' or numeric ID '30')"
+        }
+      ],
+      "requestBody": {
+        "type": "object",
+        "description": "Upload a background file, specify an equipped thumbnail ID, or provide a custom image URL",
+        "properties": {
+          "image": {
+            "type": "file",
+            "description": "Binary image file upload (PNG, JPG, WEBP, GIF, max 10MB)"
+          },
+          "thumbnail_id": {
+            "type": "integer",
+            "example": 3,
+            "description": "Special thumbnail ID from user's active/equipped inventory"
+          },
+          "thumbnail_url": {
+            "type": "string",
+            "example": "https://res.cloudinary.com/example/image/upload/v1/rooms/bg_cyberpunk.jpg",
+            "description": "Direct image URL for room background"
+          },
+          "background_image": {
+            "type": "string",
+            "example": "https://res.cloudinary.com/example/image/upload/v1/rooms/bg_cyberpunk.jpg",
+            "description": "Direct image URL (alias for thumbnail_url)"
+          }
+        }
+      },
+      "responses": [
+        {
+          "status": 200,
+          "description": "Room background thumbnail updated successfully.",
+          "example": {
+            "success": true,
+            "message": "Room background thumbnail updated successfully.",
+            "data": {
+              "room_id": "room-nila-101",
+              "background_image_url": "https://res.cloudinary.com/example/image/upload/v1/rooms/bg_cyberpunk.jpg",
+              "thumbnail_url": "https://res.cloudinary.com/example/image/upload/v1/rooms/bg_cyberpunk.jpg",
+              "room": {
+                "id": 1,
+                "room_id": "room-nila-101",
+                "title": "Friday Night Acoustic Live Session 🎸",
+                "background_image_url": "https://res.cloudinary.com/example/image/upload/v1/rooms/bg_cyberpunk.jpg",
+                "thumbnail_url": "https://res.cloudinary.com/example/image/upload/v1/rooms/bg_cyberpunk.jpg",
+                "status": "live",
+                "viewer_count": 432
+              }
+            }
+          }
+        },
+        {
+          "status": 403,
+          "description": "Forbidden: Only the room host, moderator, or admin can change the room background.",
+          "example": {
+            "success": false,
+            "message": "Only the host, assigned room moderators, or administrators can update the room background."
+          }
+        },
+        {
+          "status": 404,
+          "description": "Live room not found or has ended.",
+          "example": {
+            "success": false,
+            "message": "Live room not found or is no longer active."
+          }
+        }
+      ],
+      "codeSnippets": {
+        "curl": "curl -X PUT https://yourdomain.com/api/mobile/live/rooms/room-nila-101/background \\\n  -H \"Authorization: Bearer <TOKEN>\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"thumbnail_url\": \"https://res.cloudinary.com/example/image/upload/v1/rooms/bg_cyberpunk.jpg\"}'",
+        "flutter": "import 'package:http/http.dart' as http;\nimport 'dart:convert';\n\nFuture<void> updateRoomBackground(String roomId, String token, {String? thumbnailUrl, int? thumbnailId}) async {\n  final res = await http.put(\n    Uri.parse('https://yourdomain.com/api/mobile/live/rooms/$roomId/background'),\n    headers: {\n      'Authorization': 'Bearer $token',\n      'Content-Type': 'application/json',\n    },\n    body: jsonEncode({\n      if (thumbnailUrl != null) 'thumbnail_url': thumbnailUrl,\n      if (thumbnailId != null) 'thumbnail_id': thumbnailId,\n    }),\n  );\n  final data = jsonDecode(res.body);\n  print(data);\n}"
+      },
+      "liveType": "both"
+    },
+    {
       "id": "live-room-users",
       "category": "live-viewers",
       "method": "GET",
@@ -9274,6 +9375,134 @@ export const API_SPEC = {
           }
         }
       ]
+    },
+    {
+      "id": "thumbnails-upload-config",
+      "category": "thumbnails",
+      "method": "GET",
+      "path": "/api/mobile/thumbnails/upload-config",
+      "summary": "Custom Thumbnail Upload Plans & Configuration",
+      "description": "Returns admin-configured dynamic duration pricing tiers (`custom_thumbnail_pricing_tiers`) showing how many days cost how many coins (e.g. 7 days = 200 coins, 15 days = 350 coins, 30 days = 500 coins, 90 days = 1200 coins). When authenticated, includes user's current coin balance and `can_afford` status.",
+      "requiresAuth": false,
+      "requestHeaders": [
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>",
+          "required": false,
+          "description": "Optional Bearer JWT token to check user's coin balance"
+        }
+      ],
+      "parameters": [],
+      "requestBody": null,
+      "responses": [
+        {
+          "status": 200,
+          "description": "Upload configuration and duration plans retrieved successfully.",
+          "example": {
+            "success": true,
+            "pricing_tiers": [
+              { "days": 7, "coins": 200 },
+              { "days": 15, "coins": 350 },
+              { "days": 30, "coins": 500 },
+              { "days": 90, "coins": 1200 }
+            ],
+            "default_tier": { "days": 30, "coins": 500 },
+            "upload_coin_cost": 500,
+            "validity_days": 30,
+            "user_coins": 25000,
+            "can_afford": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "thumbnails-custom-upload",
+      "category": "thumbnails",
+      "method": "POST",
+      "path": "/api/mobile/thumbnails/upload",
+      "summary": "Upload Custom Room Thumbnail with Selected Duration Plan",
+      "description": "Allows a user to upload a custom room background thumbnail image with automatic coin deduction based on their selected duration plan (`days: 7`, `15`, `30`, `90`, etc.). When uploaded, this thumbnail is:\n1. Dedicated exclusively to the user (marked with `is_custom = 1`) and added directly to the user's **Purchased / Owned Thumbnails** (`user_thumbnails`).\n2. Equipped as active (`is_equipped = 1`) so that live rooms created by this user automatically use it as default background.\n3. If the user currently hosts an active live room, that live room's background is updated immediately and real-time Socket.IO events are emitted.\n4. **Private Store Isolation**: Filtered out completely from the public store catalog so no other user can see or purchase it.\n\n**Route Aliases**:\n- `POST /api/mobile/thumbnails/upload`\n- `POST /api/mobile/thumbnails/custom-upload`",
+      "requiresAuth": true,
+      "requestHeaders": [
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>",
+          "required": true,
+          "description": "Bearer JWT token"
+        },
+        {
+          "name": "Content-Type",
+          "value": "multipart/form-data or application/json",
+          "required": false
+        }
+      ],
+      "parameters": [],
+      "requestBody": {
+        "type": "object",
+        "description": "Upload an image file or provide a direct image_url along with selected duration days",
+        "properties": {
+          "image": {
+            "type": "file",
+            "description": "Binary image file (multipart/form-data with field 'image' or 'thumbnail')"
+          },
+          "image_url": {
+            "type": "string",
+            "example": "https://res.cloudinary.com/example/image/upload/v1/my_custom_thumb.jpg",
+            "description": "Direct image URL (if not uploading binary file)"
+          },
+          "days": {
+            "type": "integer",
+            "example": 30,
+            "description": "Selected duration plan in days (e.g. 7, 15, 30, 90). If omitted, defaults to 30 days plan."
+          },
+          "name": {
+            "type": "string",
+            "example": "My Cyberpunk Neon Room",
+            "description": "Custom display name for the thumbnail"
+          }
+        }
+      },
+      "responses": [
+        {
+          "status": 201,
+          "description": "Custom thumbnail uploaded, fee deducted, and frame activated successfully.",
+          "example": {
+            "success": true,
+            "message": "Custom thumbnail \"My Cyberpunk Neon Room\" uploaded and activated successfully!",
+            "thumbnail": {
+              "subscription_id": 15,
+              "thumbnail_id": 42,
+              "id": 42,
+              "name": "My Cyberpunk Neon Room",
+              "image_url": "/uploads/rooms/thumb_1729124019_custom.jpg",
+              "price": 500,
+              "validity_days": 30,
+              "is_equipped": true,
+              "is_active": true,
+              "is_custom": true,
+              "uploader_id": 2,
+              "expires_at": "2026-11-16T03:50:00.000Z"
+            },
+            "coin_cost": 500,
+            "remaining_coins": 24500,
+            "active_room_updated": "room-nila-101"
+          }
+        },
+        {
+          "status": 400,
+          "description": "Insufficient coin balance or missing image.",
+          "example": {
+            "success": false,
+            "message": "Insufficient coin balance. Custom thumbnail upload requires 500 coins, but you currently have 200 coins.",
+            "required_coins": 500,
+            "current_coins": 200
+          }
+        }
+      ],
+      "codeSnippets": {
+        "curl": "curl -X POST https://yourdomain.com/api/mobile/thumbnails/upload \\\n  -H \"Authorization: Bearer <TOKEN>\" \\\n  -F \"image=@/path/to/my_room_thumbnail.jpg\" \\\n  -F \"name=My Custom Live Room\"",
+        "flutter": "import 'package:http/http.dart' as http;\nimport 'dart:convert';\n\nFuture<void> uploadCustomThumbnail(String token, String filePath, String name) async {\n  var request = http.MultipartRequest('POST', Uri.parse('https://yourdomain.com/api/mobile/thumbnails/upload'));\n  request.headers['Authorization'] = 'Bearer $token';\n  request.fields['name'] = name;\n  request.files.add(await http.MultipartFile.fromPath('image', filePath));\n  var res = await request.send();\n  var responseData = await res.stream.bytesToString();\n  print(jsonDecode(responseData));\n}"
+      }
     }
   ]
 };

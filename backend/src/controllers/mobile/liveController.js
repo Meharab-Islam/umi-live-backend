@@ -193,7 +193,7 @@ export async function buildRoomResponse(roomId, currentUser = null) {
     });
   }
 
-  const bgUrl = room.background_image || 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=1200';
+  const bgUrl = (room.background_image && room.background_image.trim()) ? room.background_image.trim() : null;
 
   const roomResponse = {
     id: room.id,
@@ -214,6 +214,8 @@ export async function buildRoomResponse(roomId, currentUser = null) {
     spotlight_user: seats[0]?.user || null,
     background_image_url: bgUrl,
     room_background_url: bgUrl,
+    thumbnail_url: bgUrl,
+    background_thumbnail: bgUrl,
     status: room.status,
     viewer_count: room.viewer_count,
     total_diamonds: room.total_diamonds,
@@ -322,11 +324,17 @@ export async function getRooms(req, res) {
       );
 
       return {
-        rooms: rooms.map((rm) => ({
-          ...rm,
-          is_audio: rm.live_type === 'audio',
-          background_image_url: rm.background_image || 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=1200',
-        })),
+        rooms: rooms.map((rm) => {
+          const bg = (rm.background_image && rm.background_image.trim()) ? rm.background_image.trim() : null;
+          return {
+            ...rm,
+            is_audio: rm.live_type === 'audio',
+            background_image_url: bg,
+            room_background_url: bg,
+            thumbnail_url: bg,
+            background_thumbnail: bg,
+          };
+        }),
         total: countResult ? countResult.total : 0,
         page: parseInt(page, 10),
         limit: parseInt(limit, 10),
@@ -460,7 +468,27 @@ export async function createRoom(req, res) {
     const roomId = `room-${uuidv4().substring(0, 8)}`;
     const streamKey = `sk_umi_${uuidv4().replace(/-/g, '')}`;
 
-    const defaultBg = background_image || cover_image || req.user.avatar_url || 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=1200';
+    // 1. Resolve initial background thumbnail:
+    let selectedBg = (background_image || req.body.thumbnail_url || req.body.thumbnail || req.body.backgroundImage || '').trim() || null;
+
+    // If host didn't pass background_image, fetch host's currently equipped/selected thumbnail from user_thumbnails
+    if (!selectedBg) {
+      const equippedThumbRows = await query(
+        `SELECT st.image_url 
+         FROM user_thumbnails ut
+         JOIN special_thumbnails st ON ut.thumbnail_id = st.id
+         WHERE ut.user_id = ? AND ut.status = 'active' AND ut.is_equipped = 1 AND ut.expires_at > NOW()
+         LIMIT 1`,
+        [hostId]
+      );
+      if (equippedThumbRows.length > 0 && equippedThumbRows[0].image_url) {
+        selectedBg = equippedThumbRows[0].image_url;
+      }
+    }
+
+    // Default background is the host's equipped thumbnail or null if none
+    const defaultBg = selectedBg || null;
+    const defaultCover = (cover_image ? cover_image.trim() : null) || defaultBg || req.user?.avatar_url || null;
 
     const rawLiveType = req.body.live_type ?? req.body.liveType ?? req.body.type ?? req.body.stream_type ?? req.body.streamType ?? 'video';
     const liveType = String(rawLiveType).toLowerCase().trim() === 'audio' ? 'audio' : 'video';
@@ -481,7 +509,7 @@ export async function createRoom(req, res) {
     await query(
       `INSERT INTO live_rooms (room_id, host_id, title, category, live_type, total_seats, cover_image, background_image, status, stream_key)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'live', ?)`,
-      [roomId, hostId, title, category, liveType, seatCount, defaultBg, defaultBg, streamKey]
+      [roomId, hostId, title, category, liveType, seatCount, defaultCover, defaultBg, streamKey]
     );
 
     // Auto-register host in live_room_admins
@@ -3075,6 +3103,154 @@ export async function promoteToMainSeat(req, res) {
   } catch (err) {
     console.error('promoteToMainSeat error:', err);
     return res.status(500).json({ success: false, message: 'Failed to promote seat to main seat.', error: err.message });
+  }
+}
+
+/**
+ * Mobile Update / Change Live Room Background Thumbnail
+ * PUT /api/mobile/live/rooms/:roomId/background
+ * POST /api/mobile/live/rooms/:roomId/background
+ * PUT /api/mobile/live/rooms/:roomId/thumbnail
+ * POST /api/mobile/live/rooms/:roomId/thumbnail
+ * 
+ * Supports:
+ * - JSON { thumbnail_url: "..." } or { background_image: "..." } or { thumbnail_id: 123 }
+ * - Passing null / empty string to clear the thumbnail
+ * - Multipart/form-data image file upload
+ * Updates MySQL SSOT first, invalidates Redis caches, emits real-time Socket.IO events
+ * to all users currently in the room, and returns the updated room state.
+ */
+export async function updateRoomBackground(req, res) {
+  try {
+    const { roomId } = req.params;
+    const userId = req.user.id;
+    const userRole = req.user.role;
+
+    const isNum = /^\d+$/.test(String(roomId).trim());
+    const rooms = await query(
+      'SELECT id, room_id, host_id, live_type, status, background_image FROM live_rooms WHERE (room_id = ? OR id = ?) AND status = "live"',
+      [String(roomId), isNum ? Number(roomId) : -1]
+    );
+
+    if (rooms.length === 0) {
+      return res.status(404).json({ success: false, message: 'Live room not found or is not active.' });
+    }
+
+    const room = rooms[0];
+    const canonicalRoomId = room.room_id;
+
+    // Check authorization: Room Host, Platform Admin/Superadmin, or Room Moderator/Admin
+    let isAuthorized = (userId === room.host_id) || (userRole === 'admin') || (userRole === 'superadmin');
+    if (!isAuthorized) {
+      const adminRows = await query('SELECT id FROM live_room_admins WHERE room_id = ? AND user_id = ?', [canonicalRoomId, userId]);
+      isAuthorized = adminRows.length > 0;
+    }
+
+    if (!isAuthorized) {
+      return res.status(403).json({ success: false, message: 'Only the room host or moderators can change the room background thumbnail.' });
+    }
+
+    let newThumbnailUrl = null;
+
+    // 1. Check if a file was uploaded
+    if (req.file) {
+      newThumbnailUrl = `/uploads/rooms/${req.file.filename}`;
+    } else if (req.uploadedMedia && req.uploadedMedia.length > 0) {
+      newThumbnailUrl = req.uploadedMedia[0].media_url;
+    } else if (req.body) {
+      const {
+        background_image,
+        backgroundImage,
+        thumbnail_url,
+        thumbnailUrl,
+        image_url,
+        imageUrl,
+        thumbnail_id,
+        thumbnailId,
+        thumbnail,
+      } = req.body;
+
+      const thumbId = thumbnail_id || thumbnailId;
+      if (thumbId) {
+        // Resolve from special_thumbnails
+        const [thumbRow] = await query('SELECT image_url FROM special_thumbnails WHERE id = ?', [thumbId]);
+        if (thumbRow && thumbRow.image_url) {
+          newThumbnailUrl = thumbRow.image_url;
+        }
+      } else {
+        const rawUrl = background_image ?? backgroundImage ?? thumbnail_url ?? thumbnailUrl ?? image_url ?? imageUrl ?? thumbnail;
+        if (rawUrl !== undefined && rawUrl !== null) {
+          const trimmed = String(rawUrl).trim();
+          if (trimmed === '' || trimmed.toLowerCase() === 'null' || trimmed.toLowerCase() === 'none') {
+            newThumbnailUrl = null; // explicit clear
+          } else {
+            newThumbnailUrl = trimmed;
+          }
+        }
+      }
+    }
+
+    // 2. MySQL SSOT Update
+    await query(
+      'UPDATE live_rooms SET background_image = ? WHERE id = ? OR room_id = ?',
+      [newThumbnailUrl, room.id, canonicalRoomId]
+    );
+
+    // 3. Instant Redis Cache Invalidation
+    await Promise.allSettled([
+      cache.delByPattern('mobile:rooms:*'),
+      cache.del(`mobile:room_details:${roomId}`),
+      cache.del(`mobile:room_details:${canonicalRoomId}`),
+      cache.del(`mobile:room_details:${room.id}`),
+      cache.del(`room:${canonicalRoomId}`),
+      cache.del(`room:${room.id}`),
+    ]);
+
+    // 4. Real-Time Socket.IO Broadcast to all active users in the room
+    if (req.io) {
+      const socketPayload = {
+        roomId: canonicalRoomId,
+        background_image_url: newThumbnailUrl,
+        room_background_url: newThumbnailUrl,
+        thumbnail_url: newThumbnailUrl,
+        background_thumbnail: newThumbnailUrl,
+        updated_by: userId,
+      };
+
+      req.io.to(canonicalRoomId).emit('room_background_updated', socketPayload);
+      req.io.to(canonicalRoomId).emit('room_thumbnail_updated', socketPayload);
+      req.io.to(canonicalRoomId).emit('room_updated', {
+        roomId: canonicalRoomId,
+        background_image_url: newThumbnailUrl,
+        thumbnail_url: newThumbnailUrl,
+      });
+    }
+
+    // 5. Build fresh room response for late-join and state synchronization
+    const updatedRoomData = await buildRoomResponse(canonicalRoomId, req.user);
+
+    return res.status(200).json({
+      success: true,
+      message: newThumbnailUrl
+        ? 'Room background thumbnail updated successfully.'
+        : 'Room background thumbnail cleared successfully.',
+      background_image_url: newThumbnailUrl,
+      thumbnail_url: newThumbnailUrl,
+      room: updatedRoomData,
+      data: {
+        room_id: canonicalRoomId,
+        background_image_url: newThumbnailUrl,
+        thumbnail_url: newThumbnailUrl,
+        room: updatedRoomData,
+      },
+    });
+  } catch (err) {
+    console.error('updateRoomBackground error:', err);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to update room background thumbnail.',
+      error: err.message,
+    });
   }
 }
 

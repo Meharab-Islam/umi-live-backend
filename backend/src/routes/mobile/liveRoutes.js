@@ -36,8 +36,10 @@ import {
   getRoomChatMessages,
   deleteRoomChatMessage,
   getLiveKitToken,
+  updateRoomBackground,
 } from '../../controllers/mobile/liveController.js';
 import { requireAuth } from '../../middlewares/authMiddleware.js';
+import { optionalRoomMediaUpload } from '../../middleware/upload.js';
 import { query } from '../../config/db.js';
 
 const router = express.Router();
@@ -135,6 +137,14 @@ router.post('/rooms/:roomId/join', requireAuth, joinRoom);
 router.post('/rooms/:roomId/leave', requireAuth, leaveRoom);
 router.post('/rooms/:roomId/end', requireAuth, endRoom);
 router.post('/rooms/:roomId/close', requireAuth, endRoom);
+
+// Room Background / Thumbnail Customization (File upload, special_thumbnail ID, or direct URL)
+router.put('/rooms/:roomId/background', requireAuth, optionalRoomMediaUpload, updateRoomBackground);
+router.post('/rooms/:roomId/background', requireAuth, optionalRoomMediaUpload, updateRoomBackground);
+router.patch('/rooms/:roomId/background', requireAuth, optionalRoomMediaUpload, updateRoomBackground);
+router.put('/rooms/:roomId/thumbnail', requireAuth, optionalRoomMediaUpload, updateRoomBackground);
+router.post('/rooms/:roomId/thumbnail', requireAuth, optionalRoomMediaUpload, updateRoomBackground);
+router.patch('/rooms/:roomId/thumbnail', requireAuth, optionalRoomMediaUpload, updateRoomBackground);
 
 // Interactive Multi-Seat Actions (Take, Switch/Move, Leave, Media, Remove/Kick from seat, Promote to Main Seat, Lock/Unlock, Mute)
 router.post('/rooms/:roomId/seats/take', requireAuth, takeSeat);
