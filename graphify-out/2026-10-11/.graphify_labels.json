@@ -1,0 +1,23 @@
+{
+  "0": "redis.js",
+  "1": "query",
+  "2": "server.js",
+  "3": "admin-panel/package.json",
+  "4": "dependencies",
+  "5": "AGENTS.md",
+  "6": "mobile/walletController.js",
+  "7": "📡 API Endpoints Summary",
+  "8": ".oxlintrc.json",
+  "9": "React + Vite",
+  "10": "vite.config.js",
+  "11": "App.jsx",
+  "12": "Mandatory Production-Grade Redis Caching, Invalidation & .env Architecture Policy",
+  "13": "controllers/walletController.js",
+  "15": "cache",
+  "16": "mobile/authController.js",
+  "17": "db.js",
+  "18": "client.js",
+  "20": "mobile/liveController.js",
+  "21": "authMiddleware.js",
+  "23": "mobile/packageRoutes.js"
+}

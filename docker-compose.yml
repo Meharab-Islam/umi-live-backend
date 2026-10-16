@@ -1,0 +1,133 @@
+services:
+  # MySQL 8.0 Database Service
+  mysql:
+    image: mysql:8.0
+    container_name: ${PROJECT_NAME:-umi}_mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_secure_password_2026}
+      MYSQL_DATABASE: ${DB_NAME:-umi_live}
+      MYSQL_USER: ${DB_USER:-umi_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-umi_password}
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./backend/src/db/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "${DB_USER:-umi_user}", "-p${DB_PASSWORD:-umi_password}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - app_network
+
+  # Node.js Express & Socket.IO Backend Service
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ${PROJECT_NAME:-umi}_backend
+    restart: always
+    ports:
+      - "${BACKEND_PORT:-5050}:5050"
+    environment:
+      PROJECT_NAME: ${PROJECT_NAME:-umi}
+      PORT: 5050
+      NODE_ENV: ${NODE_ENV:-production}
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: ${DB_USER:-umi_user}
+      DB_PASSWORD: ${DB_PASSWORD:-umi_password}
+      DB_NAME: ${DB_NAME:-umi_live}
+      DB_CONNECTION_LIMIT: ${DB_CONNECTION_LIMIT:-20}
+      JWT_SECRET: ${JWT_SECRET:-umi_live_jwt_secret_token_key_2026_super_secure!}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+      JWT_ISSUER: ${JWT_ISSUER:-${PROJECT_NAME:-umi}}
+      CLIENT_URL: ${CLIENT_URL:-*}
+      SOCKET_CORS_ORIGIN: ${SOCKET_CORS_ORIGIN:-*}
+      SOCKET_PING_TIMEOUT: ${SOCKET_PING_TIMEOUT:-30000}
+      SOCKET_PING_INTERVAL: ${SOCKET_PING_INTERVAL:-25000}
+      SOCKET_MAX_BUFFER_SIZE: ${SOCKET_MAX_BUFFER_SIZE:-10485760}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      REDIS_DB: ${REDIS_DB:-0}
+      REDIS_KEY_PREFIX: ${REDIS_KEY_PREFIX:-${PROJECT_NAME:-umi}:}
+      REDIS_MAX_MEMORY: ${REDIS_MAX_MEMORY:-256mb}
+      REDIS_MAX_MEMORY_POLICY: ${REDIS_MAX_MEMORY_POLICY:-allkeys-lru}
+      REDIS_CONNECT_TIMEOUT: ${REDIS_CONNECT_TIMEOUT:-10000}
+      REDIS_COMMAND_TIMEOUT: ${REDIS_COMMAND_TIMEOUT:-2500}
+      REDIS_DEFAULT_TTL: ${REDIS_DEFAULT_TTL:-300}
+      FIREBASE_CREDENTIALS_PATH: ${FIREBASE_CREDENTIALS_PATH:-/app/umi_firebase.json}
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend/src:/app/src
+      - ./backend/uploads:/app/uploads
+      - ./umi_firebase.json:/app/umi_firebase.json:ro
+    networks:
+      - app_network
+
+  # Redis 7 In-Memory Cache Service (Production Grade)
+  redis:
+    image: redis:7-alpine
+    container_name: ${PROJECT_NAME:-umi}_redis
+    restart: always
+    command: >
+      sh -c '
+        CMD="redis-server --save 60 1 --save 300 10 --appendonly yes --maxmemory $${REDIS_MAX_MEMORY:-256mb} --maxmemory-policy $${REDIS_MAX_MEMORY_POLICY:-allkeys-lru}"
+        if [ -n "$$REDIS_PASSWORD" ]; then
+          CMD="$$CMD --requirepass $$REDIS_PASSWORD"
+        fi
+        exec $$CMD
+      '
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      REDIS_MAX_MEMORY: ${REDIS_MAX_MEMORY:-256mb}
+      REDIS_MAX_MEMORY_POLICY: ${REDIS_MAX_MEMORY_POLICY:-allkeys-lru}
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - app_network
+    healthcheck:
+      test: >
+        sh -c '
+          if [ -n "$$REDIS_PASSWORD" ]; then
+            redis-cli -a "$$REDIS_PASSWORD" ping | grep -q PONG
+          else
+            redis-cli ping | grep -q PONG
+          fi
+        '
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # React Vite Admin Panel Service
+  admin-panel:
+    build:
+      context: ./admin-panel
+      dockerfile: Dockerfile
+    container_name: ${PROJECT_NAME:-umi}_admin_panel
+    restart: always
+    ports:
+      - "${ADMIN_PORT:-3000}:80"
+    depends_on:
+      - backend
+    networks:
+      - app_network
+
+volumes:
+  mysql_data:
+    name: ${PROJECT_NAME:-umi}_mysql_data
+  redis_data:
+    name: ${PROJECT_NAME:-umi}_redis_data
+
+networks:
+  app_network:
+    name: ${PROJECT_NAME:-umi}_network

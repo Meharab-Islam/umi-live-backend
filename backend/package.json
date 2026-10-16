@@ -1,0 +1,30 @@
+{
+  "name": "umi-live-backend",
+  "version": "1.0.0",
+  "description": "Backend API and WebSocket server for Umi Live streaming platform",
+  "main": "src/server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "seed": "node src/db/seed.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "firebase-admin": "^14.5.0",
+    "ioredis": "^6.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "livekit-server-sdk": "^2.19.1",
+    "morgan": "^1.10.0",
+    "multer": "^2.4.0",
+    "mysql2": "^3.12.0",
+    "socket.io": "^4.8.1",
+    "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}

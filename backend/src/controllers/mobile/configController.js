@@ -1,0 +1,160 @@
+import { query } from '../../config/db.js';
+import { cache } from '../../config/redis.js';
+
+/**
+ * Mobile App Global Configuration Endpoint
+ * GET /api/mobile/config or GET /api/config or GET /api/v1/config
+ * 
+ * Provides complete application bootstrap parameters in a single round-trip:
+ * 1. App identity & maintenance status
+ * 2. Socket.IO & WebRTC real-time connection credentials
+ * 3. Currency & Dual Economy mode settings (diamond vs direct coin commissions)
+ * 4. Media & upload CDN base URLs
+ * 5. Feature flags
+ */
+export async function getAppConfig(req, res) {
+  try {
+    // 1. Determine host & protocol dynamically (100% portable)
+    const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'http';
+    const host = req.get('host') || 'localhost:5050';
+    const baseUrl = `${protocol}://${host}`;
+
+    // Read system environment variables
+    const projectName = process.env.PROJECT_NAME || 'umi';
+    const socketUrl = process.env.SOCKET_URL || baseUrl;
+    const socketPingInterval = parseInt(process.env.SOCKET_PING_INTERVAL || '25000', 10);
+    const socketPingTimeout = parseInt(process.env.SOCKET_PING_TIMEOUT || '30000', 10);
+    const livekitHost = process.env.LIVEKIT_HOST || '';
+    const agoraAppId = process.env.AGORA_APP_ID || '';
+
+    // 2. Fetch and Cache Platform Settings using Cache-Aside (TTL: 120s)
+    const configData = await cache.getOrSet('config:mobile:app', 120, async () => {
+      const rows = await query('SELECT key_name, key_value FROM system_settings');
+      const settingsMap = {};
+      for (const row of rows) {
+        settingsMap[row.key_name] = row.key_value;
+      }
+
+      const isDiamondMode = settingsMap['is_convert_to_diamond'] !== 'false';
+      const coinToDiamondRatio = parseFloat(settingsMap['coin_to_diamond_ratio'] || '1.0');
+      const adminGiftCommission = parseFloat(settingsMap['admin_gift_commission_percent'] || '15.0');
+      const agencyGiftCommission = parseFloat(settingsMap['agency_gift_commission_percent'] || '10.0');
+      const userTransferCommission = parseFloat(settingsMap['user_transfer_commission_percent'] || '5.0');
+      const diamondToUsdRate = parseFloat(settingsMap['diamond_to_usd_rate'] || '0.005');
+      const minWithdrawalDiamonds = parseInt(settingsMap['min_withdrawal_diamonds'] || '1000', 10);
+      const allowManualWithdrawalInput = settingsMap['allow_manual_withdrawal_input'] !== 'false';
+
+      let withdrawalPresets = [1000, 2000, 5000, 10000, 25000, 50000];
+      try {
+        const wpRaw = settingsMap['withdrawal_presets'];
+        if (wpRaw) {
+          withdrawalPresets = typeof wpRaw === 'string' && wpRaw.startsWith('[')
+            ? JSON.parse(wpRaw)
+            : wpRaw.split(',').map((s) => parseInt(s.trim(), 10)).filter((n) => !isNaN(n));
+        }
+      } catch (e) {}
+
+      let rechargePresets = [500, 1000, 2500, 5000, 10000, 50000, 100000];
+      try {
+        const rpRaw = settingsMap['recharge_presets'];
+        if (rpRaw) {
+          rechargePresets = typeof rpRaw === 'string' && rpRaw.startsWith('[')
+            ? JSON.parse(rpRaw)
+            : rpRaw.split(',').map((s) => parseInt(s.trim(), 10)).filter((n) => !isNaN(n));
+        }
+      } catch (e) {}
+
+      const liveStreamProvider = settingsMap['live_stream_provider'] || 'livekit';
+      const appName = settingsMap['app_name'] || `${projectName.toUpperCase()} LIVE`;
+      const maintenanceMode = settingsMap['maintenance_mode'] === 'true';
+
+      const hostCoinShare = Math.max(0, 100 - adminGiftCommission - agencyGiftCommission);
+
+      return {
+        app_name: appName,
+        app_version: settingsMap['app_version'] || '1.0.0',
+        min_supported_version: settingsMap['min_supported_version'] || '1.0.0',
+        maintenance_mode: maintenanceMode,
+        maintenance_message: settingsMap['maintenance_message'] || 'Platform is under scheduled maintenance. Please check back shortly.',
+        
+        // Economy & Currency Configuration
+        economy: {
+          is_convert_to_diamond: isDiamondMode,
+          currency_mode: isDiamondMode ? 'diamond_conversion' : 'direct_coin_commission',
+          coin_to_diamond_ratio: coinToDiamondRatio,
+          admin_gift_commission_percent: adminGiftCommission,
+          agency_gift_commission_percent: agencyGiftCommission,
+          host_coin_share_percent: parseFloat(hostCoinShare.toFixed(1)),
+          user_transfer_commission_percent: userTransferCommission,
+          diamond_to_usd_rate: diamondToUsdRate,
+          min_withdrawal_diamonds: minWithdrawalDiamonds,
+          withdrawal_presets: withdrawalPresets,
+          allow_manual_withdrawal_input: allowManualWithdrawalInput,
+          recharge_presets: rechargePresets,
+          primary_currency: 'coin',
+          secondary_currency: isDiamondMode ? 'diamond' : null,
+          currency_symbols: {
+            coin: '🪙',
+            diamond: isDiamondMode ? '💎' : null,
+            fiat: '৳',
+            fiat_code: 'BDT',
+          },
+        },
+
+        // WebRTC & Streaming Provider
+        streaming: {
+          provider: liveStreamProvider, // 'livekit' | 'agora' | 'rtmp'
+          livekit_url: livekitHost || (liveStreamProvider === 'livekit' ? 'wss://livekit.umi.live' : null),
+          agora_app_id: agoraAppId || null,
+        },
+
+        // Feature Toggles
+        features: {
+          enable_guest_login: true,
+          enable_coin_transfer: false,
+          enable_p2p_transfer: false,
+          enable_agency_recruitment: true,
+          enable_vip_store: true,
+          enable_diamond_cashout: isDiamondMode,
+        },
+      };
+    });
+
+    // 3. Return Combined Bootstrap Configuration
+    return res.json({
+      success: true,
+      project_name: projectName,
+      server_time: new Date().toISOString(),
+      
+      // Dynamic URLs
+      urls: {
+        base_url: baseUrl,
+        api_base_url: `${baseUrl}/api`,
+        uploads_base_url: `${baseUrl}/uploads`,
+        avatar_upload_endpoint: `${baseUrl}/api/mobile/auth/avatar`,
+      },
+
+      // Socket.IO Connection Credentials
+      socket: {
+        url: socketUrl,
+        path: '/socket.io',
+        transports: ['websocket', 'polling'],
+        ping_interval_ms: socketPingInterval,
+        ping_timeout_ms: socketPingTimeout,
+        reconnection_attempts: 10,
+        reconnection_delay_ms: 1000,
+        auth_required: false, // handshake allowed public; authenticate via token on connect or join
+      },
+
+      // Merged Config payload
+      ...configData,
+    });
+  } catch (err) {
+    console.error('Mobile getAppConfig error:', err);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to retrieve application configuration.',
+      error: err.message,
+    });
+  }
+}

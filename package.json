@@ -1,0 +1,15 @@
+{
+  "name": "umi-live",
+  "version": "1.0.0",
+  "description": "Umi Live Streaming Platform - Monorepo runner",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node dev.js",
+    "dev:all": "node dev.js",
+    "dev:backend": "npm run dev --prefix backend",
+    "dev:admin": "npm run dev --prefix admin-panel",
+    "start": "npm start --prefix backend",
+    "build": "npm run build --prefix admin-panel"
+  }
+}

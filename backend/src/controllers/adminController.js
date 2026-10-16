@@ -1,0 +1,3804 @@
+import path from 'path';
+import bcrypt from 'bcryptjs';
+import { query, getPool } from '../config/db.js';
+import { cache } from '../config/redis.js';
+import { signToken } from '../config/jwt.js';
+
+export async function getDashboardStats(req, res) {
+  try {
+    const statsData = await cache.getOrSet('admin:dashboard', 30, async () => {
+      // 1. User stats
+      const [userCounts] = await query(`
+        SELECT 
+          COUNT(*) as total_users,
+          SUM(CASE WHEN role = 'host' THEN 1 ELSE 0 END) as total_hosts,
+          SUM(CASE WHEN is_banned = TRUE THEN 1 ELSE 0 END) as banned_users
+        FROM users
+      `);
+
+      // 2. Stream stats
+      const [streamCounts] = await query(`
+        SELECT 
+          COUNT(*) as total_streams,
+          SUM(CASE WHEN status = 'live' THEN 1 ELSE 0 END) as active_streams,
+          COALESCE(SUM(viewer_count), 0) as current_viewers
+        FROM live_rooms
+      `);
+
+      // 3. Financial stats
+      const [financeCounts] = await query(`
+        SELECT 
+          COALESCE(SUM(CASE WHEN type = 'coin_purchase' THEN amount ELSE 0 END), 0) as total_coins_sold,
+          COALESCE(SUM(CASE WHEN type = 'gift_sent' THEN amount ELSE 0 END), 0) as total_gift_coins_spent,
+          COALESCE(SUM(CASE WHEN type = 'gift_received' THEN amount ELSE 0 END), 0) as total_diamonds_rewarded
+        FROM transactions
+      `);
+
+      // 4. Pending withdrawals
+      const [withdrawalStats] = await query(`
+        SELECT 
+          COUNT(*) as pending_count,
+          COALESCE(SUM(usd_amount), 0) as pending_usd
+        FROM withdrawals
+        WHERE status = 'pending'
+      `);
+
+      // 5. Recent gifts activity
+      const recentGifts = await query(`
+        SELECT gt.*, u1.full_name as sender_name, u1.avatar_url as sender_avatar,
+               u2.full_name as receiver_name, u2.avatar_url as receiver_avatar
+        FROM gift_transactions gt
+        JOIN users u1 ON gt.sender_id = u1.id
+        JOIN users u2 ON gt.receiver_id = u2.id
+        ORDER BY gt.created_at DESC
+        LIMIT 6
+      `);
+
+      // 6. Currently active live streams
+      const activeStreamsList = await query(`
+        SELECT r.*, u.full_name as host_name, u.avatar_url as host_avatar
+        FROM live_rooms r
+        JOIN users u ON r.host_id = u.id
+        WHERE r.status = 'live'
+        ORDER BY r.viewer_count DESC
+        LIMIT 5
+      `);
+
+      return {
+        users: {
+          total: userCounts.total_users || 0,
+          hosts: userCounts.total_hosts || 0,
+          banned: userCounts.banned_users || 0,
+        },
+        streams: {
+          active: streamCounts.active_streams || 0,
+          total: streamCounts.total_streams || 0,
+          liveViewers: streamCounts.current_viewers || 0,
+        },
+        financials: {
+          coinsSold: financeCounts.total_coins_sold || 0,
+          giftCoinsSpent: financeCounts.total_gift_coins_spent || 0,
+          diamondsRewarded: financeCounts.total_diamonds_rewarded || 0,
+          pendingWithdrawalCount: withdrawalStats.pending_count || 0,
+          pendingWithdrawalUsd: parseFloat(withdrawalStats.pending_usd || 0).toFixed(2),
+        },
+        recentGifts,
+        activeStreams: activeStreamsList,
+      };
+    });
+
+    return res.json({
+      success: true,
+      stats: statsData,
+    });
+  } catch (err) {
+    console.error('getDashboardStats error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to fetch dashboard stats.', error: err.message });
+  }
+}
+
+export async function getUsers(req, res) {
+  try {
+    const { search, userId, role, is_banned, page = 1, limit = 20 } = req.query;
+    const cacheKey = `admin:users:${search || ''}:${userId || ''}:${role || ''}:${is_banned || ''}:${page}:${limit}`;
+
+    const data = await cache.getOrSet(cacheKey, 30, async () => {
+      const offset = (parseInt(page, 10) - 1) * parseInt(limit, 10);
+
+      let conditions = [];
+      let params = [];
+
+      if (userId) {
+        conditions.push('u.id = ?');
+        params.push(parseInt(userId, 10));
+      } else if (search) {
+        const cleanSearch = String(search).trim().replace(/^#/, '');
+        const isNumeric = !isNaN(cleanSearch) && cleanSearch !== '';
+        if (isNumeric) {
+          // Exact unique User ID match
+          conditions.push('u.id = ?');
+          params.push(parseInt(cleanSearch, 10));
+        } else {
+          conditions.push('(u.full_name LIKE ? OR u.email LIKE ?)');
+          const s = `%${cleanSearch}%`;
+          params.push(s, s);
+        }
+      }
+
+      if (role && role !== 'all') {
+        conditions.push('role = ?');
+        params.push(role);
+      }
+
+      if (is_banned !== undefined && is_banned !== 'all') {
+        conditions.push('is_banned = ?');
+        params.push(is_banned === 'true' || is_banned === '1' ? 1 : 0);
+      }
+
+      const whereSql = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+
+      const users = await query(
+        `SELECT u.id, u.email, u.full_name, u.avatar_url, u.bio, u.role, u.host_type, u.agency_id,
+                a.name as agency_name, a.agency_code,
+                u.coins, u.diamonds, u.level, u.vip_package, u.is_banned, u.created_at, u.updated_at
+         FROM users u
+         LEFT JOIN agencies a ON u.agency_id = a.id
+         ${whereSql}
+         ORDER BY u.id DESC
+         LIMIT ${parseInt(limit, 10)} OFFSET ${parseInt(offset, 10)}`,
+        params
+      );
+
+      const [totalRows] = await query(`SELECT COUNT(*) as count FROM users u ${whereSql}`, params);
+
+      const [summaryStats] = await query(`
+        SELECT 
+          COUNT(*) as total_users,
+          SUM(CASE WHEN role = 'host' THEN 1 ELSE 0 END) as total_hosts,
+          SUM(CASE WHEN role = 'agency' THEN 1 ELSE 0 END) as total_agencies,
+          SUM(CASE WHEN role = 'moderator' THEN 1 ELSE 0 END) as total_moderators,
+          SUM(CASE WHEN role = 'reseller' THEN 1 ELSE 0 END) as total_resellers,
+          SUM(CASE WHEN role = 'user' THEN 1 ELSE 0 END) as total_regular,
+          SUM(CASE WHEN role IN ('admin', 'superadmin') THEN 1 ELSE 0 END) as total_admins,
+          SUM(CASE WHEN is_banned = TRUE THEN 1 ELSE 0 END) as total_banned
+        FROM users
+      `);
+
+      return {
+        users,
+        summary: summaryStats || { total_users: 0, total_hosts: 0, total_agencies: 0, total_moderators: 0, total_resellers: 0, total_regular: 0, total_admins: 0, total_banned: 0 },
+        total: totalRows.count,
+      };
+    });
+
+    return res.json({
+      success: true,
+      users: data.users,
+      summary: data.summary,
+      pagination: {
+        total: data.total,
+        page: parseInt(page, 10),
+        limit: parseInt(limit, 10),
+      },
+    });
+  } catch (err) {
+    console.error('getUsers error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to fetch users.' });
+  }
+}
+
+export async function updateUser(req, res) {
+  try {
+    const { id } = req.params;
+    const { role, is_banned, full_name, bio, agency_id, host_type, level, vip_package, avatar_url } = req.body;
+
+    const updates = [];
+    const params = [];
+
+    if (role !== undefined) {
+      updates.push('role = ?');
+      params.push(role);
+    }
+    if (host_type !== undefined) {
+      updates.push('host_type = ?');
+      params.push(host_type);
+    }
+    if (is_banned !== undefined) {
+      updates.push('is_banned = ?');
+      params.push(Boolean(is_banned));
+    }
+    if (full_name !== undefined) {
+      updates.push('full_name = ?');
+      params.push(full_name);
+    }
+    if (avatar_url !== undefined) {
+      updates.push('avatar_url = ?');
+      params.push(avatar_url);
+    }
+    if (bio !== undefined) {
+      updates.push('bio = ?');
+      params.push(bio);
+    }
+    if (agency_id !== undefined) {
+      updates.push('agency_id = ?');
+      params.push(agency_id ? parseInt(agency_id, 10) : null);
+      updates.push('agency_joined_at = NOW()');
+    }
+    if (level !== undefined) {
+      updates.push('level = ?');
+      params.push(parseInt(level, 10));
+    }
+    if (vip_package !== undefined) {
+      updates.push('vip_package = ?');
+      params.push(vip_package);
+    }
+
+    if (updates.length === 0) {
+      return res.status(400).json({ success: false, message: 'No fields provided to update.' });
+    }
+
+    params.push(id);
+    await query(`UPDATE users SET ${updates.join(', ')} WHERE id = ?`, params);
+
+    // Database write succeeded -> Invalidate Redis cache immediately
+    await Promise.allSettled([
+      cache.del(`user:${id}`),
+      cache.del(`admin:user:${id}`),
+      cache.del(`mobile:user:profile:${id}`),
+      cache.del(`moderator:user_details:${id}`),
+      cache.delByPattern(`host:*:${id}*`),
+      cache.delByPattern('host:*'),
+      cache.delByPattern('admin:users*'),
+      cache.delByPattern('admin:dashboard*'),
+      cache.delByPattern('moderator:*'),
+    ]);
+
+    const updated = await query('SELECT id, full_name, email, full_name, avatar_url, bio, role, is_banned, coins, diamonds, level, vip_package FROM users WHERE id = ?', [id]);
+    return res.json({
+      success: true,
+      message: 'User updated successfully.',
+      user: updated[0],
+    });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: 'Failed to update user.' });
+  }
+}
+
+export async function adjustBalance(req, res) {
+  const pool = getPool();
+  const connection = await pool.getConnection();
+
+  try {
+    const { id } = req.params;
+    const { coinDelta = 0, diamondDelta = 0, reason = 'Admin balance adjustment', actionPassword } = req.body;
+
+    const cDelta = parseInt(coinDelta, 10) || 0;
+    const dDelta = parseInt(diamondDelta, 10) || 0;
+
+    if (cDelta === 0 && dDelta === 0) {
+      return res.status(400).json({ success: false, message: 'Specify non-zero coin or diamond deduction.' });
+    }
+
+    // 1. Policy check: Neither coins nor diamonds can be added from user page - ONLY deductions
+    if (cDelta > 0 || dDelta > 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Only balance deductions (coin deduction or diamond deduction) are permitted here. Adding coins must be done via Coin Recharge, and diamonds cannot be manually added.',
+      });
+    }
+
+    // 2. Verify security action password
+    const [settingsRows] = await connection.execute(
+      "SELECT key_value FROM system_settings WHERE key_name = 'action_security_password'"
+    );
+    const configuredPassword = settingsRows[0]?.key_value || 'admin123';
+
+    if (!actionPassword || String(actionPassword).trim() !== String(configuredPassword).trim()) {
+      return res.status(403).json({
+        success: false,
+        message: 'Invalid security action password. You can view or update this in Platform Settings.',
+      });
+    }
+
+    await connection.beginTransaction();
+
+    await connection.execute(
+      'UPDATE users SET coins = GREATEST(0, coins + ?), diamonds = GREATEST(0, diamonds + ?) WHERE id = ?',
+      [cDelta, dDelta, id]
+    );
+
+    if (cDelta !== 0) {
+      await connection.execute(
+        `INSERT INTO transactions (user_id, type, amount, description, status)
+         VALUES (?, 'admin_adjustment', ?, ?, 'completed')`,
+        [id, Math.abs(cDelta), `[Admin] ${reason}: ${cDelta > 0 ? '+' : ''}${cDelta} coins`]
+      );
+    }
+
+    await connection.commit();
+
+    // Database write succeeded -> Invalidate Redis cache
+    await cache.del(`user:${id}`);
+    await cache.del(`user:balance:${id}`);
+    await cache.del(`admin:user:${id}`);
+    await cache.delByPattern('admin:users*');
+    await cache.delByPattern('admin:dashboard*');
+
+    const [user] = await connection.execute('SELECT id, full_name, coins, diamonds FROM users WHERE id = ?', [id]);
+
+    return res.json({
+      success: true,
+      message: 'Balance updated successfully.',
+      user: user[0],
+    });
+  } catch (err) {
+    await connection.rollback();
+    return res.status(500).json({ success: false, message: 'Failed to adjust balance.', error: err.message });
+  } finally {
+    connection.release();
+  }
+}
+
+export async function rechargeCoins(req, res) {
+  const pool = getPool();
+  const connection = await pool.getConnection();
+
+  try {
+    const { userId, coinAmount, actionPassword, reason = 'Admin Coin Recharge' } = req.body;
+
+    const amount = parseInt(coinAmount, 10) || 0;
+    if (!userId || amount <= 0) {
+      return res.status(400).json({ success: false, message: 'Valid User ID and positive coin amount are required.' });
+    }
+
+    // 1. Verify User exists
+    const [users] = await connection.execute('SELECT id, full_name, coins, diamonds, role FROM users WHERE id = ?', [userId]);
+    if (users.length === 0) {
+      return res.status(404).json({ success: false, message: `User with ID #${userId} not found.` });
+    }
+    const targetUser = users[0];
+
+    // 2. Verify security action password
+    const [settingsRows] = await connection.execute(
+      "SELECT key_value FROM system_settings WHERE key_name = 'action_security_password'"
+    );
+    const configuredPassword = settingsRows[0]?.key_value || 'admin123';
+
+    if (!actionPassword || String(actionPassword).trim() !== String(configuredPassword).trim()) {
+      return res.status(403).json({
+        success: false,
+        message: 'Invalid security action password. You can view or update this in Platform Settings.',
+      });
+    }
+
+    await connection.beginTransaction();
+
+    await connection.execute(
+      'UPDATE users SET coins = coins + ? WHERE id = ?',
+      [amount, userId]
+    );
+
+    await connection.execute(
+      `INSERT INTO transactions (user_id, type, amount, description, status)
+       VALUES (?, 'coin_purchase', ?, ?, 'completed')`,
+      [userId, amount, `[Recharge] ${reason}: +${amount} coins`]
+    );
+
+    await connection.commit();
+
+    // Database write succeeded -> Invalidate Redis cache
+    await cache.del(`user:${userId}`);
+    await cache.del(`user:balance:${userId}`);
+    await cache.del(`admin:user:${userId}`);
+    await cache.delByPattern('admin:users*');
+    await cache.delByPattern('admin:dashboard*');
+    await cache.delByPattern('admin:recharge*');
+
+    const [updatedUsers] = await connection.execute('SELECT id, full_name, coins, diamonds FROM users WHERE id = ?', [userId]);
+
+    return res.json({
+      success: true,
+      message: `Successfully recharged ${amount.toLocaleString()} coins for User ID #${userId} (${targetUser.full_name || 'User'})!`,
+      user: updatedUsers[0],
+    });
+  } catch (err) {
+    await connection.rollback();
+    console.error('rechargeCoins error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to recharge coins.', error: err.message });
+  } finally {
+    connection.release();
+  }
+}
+
+export async function getRechargeHistory(req, res) {
+  try {
+    const { userId, search, page = 1, limit = 15 } = req.query;
+    const offset = (parseInt(page, 10) - 1) * parseInt(limit, 10);
+
+    const conditions = ["(t.type = 'coin_purchase' OR t.description LIKE '[Recharge]%')"];
+    const params = [];
+
+    if (userId) {
+      conditions.push('t.user_id = ?');
+      params.push(parseInt(userId, 10));
+    }
+
+    if (search) {
+      const clean = String(search).trim().replace(/^#/, '');
+      const isNum = !isNaN(clean) && clean !== '';
+      if (isNum) {
+        conditions.push('(t.id = ? OR t.user_id = ?)');
+        const n = parseInt(clean, 10);
+        params.push(n, n);
+      } else {
+        conditions.push('(u.full_name LIKE ? OR u.email LIKE ? OR t.description LIKE ?)');
+        const s = `%${clean}%`;
+        params.push(s, s, s);
+      }
+    }
+
+    const whereSql = `WHERE ${conditions.join(' AND ')}`;
+
+    const recharges = await query(
+      `SELECT 
+        t.id,
+        t.user_id,
+        t.type,
+        t.amount,
+        t.description,
+        t.status,
+        t.created_at,
+        u.full_name as user_name,
+        u.email as user_email,
+        u.avatar_url as user_avatar,
+        u.coins as current_coins
+       FROM transactions t
+       JOIN users u ON t.user_id = u.id
+       ${whereSql}
+       ORDER BY t.created_at DESC, t.id DESC
+       LIMIT ${parseInt(limit, 10)} OFFSET ${parseInt(offset, 10)}`,
+      params
+    );
+
+    const [totalRows] = await query(
+      `SELECT COUNT(*) as count 
+       FROM transactions t
+       JOIN users u ON t.user_id = u.id
+       ${whereSql}`,
+      params
+    );
+
+    const [stats] = await query(`
+      SELECT 
+        COUNT(*) as total_recharges,
+        COALESCE(SUM(amount), 0) as total_recharged_coins,
+        COALESCE(SUM(CASE WHEN created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) THEN amount ELSE 0 END), 0) as month_recharged_coins,
+        COALESCE(SUM(CASE WHEN created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) THEN amount ELSE 0 END), 0) as week_recharged_coins
+      FROM transactions
+      WHERE (type = 'coin_purchase' OR description LIKE '[Recharge]%')
+    `);
+
+    return res.json({
+      success: true,
+      history: recharges,
+      summary: stats || { total_recharges: 0, total_recharged_coins: 0, month_recharged_coins: 0, week_recharged_coins: 0 },
+      pagination: {
+        total: totalRows.count,
+        page: parseInt(page, 10),
+        limit: parseInt(limit, 10),
+      },
+    });
+  } catch (err) {
+    console.error('getRechargeHistory error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to fetch recharge history.', error: err.message });
+  }
+}
+
+export async function getStreams(req, res) {
+  try {
+    const { status, page = 1, limit = 20 } = req.query;
+    const offset = (parseInt(page, 10) - 1) * parseInt(limit, 10);
+
+    let whereSql = '';
+    let params = [];
+    if (status && status !== 'all') {
+      whereSql = 'WHERE r.status = ?';
+      params.push(status);
+    }
+
+    const streams = await query(
+      `SELECT r.*, u.full_name as host_name, u.email as host_email, u.avatar_url as host_avatar
+       FROM live_rooms r
+       JOIN users u ON r.host_id = u.id
+       ${whereSql}
+       ORDER BY r.status = 'live' DESC, r.started_at DESC
+       LIMIT ${parseInt(limit, 10)} OFFSET ${parseInt(offset, 10)}`,
+      params
+    );
+
+    const [totalRows] = await query(`SELECT COUNT(*) as count FROM live_rooms r ${whereSql}`, params);
+
+    return res.json({
+      success: true,
+      streams,
+      pagination: {
+        total: totalRows.count,
+        page: parseInt(page, 10),
+        limit: parseInt(limit, 10),
+      },
+    });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: 'Failed to fetch streams.' });
+  }
+}
+
+export async function terminateStream(req, res) {
+  try {
+    const { roomId } = req.params;
+    const { reason = 'Moderation violation' } = req.body;
+
+    await query("UPDATE live_rooms SET status = 'blocked', ended_at = CURRENT_TIMESTAMP WHERE room_id = ?", [roomId]);
+
+    return res.json({
+      success: true,
+      message: `Stream ${roomId} forcefully terminated: ${reason}`,
+    });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: 'Failed to terminate stream.' });
+  }
+}
+
+export async function getGiftsAdmin(req, res) {
+  try {
+    const gifts = await cache.getOrSet('gifts:admin', 120, async () => {
+      const rows = await query('SELECT * FROM gifts ORDER BY coin_cost ASC');
+      return rows || [];
+    });
+    return res.json({ success: true, gifts });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: 'Failed to fetch gifts.' });
+  }
+}
+
+export async function createGift(req, res) {
+  try {
+    const {
+      name,
+      icon_url,
+      animation_type = 'svga',
+      animation_url,
+      sound_url,
+      coin_cost,
+      diamond_reward,
+      category = 'Popular',
+    } = req.body;
+
+    if (!coin_cost || isNaN(parseInt(coin_cost, 10)) || parseInt(coin_cost, 10) <= 0) {
+      return res.status(400).json({ success: false, message: 'Valid coin cost is required.' });
+    }
+
+    // Name is optional per requirements
+    const trimmedName = name && typeof name === 'string' ? name.trim() : '';
+    const finalName = trimmedName || (animation_type === 'gif' ? 'GIF Gift' : 'SVGA Gift');
+
+    // Either icon_url or animation_url must be present
+    const finalIconUrl = icon_url || animation_url || '';
+    const finalAnimationUrl = animation_url || (animation_type === 'gif' ? finalIconUrl : null);
+    const finalSoundUrl = sound_url || null;
+
+    if (!finalIconUrl && !finalAnimationUrl) {
+      return res.status(400).json({
+        success: false,
+        message: 'Preview image/GIF or animation file is required.',
+      });
+    }
+
+    const parsedCoinCost = parseInt(coin_cost, 10);
+    const diamondReward = diamond_reward !== undefined && !isNaN(parseInt(diamond_reward, 10))
+      ? parseInt(diamond_reward, 10)
+      : Math.floor(parsedCoinCost / 2);
+
+    const result = await query(
+      `INSERT INTO gifts (name, icon_url, animation_type, animation_url, sound_url, coin_cost, diamond_reward, category, is_active)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, TRUE)`,
+      [finalName, finalIconUrl, animation_type, finalAnimationUrl, finalSoundUrl, parsedCoinCost, diamondReward, category]
+    );
+
+    // Database write succeeded -> Invalidate Redis cache
+    await cache.delByPattern('gifts:*');
+
+    const newGift = await query('SELECT * FROM gifts WHERE id = ?', [result.insertId]);
+    return res.status(201).json({ success: true, message: 'Gift created successfully.', gift: newGift[0] });
+  } catch (err) {
+    console.error('createGift error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to create gift.', error: err.message });
+  }
+}
+
+export async function updateGift(req, res) {
+  try {
+    const { id } = req.params;
+    const {
+      name,
+      icon_url,
+      animation_type,
+      animation_url,
+      sound_url,
+      coin_cost,
+      diamond_reward,
+      category,
+      is_active,
+    } = req.body;
+
+    const updates = [];
+    const params = [];
+
+    if (name !== undefined) {
+      const trimmed = typeof name === 'string' ? name.trim() : '';
+      updates.push('name = ?');
+      params.push(trimmed || 'Gift');
+    }
+    if (icon_url !== undefined) { updates.push('icon_url = ?'); params.push(icon_url); }
+    if (animation_type !== undefined) { updates.push('animation_type = ?'); params.push(animation_type); }
+    if (animation_url !== undefined) { updates.push('animation_url = ?'); params.push(animation_url); }
+    if (sound_url !== undefined) { updates.push('sound_url = ?'); params.push(sound_url); }
+    if (coin_cost !== undefined) { updates.push('coin_cost = ?'); params.push(parseInt(coin_cost, 10)); }
+    if (diamond_reward !== undefined) { updates.push('diamond_reward = ?'); params.push(parseInt(diamond_reward, 10)); }
+    if (category !== undefined) { updates.push('category = ?'); params.push(category); }
+    if (is_active !== undefined) { updates.push('is_active = ?'); params.push(Boolean(is_active)); }
+
+    if (updates.length === 0) {
+      return res.status(400).json({ success: false, message: 'No fields provided.' });
+    }
+
+    params.push(id);
+    await query(`UPDATE gifts SET ${updates.join(', ')} WHERE id = ?`, params);
+
+    // Database write succeeded -> Invalidate Redis cache
+    await cache.delByPattern('gifts:*');
+
+    const gift = await query('SELECT * FROM gifts WHERE id = ?', [id]);
+    return res.json({ success: true, message: 'Gift updated successfully.', gift: gift[0] });
+  } catch (err) {
+    console.error('updateGift error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to update gift.', error: err.message });
+  }
+}
+
+export async function deleteGift(req, res) {
+  try {
+    const { id } = req.params;
+    await query('DELETE FROM gifts WHERE id = ?', [id]);
+
+    // Database write succeeded -> Invalidate Redis cache
+    await cache.delByPattern('gifts:*');
+
+    return res.json({ success: true, message: 'Gift deleted successfully.' });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: 'Failed to delete gift.' });
+  }
+}
+
+/**
+ * Admin: Get Top Gifting Contributors
+ * GET /api/admin/gifts/top-contributors
+ * 
+ * Supports filter query ?period=month (default) | 30days | all | today
+ * Groups by sender_id, calculates total coins gifted, gifts sent, recipients count.
+ * Highest gifters ranked first.
+ * Cached in Redis (admin:gifts:top_contributors:${period}).
+ */
+export async function getTopContributorsAdmin(req, res) {
+  try {
+    const { period = 'month', page = 1, limit = 50 } = req.query;
+    const cacheKey = `admin:gifts:top_contributors:${period}:${page}:${limit}`;
+
+    const data = await cache.getOrSet(cacheKey, 60, async () => {
+      let dateCondition = '';
+      if (period === 'month') {
+        dateCondition = 'WHERE MONTH(gt.created_at) = MONTH(CURRENT_DATE()) AND YEAR(gt.created_at) = YEAR(CURRENT_DATE())';
+      } else if (period === '30days') {
+        dateCondition = 'WHERE gt.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)';
+      } else if (period === 'today') {
+        dateCondition = 'WHERE DATE(gt.created_at) = CURRENT_DATE()';
+      }
+
+      const rows = await query(`
+        SELECT 
+          gt.sender_id as user_id,
+          u.full_name,
+          u.avatar_url,
+          u.email,
+          u.mobile_number,
+          u.level,
+          u.role,
+          pc.name as vip_category,
+          pc.badge_icon as vip_badge,
+          pc.color_code as vip_color,
+          COALESCE(SUM(gt.coin_amount), 0) as total_coins_gifted,
+          COUNT(gt.id) as total_gifts_sent,
+          COUNT(DISTINCT gt.receiver_id) as total_recipients,
+          MAX(gt.created_at) as last_gifted_at
+        FROM gift_transactions gt
+        JOIN users u ON u.id = gt.sender_id
+        LEFT JOIN user_package_subscriptions ups 
+          ON ups.user_id = u.id AND ups.status = 'active' AND ups.expires_at > NOW() AND ups.is_equipped = 1
+        LEFT JOIN package_categories pc 
+          ON pc.id = ups.category_id AND pc.is_active = 1
+        ${dateCondition}
+        GROUP BY gt.sender_id, u.full_name, u.avatar_url, u.email, u.mobile_number, u.level, u.role, pc.name, pc.badge_icon, pc.color_code
+        ORDER BY total_coins_gifted DESC
+        LIMIT ? OFFSET ?
+      `, [parseInt(limit, 10), (parseInt(page, 10) - 1) * parseInt(limit, 10)]);
+
+      // Total summary stats for this period
+      const summaryRows = await query(`
+        SELECT 
+          COALESCE(SUM(coin_amount), 0) as total_coins_spent,
+          COUNT(id) as total_transactions,
+          COUNT(DISTINCT sender_id) as total_active_gifters
+        FROM gift_transactions gt
+        ${dateCondition}
+      `);
+
+      const summary = summaryRows[0] || { total_coins_spent: 0, total_transactions: 0, total_active_gifters: 0 };
+
+      const contributors = (rows || []).map((row, idx) => ({
+        rank: (parseInt(page, 10) - 1) * parseInt(limit, 10) + idx + 1,
+        user_id: row.user_id,
+        full_name: row.full_name,
+        avatar_url: row.avatar_url,
+        email: row.email,
+        mobile_number: row.mobile_number,
+        level: row.level || 1,
+        role: row.role,
+        vip_category: row.vip_category || 'Standard',
+        vip_badge: row.vip_badge || '',
+        vip_color: row.vip_color || '#7c3aed',
+        total_coins_gifted: parseInt(row.total_coins_gifted, 10),
+        total_gifts_sent: parseInt(row.total_gifts_sent, 10),
+        total_recipients: parseInt(row.total_recipients, 10),
+        last_gifted_at: row.last_gifted_at,
+      }));
+
+      return {
+        period,
+        summary: {
+          total_coins_spent: parseInt(summary.total_coins_spent, 10),
+          total_transactions: parseInt(summary.total_transactions, 10),
+          total_active_gifters: parseInt(summary.total_active_gifters, 10),
+        },
+        contributors,
+      };
+    });
+
+    return res.json({
+      success: true,
+      ...data,
+    });
+  } catch (err) {
+    console.error('getTopContributorsAdmin error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to fetch top contributors.', error: err.message });
+  }
+}
+
+/**
+ * Admin: Clear / Reset Gift Transactions History
+ * DELETE /api/admin/gifts/history
+ * POST /api/admin/gifts/clear-history
+ * 
+ * Clears gift_transactions table in MySQL (SSOT), and immediately flushes all Redis caches.
+ * As requested: "onno admin panel theke jodi data clear kore dey taile ei api er data o remove hoye jabe."
+ */
+export async function clearGiftHistoryAdmin(req, res) {
+  try {
+    const { senderId, receiverId, period } = req.body || {};
+
+    let queryStr = 'DELETE FROM gift_transactions';
+    let params = [];
+    let whereClauses = [];
+
+    if (senderId) {
+      whereClauses.push('sender_id = ?');
+      params.push(senderId);
+    }
+    if (receiverId) {
+      whereClauses.push('receiver_id = ?');
+      params.push(receiverId);
+    }
+    if (period === 'month') {
+      whereClauses.push('MONTH(created_at) = MONTH(CURRENT_DATE()) AND YEAR(created_at) = YEAR(CURRENT_DATE())');
+    }
+
+    if (whereClauses.length > 0) {
+      queryStr += ` WHERE ${whereClauses.join(' AND ')}`;
+    }
+
+    const result = await query(queryStr, params);
+    const affected = result.affectedRows || 0;
+
+    // Instant Redis Invalidation across ALL gift related keys
+    await Promise.allSettled([
+      cache.delByPattern('admin:gifts:top_contributors*'),
+      cache.delByPattern('leaderboard:gifters:*'),
+      cache.delByPattern('agency:top:*'),
+      cache.delByPattern('user:gift_contributions:*'),
+      cache.delByPattern('gifts:*'),
+      cache.delByPattern('admin:dashboard*'),
+    ]);
+
+    return res.json({
+      success: true,
+      message: `Successfully cleared ${affected} gift transaction records. All cached rankings and user contributions have been reset.`,
+      cleared_count: affected,
+    });
+  } catch (err) {
+    console.error('clearGiftHistoryAdmin error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to clear gift history.', error: err.message });
+  }
+}
+
+export async function getWithdrawals(req, res) {
+  try {
+    const { status, page = 1, limit = 20 } = req.query;
+
+    const settingRows = await query(
+      "SELECT key_value FROM system_settings WHERE key_name = 'is_convert_to_diamond' LIMIT 1"
+    );
+    const isDiamondMode = settingRows.length > 0
+      ? (settingRows[0].key_value === 'true' || settingRows[0].key_value === '1')
+      : false;
+
+    const cacheKey = `admin:withdrawals:${status || 'all'}:${page}:${limit}:${isDiamondMode ? 'diamond' : 'coin'}`;
+
+    const data = await cache.getOrSet(cacheKey, 30, async () => {
+      const offset = (parseInt(page, 10) - 1) * parseInt(limit, 10);
+
+      let whereSql = '';
+      let params = [];
+      if (status && status !== 'all') {
+        whereSql = 'WHERE w.status = ?';
+        params.push(status);
+      }
+
+      const rows = await query(
+        `SELECT w.*, u.full_name as host_name, u.email as host_email, u.avatar_url as host_avatar, u.diamonds as current_diamonds, u.coins as current_coins
+         FROM withdrawals w
+         JOIN users u ON w.host_id = u.id
+         ${whereSql}
+         ORDER BY w.status = 'pending' DESC, w.created_at DESC
+         LIMIT ${parseInt(limit, 10)} OFFSET ${parseInt(offset, 10)}`,
+        params
+      );
+
+      const formatted = rows.map((w) => {
+        const diamondAmount = parseInt(w.diamond_amount || 0, 10);
+        const coinAmount = parseInt(w.coin_amount || 0, 10);
+        const isDiamondRecord = diamondAmount > 0;
+        const resolvedAmount = isDiamondRecord ? diamondAmount : coinAmount;
+        const resolvedCurrency = isDiamondRecord ? 'diamonds' : 'coins';
+        const resolvedSymbol = isDiamondRecord ? '💎' : '🪙';
+        const resolvedLabel = isDiamondRecord ? 'Diamond' : 'Coin';
+
+        return {
+          ...w,
+          diamond_amount: diamondAmount,
+          coin_amount: coinAmount,
+          amount: resolvedAmount,
+          currency: resolvedCurrency,
+          currency_symbol: resolvedSymbol,
+          currency_label: resolvedLabel,
+          display_text: `${resolvedAmount.toLocaleString()} ${resolvedLabel}s`,
+          is_diamond_record: isDiamondRecord,
+          is_coin_record: !isDiamondRecord,
+          record_mode: isDiamondRecord ? 'diamond' : 'coin',
+        };
+      });
+
+      const [totalRows] = await query(`SELECT COUNT(*) as count FROM withdrawals w ${whereSql}`, params);
+
+      return {
+        withdrawals: formatted,
+        total: totalRows.count,
+      };
+    });
+
+    return res.json({
+      success: true,
+      is_convert_to_diamond: isDiamondMode,
+      active_currency: isDiamondMode ? 'diamonds' : 'coins',
+      active_currency_symbol: isDiamondMode ? '💎' : '🪙',
+      withdrawals: data.withdrawals,
+      pagination: {
+        total: data.total,
+        page: parseInt(page, 10),
+        limit: parseInt(limit, 10),
+      },
+    });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: 'Failed to fetch withdrawals.' });
+  }
+}
+
+export async function processWithdrawal(req, res) {
+  const pool = getPool();
+  const connection = await pool.getConnection();
+
+  try {
+    const { id } = req.params;
+    const { status, adminNotes } = req.body; // status: 'approved' | 'rejected'
+
+    if (!['approved', 'rejected'].includes(status)) {
+      return res.status(400).json({ success: false, message: 'Status must be approved or rejected.' });
+    }
+
+    const [rows] = await connection.execute('SELECT * FROM withdrawals WHERE id = ?', [id]);
+    if (rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Withdrawal not found.' });
+    }
+
+    const item = rows[0];
+    if (item.status !== 'pending') {
+      return res.status(400).json({ success: false, message: `Withdrawal has already been ${item.status}.` });
+    }
+
+    await connection.beginTransaction();
+
+    await connection.execute(
+      'UPDATE withdrawals SET status = ?, admin_notes = ? WHERE id = ?',
+      [status, adminNotes || `Processed by admin: ${status}`, id]
+    );
+
+    // If rejected, refund the deducted coins or diamonds back to host
+    if (status === 'rejected') {
+      const isCoinRefund = (item.coin_amount && item.coin_amount > 0);
+      if (isCoinRefund) {
+        await connection.execute('UPDATE users SET coins = coins + ? WHERE id = ?', [item.coin_amount, item.host_id]);
+        await connection.execute(
+          `INSERT INTO transactions (user_id, type, amount, description, status)
+           VALUES (?, 'refund', ?, ?, 'completed')`,
+          [item.host_id, item.coin_amount, `Refunded ${item.coin_amount} coins due to rejected withdrawal #${id}`]
+        );
+      } else {
+        await connection.execute('UPDATE users SET diamonds = diamonds + ? WHERE id = ?', [item.diamond_amount, item.host_id]);
+        await connection.execute(
+          `INSERT INTO transactions (user_id, type, amount, description, status)
+           VALUES (?, 'gift_received', ?, ?, 'refunded')`,
+          [item.host_id, item.diamond_amount, `Refunded ${item.diamond_amount} diamonds due to rejected withdrawal #${id}`]
+        );
+      }
+    }
+
+    await connection.commit();
+
+    // Database write succeeded -> Invalidate Redis cache
+    await cache.delByPattern('admin:withdrawals*');
+    await cache.delByPattern('withdrawal:*');
+    await cache.delByPattern('wallet:*');
+    await cache.del(`user:${item.host_id}`);
+    await cache.del(`user:balance:${item.host_id}`);
+    await cache.delByPattern('admin:dashboard*');
+
+    return res.json({
+      success: true,
+      message: `Withdrawal #${id} has been ${status}.`,
+    });
+  } catch (err) {
+    await connection.rollback();
+    return res.status(500).json({ success: false, message: 'Failed to process withdrawal.' });
+  } finally {
+    connection.release();
+  }
+}
+
+export async function getSettings(req, res) {
+  try {
+    const settings = await cache.getOrSet('settings:all', 300, async () => {
+      const rows = await query('SELECT * FROM system_settings');
+      return rows || [];
+    });
+    return res.json({ success: true, settings });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: 'Failed to fetch settings.' });
+  }
+}
+
+export async function updateSetting(req, res) {
+  try {
+    const { key } = req.params;
+    const { value, description } = req.body;
+
+    await query(
+      `INSERT INTO system_settings (key_name, key_value, description)
+       VALUES (?, ?, ?)
+       ON DUPLICATE KEY UPDATE key_value = VALUES(key_value), description = COALESCE(VALUES(description), description)`,
+      [key, String(value), description || '']
+    );
+
+    // Database write succeeded -> Invalidate Redis cache
+    await cache.del('settings:all');
+    await cache.del('config:mobile:app');
+    await cache.delByPattern('setting*');
+    await cache.delByPattern('mobile:user:profile*');
+    await cache.del('host_ratios:all');
+    await cache.del('wallet:withdrawal:config');
+    await cache.delByPattern('wallet:*');
+    await cache.delByPattern('withdrawal:*');
+
+    return res.json({ success: true, message: `Setting ${key} updated successfully.` });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: 'Failed to update setting.' });
+  }
+}
+
+// Agency Management Controllers
+export async function getAgencies(req, res) {
+  try {
+    const agencies = await cache.getOrSet('agencies:all', 60, async () => {
+      const rows = await query(`
+        SELECT 
+          a.*,
+          u.full_name as owner_name,
+          u.avatar_url as owner_avatar,
+          u.email as owner_email,
+          u.role as owner_role,
+          u.level as owner_level,
+          u.vip_package as owner_vip_package,
+          u.coins as owner_coins,
+          u.diamonds as owner_diamonds,
+          COUNT(h.id) as host_count,
+          COALESCE(SUM(h.diamonds), 0) as total_host_diamonds
+        FROM agencies a
+        JOIN users u ON a.owner_id = u.id
+        LEFT JOIN users h ON h.agency_id = a.id
+        GROUP BY a.id, u.id
+        ORDER BY a.id DESC
+      `);
+      return rows || [];
+    });
+
+    return res.json({ success: true, agencies });
+  } catch (err) {
+    console.error('getAgencies error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to fetch agencies.' });
+  }
+}
+
+export async function createAgency(req, res) {
+  const pool = getPool();
+  const connection = await pool.getConnection();
+
+  try {
+    const { name, ownerId, commissionRate = 10, contactPhone = '', notes = '' } = req.body;
+
+    if (!name || !ownerId) {
+      return res.status(400).json({ success: false, message: 'Agency name and owner are required.' });
+    }
+
+    const [owners] = await connection.execute('SELECT id, full_name, role FROM users WHERE id = ?', [ownerId]);
+    if (owners.length === 0) {
+      return res.status(404).json({ success: false, message: 'Selected owner user not found.' });
+    }
+
+    // Check if owner already owns an agency or if agency ID exists
+    const [existingAgencies] = await connection.execute('SELECT id, name FROM agencies WHERE owner_id = ? OR id = ?', [ownerId, ownerId]);
+    if (existingAgencies.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: `User #${ownerId} is already the owner of agency "${existingAgencies[0].name}" (Agency ID #${existingAgencies[0].id}). Each owner User ID corresponds to a unique Agency ID.`,
+      });
+    }
+
+    const agencyCode = `AGY-${ownerId}`;
+
+    await connection.beginTransaction();
+
+    // 1. Promote owner user role to 'agency'
+    await connection.execute("UPDATE users SET role = 'agency' WHERE id = ?", [ownerId]);
+
+    // 2. Insert new agency record where agency.id = ownerId (Owner's User ID IS the Agency ID)
+    await connection.execute(
+      `INSERT INTO agencies (id, agency_code, name, owner_id, commission_rate, status, contact_phone, notes)
+       VALUES (?, ?, ?, ?, ?, 'active', ?, ?)`,
+      [ownerId, agencyCode, name, ownerId, parseFloat(commissionRate) || 10, contactPhone, notes]
+    );
+
+    await connection.commit();
+
+    // Database write succeeded -> Invalidate Redis cache
+    await cache.delByPattern('agencies:*');
+    await cache.del(`user:${ownerId}`);
+    await cache.del(`admin:user:${ownerId}`);
+    await cache.delByPattern('admin:users*');
+
+    const [created] = await connection.execute(`
+      SELECT a.*, u.full_name as owner_name, u.avatar_url as owner_avatar
+      FROM agencies a
+      JOIN users u ON a.owner_id = u.id
+      WHERE a.id = ?
+    `, [ownerId]);
+
+    return res.status(201).json({
+      success: true,
+      message: `Agency "${name}" created successfully with Agency ID #${ownerId}! Owner User #${ownerId} promoted to Agency.`,
+      agency: created[0],
+    });
+  } catch (err) {
+    await connection.rollback();
+    console.error('createAgency error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to create agency.', error: err.message });
+  } finally {
+    connection.release();
+  }
+}
+
+export async function updateAgency(req, res) {
+  try {
+    const { id } = req.params;
+    const { name, commissionRate, status, contactPhone, notes } = req.body;
+
+    const updates = [];
+    const params = [];
+
+    if (name !== undefined) { updates.push('name = ?'); params.push(name); }
+    if (commissionRate !== undefined) { updates.push('commission_rate = ?'); params.push(parseFloat(commissionRate)); }
+    if (status !== undefined) { updates.push('status = ?'); params.push(status); }
+    if (contactPhone !== undefined) { updates.push('contact_phone = ?'); params.push(contactPhone); }
+    if (notes !== undefined) { updates.push('notes = ?'); params.push(notes); }
+
+    if (updates.length === 0) {
+      return res.status(400).json({ success: false, message: 'No fields provided.' });
+    }
+
+    params.push(id);
+    await query(`UPDATE agencies SET ${updates.join(', ')} WHERE id = ?`, params);
+
+    // Database write succeeded -> Invalidate Redis cache
+    await cache.delByPattern('agencies:*');
+    await cache.delByPattern('host:*');
+
+    return res.json({ success: true, message: 'Agency updated successfully.' });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: 'Failed to update agency.' });
+  }
+}
+
+export async function deleteAgency(req, res) {
+  const pool = getPool();
+  const connection = await pool.getConnection();
+
+  try {
+    const { id } = req.params;
+
+    const [agencies] = await connection.execute('SELECT * FROM agencies WHERE id = ?', [id]);
+    if (agencies.length === 0) {
+      return res.status(404).json({ success: false, message: 'Agency not found.' });
+    }
+
+    const agency = agencies[0];
+
+    await connection.beginTransaction();
+
+    // 1. Unassign all hosts from this agency
+    await connection.execute('UPDATE users SET agency_id = NULL WHERE agency_id = ?', [id]);
+
+    // 2. Delete agency record
+    await connection.execute('DELETE FROM agencies WHERE id = ?', [id]);
+
+    // 3. If owner doesn't own any other agency, restore role to 'user'
+    const [otherAgencies] = await connection.execute('SELECT id FROM agencies WHERE owner_id = ?', [agency.owner_id]);
+    if (otherAgencies.length === 0) {
+      await connection.execute("UPDATE users SET role = 'user' WHERE id = ? AND role = 'agency'", [agency.owner_id]);
+    }
+
+    await connection.commit();
+
+    // Database write succeeded -> Invalidate Redis cache
+    await cache.delByPattern('agencies:*');
+    await cache.del(`user:${agency.owner_id}`);
+    await cache.del(`admin:user:${agency.owner_id}`);
+    await cache.delByPattern('admin:users*');
+    await cache.delByPattern('hosts:*');
+    await cache.delByPattern('host:*');
+
+    return res.json({
+      success: true,
+      message: `Agency "${agency.name}" has been deleted successfully.`,
+    });
+  } catch (err) {
+    await connection.rollback();
+    console.error('deleteAgency error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to delete agency.', error: err.message });
+  } finally {
+    connection.release();
+  }
+}
+
+export async function getAgencyHosts(req, res) {
+  try {
+    const { id } = req.params;
+    const hosts = await query(
+      `SELECT id, full_name, email, full_name, avatar_url, role, host_type, coins, diamonds, level, vip_package, is_banned, created_at
+       FROM users
+       WHERE agency_id = ?
+       ORDER BY diamonds DESC`,
+      [id]
+    );
+
+    return res.json({ success: true, hosts });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: 'Failed to fetch agency hosts.' });
+  }
+}
+
+export async function assignUserToAgency(req, res) {
+  const pool = getPool();
+  const connection = await pool.getConnection();
+
+  try {
+    const { id } = req.params; // agencyId
+    const { userId, hostType = 'video' } = req.body;
+
+    if (!userId) {
+      return res.status(400).json({ success: false, message: 'User ID is required.' });
+    }
+
+    const cleanHostType = hostType === 'audio' ? 'audio' : 'video';
+
+    const [agencies] = await connection.execute('SELECT * FROM agencies WHERE id = ?', [id]);
+    if (agencies.length === 0) {
+      return res.status(404).json({ success: false, message: 'Agency not found.' });
+    }
+
+    const [users] = await connection.execute('SELECT id, full_name, role, agency_id FROM users WHERE id = ?', [userId]);
+    if (users.length === 0) {
+      return res.status(404).json({ success: false, message: 'User not found.' });
+    }
+
+    await connection.beginTransaction();
+
+    // Assign user to agency, elevate to 'host', and set host_type ('video' or 'audio')
+    await connection.execute(
+      "UPDATE users SET agency_id = ?, role = 'host', host_type = ? WHERE id = ?",
+      [id, cleanHostType, userId]
+    );
+
+    await connection.commit();
+
+    // Database write succeeded -> Invalidate Redis cache
+    await cache.delByPattern('agencies:*');
+    await cache.del(`user:${userId}`);
+    await cache.del(`admin:user:${userId}`);
+    await cache.delByPattern('admin:users*');
+    await cache.delByPattern('hosts:*');
+
+    return res.json({
+      success: true,
+      message: `User #${userId} (${users[0].full_name || `User #${userId}`}) recruited as a ${cleanHostType.toUpperCase()} Host under ${agencies[0].name}!`,
+    });
+  } catch (err) {
+    await connection.rollback();
+    return res.status(500).json({ success: false, message: 'Failed to assign host.' });
+  } finally {
+    connection.release();
+  }
+}
+
+export async function removeUserFromAgency(req, res) {
+  try {
+    const { id, userId } = req.params;
+    await query('UPDATE users SET agency_id = NULL WHERE id = ? AND agency_id = ?', [userId, id]);
+
+    // Database write succeeded -> Invalidate Redis cache
+    await cache.delByPattern('agencies:*');
+    await cache.del(`user:${userId}`);
+    await cache.del(`admin:user:${userId}`);
+    await cache.delByPattern('hosts:*');
+
+    return res.json({
+      success: true,
+      message: 'Host removed from agency.',
+    });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: 'Failed to remove host.' });
+  }
+}
+
+// ==========================================
+// MODERATOR MANAGEMENT
+// ==========================================
+
+export async function getModerators(req, res) {
+  try {
+    const formatted = await cache.getOrSet('moderators:all', 60, async () => {
+      const moderators = await query(`
+        SELECT 
+          m.id,
+          m.user_id,
+          m.assigned_by,
+          m.permissions,
+          m.status,
+          m.notes,
+          m.created_at,
+          m.updated_at,
+          u.email,
+          u.full_name,
+          u.avatar_url,
+          u.role,
+          u.level,
+          u.coins,
+          u.diamonds,
+          u.vip_package,
+          u.is_banned,
+          u_creator.full_name as assigned_by_name
+        FROM moderators m
+        JOIN users u ON m.user_id = u.id
+        LEFT JOIN users u_creator ON m.assigned_by = u_creator.id
+        ORDER BY m.created_at DESC
+      `);
+
+      return (moderators || []).map((mod) => ({
+        ...mod,
+        permissions: typeof mod.permissions === 'string' ? JSON.parse(mod.permissions || '{}') : (mod.permissions || {}),
+      }));
+    });
+
+    return res.json({ success: true, moderators: formatted });
+  } catch (err) {
+    console.error('getModerators error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to fetch moderators.' });
+  }
+}
+
+export async function addModerator(req, res) {
+  const pool = getPool();
+  const connection = await pool.getConnection();
+
+  try {
+    await connection.beginTransaction();
+
+    const {
+      userId,
+      email,
+      password,
+      full_name,
+      permissions = {
+        silent_room_entry: true,
+        bypass_private_password: true,
+        kick_room_user: true,
+        manage_seat_requests: true,
+        remove_cohost_seat: true,
+        close_room: true,
+        audit_agencies: true,
+        manage_agency_hosts: true,
+        remove_hosts: true,
+        temporary_ban_host: true,
+      },
+      notes = '',
+    } = req.body;
+
+    let targetUserId = userId;
+
+    if (!targetUserId) {
+      if (!email || !password) {
+        await connection.rollback();
+        return res.status(400).json({
+          success: false,
+          message: 'Provide existing User ID, or provide email and password to create a new moderator account.',
+        });
+      }
+
+      const [existing] = await connection.execute(
+        'SELECT id FROM users WHERE email = ? LIMIT 1',
+        [email]
+      );
+      if (existing.length > 0) {
+        await connection.rollback();
+        return res.status(400).json({ success: false, message: 'A user with this email already exists.' });
+      }
+
+      const password_hash = await bcrypt.hash(password, 10);
+      const [insertUserRes] = await connection.execute(
+        `INSERT INTO users (email, password_hash, full_name, role, level, coins, diamonds)
+         VALUES (?, ?, ?, 'moderator', 1, 500, 0)`,
+        [email, password_hash, full_name || 'Moderator']
+      );
+      targetUserId = insertUserRes.insertId;
+    } else {
+      const [userRows] = await connection.execute('SELECT id, full_name, role FROM users WHERE id = ?', [targetUserId]);
+      if (userRows.length === 0) {
+        await connection.rollback();
+        return res.status(404).json({ success: false, message: 'User not found with specified ID.' });
+      }
+
+      const [modRows] = await connection.execute('SELECT id FROM moderators WHERE user_id = ?', [targetUserId]);
+      if (modRows.length > 0) {
+        await connection.rollback();
+        return res.status(400).json({ success: false, message: 'This user is already registered as a moderator.' });
+      }
+
+      await connection.execute("UPDATE users SET role = 'moderator' WHERE id = ?", [targetUserId]);
+    }
+
+    const assignedBy = req.user?.id || null;
+    const [modInsertRes] = await connection.execute(
+      `INSERT INTO moderators (user_id, assigned_by, permissions, status, notes)
+       VALUES (?, ?, ?, 'active', ?)`,
+      [targetUserId, assignedBy, JSON.stringify(permissions), notes]
+    );
+
+    await connection.commit();
+
+    // Database write succeeded -> Invalidate Redis cache
+    await cache.delByPattern('moderators:*');
+    await cache.del(`user:${targetUserId}`);
+    await cache.del(`admin:user:${targetUserId}`);
+    await cache.delByPattern('admin:users*');
+
+    return res.status(201).json({
+      success: true,
+      message: 'Moderator assigned successfully!',
+      moderatorId: modInsertRes.insertId,
+    });
+  } catch (err) {
+    await connection.rollback();
+    console.error('addModerator error:', err);
+    return res.status(500).json({ success: false, message: err.message || 'Failed to add moderator.' });
+  } finally {
+    connection.release();
+  }
+}
+
+export async function updateModerator(req, res) {
+  try {
+    const { id } = req.params;
+    const { permissions, status, notes } = req.body;
+
+    const [existing] = await query('SELECT * FROM moderators WHERE id = ?', [id]);
+    if (existing.length === 0) {
+      return res.status(404).json({ success: false, message: 'Moderator not found.' });
+    }
+
+    const updates = [];
+    const params = [];
+
+    if (permissions !== undefined) {
+      updates.push('permissions = ?');
+      params.push(JSON.stringify(permissions));
+    }
+    if (status !== undefined) {
+      updates.push('status = ?');
+      params.push(status);
+    }
+    if (notes !== undefined) {
+      updates.push('notes = ?');
+      params.push(notes);
+    }
+
+    if (updates.length > 0) {
+      params.push(id);
+      await query(`UPDATE moderators SET ${updates.join(', ')} WHERE id = ?`, params);
+    }
+
+    // Database write succeeded -> Invalidate Redis cache
+    await cache.delByPattern('moderators:*');
+
+    return res.json({ success: true, message: 'Moderator updated successfully.' });
+  } catch (err) {
+    console.error('updateModerator error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to update moderator.' });
+  }
+}
+
+export async function deleteModerator(req, res) {
+  const pool = getPool();
+  const connection = await pool.getConnection();
+
+  try {
+    await connection.beginTransaction();
+    const { id } = req.params;
+
+    const [modRows] = await connection.execute('SELECT id, user_id FROM moderators WHERE id = ?', [id]);
+    if (modRows.length === 0) {
+      await connection.rollback();
+      return res.status(404).json({ success: false, message: 'Moderator not found.' });
+    }
+
+    const userId = modRows[0].user_id;
+
+    // Delete from moderators table
+    await connection.execute('DELETE FROM moderators WHERE id = ?', [id]);
+
+    // Revert user's role to 'user' if it was 'moderator'
+    await connection.execute("UPDATE users SET role = 'user' WHERE id = ? AND role = 'moderator'", [userId]);
+
+    await connection.commit();
+
+    // Database write succeeded -> Invalidate Redis cache
+    await cache.delByPattern('moderators:*');
+    await cache.del(`user:${userId}`);
+    await cache.del(`admin:user:${userId}`);
+    await cache.delByPattern('admin:users*');
+
+    return res.json({
+      success: true,
+      message: 'Moderator removed successfully and role demoted to standard user.',
+    });
+  } catch (err) {
+    await connection.rollback();
+    console.error('deleteModerator error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to delete moderator.' });
+  } finally {
+    connection.release();
+  }
+}
+
+export async function getUserDetails(req, res) {
+  try {
+    const { id } = req.params;
+    const userId = parseInt(id, 10);
+    if (!userId || isNaN(userId)) {
+      return res.status(400).json({ success: false, message: 'Invalid User ID.' });
+    }
+
+    const data = await cache.getOrSet(`admin:user:${userId}`, 30, async () => {
+      const [user] = await query(
+        `SELECT u.id, u.email, u.full_name, u.avatar_url, u.bio, u.role, u.host_type,
+                u.agency_id, a.name as agency_name, a.agency_code,
+                u.coins, u.diamonds, u.level, u.vip_package, u.is_banned,
+                u.created_at, u.updated_at
+         FROM users u
+         LEFT JOIN agencies a ON u.agency_id = a.id
+         WHERE u.id = ?`,
+        [userId]
+      );
+
+      if (!user) {
+        return null;
+      }
+
+      // 1. Moderator check & permissions
+      const [mod] = await query(
+        `SELECT m.id, m.permissions, m.status, m.notes, m.created_at, m.assigned_by,
+                u_creator.full_name as assigned_by_name
+         FROM moderators m
+         LEFT JOIN users u_creator ON m.assigned_by = u_creator.id
+         WHERE m.user_id = ?`,
+        [userId]
+      );
+
+      let moderatorInfo = null;
+      if (mod) {
+        moderatorInfo = {
+          ...mod,
+          permissions: typeof mod.permissions === 'string' ? JSON.parse(mod.permissions || '{}') : (mod.permissions || {}),
+        };
+      }
+
+      // 2. Stream stats
+      const [streamStats] = await query(
+        `SELECT 
+           COUNT(*) as total_streams,
+           COALESCE(SUM(total_diamonds), 0) as total_stream_diamonds,
+           COALESCE(MAX(viewer_count), 0) as peak_viewers
+         FROM live_rooms
+         WHERE host_id = ?`,
+        [userId]
+      );
+
+      // 3. Withdrawal stats
+      const [withdrawalStats] = await query(
+        `SELECT 
+           COUNT(*) as total_withdrawals,
+           COALESCE(SUM(usd_amount), 0) as total_withdrawn_usd,
+           SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending_withdrawals
+         FROM withdrawals
+         WHERE host_id = ?`,
+        [userId]
+      );
+
+      // 4. Recent transactions
+      const recentTransactions = await query(
+        `SELECT id, type, amount, status, description, created_at
+         FROM transactions
+         WHERE user_id = ?
+         ORDER BY created_at DESC
+         LIMIT 8`,
+        [userId]
+      );
+
+      // 5. User Posts
+      const posts = await query(
+        `SELECT id, user_id, content, media_url, media_type, likes_count, comments_count, created_at
+         FROM posts
+         WHERE user_id = ?
+         ORDER BY created_at DESC`,
+        [userId]
+      ).catch(() => []);
+
+      // 6. User Chats (Conversation List)
+      const chats = await query(
+        `SELECT 
+           c.id,
+           c.user1_id,
+           c.user2_id,
+           c.last_message,
+           c.last_message_at,
+           c.created_at,
+           CASE WHEN c.user1_id = ? THEN c.user2_id ELSE c.user1_id END as other_user_id,
+           u_other.full_name as other_full_name,
+           u_other.avatar_url as other_avatar_url,
+           u_other.role as other_role,
+           (SELECT COUNT(*) FROM chat_messages m WHERE m.conversation_id = c.id AND m.receiver_id = ? AND m.is_read = FALSE) as unread_count
+         FROM conversations c
+         JOIN users u_other ON u_other.id = (CASE WHEN c.user1_id = ? THEN c.user2_id ELSE c.user1_id END)
+         WHERE c.user1_id = ? OR c.user2_id = ?
+         ORDER BY c.last_message_at DESC`,
+        [userId, userId, userId, userId, userId]
+      ).catch(() => []);
+
+      // 7. Coin packages list (VIP and coin package reference)
+      const coinPackages = await query(
+        `SELECT id, name, coins, price_usd, bonus_coins, badge
+         FROM coin_packages
+         WHERE is_active = TRUE
+         ORDER BY coins ASC`
+      ).catch(() => []);
+
+      return {
+        user,
+        moderatorInfo,
+        streamStats: streamStats || { total_streams: 0, total_stream_diamonds: 0, peak_viewers: 0 },
+        withdrawalStats: withdrawalStats || { total_withdrawals: 0, total_withdrawn_usd: 0, pending_withdrawals: 0 },
+        recentTransactions: recentTransactions || [],
+        posts: posts || [],
+        chats: chats || [],
+        coinPackages: coinPackages || [],
+      };
+    });
+
+    if (!data || !data.user) {
+      return res.status(404).json({ success: false, message: `User #${userId} not found.` });
+    }
+
+    return res.json({
+      success: true,
+      ...data,
+    });
+  } catch (err) {
+    console.error('getUserDetails error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to fetch user details.' });
+  }
+}
+
+export async function getConversationMessages(req, res) {
+  try {
+    const { userId, conversationId } = req.params;
+    const convId = parseInt(conversationId, 10);
+    const uId = parseInt(userId, 10);
+    if (!convId || !uId) {
+      return res.status(400).json({ success: false, message: 'Invalid conversation or user ID.' });
+    }
+
+    const [conv] = await query(
+      `SELECT c.*,
+              u1.full_name as u1_name, u1.avatar_url as u1_avatar,
+              u2.full_name as u2_name, u2.avatar_url as u2_avatar
+       FROM conversations c
+       JOIN users u1 ON c.user1_id = u1.id
+       JOIN users u2 ON c.user2_id = u2.id
+       WHERE c.id = ? AND (c.user1_id = ? OR c.user2_id = ?)`,
+      [convId, uId, uId]
+    );
+
+    if (!conv) {
+      return res.status(404).json({ success: false, message: 'Conversation not found.' });
+    }
+
+    const messages = await query(
+      `SELECT m.id, m.conversation_id, m.sender_id, m.receiver_id, m.message, m.is_read, m.created_at,
+              u.full_name as sender_name, u.avatar_url as sender_avatar
+       FROM chat_messages m
+       JOIN users u ON m.sender_id = u.id
+       WHERE m.conversation_id = ?
+       ORDER BY m.created_at ASC`,
+      [convId]
+    );
+
+    const otherUser = conv.user1_id === uId
+      ? { id: conv.user2_id, full_name: conv.u2_name, avatar_url: conv.u2_avatar }
+      : { id: conv.user1_id, full_name: conv.u1_name, avatar_url: conv.u1_avatar };
+
+    return res.json({
+      success: true,
+      conversation: conv,
+      otherUser,
+      messages: messages || [],
+    });
+  } catch (err) {
+    console.error('getConversationMessages error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to fetch conversation messages.' });
+  }
+}
+
+export async function getAdminPosts(req, res) {
+  try {
+    const page = Math.max(1, parseInt(req.query.page || '1', 10));
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit || '15', 10)));
+    const offset = (page - 1) * limit;
+    const search = req.query.search ? req.query.search.trim() : '';
+    const mediaType = req.query.media_type || 'all';
+    const userId = req.query.user_id ? parseInt(req.query.user_id, 10) : null;
+
+    let whereConditions = [];
+    let params = [];
+
+    if (search) {
+      whereConditions.push('(u.full_name LIKE ? OR u.email LIKE ? OR p.title LIKE ? OR p.content LIKE ?)');
+      const s = `%${search}%`;
+      params.push(s, s, s, s);
+    }
+
+    if (mediaType && mediaType !== 'all') {
+      whereConditions.push('p.media_type = ?');
+      params.push(mediaType);
+    }
+
+    if (userId) {
+      whereConditions.push('p.user_id = ?');
+      params.push(userId);
+    }
+
+    const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : '';
+
+    // 1. Total count
+    const countSql = `
+      SELECT COUNT(*) as total 
+      FROM posts p
+      JOIN users u ON u.id = p.user_id
+      ${whereClause}
+    `;
+    const countRows = await query(countSql, params);
+    const total = countRows?.[0]?.total || 0;
+
+    // 2. Query posts list
+    const selectSql = `
+      SELECT 
+        p.id,
+        p.user_id,
+        p.title,
+        p.content,
+        p.media_url,
+        p.media_type,
+        p.media,
+        p.likes_count,
+        p.comments_count,
+        p.created_at,
+        p.updated_at,
+        u.full_name as author_name,
+        u.email as author_email,
+        u.avatar_url as author_avatar_url,
+        u.role as author_role,
+        u.level as author_level,
+        u.star as author_star,
+        u.vip_package,
+        pc.name as package_category_name,
+        pc.badge_icon as package_badge_icon,
+        pc.color_code as package_color_code
+      FROM posts p
+      JOIN users u ON u.id = p.user_id
+      LEFT JOIN user_package_subscriptions ups 
+        ON ups.user_id = u.id AND ups.status = 'active' AND ups.expires_at > NOW() AND ups.is_equipped = 1
+      LEFT JOIN package_categories pc 
+        ON pc.id = ups.category_id AND pc.is_active = 1
+      ${whereClause}
+      ORDER BY p.created_at DESC
+      LIMIT ? OFFSET ?
+    `;
+
+    const postsRaw = await query(selectSql, [...params, limit, offset]);
+
+    // Fetch media attachments from post_media
+    const postIds = postsRaw.map((p) => p.id);
+    let mediaByPostId = {};
+
+    if (postIds.length > 0) {
+      const placeholders = postIds.map(() => '?').join(',');
+      const mediaRows = await query(
+        `SELECT id, post_id, media_type, media_url, thumbnail_url, duration, display_order 
+         FROM post_media 
+         WHERE post_id IN (${placeholders}) 
+         ORDER BY display_order ASC, id ASC`,
+        postIds
+      ).catch(() => []);
+
+      mediaRows.forEach((m) => {
+        if (!mediaByPostId[m.post_id]) mediaByPostId[m.post_id] = [];
+        mediaByPostId[m.post_id].push(m);
+      });
+    }
+
+    const posts = postsRaw.map((row) => {
+      let mediaItems = [];
+      if (mediaByPostId[row.id] && mediaByPostId[row.id].length > 0) {
+        mediaItems = mediaByPostId[row.id];
+      } else if (row.media) {
+        try {
+          mediaItems = typeof row.media === 'string' ? JSON.parse(row.media) : row.media;
+        } catch (e) {
+          mediaItems = [];
+        }
+      } else if (row.media_url) {
+        mediaItems = [
+          {
+            media_type: row.media_type || 'image',
+            media_url: row.media_url,
+            thumbnail_url: null,
+            duration: 0,
+          },
+        ];
+      }
+
+      return {
+        id: row.id,
+        user_id: row.user_id,
+        title: row.title || null,
+        content: row.content,
+        media_type: row.media_type,
+        media_url: row.media_url,
+        media: mediaItems,
+        likes_count: parseInt(row.likes_count || 0, 10),
+        comments_count: parseInt(row.comments_count || 0, 10),
+        created_at: row.created_at,
+        updated_at: row.updated_at,
+        author: {
+          id: row.user_id,
+          name: row.author_name || 'Anonymous',
+          email: row.author_email,
+          avatar_url: row.author_avatar_url,
+          role: row.author_role,
+          level: row.author_level,
+          star: row.author_star,
+          package_category: {
+            name: row.package_category_name || row.vip_package || 'Standard',
+            badge_icon: row.package_badge_icon || null,
+            color_code: row.package_color_code || '#f59e0b',
+          },
+        },
+      };
+    });
+
+    // 3. Platform Posts Stats
+    const statsRows = await query(`
+      SELECT 
+        COUNT(*) as total_posts,
+        SUM(CASE WHEN media_type = 'video' THEN 1 ELSE 0 END) as total_videos,
+        SUM(CASE WHEN media_type = 'audio' THEN 1 ELSE 0 END) as total_audios,
+        SUM(CASE WHEN media_type = 'image' THEN 1 ELSE 0 END) as total_images,
+        COALESCE(SUM(likes_count), 0) as total_likes,
+        COALESCE(SUM(comments_count), 0) as total_comments
+      FROM posts
+    `);
+
+    const stats = statsRows?.[0] || {
+      total_posts: 0,
+      total_videos: 0,
+      total_audios: 0,
+      total_images: 0,
+      total_likes: 0,
+      total_comments: 0,
+    };
+
+    return res.json({
+      success: true,
+      posts,
+      stats: {
+        total_posts: parseInt(stats.total_posts || 0, 10),
+        total_videos: parseInt(stats.total_videos || 0, 10),
+        total_audios: parseInt(stats.total_audios || 0, 10),
+        total_images: parseInt(stats.total_images || 0, 10),
+        total_likes: parseInt(stats.total_likes || 0, 10),
+        total_comments: parseInt(stats.total_comments || 0, 10),
+      },
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    });
+  } catch (err) {
+    console.error('getAdminPosts error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to fetch admin posts.' });
+  }
+}
+
+export async function createAdminPost(req, res) {
+  try {
+    const adminId = req.user?.id;
+    const { title = null, content = '', user_id } = req.body;
+    const targetUserId = user_id ? parseInt(user_id, 10) : adminId;
+
+    let mediaItems = [];
+    if (req.uploadedMedia && Array.isArray(req.uploadedMedia) && req.uploadedMedia.length > 0) {
+      mediaItems = req.uploadedMedia;
+    } else if (req.body.media) {
+      try {
+        mediaItems = typeof req.body.media === 'string' ? JSON.parse(req.body.media) : req.body.media;
+      } catch (e) {
+        mediaItems = [];
+      }
+    } else if (req.file) {
+      const ext = path.extname(req.file.originalname).toLowerCase();
+      const videoExts = ['.mp4', '.mov', '.avi', '.mkv', '.webm', '.flv', '.m4v', '.3gp'];
+      const audioExts = ['.mp3', '.wav', '.aac', '.ogg', '.m4a'];
+      let mType = 'image';
+      if (videoExts.includes(ext)) mType = 'video';
+      else if (audioExts.includes(ext)) mType = 'audio';
+
+      mediaItems = [
+        {
+          media_type: mType,
+          media_url: `/uploads/posts/${req.file.filename}`,
+          thumbnail_url: null,
+          duration: 0,
+        },
+      ];
+    }
+
+    const cleanContent = typeof content === 'string' ? content.trim() : '';
+    const cleanTitle = typeof title === 'string' && title.trim() ? title.trim() : null;
+
+    if (!cleanContent && mediaItems.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Post must contain either text content or media attachment.',
+      });
+    }
+
+    let primaryMediaType = 'none';
+    if (mediaItems.length === 1) {
+      primaryMediaType = mediaItems[0].media_type || 'image';
+    } else if (mediaItems.length > 1) {
+      const types = new Set(mediaItems.map((m) => m.media_type));
+      primaryMediaType = types.size === 1 ? mediaItems[0].media_type : 'multiple';
+    }
+
+    const primaryMediaUrl = mediaItems.length > 0 ? mediaItems[0].media_url : '';
+
+    const pool = getPool();
+    const conn = await pool.getConnection();
+
+    try {
+      await conn.beginTransaction();
+      const [result] = await conn.execute(
+        `INSERT INTO posts (user_id, title, content, media_url, media_type, media, likes_count, comments_count)
+         VALUES (?, ?, ?, ?, ?, ?, 0, 0)`,
+        [
+          targetUserId,
+          cleanTitle,
+          cleanContent,
+          primaryMediaUrl,
+          primaryMediaType,
+          mediaItems.length > 0 ? JSON.stringify(mediaItems) : null,
+        ]
+      );
+      const postId = result.insertId;
+
+      if (mediaItems.length > 0) {
+        for (let i = 0; i < mediaItems.length; i++) {
+          const m = mediaItems[i];
+          const mType = ['image', 'video', 'audio'].includes(m.media_type) ? m.media_type : 'image';
+          const mUrl = m.media_url || m.url || '';
+          if (mUrl) {
+            await conn.execute(
+              `INSERT INTO post_media (post_id, media_type, media_url, thumbnail_url, duration, display_order)
+               VALUES (?, ?, ?, ?, ?, ?)`,
+              [postId, mType, mUrl, m.thumbnail_url || null, parseInt(m.duration || 0, 10), i + 1]
+            );
+          }
+        }
+      }
+
+      await conn.commit();
+      await cache.delByPattern('feed:*');
+      await cache.delByPattern('admin:posts:*');
+
+      return res.status(201).json({
+        success: true,
+        message: 'Post created successfully by administrator.',
+        postId,
+      });
+    } catch (e) {
+      await conn.rollback();
+      throw e;
+    } finally {
+      conn.release();
+    }
+  } catch (err) {
+    console.error('createAdminPost error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to create post.' });
+  }
+}
+
+export async function deleteUserPost(req, res) {
+  try {
+    const { postId } = req.params;
+    await query('DELETE FROM posts WHERE id = ?', [postId]);
+    await cache.delByPattern('feed:*');
+    await cache.del(`feed:post:${postId}`);
+    await cache.delByPattern(`feed:comments:${postId}:*`);
+    await cache.delByPattern(`feed:reactions:${postId}:*`);
+    await cache.delByPattern('admin:posts:*');
+    return res.json({ success: true, message: 'Post deleted successfully.' });
+  } catch (err) {
+    console.error('deleteUserPost error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to delete post.' });
+  }
+}
+
+export async function deleteUser(req, res) {
+  try {
+    const { id } = req.params;
+    const target = await query('SELECT id, full_name, role FROM users WHERE id = ?', [id]);
+    if (!target || target.length === 0) {
+      return res.status(404).json({ success: false, message: 'User not found.' });
+    }
+    if (target[0].role === 'superadmin') {
+      return res.status(403).json({ success: false, message: 'Superadmin account cannot be deleted.' });
+    }
+
+    // Clean up relations
+    await query('DELETE FROM agency_hosts WHERE user_id = ?', [id]).catch(() => {});
+    await query('DELETE FROM moderators WHERE user_id = ?', [id]).catch(() => {});
+    await query('DELETE FROM live_streams WHERE host_id = ?', [id]).catch(() => {});
+    await query('DELETE FROM users WHERE id = ?', [id]);
+
+    // Database write succeeded -> Invalidate Redis cache
+    await cache.del(`user:${id}`);
+    await cache.del(`user:balance:${id}`);
+    await cache.del(`admin:user:${id}`);
+    await cache.delByPattern('admin:users*');
+    await cache.delByPattern('admin:dashboard*');
+    await cache.delByPattern('hosts:*');
+    await cache.delByPattern('resellers:*');
+    await cache.delByPattern('moderators:*');
+
+    return res.json({
+      success: true,
+      message: `User ID #${id} (${target[0].full_name || 'User'}) deleted successfully.`,
+    });
+  } catch (err) {
+    console.error('deleteUser error:', err);
+    return res.status(500).json({ success: false, message: err.message || 'Failed to delete user.' });
+  }
+}
+
+/**
+ * Universal Bulk Delete Controller
+ * Database-First mutation + Instant Redis Cache Invalidation across all entities
+ */
+export async function bulkDelete(req, res) {
+  try {
+    const { entity, ids } = req.body;
+    if (!entity || !Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).json({ success: false, message: 'Invalid entity or empty IDs array.' });
+    }
+
+    // Clean and validate integer or string IDs
+    const cleanIds = ids
+      .map((id) => (typeof id === 'number' ? id : parseInt(id, 10)))
+      .filter((id) => !isNaN(id) && id > 0);
+
+    if (cleanIds.length === 0) {
+      return res.status(400).json({ success: false, message: 'No valid IDs provided for bulk deletion.' });
+    }
+
+    let deletedCount = 0;
+
+    switch (entity) {
+      case 'users': {
+        const currentUserId = req.user?.id;
+        const placeholders = cleanIds.map(() => '?').join(',');
+        const usersToDelete = await query(
+          `SELECT id, role FROM users WHERE id IN (${placeholders}) AND role != 'superadmin' ${
+            currentUserId ? 'AND id != ?' : ''
+          }`,
+          currentUserId ? [...cleanIds, currentUserId] : cleanIds
+        );
+        const validUserIds = usersToDelete.map((u) => u.id);
+
+        if (validUserIds.length > 0) {
+          const vPlaceholders = validUserIds.map(() => '?').join(',');
+          await query(`DELETE FROM agency_hosts WHERE user_id IN (${vPlaceholders})`, validUserIds).catch(() => {});
+          await query(`DELETE FROM moderators WHERE user_id IN (${vPlaceholders})`, validUserIds).catch(() => {});
+          await query(`DELETE FROM live_streams WHERE host_id IN (${vPlaceholders})`, validUserIds).catch(() => {});
+          const result = await query(`DELETE FROM users WHERE id IN (${vPlaceholders})`, validUserIds);
+          deletedCount = result.affectedRows || validUserIds.length;
+
+          // Invalidate Redis caches for each user and aggregate lists
+          for (const uId of validUserIds) {
+            await cache.del(`user:${uId}`);
+            await cache.del(`user:balance:${uId}`);
+            await cache.del(`admin:user:${uId}`);
+          }
+          await cache.delByPattern('admin:users*');
+          await cache.delByPattern('admin:dashboard*');
+          await cache.delByPattern('hosts:*');
+          await cache.delByPattern('resellers:*');
+          await cache.delByPattern('moderators:*');
+        }
+        break;
+      }
+
+      case 'banners': {
+        const placeholders = cleanIds.map(() => '?').join(',');
+        const result = await query(`DELETE FROM banners WHERE id IN (${placeholders})`, cleanIds);
+        deletedCount = result.affectedRows || 0;
+        await cache.del('banners:public', 'banners:admin');
+        await cache.delByPattern('banners:*');
+        break;
+      }
+
+      case 'gifts': {
+        const placeholders = cleanIds.map(() => '?').join(',');
+        const result = await query(`DELETE FROM gifts WHERE id IN (${placeholders})`, cleanIds);
+        deletedCount = result.affectedRows || 0;
+        await cache.del('gifts:active', 'gifts:admin');
+        await cache.delByPattern('gifts:*');
+        break;
+      }
+
+      case 'thumbnails': {
+        const placeholders = cleanIds.map(() => '?').join(',');
+        await query(`DELETE FROM user_special_items WHERE item_id IN (${placeholders})`, cleanIds).catch(() => {});
+        const result = await query(
+          `DELETE FROM special_items WHERE type = 'thumbnail' AND id IN (${placeholders})`,
+          cleanIds
+        );
+        deletedCount = result.affectedRows || 0;
+        await cache.delByPattern('special_items:thumbnails:*');
+        await cache.delByPattern('user:privileges:*');
+        break;
+      }
+
+      case 'entry_effects':
+      case 'entry-effects': {
+        const placeholders = cleanIds.map(() => '?').join(',');
+        await query(`DELETE FROM user_special_items WHERE item_id IN (${placeholders})`, cleanIds).catch(() => {});
+        const result = await query(
+          `DELETE FROM special_items WHERE type = 'entry_effect' AND id IN (${placeholders})`,
+          cleanIds
+        );
+        deletedCount = result.affectedRows || 0;
+        await cache.delByPattern('special_items:effects:*');
+        await cache.delByPattern('user:privileges:*');
+        break;
+      }
+
+      case 'packages': {
+        const placeholders = cleanIds.map(() => '?').join(',');
+        await query(`DELETE FROM user_packages WHERE package_id IN (${placeholders})`, cleanIds).catch(() => {});
+        const result = await query(`DELETE FROM packages WHERE id IN (${placeholders})`, cleanIds);
+        deletedCount = result.affectedRows || 0;
+        await cache.delByPattern('packages:*');
+        await cache.delByPattern('user:privileges:*');
+        break;
+      }
+
+      case 'package_categories':
+      case 'categories': {
+        const placeholders = cleanIds.map(() => '?').join(',');
+        const result = await query(`DELETE FROM package_categories WHERE id IN (${placeholders})`, cleanIds);
+        deletedCount = result.affectedRows || 0;
+        await cache.del('packages:categories');
+        await cache.delByPattern('packages:*');
+        break;
+      }
+
+      case 'moderators': {
+        const placeholders = cleanIds.map(() => '?').join(',');
+        const result = await query(`DELETE FROM moderators WHERE id IN (${placeholders})`, cleanIds);
+        deletedCount = result.affectedRows || 0;
+        await cache.del('moderators:all');
+        break;
+      }
+
+      case 'agencies': {
+        const placeholders = cleanIds.map(() => '?').join(',');
+        await query(`DELETE FROM agency_hosts WHERE agency_id IN (${placeholders})`, cleanIds).catch(() => {});
+        const result = await query(`DELETE FROM agencies WHERE id IN (${placeholders})`, cleanIds);
+        deletedCount = result.affectedRows || 0;
+        await cache.del('agencies:all');
+        await cache.delByPattern('hosts:*');
+        break;
+      }
+
+      case 'resellers': {
+        const placeholders = cleanIds.map(() => '?').join(',');
+        const result = await query(`DELETE FROM resellers WHERE id IN (${placeholders})`, cleanIds);
+        deletedCount = result.affectedRows || 0;
+        await cache.delByPattern('resellers:all:*');
+        break;
+      }
+
+      case 'reseller_sales':
+      case 'reseller-sales': {
+        const placeholders = cleanIds.map(() => '?').join(',');
+        const result = await query(`DELETE FROM reseller_sales WHERE id IN (${placeholders})`, cleanIds);
+        deletedCount = result.affectedRows || 0;
+        await cache.delByPattern('reseller_sales:all:*');
+        break;
+      }
+
+      case 'withdrawals': {
+        const placeholders = cleanIds.map(() => '?').join(',');
+        const result = await query(`DELETE FROM withdrawals WHERE id IN (${placeholders})`, cleanIds);
+        deletedCount = result.affectedRows || 0;
+        await cache.delByPattern('admin:withdrawals:*');
+        break;
+      }
+
+      case 'coin_packages':
+      case 'coin-packages': {
+        const placeholders = cleanIds.map(() => '?').join(',');
+        const result = await query(`DELETE FROM coin_packages WHERE id IN (${placeholders})`, cleanIds);
+        deletedCount = result.affectedRows || 0;
+        await cache.del('wallet:packages');
+        await cache.del('admin:coin_packages');
+        await cache.del('wallet:recharge:config');
+        await cache.del('config:mobile:app');
+        break;
+      }
+
+      case 'hosts': {
+        const placeholders = cleanIds.map(() => '?').join(',');
+        await query(`DELETE FROM agency_hosts WHERE user_id IN (${placeholders})`, cleanIds).catch(() => {});
+        const result = await query(
+          `UPDATE users SET role = 'user', host_type = 'general', agency_id = NULL WHERE id IN (${placeholders}) AND role = 'host'`,
+          cleanIds
+        );
+        deletedCount = result.affectedRows || 0;
+        for (const uId of cleanIds) {
+          await cache.del(`user:${uId}`);
+          await cache.del(`admin:user:${uId}`);
+        }
+        await cache.delByPattern('hosts:*');
+        await cache.delByPattern('admin:users*');
+        break;
+      }
+
+      case 'host_requests':
+      case 'host-requests': {
+        const placeholders = cleanIds.map(() => '?').join(',');
+        const result = await query(`DELETE FROM host_requests WHERE id IN (${placeholders})`, cleanIds);
+        deletedCount = result.affectedRows || 0;
+        await cache.delByPattern('host_requests:all:*');
+        break;
+      }
+
+      case 'posts': {
+        const placeholders = cleanIds.map(() => '?').join(',');
+        const result = await query(`DELETE FROM posts WHERE id IN (${placeholders})`, cleanIds);
+        deletedCount = result.affectedRows || 0;
+        await cache.delByPattern('feed:*');
+        for (const pId of cleanIds) {
+          await cache.del(`feed:post:${pId}`);
+          await cache.delByPattern(`feed:comments:${pId}:*`);
+          await cache.delByPattern(`feed:reactions:${pId}:*`);
+        }
+        await cache.delByPattern('admin:posts:*');
+        break;
+      }
+
+      default:
+        return res.status(400).json({ success: false, message: `Unsupported bulk delete entity: ${entity}` });
+    }
+
+    return res.json({
+      success: true,
+      count: deletedCount,
+      message: `Successfully deleted ${deletedCount} item(s) from ${entity}.`,
+    });
+  } catch (err) {
+    console.error('bulkDelete error:', err);
+    return res.status(500).json({ success: false, message: err.message || 'Bulk delete operation failed.' });
+  }
+}
+
+// ==========================================
+// HOST MANAGEMENT CONTROLLERS
+// ==========================================
+
+export async function getHosts(req, res) {
+  try {
+    const { search, hostType, agencyId, page = 1, limit = 20 } = req.query;
+    const cacheKey = `hosts:all:${search || ''}:${hostType || ''}:${agencyId || ''}:${page}:${limit}`;
+
+    const data = await cache.getOrSet(cacheKey, 30, async () => {
+      const offset = (parseInt(page, 10) - 1) * parseInt(limit, 10);
+
+      const conditions = ["u.role = 'host'"];
+      const params = [];
+
+      if (search) {
+        const cleanSearch = String(search).trim().replace(/^#/, '');
+        const isNumeric = !isNaN(cleanSearch) && cleanSearch !== '';
+        if (isNumeric) {
+          conditions.push('u.id = ?');
+          params.push(parseInt(cleanSearch, 10));
+        } else {
+          conditions.push('(u.full_name LIKE ? OR u.email LIKE ?)');
+          const s = `%${cleanSearch}%`;
+          params.push(s, s);
+        }
+      }
+
+      if (hostType && hostType !== 'all') {
+        conditions.push('u.host_type = ?');
+        params.push(hostType);
+      }
+
+      if (agencyId && agencyId !== 'all') {
+        if (agencyId === 'none') {
+          conditions.push('u.agency_id IS NULL');
+        } else {
+          conditions.push('u.agency_id = ?');
+          params.push(parseInt(agencyId, 10));
+        }
+      }
+
+      const whereSql = `WHERE ${conditions.join(' AND ')}`;
+
+      const hosts = await query(
+        `SELECT 
+          u.id, u.email, u.full_name, u.avatar_url, u.bio, u.role, u.host_type,
+          u.agency_id, a.name as agency_name, a.agency_code, a.commission_rate,
+          u.coins, u.diamonds, u.level, u.vip_package, u.is_banned, u.created_at,
+          (SELECT COUNT(*) FROM live_rooms lr WHERE lr.host_id = u.id) as stream_count,
+          (SELECT COALESCE(SUM(total_diamonds), 0) FROM live_rooms lr WHERE lr.host_id = u.id) as stream_diamonds
+         FROM users u
+         LEFT JOIN agencies a ON u.agency_id = a.id
+         ${whereSql}
+         ORDER BY u.diamonds DESC, u.id DESC
+         LIMIT ${parseInt(limit, 10)} OFFSET ${parseInt(offset, 10)}`,
+        params
+      );
+
+      const [totalRows] = await query(`SELECT COUNT(*) as count FROM users u ${whereSql}`, params);
+
+      const [stats] = await query(`
+        SELECT 
+          COUNT(*) as total_hosts,
+          SUM(CASE WHEN host_type = 'video' THEN 1 ELSE 0 END) as video_hosts,
+          SUM(CASE WHEN host_type = 'audio' THEN 1 ELSE 0 END) as audio_hosts,
+          SUM(CASE WHEN agency_id IS NOT NULL THEN 1 ELSE 0 END) as agency_hosts,
+          SUM(CASE WHEN agency_id IS NULL THEN 1 ELSE 0 END) as independent_hosts,
+          COALESCE(SUM(diamonds), 0) as total_host_diamonds
+        FROM users
+        WHERE role = 'host'
+      `);
+
+      return {
+        hosts,
+        summary: stats || { total_hosts: 0, video_hosts: 0, audio_hosts: 0, agency_hosts: 0, independent_hosts: 0, total_host_diamonds: 0 },
+        total: totalRows.count,
+      };
+    });
+
+    return res.json({
+      success: true,
+      hosts: data.hosts,
+      summary: data.summary,
+      pagination: {
+        total: data.total,
+        page: parseInt(page, 10),
+        limit: parseInt(limit, 10),
+      },
+    });
+  } catch (err) {
+    console.error('getHosts error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to fetch hosts.', error: err.message });
+  }
+}
+
+export async function updateHostDetails(req, res) {
+  try {
+    const { id } = req.params;
+    const { host_type, agency_id } = req.body;
+
+    const updates = [];
+    const params = [];
+
+    if (host_type !== undefined) {
+      if (!['video', 'audio'].includes(host_type)) {
+        return res.status(400).json({ success: false, message: "Host type must be either 'video' or 'audio'." });
+      }
+      updates.push('host_type = ?');
+      params.push(host_type);
+    }
+
+    if (agency_id !== undefined) {
+      updates.push('agency_id = ?');
+      params.push(agency_id ? parseInt(agency_id, 10) : null);
+    }
+
+    if (updates.length === 0) {
+      return res.status(400).json({ success: false, message: 'No fields provided to update.' });
+    }
+
+    params.push(id);
+    await query(`UPDATE users SET ${updates.join(', ')} WHERE id = ? AND role = 'host'`, params);
+
+    // Database write succeeded -> Invalidate Redis cache
+    await cache.delByPattern('hosts:*');
+    await cache.del(`user:${id}`);
+    await cache.del(`admin:user:${id}`);
+    await cache.delByPattern('admin:users*');
+
+    const [updated] = await query(
+      `SELECT u.id, u.full_name, u.email, u.host_type, u.agency_id, a.name as agency_name
+       FROM users u
+       LEFT JOIN agencies a ON u.agency_id = a.id
+       WHERE u.id = ?`,
+      [id]
+    );
+
+    return res.json({
+      success: true,
+      message: `Host #${id} updated successfully.`,
+      host: updated,
+    });
+  } catch (err) {
+    console.error('updateHostDetails error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to update host.', error: err.message });
+  }
+}
+
+export async function getHostRequests(req, res) {
+  try {
+    const { status, page = 1, limit = 20 } = req.query;
+    const cacheKey = `host_requests:all:${status || 'all'}:${page}:${limit}`;
+
+    const data = await cache.getOrSet(cacheKey, 30, async () => {
+      const offset = (parseInt(page, 10) - 1) * parseInt(limit, 10);
+
+      let whereSql = '';
+      const params = [];
+
+      if (status && status !== 'all') {
+        whereSql = 'WHERE hr.status = ?';
+        params.push(status);
+      }
+
+      const requests = await query(
+        `SELECT 
+          hr.*,
+          u.full_name,
+          u.email as user_email,
+          u.avatar_url as user_avatar,
+          u.role as user_role,
+          u.coins as user_coins,
+          u.diamonds as user_diamonds,
+          a.name as agency_name,
+          a.agency_code
+         FROM host_requests hr
+         JOIN users u ON hr.user_id = u.id
+         LEFT JOIN agencies a ON hr.agency_id = a.id
+         ${whereSql}
+         ORDER BY hr.status = 'pending' DESC, hr.created_at DESC
+         LIMIT ${parseInt(limit, 10)} OFFSET ${parseInt(offset, 10)}`,
+        params
+      );
+
+      const [totalRows] = await query(`SELECT COUNT(*) as count FROM host_requests hr ${whereSql}`, params);
+
+      const [counts] = await query(`
+        SELECT 
+          COUNT(*) as total_requests,
+          SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending_requests,
+          SUM(CASE WHEN status = 'approved' THEN 1 ELSE 0 END) as approved_requests,
+          SUM(CASE WHEN status = 'rejected' THEN 1 ELSE 0 END) as rejected_requests
+        FROM host_requests
+      `);
+
+      return {
+        requests,
+        summary: counts || { total_requests: 0, pending_requests: 0, approved_requests: 0, rejected_requests: 0 },
+        total: totalRows.count,
+      };
+    });
+
+    return res.json({
+      success: true,
+      requests: data.requests,
+      summary: data.summary,
+      pagination: {
+        total: data.total,
+        page: parseInt(page, 10),
+        limit: parseInt(limit, 10),
+      },
+    });
+  } catch (err) {
+    console.error('getHostRequests error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to fetch host requests.', error: err.message });
+  }
+}
+
+export async function createHostRequest(req, res) {
+  try {
+    const { userId, agencyId, hostType = 'video', notes = '' } = req.body;
+
+    if (!userId) {
+      return res.status(400).json({ success: false, message: 'User ID is required.' });
+    }
+
+    const [user] = await query('SELECT id, full_name, role FROM users WHERE id = ?', [userId]);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found.' });
+    }
+
+    const cleanHostType = hostType === 'audio' ? 'audio' : 'video';
+    const cleanAgencyId = agencyId ? parseInt(agencyId, 10) : null;
+
+    const result = await query(
+      `INSERT INTO host_requests (user_id, agency_id, host_type, status, notes)
+       VALUES (?, ?, ?, 'pending', ?)`,
+      [userId, cleanAgencyId, cleanHostType, notes]
+    );
+
+    // Database write succeeded -> Invalidate Redis cache
+    await cache.delByPattern('host_requests:*');
+
+    return res.status(201).json({
+      success: true,
+      message: `Host request submitted successfully for ${user.full_name || `User #${userId}`}!`,
+      requestId: result.insertId,
+    });
+  } catch (err) {
+    console.error('createHostRequest error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to create host request.', error: err.message });
+  }
+}
+
+export async function processHostRequest(req, res) {
+  const pool = getPool();
+  const connection = await pool.getConnection();
+
+  try {
+    const { id } = req.params;
+    const { status, adminNotes } = req.body; // status: 'approved' | 'rejected'
+
+    if (!['approved', 'rejected'].includes(status)) {
+      return res.status(400).json({ success: false, message: "Status must be 'approved' or 'rejected'." });
+    }
+
+    const [requests] = await connection.execute('SELECT * FROM host_requests WHERE id = ?', [id]);
+    if (requests.length === 0) {
+      return res.status(404).json({ success: false, message: 'Host request not found.' });
+    }
+
+    const hr = requests[0];
+    if (hr.status !== 'pending') {
+      return res.status(400).json({ success: false, message: `Host request has already been ${hr.status}.` });
+    }
+
+    await connection.beginTransaction();
+
+    await connection.execute(
+      'UPDATE host_requests SET status = ?, admin_notes = ? WHERE id = ?',
+      [status, adminNotes || `Processed by admin: ${status}`, id]
+    );
+
+    if (status === 'approved') {
+      // Elevate user to host, assign host_type and agency_id
+      await connection.execute(
+        "UPDATE users SET role = 'host', host_type = ?, agency_id = ? WHERE id = ?",
+        [hr.host_type, hr.agency_id || null, hr.user_id]
+      );
+    }
+
+    await connection.commit();
+
+    // Database write succeeded -> Invalidate Redis cache
+    await cache.delByPattern('host_requests:*');
+    await cache.delByPattern('hosts:*');
+    await cache.del(`user:${hr.user_id}`);
+    await cache.del(`admin:user:${hr.user_id}`);
+    await cache.delByPattern('admin:users*');
+
+    return res.json({
+      success: true,
+      message: `Host request #${id} has been ${status}. User promoted to ${hr.host_type.toUpperCase()} Host.`,
+    });
+  } catch (err) {
+    await connection.rollback();
+    console.error('processHostRequest error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to process host request.', error: err.message });
+  } finally {
+    connection.release();
+  }
+}
+
+export async function getHostWithdrawalRatios(req, res) {
+  try {
+    const ratiosData = await cache.getOrSet('host_ratios:all', 300, async () => {
+      const settings = await query(
+        "SELECT key_name, key_value, description FROM system_settings WHERE key_name IN ('is_convert_to_diamond', 'video_host_diamond_base', 'video_host_taka_amount', 'audio_host_diamond_base', 'audio_host_taka_amount', 'diamond_to_usd_rate', 'min_withdrawal_diamonds', 'withdrawal_presets', 'allow_manual_withdrawal_input')"
+      );
+
+      const map = {};
+      settings.forEach((s) => {
+        map[s.key_name] = s.key_value;
+      });
+
+      const isDiamondMode = map['is_convert_to_diamond'] !== 'false';
+      const videoBase = parseFloat(map['video_host_diamond_base'] || '100000');
+      const videoTaka = parseFloat(map['video_host_taka_amount'] || '5000');
+      const audioBase = parseFloat(map['audio_host_diamond_base'] || '100000');
+      const audioTaka = parseFloat(map['audio_host_taka_amount'] || '3500');
+
+      const videoRatePerUnit = videoBase > 0 ? (videoTaka / videoBase) : 0.05;
+      const audioRatePerUnit = audioBase > 0 ? (audioTaka / audioBase) : 0.035;
+
+      let presets = [1000, 2000, 5000, 10000, 25000, 50000];
+      try {
+        const rawP = map['withdrawal_presets'];
+        if (rawP) {
+          presets = typeof rawP === 'string' && rawP.startsWith('[')
+            ? JSON.parse(rawP)
+            : rawP.split(',').map((s) => parseInt(s.trim(), 10)).filter((n) => !isNaN(n));
+        }
+      } catch (e) {}
+
+      return {
+        isDiamondMode,
+        currency: isDiamondMode ? 'diamonds' : 'coins',
+        unitLabel: isDiamondMode ? 'Diamond' : 'Coin',
+        unitSymbol: isDiamondMode ? '💎' : '🪙',
+        video: {
+          baseAmount: videoBase,
+          diamondBase: videoBase,
+          coinBase: videoBase,
+          takaAmount: videoTaka,
+          ratePerUnit: parseFloat(videoRatePerUnit.toFixed(6)),
+          ratePerDiamond: parseFloat(videoRatePerUnit.toFixed(6)),
+          ratePerCoin: parseFloat(videoRatePerUnit.toFixed(6)),
+          currency: 'BDT',
+        },
+        audio: {
+          baseAmount: audioBase,
+          diamondBase: audioBase,
+          coinBase: audioBase,
+          takaAmount: audioTaka,
+          ratePerUnit: parseFloat(audioRatePerUnit.toFixed(6)),
+          ratePerDiamond: parseFloat(audioRatePerUnit.toFixed(6)),
+          ratePerCoin: parseFloat(audioRatePerUnit.toFixed(6)),
+          currency: 'BDT',
+        },
+        minWithdrawalAmount: parseInt(map['min_withdrawal_diamonds'] || '1000', 10),
+        minWithdrawalDiamonds: parseInt(map['min_withdrawal_diamonds'] || '1000', 10),
+        minWithdrawalCoins: parseInt(map['min_withdrawal_diamonds'] || '1000', 10),
+        usdRate: parseFloat(map['diamond_to_usd_rate'] || '0.005'),
+        withdrawalPresets: presets,
+        allowManualInput: map['allow_manual_withdrawal_input'] !== 'false',
+      };
+    });
+
+    return res.json({
+      success: true,
+      ratios: ratiosData,
+    });
+  } catch (err) {
+    console.error('getHostWithdrawalRatios error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to fetch withdrawal ratios.', error: err.message });
+  }
+}
+
+export async function updateHostWithdrawalRatios(req, res) {
+  try {
+    const {
+      videoBase,
+      videoTaka,
+      audioBase,
+      audioTaka,
+      minWithdrawalDiamonds,
+      minWithdrawalCoins,
+      minWithdrawalAmount,
+      withdrawalPresets,
+      allowManualInput,
+      usdRate,
+    } = req.body;
+
+    const minAmount = minWithdrawalDiamonds !== undefined 
+      ? minWithdrawalDiamonds 
+      : (minWithdrawalCoins !== undefined ? minWithdrawalCoins : minWithdrawalAmount);
+
+    if (videoBase !== undefined && videoTaka !== undefined) {
+      await query(
+        `INSERT INTO system_settings (key_name, key_value, description)
+         VALUES ('video_host_diamond_base', ?, 'Video host diamond base count')
+         ON DUPLICATE KEY UPDATE key_value = VALUES(key_value)`,
+        [String(videoBase)]
+      );
+      await query(
+        `INSERT INTO system_settings (key_name, key_value, description)
+         VALUES ('video_host_taka_amount', ?, 'Video host payout amount in BDT')
+         ON DUPLICATE KEY UPDATE key_value = VALUES(key_value)`,
+        [String(videoTaka)]
+      );
+    }
+
+    if (audioBase !== undefined && audioTaka !== undefined) {
+      await query(
+        `INSERT INTO system_settings (key_name, key_value, description)
+         VALUES ('audio_host_diamond_base', ?, 'Audio host diamond base count')
+         ON DUPLICATE KEY UPDATE key_value = VALUES(key_value)`,
+        [String(audioBase)]
+      );
+      await query(
+        `INSERT INTO system_settings (key_name, key_value, description)
+         VALUES ('audio_host_taka_amount', ?, 'Audio host payout amount in BDT')
+         ON DUPLICATE KEY UPDATE key_value = VALUES(key_value)`,
+        [String(audioTaka)]
+      );
+    }
+
+    if (minAmount !== undefined) {
+      await query(
+        `INSERT INTO system_settings (key_name, key_value, description)
+         VALUES ('min_withdrawal_diamonds', ?, 'Minimum balance required to request cashout')
+         ON DUPLICATE KEY UPDATE key_value = VALUES(key_value)`,
+        [String(minAmount)]
+      );
+    }
+
+    if (withdrawalPresets !== undefined) {
+      const presetsVal = Array.isArray(withdrawalPresets) ? JSON.stringify(withdrawalPresets) : String(withdrawalPresets);
+      await query(
+        `INSERT INTO system_settings (key_name, key_value, description)
+         VALUES ('withdrawal_presets', ?, 'Preset diamond cashout options for hosts')
+         ON DUPLICATE KEY UPDATE key_value = VALUES(key_value)`,
+        [presetsVal]
+      );
+    }
+
+    if (allowManualInput !== undefined) {
+      await query(
+        `INSERT INTO system_settings (key_name, key_value, description)
+         VALUES ('allow_manual_withdrawal_input', ?, 'Whether users/hosts can input custom diamond amount for withdrawal')
+         ON DUPLICATE KEY UPDATE key_value = VALUES(key_value)`,
+        [allowManualInput ? 'true' : 'false']
+      );
+    }
+
+    if (usdRate !== undefined) {
+      await query(
+        `INSERT INTO system_settings (key_name, key_value, description)
+         VALUES ('diamond_to_usd_rate', ?, 'Conversion rate: USD per 1 diamond for host payouts')
+         ON DUPLICATE KEY UPDATE key_value = VALUES(key_value)`,
+        [String(usdRate)]
+      );
+    }
+
+    // Database write succeeded -> Invalidate Redis cache
+    await cache.del('host_ratios:all');
+    await cache.del('wallet:withdrawal:config');
+    await cache.del('config:mobile:app');
+    await cache.del('settings:all');
+    await cache.delByPattern('settings:*');
+
+    return res.json({
+      success: true,
+      message: 'Host withdrawal settings & conversion ratios updated successfully!',
+    });
+  } catch (err) {
+    console.error('updateHostWithdrawalRatios error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to update ratios.', error: err.message });
+  }
+}
+
+// ==========================================
+// RESELLER MANAGEMENT CONTROLLERS
+// ==========================================
+
+export async function getResellers(req, res) {
+  try {
+    const { search, page = 1, limit = 10 } = req.query;
+    const cacheKey = `resellers:all:${search || ''}:${page}:${limit}`;
+
+    const data = await cache.getOrSet(cacheKey, 30, async () => {
+      const offset = (parseInt(page, 10) - 1) * parseInt(limit, 10);
+
+      const conditions = ["u.role = 'reseller'"];
+      const params = [];
+
+      if (search) {
+        const cleanSearch = String(search).trim().replace(/^#/, '');
+        const isNumeric = !isNaN(cleanSearch) && cleanSearch !== '';
+        if (isNumeric) {
+          conditions.push('u.id = ?');
+          params.push(parseInt(cleanSearch, 10));
+        } else {
+          conditions.push('(u.full_name LIKE ? OR u.email LIKE ?)');
+          const s = `%${cleanSearch}%`;
+          params.push(s, s);
+        }
+      }
+
+      const whereSql = `WHERE ${conditions.join(' AND ')}`;
+
+      const resellers = await query(`
+        SELECT 
+          u.id, u.email, u.full_name, u.avatar_url, u.bio, u.role, u.coins, u.diamonds,
+          u.level, u.vip_package, u.is_banned, u.created_at,
+          COALESCE(rs_all.total_coins, 0) as lifetime_coins_sold,
+          COALESCE(rs_all.total_revenue, 0) as lifetime_revenue,
+          COALESCE(rs_all.sales_count, 0) as lifetime_sales_count,
+          COALESCE(rs_month.month_coins, 0) as this_month_coins_sold,
+          COALESCE(rs_month.month_revenue, 0) as this_month_revenue,
+          COALESCE(rs_week.week_coins, 0) as this_week_coins_sold,
+          COALESCE(rs_week.week_revenue, 0) as this_week_revenue
+        FROM users u
+        LEFT JOIN (
+          SELECT reseller_id, SUM(coin_amount) as total_coins, SUM(price_amount) as total_revenue, COUNT(*) as sales_count
+          FROM reseller_sales
+          GROUP BY reseller_id
+        ) rs_all ON rs_all.reseller_id = u.id
+        LEFT JOIN (
+          SELECT reseller_id, SUM(coin_amount) as month_coins, SUM(price_amount) as month_revenue
+          FROM reseller_sales
+          WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+          GROUP BY reseller_id
+        ) rs_month ON rs_month.reseller_id = u.id
+        LEFT JOIN (
+          SELECT reseller_id, SUM(coin_amount) as week_coins, SUM(price_amount) as week_revenue
+          FROM reseller_sales
+          WHERE created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+          GROUP BY reseller_id
+        ) rs_week ON rs_week.reseller_id = u.id
+        ${whereSql}
+        ORDER BY lifetime_coins_sold DESC, u.id DESC
+        LIMIT ${parseInt(limit, 10)} OFFSET ${parseInt(offset, 10)}
+      `, params);
+
+      const [totalRows] = await query(`SELECT COUNT(*) as count FROM users u ${whereSql}`, params);
+
+      const [summaryStats] = await query(`
+        SELECT 
+          COUNT(DISTINCT u.id) as total_resellers,
+          COALESCE(SUM(rs.coin_amount), 0) as total_coins_sold_all_time,
+          COALESCE(SUM(rs.price_amount), 0) as total_revenue_all_time,
+          COALESCE(SUM(CASE WHEN rs.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) THEN rs.coin_amount ELSE 0 END), 0) as this_month_coins_sold,
+          COALESCE(SUM(CASE WHEN rs.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) THEN rs.price_amount ELSE 0 END), 0) as this_month_revenue,
+          COALESCE(SUM(CASE WHEN rs.created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) THEN rs.coin_amount ELSE 0 END), 0) as this_week_coins_sold,
+          COALESCE(SUM(CASE WHEN rs.created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) THEN rs.price_amount ELSE 0 END), 0) as this_week_revenue
+        FROM users u
+        LEFT JOIN reseller_sales rs ON rs.reseller_id = u.id
+        WHERE u.role = 'reseller'
+      `);
+
+      return {
+        resellers,
+        summary: summaryStats || {
+          total_resellers: 0,
+          total_coins_sold_all_time: 0,
+          total_revenue_all_time: 0,
+          this_month_coins_sold: 0,
+          this_month_revenue: 0,
+          this_week_coins_sold: 0,
+          this_week_revenue: 0,
+        },
+        total: totalRows.count,
+      };
+    });
+
+    return res.json({
+      success: true,
+      resellers: data.resellers,
+      summary: data.summary,
+      pagination: {
+        total: data.total,
+        page: parseInt(page, 10),
+        limit: parseInt(limit, 10),
+      },
+    });
+  } catch (err) {
+    console.error('getResellers error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to fetch resellers.', error: err.message });
+  }
+}
+
+export async function assignReseller(req, res) {
+  const pool = getPool();
+  const connection = await pool.getConnection();
+
+  try {
+    const { userId, email, password, full_name, initialCoins = 0 } = req.body;
+
+    await connection.beginTransaction();
+
+    let targetUserId = userId;
+
+    if (!targetUserId) {
+      if (!email || !password) {
+        await connection.rollback();
+        return res.status(400).json({
+          success: false,
+          message: 'Provide an existing User ID, or provide email and password to create a new reseller.',
+        });
+      }
+
+      const [existing] = await connection.execute('SELECT id FROM users WHERE email = ? LIMIT 1', [email]);
+      if (existing.length > 0) {
+        await connection.rollback();
+        return res.status(400).json({ success: false, message: 'A user with this email already exists.' });
+      }
+
+      const password_hash = await bcrypt.hash(password, 10);
+      const [insertRes] = await connection.execute(
+        `INSERT INTO users (email, password_hash, full_name, role, coins, level)
+         VALUES (?, ?, ?, 'reseller', ?, 10)`,
+        [email, password_hash, full_name || 'Reseller', parseInt(initialCoins, 10) || 0]
+      );
+      targetUserId = insertRes.insertId;
+    } else {
+      const [userRows] = await connection.execute('SELECT id, full_name, role FROM users WHERE id = ?', [targetUserId]);
+      if (userRows.length === 0) {
+        await connection.rollback();
+        return res.status(404).json({ success: false, message: 'User not found.' });
+      }
+
+      await connection.execute("UPDATE users SET role = 'reseller' WHERE id = ?", [targetUserId]);
+      if (initialCoins && parseInt(initialCoins, 10) > 0) {
+        await connection.execute('UPDATE users SET coins = coins + ? WHERE id = ?', [parseInt(initialCoins, 10), targetUserId]);
+      }
+    }
+
+    await connection.commit();
+
+    // Database write succeeded -> Invalidate Redis cache
+    await cache.delByPattern('resellers:*');
+    await cache.del(`user:${targetUserId}`);
+    await cache.del(`user:balance:${targetUserId}`);
+    await cache.del(`admin:user:${targetUserId}`);
+    await cache.delByPattern('admin:users*');
+
+    const [updatedUser] = await connection.execute(
+      'SELECT id, email, full_name, role, coins, level FROM users WHERE id = ?',
+      [targetUserId]
+    );
+
+    return res.status(201).json({
+      success: true,
+      message: `User #${targetUserId} successfully promoted to Official Reseller!`,
+      reseller: updatedUser[0],
+    });
+  } catch (err) {
+    await connection.rollback();
+    console.error('assignReseller error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to assign reseller.', error: err.message });
+  } finally {
+    connection.release();
+  }
+}
+
+export async function deleteReseller(req, res) {
+  try {
+    const { id } = req.params;
+
+    const [userRows] = await query('SELECT id, full_name, role FROM users WHERE id = ?', [id]);
+    if (!userRows || userRows.length === 0) {
+      return res.status(404).json({ success: false, message: 'User not found.' });
+    }
+
+    // Demote role back to 'user'
+    await query("UPDATE users SET role = 'user' WHERE id = ? AND role = 'reseller'", [id]);
+
+    // Database write succeeded -> Invalidate Redis cache
+    await cache.delByPattern('resellers:*');
+    await cache.del(`user:${id}`);
+    await cache.del(`admin:user:${id}`);
+    await cache.delByPattern('admin:users*');
+
+    return res.json({
+      success: true,
+      message: `Reseller status revoked for User #${id} (${userRows[0].full_name || 'User'}). Demoted to regular user.`,
+    });
+  } catch (err) {
+    console.error('deleteReseller error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to delete reseller.', error: err.message });
+  }
+}
+
+export async function getResellerSales(req, res) {
+  try {
+    const { resellerId, period = 'all', search, page = 1, limit = 50 } = req.query;
+    const cacheKey = `reseller_sales:all:${resellerId || 'all'}:${period || 'all'}:${search || ''}:${page}:${limit}`;
+
+    const data = await cache.getOrSet(cacheKey, 30, async () => {
+      const offset = (parseInt(page, 10) - 1) * parseInt(limit, 10);
+
+      const conditions = [];
+      const params = [];
+
+      const isSpecificReseller = resellerId && resellerId !== 'all' && !isNaN(parseInt(resellerId, 10));
+      if (isSpecificReseller) {
+        conditions.push('rs.reseller_id = ?');
+        params.push(parseInt(resellerId, 10));
+      }
+
+      if (period === 'week') {
+        conditions.push('rs.created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)');
+      } else if (period === 'month') {
+        conditions.push('rs.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)');
+      }
+
+      if (search) {
+        const clean = String(search).trim().replace(/^#/, '');
+        const isNum = !isNaN(clean) && clean !== '';
+        if (isNum) {
+          conditions.push('(rs.id = ? OR rs.buyer_id = ? OR rs.reseller_id = ?)');
+          const n = parseInt(clean, 10);
+          params.push(n, n, n);
+        } else {
+          conditions.push('(u_buy.full_name LIKE ? OR u_buy.email LIKE ? OR u_res.full_name LIKE ? OR rs.notes LIKE ?)');
+          const s = `%${clean}%`;
+          params.push(s, s, s, s);
+        }
+      }
+
+      const whereSql = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+
+      const sales = await query(
+        `SELECT 
+          rs.*,
+          u_res.full_name as reseller_name,
+          u_res.avatar_url as reseller_avatar,
+          u_buy.full_name as buyer_name,
+          u_buy.email as buyer_email,
+          u_buy.avatar_url as buyer_avatar
+         FROM reseller_sales rs
+         LEFT JOIN users u_res ON rs.reseller_id = u_res.id
+         LEFT JOIN users u_buy ON rs.buyer_id = u_buy.id
+         ${whereSql}
+         ORDER BY rs.created_at DESC
+         LIMIT ${parseInt(limit, 10)} OFFSET ${parseInt(offset, 10)}`,
+        params
+      );
+
+      const [totalRows] = await query(`
+        SELECT COUNT(*) as count 
+        FROM reseller_sales rs 
+        LEFT JOIN users u_res ON rs.reseller_id = u_res.id
+        LEFT JOIN users u_buy ON rs.buyer_id = u_buy.id
+        ${whereSql}
+      `, params);
+
+      // Summary calculations
+      const summaryConditions = isSpecificReseller ? ['reseller_id = ?'] : [];
+      const summaryParams = isSpecificReseller ? [parseInt(resellerId, 10)] : [];
+      const summaryWhere = summaryConditions.length > 0 ? `WHERE ${summaryConditions.join(' AND ')}` : '';
+
+      const [periodStats] = await query(`
+        SELECT 
+          COUNT(*) as total_sales_count,
+          COALESCE(SUM(coin_amount), 0) as total_coins_sold,
+          COALESCE(SUM(price_amount), 0) as total_revenue,
+          COALESCE(SUM(CASE WHEN created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) THEN coin_amount ELSE 0 END), 0) as month_coins_sold,
+          COALESCE(SUM(CASE WHEN created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) THEN price_amount ELSE 0 END), 0) as month_revenue,
+          COALESCE(SUM(CASE WHEN created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) THEN coin_amount ELSE 0 END), 0) as week_coins_sold,
+          COALESCE(SUM(CASE WHEN created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) THEN price_amount ELSE 0 END), 0) as week_revenue
+        FROM reseller_sales
+        ${summaryWhere}
+      `, summaryParams);
+
+      return {
+        sales,
+        summary: periodStats || {
+          total_sales_count: 0,
+          total_coins_sold: 0,
+          total_revenue: 0,
+          month_coins_sold: 0,
+          month_revenue: 0,
+          week_coins_sold: 0,
+          week_revenue: 0,
+        },
+        total: totalRows.count,
+      };
+    });
+
+    return res.json({
+      success: true,
+      sales: data.sales,
+      summary: data.summary,
+      pagination: {
+        total: data.total,
+        page: parseInt(page, 10),
+        limit: parseInt(limit, 10),
+      },
+    });
+  } catch (err) {
+    console.error('getResellerSales error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to fetch reseller sales.', error: err.message });
+  }
+}
+
+export async function recordResellerSale(req, res) {
+  const pool = getPool();
+  const connection = await pool.getConnection();
+
+  try {
+    const { resellerId, buyerId, coinAmount, priceAmount = 0, currency = 'BDT', notes = '' } = req.body;
+
+    const coins = parseInt(coinAmount, 10);
+    if (!resellerId || !buyerId || !coins || coins <= 0) {
+      return res.status(400).json({ success: false, message: 'Valid Reseller ID, Buyer ID, and positive coin amount are required.' });
+    }
+
+    const [resellers] = await connection.execute("SELECT id, full_name, coins FROM users WHERE id = ? AND role = 'reseller'", [resellerId]);
+    if (resellers.length === 0) {
+      return res.status(404).json({ success: false, message: 'Reseller not found.' });
+    }
+
+    if (resellers[0].coins < coins) {
+      return res.status(400).json({
+        success: false,
+        message: `Insufficient coins in reseller stock! Reseller #${resellerId} only has ${resellers[0].coins.toLocaleString()} coins.`,
+      });
+    }
+
+    const [buyers] = await connection.execute('SELECT id, full_name FROM users WHERE id = ?', [buyerId]);
+    if (buyers.length === 0) {
+      return res.status(404).json({ success: false, message: 'Buyer user not found.' });
+    }
+
+    await connection.beginTransaction();
+
+    // 1. Deduct from reseller
+    await connection.execute('UPDATE users SET coins = coins - ? WHERE id = ?', [coins, resellerId]);
+
+    // 2. Add to buyer
+    await connection.execute('UPDATE users SET coins = coins + ? WHERE id = ?', [coins, buyerId]);
+
+    // 3. Record in reseller_sales
+    const [saleRes] = await connection.execute(
+      `INSERT INTO reseller_sales (reseller_id, buyer_id, coin_amount, price_amount, currency, notes)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [resellerId, buyerId, coins, parseFloat(priceAmount) || 0, currency, notes]
+    );
+
+    // 4. Record transactions for ledger
+    await connection.execute(
+      `INSERT INTO transactions (user_id, type, amount, description, status)
+       VALUES (?, 'coin_purchase', ?, ?, 'completed')`,
+      [buyerId, coins, `Purchased ${coins.toLocaleString()} coins from Reseller #${resellerId} (${resellers[0].full_name || 'Reseller'})`]
+    );
+
+    await connection.commit();
+
+    // Database write succeeded -> Invalidate Redis cache
+    await cache.delByPattern('reseller_sales:*');
+    await cache.delByPattern('resellers:*');
+    await cache.del(`user:${resellerId}`);
+    await cache.del(`user:balance:${resellerId}`);
+    await cache.del(`admin:user:${resellerId}`);
+    await cache.del(`user:${buyerId}`);
+    await cache.del(`user:balance:${buyerId}`);
+    await cache.del(`admin:user:${buyerId}`);
+    await cache.delByPattern('admin:users*');
+
+    return res.status(201).json({
+      success: true,
+      message: `Successfully transferred ${coins.toLocaleString()} coins from Reseller #${resellerId} to User #${buyerId} (${buyers[0].full_name})!`,
+      saleId: saleRes.insertId,
+    });
+  } catch (err) {
+    await connection.rollback();
+    console.error('recordResellerSale error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to record reseller sale.', error: err.message });
+  } finally {
+    connection.release();
+  }
+}
+
+export async function deleteResellerSale(req, res) {
+  try {
+    const { id } = req.params;
+    const saleId = parseInt(id, 10);
+    if (!saleId || isNaN(saleId)) {
+      return res.status(400).json({ success: false, message: 'Invalid sale transaction ID.' });
+    }
+
+    const [existing] = await query('SELECT id FROM reseller_sales WHERE id = ?', [saleId]);
+    if (!existing) {
+      return res.status(404).json({ success: false, message: `Sale transaction #${saleId} not found.` });
+    }
+
+    await query('DELETE FROM reseller_sales WHERE id = ?', [saleId]);
+
+    // Database write succeeded -> Invalidate Redis cache
+    await cache.delByPattern('reseller_sales:*');
+    await cache.delByPattern('resellers:*');
+
+    return res.json({
+      success: true,
+      message: `Sale transaction #${saleId} deleted successfully.`,
+    });
+  } catch (err) {
+    console.error('deleteResellerSale error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to delete sale transaction.', error: err.message });
+  }
+}
+
+export async function clearResellerSales(req, res) {
+  try {
+    const { resellerId } = req.query;
+    let deleteSql = 'DELETE FROM reseller_sales';
+    const params = [];
+
+    const isSpecificReseller = resellerId && resellerId !== 'all' && !isNaN(parseInt(resellerId, 10));
+    if (isSpecificReseller) {
+      deleteSql += ' WHERE reseller_id = ?';
+      params.push(parseInt(resellerId, 10));
+    }
+
+    const result = await query(deleteSql, params);
+
+    // Database write succeeded -> Invalidate Redis cache
+    await cache.delByPattern('reseller_sales:*');
+    await cache.delByPattern('resellers:*');
+
+    return res.json({
+      success: true,
+      message: isSpecificReseller
+        ? `Cleaned all transactions for Reseller #${resellerId} (${result.affectedRows || 0} records deleted).`
+        : `Cleaned all reseller transactions (${result.affectedRows || 0} records deleted).`,
+      affectedRows: result.affectedRows,
+    });
+  } catch (err) {
+    console.error('clearResellerSales error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to clean reseller transactions.', error: err.message });
+  }
+}
+
+// ==========================================
+// COIN RECHARGE PACKAGES & PRESETS (ADMIN)
+// ==========================================
+
+export async function getCoinPackagesAdmin(req, res) {
+  try {
+    const data = await cache.getOrSet('admin:coin_packages', 60, async () => {
+      const [packages, settings] = await Promise.all([
+        query('SELECT * FROM coin_packages ORDER BY price_usd ASC'),
+        query("SELECT key_value FROM system_settings WHERE key_name = 'recharge_presets'"),
+      ]);
+
+      let presets = [500, 1000, 2500, 5000, 10000, 50000, 100000];
+      try {
+        const raw = settings[0]?.key_value;
+        if (raw) {
+          presets = typeof raw === 'string' && raw.startsWith('[')
+            ? JSON.parse(raw)
+            : raw.split(',').map((s) => parseInt(s.trim(), 10)).filter((n) => !isNaN(n));
+        }
+      } catch (e) {}
+
+      return {
+        packages: packages || [],
+        quickPresets: presets,
+      };
+    });
+
+    return res.json({ success: true, ...data });
+  } catch (err) {
+    console.error('getCoinPackagesAdmin error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to fetch coin packages.' });
+  }
+}
+
+export async function createCoinPackageAdmin(req, res) {
+  try {
+    const { name, coins, price_usd, bonus_coins, badge, is_active } = req.body;
+
+    if (!name || !name.trim()) {
+      return res.status(400).json({ success: false, message: 'Package name is required.' });
+    }
+
+    const coinCount = parseInt(coins, 10);
+    if (isNaN(coinCount) || coinCount <= 0) {
+      return res.status(400).json({ success: false, message: 'Coins amount must be greater than 0.' });
+    }
+
+    const price = parseFloat(price_usd);
+    if (isNaN(price) || price < 0) {
+      return res.status(400).json({ success: false, message: 'Price USD must be a valid positive number.' });
+    }
+
+    const bonus = parseInt(bonus_coins || 0, 10) || 0;
+    const active = is_active === undefined ? 1 : (is_active ? 1 : 0);
+    const badgeText = badge ? String(badge).trim() : '';
+
+    const result = await query(
+      `INSERT INTO coin_packages (name, coins, price_usd, bonus_coins, badge, is_active)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [name.trim(), coinCount, price, bonus, badgeText, active]
+    );
+
+    // Database write succeeded -> Invalidate Redis cache
+    await cache.del('wallet:packages');
+    await cache.del('admin:coin_packages');
+    await cache.del('wallet:recharge:config');
+    await cache.del('config:mobile:app');
+
+    const [newPkg] = await query('SELECT * FROM coin_packages WHERE id = ?', [result.insertId]);
+
+    return res.status(201).json({
+      success: true,
+      message: `Coin recharge package "${name}" created successfully!`,
+      package: newPkg,
+    });
+  } catch (err) {
+    console.error('createCoinPackageAdmin error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to create coin package.', error: err.message });
+  }
+}
+
+export async function updateCoinPackageAdmin(req, res) {
+  try {
+    const { id } = req.params;
+    const pkgId = parseInt(id, 10);
+    if (!pkgId || isNaN(pkgId)) {
+      return res.status(400).json({ success: false, message: 'Invalid package ID.' });
+    }
+
+    const [existing] = await query('SELECT * FROM coin_packages WHERE id = ?', [pkgId]);
+    if (!existing) {
+      return res.status(404).json({ success: false, message: 'Coin package not found.' });
+    }
+
+    const { name, coins, price_usd, bonus_coins, badge, is_active } = req.body;
+
+    const newName = name !== undefined ? String(name).trim() : existing.name;
+    const newCoins = coins !== undefined ? parseInt(coins, 10) : existing.coins;
+    const newPrice = price_usd !== undefined ? parseFloat(price_usd) : existing.price_usd;
+    const newBonus = bonus_coins !== undefined ? parseInt(bonus_coins, 10) : existing.bonus_coins;
+    const newBadge = badge !== undefined ? String(badge).trim() : existing.badge;
+    const newActive = is_active !== undefined ? (is_active ? 1 : 0) : existing.is_active;
+
+    await query(
+      `UPDATE coin_packages 
+       SET name = ?, coins = ?, price_usd = ?, bonus_coins = ?, badge = ?, is_active = ?
+       WHERE id = ?`,
+      [newName, newCoins, newPrice, newBonus, newBadge, newActive, pkgId]
+    );
+
+    // Database write succeeded -> Invalidate Redis cache
+    await cache.del('wallet:packages');
+    await cache.del('admin:coin_packages');
+    await cache.del('wallet:recharge:config');
+    await cache.del('config:mobile:app');
+
+    const [updated] = await query('SELECT * FROM coin_packages WHERE id = ?', [pkgId]);
+
+    return res.json({
+      success: true,
+      message: `Coin recharge package #${pkgId} updated successfully!`,
+      package: updated,
+    });
+  } catch (err) {
+    console.error('updateCoinPackageAdmin error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to update coin package.', error: err.message });
+  }
+}
+
+export async function deleteCoinPackageAdmin(req, res) {
+  try {
+    const { id } = req.params;
+    const pkgId = parseInt(id, 10);
+    if (!pkgId || isNaN(pkgId)) {
+      return res.status(400).json({ success: false, message: 'Invalid package ID.' });
+    }
+
+    const [existing] = await query('SELECT * FROM coin_packages WHERE id = ?', [pkgId]);
+    if (!existing) {
+      return res.status(404).json({ success: false, message: 'Coin package not found.' });
+    }
+
+    await query('DELETE FROM coin_packages WHERE id = ?', [pkgId]);
+
+    // Database write succeeded -> Invalidate Redis cache
+    await cache.del('wallet:packages');
+    await cache.del('admin:coin_packages');
+    await cache.del('wallet:recharge:config');
+    await cache.del('config:mobile:app');
+
+    return res.json({
+      success: true,
+      message: `Coin recharge package "${existing.name}" deleted successfully.`,
+      deletedId: pkgId,
+    });
+  } catch (err) {
+    console.error('deleteCoinPackageAdmin error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to delete coin package.', error: err.message });
+  }
+}
+
+export async function toggleCoinPackageAdmin(req, res) {
+  try {
+    const { id } = req.params;
+    const pkgId = parseInt(id, 10);
+    if (!pkgId || isNaN(pkgId)) {
+      return res.status(400).json({ success: false, message: 'Invalid package ID.' });
+    }
+
+    const [existing] = await query('SELECT * FROM coin_packages WHERE id = ?', [pkgId]);
+    if (!existing) {
+      return res.status(404).json({ success: false, message: 'Coin package not found.' });
+    }
+
+    const newStatus = existing.is_active ? 0 : 1;
+    await query('UPDATE coin_packages SET is_active = ? WHERE id = ?', [newStatus, pkgId]);
+
+    // Database write succeeded -> Invalidate Redis cache
+    await cache.del('wallet:packages');
+    await cache.del('admin:coin_packages');
+    await cache.del('wallet:recharge:config');
+    await cache.del('config:mobile:app');
+
+    return res.json({
+      success: true,
+      message: `Package #${pkgId} is now ${newStatus ? 'active' : 'inactive'}.`,
+      is_active: newStatus,
+    });
+  } catch (err) {
+    console.error('toggleCoinPackageAdmin error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to toggle package status.', error: err.message });
+  }
+}
+
+export async function getRechargePresetsAdmin(req, res) {
+  try {
+    const rows = await query("SELECT key_value FROM system_settings WHERE key_name = 'recharge_presets'");
+    let presets = [500, 1000, 2500, 5000, 10000, 50000, 100000];
+    try {
+      const raw = rows[0]?.key_value;
+      if (raw) {
+        presets = typeof raw === 'string' && raw.startsWith('[')
+          ? JSON.parse(raw)
+          : raw.split(',').map((s) => parseInt(s.trim(), 10)).filter((n) => !isNaN(n));
+      }
+    } catch (e) {}
+
+    return res.json({ success: true, presets });
+  } catch (err) {
+    console.error('getRechargePresetsAdmin error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to fetch recharge presets.' });
+  }
+}
+
+export async function updateRechargePresetsAdmin(req, res) {
+  try {
+    const { presets } = req.body;
+    let cleanPresets = [500, 1000, 2500, 5000, 10000, 50000, 100000];
+
+    if (Array.isArray(presets)) {
+      cleanPresets = presets.map((p) => parseInt(p, 10)).filter((p) => !isNaN(p) && p > 0);
+    } else if (typeof presets === 'string') {
+      cleanPresets = presets.split(',').map((p) => parseInt(p.trim(), 10)).filter((p) => !isNaN(p) && p > 0);
+    }
+
+    await query(
+      `INSERT INTO system_settings (key_name, key_value, description)
+       VALUES ('recharge_presets', ?, 'Quick preset coin amounts for wallet recharge')
+       ON DUPLICATE KEY UPDATE key_value = VALUES(key_value)`,
+      [JSON.stringify(cleanPresets)]
+    );
+
+    // Database write succeeded -> Invalidate Redis cache
+    await cache.del('admin:coin_packages');
+    await cache.del('wallet:recharge:config');
+    await cache.del('config:mobile:app');
+    await cache.del('settings:all');
+
+    return res.json({
+      success: true,
+      message: 'Recharge quick presets updated successfully!',
+      presets: cleanPresets,
+    });
+  } catch (err) {
+    console.error('updateRechargePresetsAdmin error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to update recharge presets.', error: err.message });
+  }
+}
+
+// ==========================================
+// WITHDRAWAL CONFIGURATION (ADMIN)
+// ==========================================
+
+export async function getWithdrawalConfigAdmin(req, res) {
+  try {
+    const rows = await query(
+      "SELECT key_name, key_value, description FROM system_settings WHERE key_name IN ('is_convert_to_diamond', 'diamond_to_usd_rate', 'min_withdrawal_diamonds', 'withdrawal_presets', 'allow_manual_withdrawal_input', 'video_host_diamond_base', 'video_host_taka_amount', 'audio_host_diamond_base', 'audio_host_taka_amount')"
+    );
+    const map = {};
+    rows.forEach((r) => { map[r.key_name] = r.key_value; });
+
+    const isDiamondMode = map['is_convert_to_diamond'] === 'true' || map['is_convert_to_diamond'] === '1';
+    const minWithdrawal = parseInt(map['min_withdrawal_diamonds'] || '1000', 10);
+    const allowManualInput = map['allow_manual_withdrawal_input'] !== 'false';
+    let presets = [1000, 2000, 5000, 10000, 25000, 50000];
+    try {
+      const rawP = map['withdrawal_presets'];
+      if (rawP) {
+        presets = typeof rawP === 'string' && rawP.startsWith('[')
+          ? JSON.parse(rawP)
+          : rawP.split(',').map((s) => parseInt(s.trim(), 10)).filter((n) => !isNaN(n));
+      }
+    } catch (e) {}
+
+    const usdRate = parseFloat(map['diamond_to_usd_rate'] || '0.005');
+    const videoBase = parseFloat(map['video_host_diamond_base'] || '100000');
+    const videoTaka = parseFloat(map['video_host_taka_amount'] || '5000');
+    const audioBase = parseFloat(map['audio_host_diamond_base'] || '100000');
+    const audioTaka = parseFloat(map['audio_host_taka_amount'] || '3500');
+
+    return res.json({
+      success: true,
+      config: {
+        is_convert_to_diamond: isDiamondMode,
+        isDiamondMode,
+        withdrawal_currency: isDiamondMode ? 'diamonds' : 'coins',
+        currency_symbol: isDiamondMode ? '💎' : '🪙',
+        currency_label: isDiamondMode ? 'Diamond' : 'Coin',
+        minWithdrawalDiamonds: minWithdrawal,
+        withdrawalPresets: presets,
+        allowManualInput,
+        diamondToUsdRate: usdRate,
+        rates: {
+          video: {
+            diamondBase: videoBase,
+            takaAmount: videoTaka,
+            ratePerDiamond: videoBase > 0 ? parseFloat((videoTaka / videoBase).toFixed(6)) : 0.05,
+            currency: 'BDT',
+          },
+          audio: {
+            diamondBase: audioBase,
+            takaAmount: audioTaka,
+            ratePerDiamond: audioBase > 0 ? parseFloat((audioTaka / audioBase).toFixed(6)) : 0.035,
+            currency: 'BDT',
+          },
+        },
+      },
+    });
+  } catch (err) {
+    console.error('getWithdrawalConfigAdmin error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to fetch withdrawal configuration.' });
+  }
+}
+
+export async function updateWithdrawalConfigAdmin(req, res) {
+  try {
+    const {
+      is_convert_to_diamond,
+      isDiamondMode,
+      minWithdrawalDiamonds,
+      withdrawalPresets,
+      allowManualInput,
+      diamondToUsdRate,
+      videoBase,
+      videoTaka,
+      audioBase,
+      audioTaka,
+    } = req.body;
+
+    if (is_convert_to_diamond !== undefined || isDiamondMode !== undefined) {
+      const modeVal = is_convert_to_diamond !== undefined ? is_convert_to_diamond : isDiamondMode;
+      const isTrue = modeVal === true || modeVal === 'true' || modeVal === 1 || modeVal === '1';
+      await query(
+        `INSERT INTO system_settings (key_name, key_value, description)
+         VALUES ('is_convert_to_diamond', ?, 'Toggle between Coin and Diamond economy mode')
+         ON DUPLICATE KEY UPDATE key_value = VALUES(key_value)`,
+        [isTrue ? 'true' : 'false']
+      );
+      await cache.del('setting:is_convert_to_diamond');
+    }
+
+    if (minWithdrawalDiamonds !== undefined) {
+      await query(
+        `INSERT INTO system_settings (key_name, key_value, description)
+         VALUES ('min_withdrawal_diamonds', ?, 'Minimum diamond/coin balance required to request cashout')
+         ON DUPLICATE KEY UPDATE key_value = VALUES(key_value)`,
+        [String(minWithdrawalDiamonds)]
+      );
+    }
+
+    if (withdrawalPresets !== undefined) {
+      let cleanPresets = [1000, 2000, 5000, 10000, 25000, 50000];
+      if (Array.isArray(withdrawalPresets)) {
+        cleanPresets = withdrawalPresets.map((p) => parseInt(p, 10)).filter((p) => !isNaN(p) && p > 0);
+      } else if (typeof withdrawalPresets === 'string') {
+        cleanPresets = withdrawalPresets.split(',').map((p) => parseInt(p.trim(), 10)).filter((p) => !isNaN(p) && p > 0);
+      }
+      await query(
+        `INSERT INTO system_settings (key_name, key_value, description)
+         VALUES ('withdrawal_presets', ?, 'Preset diamond/coin cashout options for hosts')
+         ON DUPLICATE KEY UPDATE key_value = VALUES(key_value)`,
+        [JSON.stringify(cleanPresets)]
+      );
+    }
+
+    if (allowManualInput !== undefined) {
+      await query(
+        `INSERT INTO system_settings (key_name, key_value, description)
+         VALUES ('allow_manual_withdrawal_input', ?, 'Whether users/hosts can input custom diamond/coin amount for withdrawal')
+         ON DUPLICATE KEY UPDATE key_value = VALUES(key_value)`,
+        [allowManualInput ? 'true' : 'false']
+      );
+    }
+
+    if (diamondToUsdRate !== undefined) {
+      await query(
+        `INSERT INTO system_settings (key_name, key_value, description)
+         VALUES ('diamond_to_usd_rate', ?, 'Conversion rate: USD per 1 diamond/coin for host payouts')
+         ON DUPLICATE KEY UPDATE key_value = VALUES(key_value)`,
+        [String(diamondToUsdRate)]
+      );
+    }
+
+    if (videoBase !== undefined && videoTaka !== undefined) {
+      await query(
+        `INSERT INTO system_settings (key_name, key_value, description)
+         VALUES ('video_host_diamond_base', ?, 'Video host diamond base count')
+         ON DUPLICATE KEY UPDATE key_value = VALUES(key_value)`,
+        [String(videoBase)]
+      );
+      await query(
+        `INSERT INTO system_settings (key_name, key_value, description)
+         VALUES ('video_host_taka_amount', ?, 'Video host payout amount in BDT')
+         ON DUPLICATE KEY UPDATE key_value = VALUES(key_value)`,
+        [String(videoTaka)]
+      );
+    }
+
+    if (audioBase !== undefined && audioTaka !== undefined) {
+      await query(
+        `INSERT INTO system_settings (key_name, key_value, description)
+         VALUES ('audio_host_diamond_base', ?, 'Audio host diamond base count')
+         ON DUPLICATE KEY UPDATE key_value = VALUES(key_value)`,
+        [String(audioBase)]
+      );
+      await query(
+        `INSERT INTO system_settings (key_name, key_value, description)
+         VALUES ('audio_host_taka_amount', ?, 'Audio host payout amount in BDT')
+         ON DUPLICATE KEY UPDATE key_value = VALUES(key_value)`,
+        [String(audioTaka)]
+      );
+    }
+
+    // Database write succeeded -> Invalidate Redis cache
+    await cache.del('setting:is_convert_to_diamond');
+    await cache.del('wallet:withdrawal:config');
+    await cache.del('host_ratios:all');
+    await cache.del('config:mobile:app');
+    await cache.del('settings:all');
+    await cache.delByPattern('settings:*');
+    await cache.delByPattern('admin:withdrawals*');
+    await cache.delByPattern('withdrawal:*');
+
+    return res.json({
+      success: true,
+      message: 'Withdrawal configuration updated successfully!',
+    });
+  } catch (err) {
+    console.error('updateWithdrawalConfigAdmin error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to update withdrawal configuration.', error: err.message });
+  }
+}
+
+/**
+ * Real-Time Socket & Message Tester: Get users with instant test tokens (supports search)
+ */
+export async function getChatTesterUsers(req, res) {
+  try {
+    const search = (req.query.search || '').trim();
+    let sql = `
+      SELECT id, full_name, email, role, avatar_url, level, star, is_banned
+      FROM users
+    `;
+    const params = [];
+
+    if (search) {
+      const isNum = !isNaN(search) && parseInt(search, 10) > 0;
+      if (isNum) {
+        sql += ' WHERE id = ? OR full_name LIKE ? OR email LIKE ?';
+        params.push(parseInt(search, 10), `%${search}%`, `%${search}%`);
+      } else {
+        sql += ' WHERE full_name LIKE ? OR email LIKE ?';
+        params.push(`%${search}%`, `%${search}%`);
+      }
+    }
+
+    sql += ' ORDER BY id ASC LIMIT 50';
+
+    const users = await query(sql, params);
+
+    const usersWithTokens = users.map(u => ({
+      ...u,
+      token: signToken({ id: u.id, role: u.role, username: u.full_name }),
+    }));
+
+    return res.json({
+      success: true,
+      users: usersWithTokens,
+    });
+  } catch (err) {
+    console.error('getChatTesterUsers error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to fetch test users.', error: err.message });
+  }
+}
+
+/**
+ * Real-Time Socket & Message Tester: Get or create conversation between Admin and Mobile User
+ */
+export async function getChatTesterConversation(req, res) {
+  try {
+    const adminId = req.user?.id || 1;
+    const partnerId = parseInt(req.query.user_id, 10);
+    if (!partnerId) {
+      return res.status(400).json({ success: false, message: 'User ID is required' });
+    }
+
+    const [partner] = await query(
+      'SELECT id, full_name, email, role, avatar_url, level, star FROM users WHERE id = ?',
+      [partnerId]
+    );
+    if (!partner) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    const u1 = Math.min(adminId, partnerId);
+    const u2 = Math.max(adminId, partnerId);
+
+    const convRows = await query(
+      'SELECT * FROM conversations WHERE user1_id = ? AND user2_id = ? LIMIT 1',
+      [u1, u2]
+    );
+
+    let conversationId;
+    let conv;
+    if (convRows && convRows.length > 0) {
+      conv = convRows[0];
+      conversationId = conv.id;
+    } else {
+      const ins = await query(
+        'INSERT INTO conversations (user1_id, user2_id, last_message, last_message_at) VALUES (?, ?, ?, NOW())',
+        [u1, u2, 'Started conversation']
+      );
+      conversationId = ins.insertId;
+      conv = { id: conversationId, user1_id: u1, user2_id: u2 };
+    }
+
+    const messages = await query(
+      `SELECT m.id, m.conversation_id, m.sender_id, m.receiver_id, m.message_type, m.message, m.media_url, m.is_read, m.created_at,
+              u.full_name as sender_name, u.avatar_url as sender_avatar
+       FROM chat_messages m
+       JOIN users u ON u.id = m.sender_id
+       WHERE m.conversation_id = ?
+       ORDER BY m.created_at ASC`,
+      [conversationId]
+    );
+
+    return res.json({
+      success: true,
+      conversation: conv,
+      partner,
+      messages: messages || [],
+    });
+  } catch (err) {
+    console.error('getChatTesterConversation error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to load conversation', error: err.message });
+  }
+}
+
+
