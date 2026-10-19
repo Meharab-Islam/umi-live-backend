@@ -16,13 +16,13 @@ export async function getTopGifters(req, res) {
     const limit = Math.min(100, Math.max(1, parseInt(req.query.limit || '20', 10)));
     const offset = (page - 1) * limit;
 
-    let dateCondition = '';
+    let dateCondition = "WHERE u.role != 'superadmin'";
     if (timeframe === 'today' || timeframe === 'daily') {
-      dateCondition = 'WHERE gt.created_at >= CURDATE()';
+      dateCondition += ' AND gt.created_at >= CURDATE()';
     } else if (timeframe === 'week' || timeframe === 'weekly') {
-      dateCondition = 'WHERE gt.created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)';
+      dateCondition += ' AND gt.created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)';
     } else if (timeframe === 'month' || timeframe === 'monthly') {
-      dateCondition = 'WHERE gt.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)';
+      dateCondition += ' AND gt.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)';
     }
 
     const cacheKey = `leaderboard:gifters:${timeframe}:${page}:${limit}`;
@@ -63,10 +63,11 @@ export async function getTopGifters(req, res) {
       // 2. Fetch total count and summary stats
       const countSql = `
         SELECT 
-          COUNT(DISTINCT sender_id) AS total_gifters,
-          COALESCE(SUM(coin_amount), 0) AS total_coins_spent,
-          COUNT(id) AS total_transactions
+          COUNT(DISTINCT gt.sender_id) AS total_gifters,
+          COALESCE(SUM(gt.coin_amount), 0) AS total_coins_spent,
+          COUNT(gt.id) AS total_transactions
         FROM gift_transactions gt
+        JOIN users u ON u.id = gt.sender_id
         ${dateCondition}
       `;
       const [summary] = await query(countSql);
@@ -138,7 +139,7 @@ export async function getTopAgencies(req, res) {
     const cacheKey = `agency:top:${page}:${limit}:${search ? search.toLowerCase() : 'all'}`;
 
     const data = await cache.getOrSet(cacheKey, 60, async () => {
-      let whereClause = "WHERE a.status = 'active'";
+      let whereClause = "WHERE a.status = 'active' AND (u.role IS NULL OR u.role != 'superadmin')";
       const params = [];
 
       if (search) {
@@ -161,15 +162,15 @@ export async function getTopAgencies(req, res) {
           u.full_name AS owner_name,
           u.avatar_url AS owner_avatar,
           u.coins AS owner_coins,
-          (SELECT COUNT(u2.id) FROM users u2 WHERE u2.agency_id = a.id) AS total_hosts,
+          (SELECT COUNT(u2.id) FROM users u2 WHERE u2.agency_id = a.id AND u2.role != 'superadmin') AS total_hosts,
           (SELECT COUNT(DISTINCT lr.host_id) 
            FROM live_rooms lr 
            INNER JOIN users u3 ON u3.id = lr.host_id 
-           WHERE u3.agency_id = a.id AND lr.status = 'live') AS active_streaming_hosts,
+           WHERE u3.agency_id = a.id AND u3.role != 'superadmin' AND lr.status = 'live') AS active_streaming_hosts,
           (SELECT COALESCE(SUM(gt.coin_amount), 0)
            FROM gift_transactions gt
            INNER JOIN users u4 ON u4.id = gt.receiver_id
-           WHERE u4.agency_id = a.id) AS total_coins_gifted_to_hosts
+           WHERE u4.agency_id = a.id AND u4.role != 'superadmin') AS total_coins_gifted_to_hosts
         FROM agencies a
         LEFT JOIN users u ON u.id = a.owner_id
         ${whereClause}

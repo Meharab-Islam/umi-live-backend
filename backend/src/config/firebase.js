@@ -275,6 +275,31 @@ export async function getUserFcmTokens(userIds) {
 }
 
 /**
+ * Helper: Fetch active FCM tokens strictly for users who follow targetUserId
+ */
+export async function getFollowerFcmTokens(targetUserId) {
+  const followingId = Number(targetUserId);
+  if (!followingId) return [];
+
+  const tokenRows = await query(
+    `SELECT DISTINCT t.fcm_token FROM (
+       SELECT uft.fcm_token 
+       FROM user_fcm_tokens uft
+       JOIN user_follows uf ON uf.follower_id = uft.user_id
+       WHERE uf.following_id = ? AND uf.follower_id != ? AND uft.is_active = 1
+       UNION
+       SELECT u.fcm_token 
+       FROM users u
+       JOIN user_follows uf ON uf.follower_id = u.id
+       WHERE uf.following_id = ? AND uf.follower_id != ? AND u.fcm_token IS NOT NULL AND TRIM(u.fcm_token) != ''
+     ) t WHERE t.fcm_token IS NOT NULL AND TRIM(t.fcm_token) != ''`,
+    [followingId, followingId, followingId, followingId]
+  ).catch(() => []);
+
+  return tokenRows.map((r) => r.fcm_token).filter(Boolean);
+}
+
+/**
  * Helper: Fetch all active FCM tokens across all users (excluding a specific user ID)
  */
 export async function getAllActiveFcmTokens(excludeUserId = null, limit = 500) {
@@ -383,29 +408,16 @@ export async function sendCommentReplyPushNotification({ postId, commentId, pare
 
 /**
  * 3. Push Notification: New post to followers
+ * Strictly sent to active followers only.
  */
 export async function sendNewPostPushNotification({ postId, author, title, content, mediaType, firstMediaUrl }) {
   const authorId = Number(author?.id || author?.user_id);
   if (!authorId || !isFirebaseReady()) return;
 
   try {
-    // Fetch followers from user_follows table
-    const followerRows = await query(
-      'SELECT follower_id FROM user_follows WHERE following_id = ?',
-      [authorId]
-    ).catch(() => []);
-
-    const followerIds = followerRows.map((r) => r.follower_id).filter(Boolean);
-    let tokens = [];
-
-    if (followerIds.length > 0) {
-      tokens = await getUserFcmTokens(followerIds);
-    } else {
-      // In development / testing, fallback to other active devices so you can test notifications
-      tokens = await getAllActiveFcmTokens(authorId, 50);
-    }
-
-    if (tokens.length === 0) return;
+    // Fetch FCM tokens of users who strictly follow this author
+    const tokens = await getFollowerFcmTokens(authorId);
+    if (!tokens || tokens.length === 0) return;
 
     const authorName = author?.name || author?.full_name || 'Someone you follow';
     const postTitle = (title || '').trim();
@@ -433,7 +445,7 @@ export async function sendNewPostPushNotification({ postId, author, title, conte
       },
     });
 
-    console.log(`📱 [FCM New Post Push Sent] Author: ${authorName} | Recipients: ${tokens.length}`);
+    console.log(`📱 [FCM New Post Push Sent to Followers Only] Author: ${authorName} | Recipients: ${tokens.length}`);
     return pushResult;
   } catch (err) {
     console.error('🔥 [New Post Push] Error:', err.message);
@@ -442,22 +454,27 @@ export async function sendNewPostPushNotification({ postId, author, title, conte
 
 /**
  * 4. Push Notification: Live room created / Host is LIVE
+ * Strictly dispatched to active followers of the host only.
+ * Non-followers will NEVER receive this notification.
  */
 export async function sendLiveRoomStartedPushNotification({ roomId, host, title, liveType = 'video', coverImage = null }) {
   const hostId = Number(host?.id || host?.user_id);
   if (!hostId || !isFirebaseReady()) return;
 
   try {
-    // Notify followers and all active devices (excluding the host)
-    const allTokens = await getAllActiveFcmTokens(hostId, 500);
-    if (allTokens.length === 0) return;
+    // Strictly notify ONLY followers of the host who have registered devices (non-followers are excluded)
+    const followerTokens = await getFollowerFcmTokens(hostId);
+    if (!followerTokens || followerTokens.length === 0) {
+      console.log(`📱 [FCM Live Room Push] Host ${hostId} has no followers with registered devices. Skipping push.`);
+      return;
+    }
 
     const hostName = host?.name || host?.full_name || 'Host';
     const roomTitle = (title || 'Live Stream').trim();
     const typeLabel = liveType === 'audio' ? 'Audio Live 🎙️' : 'Live Stream 🎥';
 
     const pushResult = await sendPushNotification({
-      tokens: allTokens,
+      tokens: followerTokens,
       title: `🔴 ${hostName} is now LIVE!`,
       body: `Join "${roomTitle}" now and chat live! ${typeLabel}`,
       imageUrl: coverImage && coverImage.startsWith('http') ? coverImage : null,
@@ -478,10 +495,54 @@ export async function sendLiveRoomStartedPushNotification({ roomId, host, title,
       },
     });
 
-    console.log(`📱 [FCM Live Room Push Sent] Host: ${hostName} | Room: ${roomId} | Recipients: ${allTokens.length}`);
+    console.log(`📱 [FCM Live Room Push Sent to Followers Only] Host: ${hostName} (${hostId}) | Room: ${roomId} | Followers Notified: ${followerTokens.length}`);
     return pushResult;
   } catch (err) {
     console.error('🔥 [Live Room Push] Error:', err.message);
+  }
+}
+
+/**
+ * 5. Push Notification: Someone started following you
+ * Dispatched to target user when another user follows them.
+ */
+export async function sendNewFollowerPushNotification({ followingUserId, follower }) {
+  const targetUserId = Number(followingUserId);
+  const followerId = Number(follower?.id || follower?.user_id);
+  if (!targetUserId || !followerId || targetUserId === followerId || !isFirebaseReady()) return;
+
+  try {
+    const tokens = await getUserFcmTokens(targetUserId);
+    if (!tokens || tokens.length === 0) {
+      console.log(`📱 [FCM New Follower Push] Target user ${targetUserId} has no active FCM tokens.`);
+      return;
+    }
+
+    const followerName = follower?.name || follower?.full_name || 'Someone';
+    const avatarUrl = follower?.avatar_url || follower?.profile_picture || '';
+
+    const pushResult = await sendPushNotification({
+      tokens,
+      title: `👤 New Follower!`,
+      body: `${followerName} started following you ✨`,
+      imageUrl: avatarUrl && avatarUrl.startsWith('http') ? avatarUrl : null,
+      data: {
+        notification_category: 'social',
+        type: 'new_follower',
+        target_screen: 'user_profile',
+        route: '/user-profile',
+        click_action: 'FLUTTER_NOTIFICATION_CLICK',
+        follower_id: String(followerId),
+        follower_name: followerName,
+        follower_avatar: avatarUrl,
+        created_at: new Date().toISOString(),
+      },
+    });
+
+    console.log(`📱 [FCM New Follower Push Sent] Target User: ${targetUserId} | Follower: ${followerName} (${followerId}) | Tokens Notified: ${tokens.length}`);
+    return pushResult;
+  } catch (err) {
+    console.error('🔥 [New Follower Push] Error:', err.message);
   }
 }
 

@@ -88,7 +88,7 @@ export const getConversations = async (req, res) => {
       const countSql = `
         SELECT COUNT(*) as total 
         FROM conversations c
-        WHERE c.user1_id = ? OR c.user2_id = ?
+        WHERE (c.user1_id = ? AND c.user1_hidden = 0) OR (c.user2_id = ? AND c.user2_hidden = 0)
       `;
       const countRows = await query(countSql, [userId, userId]);
       const total = countRows?.[0]?.total || 0;
@@ -101,6 +101,12 @@ export const getConversations = async (req, res) => {
           c.user2_id,
           c.last_message,
           c.last_message_at,
+          c.background_image,
+          c.background_color,
+          c.background_updated_by,
+          c.background_updated_at,
+          c.user1_cleared_at,
+          c.user2_cleared_at,
           c.created_at as conversation_created_at,
           CASE WHEN c.user1_id = ? THEN c.user2_id ELSE c.user1_id END as other_user_id,
           u_other.full_name as other_name,
@@ -116,7 +122,13 @@ export const getConversations = async (req, res) => {
           (
             SELECT COUNT(*) 
             FROM chat_messages m 
-            WHERE m.conversation_id = c.id AND m.receiver_id = ? AND m.is_read = FALSE
+            WHERE m.conversation_id = c.id 
+              AND m.receiver_id = ? 
+              AND m.is_read = FALSE
+              AND (
+                (c.user1_id = ? AND (c.user1_cleared_at IS NULL OR m.created_at > c.user1_cleared_at)) OR
+                (c.user2_id = ? AND (c.user2_cleared_at IS NULL OR m.created_at > c.user2_cleared_at))
+              )
           ) as unread_count
         FROM conversations c
         JOIN users u_other ON u_other.id = (CASE WHEN c.user1_id = ? THEN c.user2_id ELSE c.user1_id END)
@@ -124,12 +136,15 @@ export const getConversations = async (req, res) => {
           ON ups.user_id = u_other.id AND ups.status = 'active' AND ups.expires_at > NOW() AND ups.is_equipped = 1
         LEFT JOIN package_categories pc 
           ON pc.id = ups.category_id AND pc.is_active = 1
-        WHERE c.user1_id = ? OR c.user2_id = ?
+        WHERE ((c.user1_id = ? AND c.user1_hidden = 0) OR (c.user2_id = ? AND c.user2_hidden = 0))
+          AND u_other.role != 'superadmin'
         ORDER BY c.last_message_at DESC
         LIMIT ? OFFSET ?
       `;
 
       const rows = await query(selectSql, [
+        userId,
+        userId,
         userId,
         userId,
         userId,
@@ -148,11 +163,20 @@ export const getConversations = async (req, res) => {
           vip_package: r.other_vip_package,
         });
 
+        const clearedAt = r.user1_id === userId ? r.user1_cleared_at : r.user2_cleared_at;
+        const isCleared = clearedAt && r.last_message_at && new Date(r.last_message_at) <= new Date(clearedAt);
+
         return {
           conversation_id: r.conversation_id,
-          last_message: r.last_message,
+          last_message: isCleared ? null : r.last_message,
           last_message_at: r.last_message_at,
-          unread_count: parseInt(r.unread_count || 0, 10),
+          unread_count: isCleared ? 0 : parseInt(r.unread_count || 0, 10),
+          background: {
+            image_url: r.background_image || null,
+            color: r.background_color || null,
+            updated_by: r.background_updated_by || null,
+            updated_at: r.background_updated_at || null,
+          },
           other_user: {
             id: r.other_user_id,
             name: r.other_name || 'Anonymous',
@@ -270,15 +294,19 @@ export const getMessages = async (req, res) => {
       await invalidateChatCache(currentUserId, partnerId, conversationId);
     }
 
-    // 2. Fetch paginated messages using Redis Cache-Aside
-    const cacheKey = `chat:messages:${conversationId}:page:${page}:limit:${limit}`;
+    // 2. Determine if user cleared past messages
+    const clearedAt = conversation.user1_id === currentUserId ? conversation.user1_cleared_at : conversation.user2_cleared_at;
+
+    // 3. Fetch paginated messages using Redis Cache-Aside (namespaced per caller)
+    const cacheKey = `chat:messages:${conversationId}:u:${currentUserId}:page:${page}:limit:${limit}`;
     const TTL = 30; // 30 seconds
 
     const result = await cache.getOrSet(cacheKey, TTL, async () => {
-      const countRows = await query(
-        'SELECT COUNT(*) as total FROM chat_messages WHERE conversation_id = ?',
-        [conversationId]
-      );
+      const countSql = clearedAt
+        ? 'SELECT COUNT(*) as total FROM chat_messages WHERE conversation_id = ? AND created_at > ?'
+        : 'SELECT COUNT(*) as total FROM chat_messages WHERE conversation_id = ?';
+      const countParams = clearedAt ? [conversationId, clearedAt] : [conversationId];
+      const countRows = await query(countSql, countParams);
       const total = countRows?.[0]?.total || 0;
 
       const selectSql = `
@@ -287,6 +315,7 @@ export const getMessages = async (req, res) => {
           m.conversation_id,
           m.sender_id,
           m.receiver_id,
+          m.reply_to_id,
           m.message_type,
           m.message,
           m.media_url,
@@ -302,19 +331,30 @@ export const getMessages = async (req, res) => {
           pc.id as package_category_id,
           pc.name as package_category_name,
           pc.badge_icon as package_badge_icon,
-          pc.color_code as package_color_code
+          pc.color_code as package_color_code,
+          m_rep.id as reply_msg_id,
+          m_rep.sender_id as reply_sender_id,
+          m_rep.message_type as reply_message_type,
+          m_rep.message as reply_message,
+          m_rep.media_url as reply_media_url,
+          u_rep.full_name as reply_sender_name
         FROM chat_messages m
         JOIN users u_send ON u_send.id = m.sender_id
+        LEFT JOIN chat_messages m_rep ON m_rep.id = m.reply_to_id
+        LEFT JOIN users u_rep ON u_rep.id = m_rep.sender_id
         LEFT JOIN user_package_subscriptions ups 
           ON ups.user_id = u_send.id AND ups.status = 'active' AND ups.expires_at > NOW() AND ups.is_equipped = 1
         LEFT JOIN package_categories pc 
           ON pc.id = ups.category_id AND pc.is_active = 1
-        WHERE m.conversation_id = ?
+        WHERE m.conversation_id = ? ${clearedAt ? 'AND m.created_at > ?' : ''}
         ORDER BY m.created_at DESC
         LIMIT ? OFFSET ?
       `;
 
-      const messagesRaw = await query(selectSql, [conversationId, limit, offset]);
+      const selectParams = clearedAt
+        ? [conversationId, clearedAt, limit, offset]
+        : [conversationId, limit, offset];
+      const messagesRaw = await query(selectSql, selectParams);
 
       // Fetch media attachments from chat_message_media for any messages with attachments
       const messageIds = messagesRaw.map((m) => m.id);
@@ -370,6 +410,15 @@ export const getMessages = async (req, res) => {
           conversation_id: m.conversation_id,
           sender_id: m.sender_id,
           receiver_id: m.receiver_id,
+          reply_to_id: m.reply_to_id || null,
+          reply_to: m.reply_to_id ? {
+            id: m.reply_to_id,
+            sender_id: m.reply_sender_id,
+            sender_name: m.reply_sender_name || 'User',
+            message_type: m.reply_message_type || 'text',
+            message: m.reply_message,
+            media_url: m.reply_media_url || null,
+          } : null,
           message_type: m.message_type,
           message: m.message,
           media_url: m.media_url,
@@ -402,6 +451,12 @@ export const getMessages = async (req, res) => {
     return res.status(200).json({
       success: true,
       conversation_id: conversationId,
+      background: {
+        image_url: conversation.background_image || null,
+        color: conversation.background_color || null,
+        updated_by: conversation.background_updated_by || null,
+        updated_at: conversation.background_updated_at || null,
+      },
       total: result.total,
       page,
       limit,
@@ -430,6 +485,8 @@ export const sendMessage = async (req, res) => {
 
   const rawMessage = req.body.message ?? req.body.content ?? req.body.text ?? '';
   const { receiver_id, conversation_id } = req.body;
+  const rawReplyToId = req.body.reply_to_id ?? req.body.reply_to_message_id ?? req.body.replyToId ?? null;
+  const replyToId = rawReplyToId ? parseInt(rawReplyToId, 10) : null;
   let targetReceiverId = receiver_id ? parseInt(receiver_id, 10) : null;
   let targetConvId = conversation_id ? parseInt(conversation_id, 10) : null;
 
@@ -525,14 +582,37 @@ export const sendMessage = async (req, res) => {
       else lastMessageSnippet = '🖼️ [Photo]';
     }
 
+    // Check quoted message if replying
+    let quotedMessage = null;
+    if (replyToId) {
+      const [qRows] = await conn.execute(
+        `SELECT m.id, m.sender_id, m.message_type, m.message, m.media_url, u.full_name as sender_name 
+         FROM chat_messages m 
+         JOIN users u ON u.id = m.sender_id 
+         WHERE m.id = ? AND m.conversation_id = ? LIMIT 1`,
+        [replyToId, targetConvId]
+      );
+      if (qRows && qRows.length > 0) {
+        quotedMessage = {
+          id: qRows[0].id,
+          sender_id: qRows[0].sender_id,
+          sender_name: qRows[0].sender_name || 'User',
+          message_type: qRows[0].message_type || 'text',
+          message: qRows[0].message,
+          media_url: qRows[0].media_url || null,
+        };
+      }
+    }
+
     // 1. Insert into chat_messages table (MySQL SSOT write)
     const [msgResult] = await conn.execute(
-      `INSERT INTO chat_messages (conversation_id, sender_id, receiver_id, message_type, message, media_url, media, is_read)
-       VALUES (?, ?, ?, ?, ?, ?, ?, FALSE)`,
+      `INSERT INTO chat_messages (conversation_id, sender_id, receiver_id, reply_to_id, message_type, message, media_url, media, is_read)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, FALSE)`,
       [
         targetConvId,
         senderId,
         targetReceiverId,
+        quotedMessage ? quotedMessage.id : null,
         primaryType,
         cleanMessage || null,
         primaryMediaUrl,
@@ -567,9 +647,9 @@ export const sendMessage = async (req, res) => {
       }
     }
 
-    // 3. Update conversation last message and timestamp
+    // 3. Update conversation last message, timestamp and unhide for both users
     await conn.execute(
-      'UPDATE conversations SET last_message = ?, last_message_at = NOW() WHERE id = ?',
+      'UPDATE conversations SET last_message = ?, last_message_at = NOW(), user1_hidden = 0, user2_hidden = 0 WHERE id = ?',
       [lastMessageSnippet, targetConvId]
     );
 
@@ -601,6 +681,8 @@ export const sendMessage = async (req, res) => {
       conversation_id: targetConvId,
       sender_id: senderId,
       receiver_id: targetReceiverId,
+      reply_to_id: quotedMessage ? quotedMessage.id : null,
+      reply_to: quotedMessage,
       message_type: primaryType,
       message: cleanMessage,
       media_url: primaryMediaUrl,
@@ -802,51 +884,375 @@ export const markConversationRead = async (req, res) => {
 };
 
 /**
- * 6. Delete Conversation
+ * 6. Remove / Delete Conversation for Current User
  * DELETE /api/mobile/chat/conversations/:id
+ * DELETE /api/mobile/chat/messages/:otherUserId
+ * 
+ * Supports soft removal (hiding from caller's inbox and clearing messages for caller)
+ * or hard deletion via ?hard=true
  */
 export const deleteConversation = async (req, res) => {
   const userId = req.user?.id;
-  const conversationId = parseInt(req.params.id, 10);
+  let conversationId = req.params.id ? parseInt(req.params.id, 10) : null;
+  const otherUserId = req.params.otherUserId ? parseInt(req.params.otherUserId, 10) : null;
 
   if (!userId) {
     return res.status(401).json({ success: false, message: 'Authentication required.' });
   }
 
-  if (!conversationId || isNaN(conversationId)) {
-    return res.status(400).json({ success: false, message: 'Invalid conversation ID.' });
-  }
-
   try {
-    const convRows = await query('SELECT user1_id, user2_id FROM conversations WHERE id = ? LIMIT 1', [
+    if (!conversationId && otherUserId) {
+      const u1 = Math.min(userId, otherUserId);
+      const u2 = Math.max(userId, otherUserId);
+      const convRows = await query(
+        'SELECT id FROM conversations WHERE user1_id = ? AND user2_id = ? LIMIT 1',
+        [u1, u2]
+      );
+      if (convRows && convRows.length > 0) {
+        conversationId = convRows[0].id;
+      }
+    }
+
+    if (!conversationId || isNaN(conversationId)) {
+      return res.status(400).json({ success: false, message: 'Invalid conversation ID.' });
+    }
+
+    const convRows = await query('SELECT * FROM conversations WHERE id = ? LIMIT 1', [
       conversationId,
     ]);
     if (!convRows || convRows.length === 0) {
       return res.status(404).json({ success: false, message: 'Conversation not found.' });
     }
 
-    const partnerId = convRows[0].user1_id === userId ? convRows[0].user2_id : convRows[0].user1_id;
+    const conversation = convRows[0];
+    const isParticipant = conversation.user1_id === userId || conversation.user2_id === userId;
+    if (!isParticipant && !['admin', 'superadmin'].includes(req.user.role)) {
+      return res.status(403).json({ success: false, message: 'Access denied to this conversation.' });
+    }
 
-    // MySQL SSOT delete (cascades to chat_messages and chat_message_media)
-    await query('DELETE FROM conversations WHERE id = ?', [conversationId]);
+    const partnerId = conversation.user1_id === userId ? conversation.user2_id : conversation.user1_id;
+    const isHardDelete = req.query.hard === 'true';
+
+    if (isHardDelete) {
+      // Hard delete from DB
+      await query('DELETE FROM conversations WHERE id = ?', [conversationId]);
+    } else {
+      // Soft removal from caller's inbox + clear caller's message history
+      const isUser1 = conversation.user1_id === userId;
+      const hideField = isUser1 ? 'user1_hidden' : 'user2_hidden';
+      const clearField = isUser1 ? 'user1_cleared_at' : 'user2_cleared_at';
+      const otherHidden = isUser1 ? conversation.user2_hidden : conversation.user1_hidden;
+
+      if (otherHidden === 1) {
+        // Both users deleted this conversation -> safe to completely delete
+        await query('DELETE FROM conversations WHERE id = ?', [conversationId]);
+      } else {
+        await query(
+          `UPDATE conversations SET ${hideField} = 1, ${clearField} = NOW() WHERE id = ?`,
+          [conversationId]
+        );
+      }
+    }
 
     // Instant Redis invalidation
     await invalidateChatCache(userId, partnerId, conversationId);
 
     if (req.io) {
-      req.io.to(`user_${partnerId}`).emit('chat:conversation_deleted', { conversation_id: conversationId });
       req.io.to(`user_${userId}`).emit('chat:conversation_deleted', { conversation_id: conversationId });
+      if (isHardDelete) {
+        req.io.to(`user_${partnerId}`).emit('chat:conversation_deleted', { conversation_id: conversationId });
+      }
     }
 
     return res.status(200).json({
       success: true,
-      message: 'Conversation deleted successfully.',
+      message: 'Conversation removed from your inbox successfully.',
+      conversation_id: conversationId,
     });
   } catch (error) {
     console.error('[ChatController.deleteConversation] Error:', error);
     return res.status(500).json({
       success: false,
       message: 'Failed to delete conversation.',
+      error: error.message,
+    });
+  }
+};
+
+/**
+ * 6a. Clear All Messages in a Conversation for Current User Only
+ * POST /api/mobile/chat/conversations/:id/clear
+ * POST /api/mobile/chat/messages/:otherUserId/clear
+ * 
+ * Clears messages for caller while the other participant keeps full chat history.
+ */
+export const clearChatMessages = async (req, res) => {
+  const userId = req.user?.id;
+  if (!userId) {
+    return res.status(401).json({ success: false, message: 'Authentication required.' });
+  }
+
+  let conversationId = req.params.id ? parseInt(req.params.id, 10) : null;
+  const otherUserId = req.params.otherUserId ? parseInt(req.params.otherUserId, 10) : null;
+
+  try {
+    if (!conversationId && otherUserId) {
+      const u1 = Math.min(userId, otherUserId);
+      const u2 = Math.max(userId, otherUserId);
+      const convRows = await query(
+        'SELECT id FROM conversations WHERE user1_id = ? AND user2_id = ? LIMIT 1',
+        [u1, u2]
+      );
+      if (convRows && convRows.length > 0) {
+        conversationId = convRows[0].id;
+      }
+    }
+
+    if (!conversationId || isNaN(conversationId)) {
+      return res.status(400).json({ success: false, message: 'Valid conversation ID is required.' });
+    }
+
+    const convRows = await query('SELECT * FROM conversations WHERE id = ? LIMIT 1', [conversationId]);
+    if (!convRows || convRows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Conversation not found.' });
+    }
+
+    const conversation = convRows[0];
+    const isParticipant = conversation.user1_id === userId || conversation.user2_id === userId;
+    if (!isParticipant && !['admin', 'superadmin'].includes(req.user.role)) {
+      return res.status(403).json({ success: false, message: 'Access denied to this conversation.' });
+    }
+
+    const partnerId = conversation.user1_id === userId ? conversation.user2_id : conversation.user1_id;
+
+    // Clear chat ONLY for this user by recording cleared_at
+    const clearedField = conversation.user1_id === userId ? 'user1_cleared_at' : 'user2_cleared_at';
+    await query(
+      `UPDATE conversations SET ${clearedField} = NOW() WHERE id = ?`,
+      [conversationId]
+    );
+
+    // Instant Redis cache invalidation
+    await invalidateChatCache(userId, partnerId, conversationId);
+
+    const clearedAt = new Date().toISOString();
+
+    // Notify caller's socket so client immediately clears message list in UI
+    if (req.io) {
+      req.io.to(`user_${userId}`).emit('chat:chat_cleared', {
+        conversation_id: conversationId,
+        cleared_by: userId,
+        cleared_at: clearedAt,
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'All messages cleared for your account. The other user will still see their chat history.',
+      conversation_id: conversationId,
+      cleared_at: clearedAt,
+    });
+  } catch (error) {
+    console.error('[ChatController.clearChatMessages] Error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to clear chat messages.',
+      error: error.message,
+    });
+  }
+};
+
+/**
+ * 6b. Set / Change Chat Background (Shared for Both Participants)
+ * PUT /api/mobile/chat/conversations/:id/background
+ * POST /api/mobile/chat/conversations/:id/background
+ * PUT /api/mobile/chat/messages/:otherUserId/background
+ */
+export const updateConversationBackground = async (req, res) => {
+  const userId = req.user?.id;
+  if (!userId) {
+    return res.status(401).json({ success: false, message: 'Authentication required.' });
+  }
+
+  let conversationId = req.params.id ? parseInt(req.params.id, 10) : null;
+  const otherUserId = req.params.otherUserId ? parseInt(req.params.otherUserId, 10) : null;
+
+  try {
+    if (!conversationId && otherUserId) {
+      const u1 = Math.min(userId, otherUserId);
+      const u2 = Math.max(userId, otherUserId);
+      const convRows = await query(
+        'SELECT id FROM conversations WHERE user1_id = ? AND user2_id = ? LIMIT 1',
+        [u1, u2]
+      );
+      if (convRows && convRows.length > 0) {
+        conversationId = convRows[0].id;
+      } else {
+        const pool = getPool();
+        const conn = await pool.getConnection();
+        try {
+          conversationId = await getOrCreateConversation(conn, userId, otherUserId);
+        } finally {
+          conn.release();
+        }
+      }
+    }
+
+    if (!conversationId || isNaN(conversationId)) {
+      return res.status(400).json({ success: false, message: 'Valid conversation ID is required.' });
+    }
+
+    const convRows = await query('SELECT * FROM conversations WHERE id = ? LIMIT 1', [conversationId]);
+    if (!convRows || convRows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Conversation not found.' });
+    }
+
+    const conversation = convRows[0];
+    const isParticipant = conversation.user1_id === userId || conversation.user2_id === userId;
+    if (!isParticipant && !['admin', 'superadmin'].includes(req.user.role)) {
+      return res.status(403).json({ success: false, message: 'Access denied to this conversation.' });
+    }
+
+    const partnerId = conversation.user1_id === userId ? conversation.user2_id : conversation.user1_id;
+
+    // Check uploaded image or body image
+    let bgImage = req.body.background_image || req.body.image_url || null;
+    if (req.uploadedMedia && req.uploadedMedia.length > 0) {
+      bgImage = req.uploadedMedia[0].media_url;
+    } else if (req.file) {
+      bgImage = `/uploads/chat/${req.file.filename}`;
+    }
+
+    const bgColor = req.body.background_color || req.body.color || null;
+
+    if (!bgImage && !bgColor) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide background_image (file or URL) or background_color.',
+      });
+    }
+
+    // MySQL SSOT write
+    await query(
+      `UPDATE conversations 
+       SET background_image = ?, background_color = ?, background_updated_by = ?, background_updated_at = NOW() 
+       WHERE id = ?`,
+      [bgImage, bgColor, userId, conversationId]
+    );
+
+    // Instant Redis cache invalidation
+    await invalidateChatCache(userId, partnerId, conversationId);
+
+    const backgroundData = {
+      conversation_id: conversationId,
+      background_image: bgImage,
+      background_color: bgColor,
+      updated_by: userId,
+      updated_at: new Date().toISOString(),
+    };
+
+    // Real-time broadcast to both users and conversation room
+    if (req.io) {
+      req.io.to(`user_${partnerId}`).emit('chat:background_updated', backgroundData);
+      req.io.to(`user_${userId}`).emit('chat:background_updated', backgroundData);
+      req.io.to(`conversation_${conversationId}`).emit('chat:background_updated', backgroundData);
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'Chat background updated successfully for this conversation.',
+      background: backgroundData,
+    });
+  } catch (error) {
+    console.error('[ChatController.updateConversationBackground] Error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to update chat background.',
+      error: error.message,
+    });
+  }
+};
+
+/**
+ * 6c. Remove / Reset Chat Background (Shared for Both Participants)
+ * DELETE /api/mobile/chat/conversations/:id/background
+ * DELETE /api/mobile/chat/messages/:otherUserId/background
+ */
+export const removeConversationBackground = async (req, res) => {
+  const userId = req.user?.id;
+  if (!userId) {
+    return res.status(401).json({ success: false, message: 'Authentication required.' });
+  }
+
+  let conversationId = req.params.id ? parseInt(req.params.id, 10) : null;
+  const otherUserId = req.params.otherUserId ? parseInt(req.params.otherUserId, 10) : null;
+
+  try {
+    if (!conversationId && otherUserId) {
+      const u1 = Math.min(userId, otherUserId);
+      const u2 = Math.max(userId, otherUserId);
+      const convRows = await query(
+        'SELECT id FROM conversations WHERE user1_id = ? AND user2_id = ? LIMIT 1',
+        [u1, u2]
+      );
+      if (convRows && convRows.length > 0) {
+        conversationId = convRows[0].id;
+      }
+    }
+
+    if (!conversationId || isNaN(conversationId)) {
+      return res.status(400).json({ success: false, message: 'Valid conversation ID is required.' });
+    }
+
+    const convRows = await query('SELECT * FROM conversations WHERE id = ? LIMIT 1', [conversationId]);
+    if (!convRows || convRows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Conversation not found.' });
+    }
+
+    const conversation = convRows[0];
+    const isParticipant = conversation.user1_id === userId || conversation.user2_id === userId;
+    if (!isParticipant && !['admin', 'superadmin'].includes(req.user.role)) {
+      return res.status(403).json({ success: false, message: 'Access denied to this conversation.' });
+    }
+
+    const partnerId = conversation.user1_id === userId ? conversation.user2_id : conversation.user1_id;
+
+    // MySQL SSOT write - reset background
+    await query(
+      `UPDATE conversations 
+       SET background_image = NULL, background_color = NULL, background_updated_by = ?, background_updated_at = NOW() 
+       WHERE id = ?`,
+      [userId, conversationId]
+    );
+
+    // Instant Redis cache invalidation
+    await invalidateChatCache(userId, partnerId, conversationId);
+
+    const backgroundData = {
+      conversation_id: conversationId,
+      background_image: null,
+      background_color: null,
+      updated_by: userId,
+      updated_at: new Date().toISOString(),
+    };
+
+    // Real-time broadcast to both users and conversation room
+    if (req.io) {
+      req.io.to(`user_${partnerId}`).emit('chat:background_updated', backgroundData);
+      req.io.to(`user_${userId}`).emit('chat:background_updated', backgroundData);
+      req.io.to(`conversation_${conversationId}`).emit('chat:background_updated', backgroundData);
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'Chat background removed successfully.',
+      background: backgroundData,
+    });
+  } catch (error) {
+    console.error('[ChatController.removeConversationBackground] Error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to remove chat background.',
       error: error.message,
     });
   }
@@ -882,7 +1288,7 @@ export const searchUsersForChat = async (req, res) => {
 
   try {
     const result = await cache.getOrSet(cacheKey, TTL, async () => {
-      let whereConditions = ['u.id != ?', 'u.is_banned = 0'];
+      let whereConditions = ['u.id != ?', 'u.is_banned = 0', "u.role != 'superadmin'"];
       let queryParams = [currentUserId];
 
       if (rawQuery.length > 0) {

@@ -34,7 +34,7 @@ export const API_SPEC = {
     {
       "id": "chat",
       "name": "💬 Direct Messaging & Chat",
-      "description": "1-on-1 private messaging system: conversation inbox list, send text and multiple device images/videos, real-time Socket.IO events, read receipts, and Redis caching."
+      "description": "1-on-1 private direct messaging system: conversation inbox list, reply/quote to specific messages (reply_to_id), send text and multiple device media files (images/videos/audios), shared custom chat backgrounds (set/remove for both users), clear chat history for caller only, delete/hide conversations, real-time Socket.IO events, and Redis caching."
     },
     {
       "id": "feed",
@@ -120,6 +120,11 @@ export const API_SPEC = {
       "id": "notifications",
       "name": "🔔 Firebase FCM Push Notifications & Deep Linking",
       "description": "Unified mobile push notification system: device FCM token registration & multi-device synchronization, and automated payload schemas for Direct Messages, Post Comments, Comment Replies, Follower New Posts, Live Stream Alerts, and Flutter deep-linking click actions."
+    },
+    {
+      "id": "user-profile",
+      "name": "👤 User Profile, Social Graph & Moderation",
+      "description": "Public profile inspection of any user (country, role, level, VIP package category & image, bio, mutual follow state, followers/following/posts counts, coin balance, received & gifted coins, share link), user posts stream, follow/unfollow, block/unblock, and user safety reporting."
     }
   ],
   "endpoints": [
@@ -247,6 +252,23 @@ export const API_SPEC = {
                   "title": "Music & Chill 🎤"
                 },
                 "flutter_navigation_example": "final isAudio = data['live_type'] == 'audio'; Get.toNamed(isAudio ? '/audio-live' : '/video-live', arguments: {'roomId': data['room_id'], 'isHost': false});"
+              },
+              {
+                "type": "new_follower",
+                "category": "social",
+                "target_screen": "user_profile",
+                "route": "/user-profile",
+                "click_action": "FLUTTER_NOTIFICATION_CLICK",
+                "sample_data": {
+                  "notification_category": "social",
+                  "type": "new_follower",
+                  "target_screen": "user_profile",
+                  "route": "/user-profile",
+                  "follower_id": "7",
+                  "follower_name": "Nibir",
+                  "follower_avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=7"
+                },
+                "flutter_navigation_example": "Get.toNamed('/user-profile', arguments: {'userId': int.parse(data['follower_id'])});"
               }
             ]
           }
@@ -552,484 +574,742 @@ export const API_SPEC = {
       ]
     },
     {
-      "id": "chat-delete-conversation",
-      "category": "chat",
-      "method": "DELETE",
-      "path": "/api/mobile/chat/conversations/:id",
-      "summary": "Delete Conversation",
-      "description": "Deletes a conversation and all its messages. Cascades deletes in MySQL, purges Redis caches, and emits chat:conversation_deleted event via Socket.IO.",
-      "requiresAuth": true,
-      "requestHeaders": [
-        {
-          "name": "Authorization",
-          "type": "string",
-          "required": true,
-          "example": "Bearer eyJhbGciOiJIUzI1Ni..."
-        }
-      ],
-      "parameters": [
-        {
-          "name": "id",
-          "in": "path",
-          "type": "integer",
-          "required": true,
-          "description": "Conversation ID"
-        }
-      ],
-      "requestBody": null,
-      "responses": [
-        {
-          "status": 200,
-          "description": "Conversation deleted successfully.",
-          "example": {
-            "success": true,
-            "message": "Conversation deleted successfully."
-          }
-        }
-      ]
-    },
-    {
-      "id": "chat-mark-read",
-      "category": "chat",
-      "method": "PUT",
-      "path": "/api/mobile/chat/conversations/:id/read",
-      "summary": "Mark Conversation as Read",
-      "description": "Marks all unread messages received in this conversation as read. Updates MySQL first, invalidates Redis caches, and broadcasts chat:messages_read Socket.IO event to sender.",
-      "requiresAuth": true,
-      "requestHeaders": [
-        {
-          "name": "Authorization",
-          "type": "string",
-          "required": true,
-          "example": "Bearer eyJhbGciOiJIUzI1Ni..."
-        }
-      ],
-      "parameters": [
-        {
-          "name": "id",
-          "in": "path",
-          "type": "integer",
-          "required": true,
-          "description": "Conversation ID"
-        }
-      ],
-      "requestBody": null,
-      "responses": [
-        {
-          "status": 200,
-          "description": "Messages marked as read.",
-          "example": {
-            "success": true,
-            "message": "Messages marked as read."
-          }
-        }
-      ]
-    },
-    {
-      "id": "chat-upload-media",
-      "category": "chat",
-      "method": "POST",
-      "path": "/api/mobile/chat/upload",
-      "summary": "Direct Device Media Upload for Chat",
-      "description": "Uploads images, videos, or audio directly from device for private chat attachments. Returns public /uploads/chat/... URLs and metadata.",
-      "requiresAuth": true,
-      "requestHeaders": [
-        {
-          "name": "Authorization",
-          "type": "string",
-          "required": true,
-          "example": "Bearer eyJhbGciOiJIUzI1Ni..."
-        },
-        {
-          "name": "Content-Type",
-          "type": "string",
-          "required": true,
-          "example": "multipart/form-data"
-        }
-      ],
-      "parameters": [],
-      "requestBody": null,
-      "responses": [
-        {
-          "status": 200,
-          "description": "Files uploaded successfully.",
-          "example": {
-            "success": true,
-            "message": "Chat media files uploaded successfully.",
-            "count": 2,
-            "media": [
-              {
-                "media_type": "video",
-                "media_url": "/uploads/chat/video_clip_1791792769.mp4",
-                "size": 1542030,
-                "display_order": 1
-              },
-              {
-                "media_type": "image",
-                "media_url": "/uploads/chat/photo_1791792770.jpg",
-                "size": 420100,
-                "display_order": 2
-              }
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "id": "chat-send-message",
-      "category": "chat",
-      "method": "POST",
-      "path": "/api/mobile/chat/messages",
-      "summary": "Send Message (Text & Multiple Device Images/Videos)",
-      "description": "Sends a direct message to a user. Supports text messages and multiple image/video files selected directly from the user device via multipart/form-data or JSON media array. Writes to MySQL SSOT first, invalidates Redis caches, and broadcasts real-time chat:new_message and chat:conversation_update events via Socket.IO.",
-      "requiresAuth": true,
-      "requestHeaders": [
-        {
-          "name": "Authorization",
-          "type": "string",
-          "required": true,
-          "example": "Bearer eyJhbGciOiJIUzI1Ni..."
-        },
-        {
-          "name": "Content-Type",
-          "type": "string",
-          "required": false,
-          "example": "application/json"
-        }
-      ],
-      "parameters": [],
-      "requestBody": {
-        "type": "object",
-        "properties": {
-          "receiver_id": {
-            "type": "integer",
-            "description": "Recipient User ID"
-          },
-          "conversation_id": {
-            "type": "integer",
-            "description": "Conversation ID (alternative to receiver_id)"
-          },
-          "message": {
-            "type": "string",
-            "description": "Text message or caption"
-          },
-          "media": {
-            "type": "array",
-            "description": "Array of media items if sending pre-uploaded media",
-            "items": {
-              "type": "object",
-              "properties": {
-                "media_type": {
-                  "type": "string",
-                  "enum": [
-                    "image",
-                    "video",
-                    "audio"
-                  ]
-                },
-                "media_url": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        },
-        "example": {
-          "receiver_id": 2,
-          "message": "Here is the video recording from today!",
-          "media": [
+        "id": "chat-set-background",
+        "category": "chat",
+        "method": "PUT",
+        "path": "/api/mobile/chat/conversations/:id/background",
+        "summary": "Set / Change Shared Chat Background (Image / Color)",
+        "description": "Sets or updates the conversation background image or color. The background is shared between both participants in the direct chat so both users see the same custom background in their chat screen. Supports multipart file upload (image file from device camera/gallery) or JSON payload with background_image URL and background_color HEX/gradient. Also accessible via /api/mobile/chat/messages/:otherUserId/background. Broadcasts real-time chat:background_updated Socket.IO event to both participants.",
+        "requiresAuth": true,
+        "requestHeaders": [
             {
-              "media_type": "video",
-              "media_url": "/uploads/chat/mobile_video_clip.mp4"
+                "name": "Authorization",
+                "type": "string",
+                "required": true,
+                "example": "Bearer eyJhbGciOiJIUzI1Ni..."
             },
             {
-              "media_type": "image",
-              "media_url": "/uploads/chat/backstage_photo.jpg"
+                "name": "Content-Type",
+                "type": "string",
+                "required": false,
+                "example": "application/json (or multipart/form-data for file uploads)"
             }
-          ]
-        }
-      },
-      "responses": [
-        {
-          "status": 201,
-          "description": "Message sent and broadcasted successfully.",
-          "example": {
-            "success": true,
-            "message": "Message sent successfully.",
-            "data": {
-              "id": 102,
-              "conversation_id": 1,
-              "sender_id": 5,
-              "receiver_id": 2,
-              "message_type": "multiple",
-              "message": "Here is the video recording from today!",
-              "media_url": "/uploads/chat/mobile_video_clip.mp4",
-              "media": [
-                {
-                  "media_type": "video",
-                  "media_url": "/uploads/chat/mobile_video_clip.mp4"
-                }
-              ],
-              "is_read": false,
-              "is_mine": true,
-              "created_at": "2026-10-12T08:16:00.000Z"
+        ],
+        "parameters": [
+            {
+                "name": "id",
+                "in": "path",
+                "type": "integer",
+                "required": true,
+                "description": "Conversation ID (or target other user ID)"
             }
-          }
-        }
-      ]
-    },
-    {
-      "id": "chat-get-messages",
-      "category": "chat",
-      "method": "GET",
-      "path": "/api/mobile/chat/conversations/:conversationId/messages",
-      "summary": "Get Messages in Conversation",
-      "description": "Retrieves chronological chat message history for a conversation. Automatically marks unread incoming messages as read and broadcasts real-time chat:messages_read Socket.IO event. Returns media attachments for image/video messages.",
-      "requiresAuth": true,
-      "requestHeaders": [
-        {
-          "name": "Authorization",
-          "type": "string",
-          "required": true,
-          "example": "Bearer eyJhbGciOiJIUzI1Ni..."
-        }
-      ],
-      "parameters": [
-        {
-          "name": "conversationId",
-          "in": "path",
-          "type": "integer",
-          "required": true,
-          "description": "Conversation ID"
-        },
-        {
-          "name": "page",
-          "in": "query",
-          "type": "integer",
-          "required": false,
-          "default": 1
-        },
-        {
-          "name": "limit",
-          "in": "query",
-          "type": "integer",
-          "required": false,
-          "default": 30
-        }
-      ],
-      "requestBody": null,
-      "responses": [
-        {
-          "status": 200,
-          "description": "Messages retrieved successfully.",
-          "example": {
-            "success": true,
-            "conversation_id": 1,
-            "total": 12,
-            "page": 1,
-            "limit": 30,
-            "total_pages": 1,
-            "messages": [
-              {
-                "id": 101,
-                "conversation_id": 1,
-                "sender_id": 2,
-                "receiver_id": 5,
-                "message_type": "video",
-                "message": "Check out this rehearsal snippet!",
-                "media_url": "/uploads/chat/rehearsal_clip.mp4",
-                "media": [
-                  {
-                    "media_type": "video",
-                    "media_url": "/uploads/chat/rehearsal_clip.mp4",
-                    "thumbnail_url": null,
-                    "duration": 25
-                  }
-                ],
-                "is_read": true,
-                "is_mine": false,
-                "created_at": "2026-10-12T08:14:00.000Z",
-                "sender": {
-                  "id": 2,
-                  "name": "Nila Akter",
-                  "profile_picture": "/uploads/avatars/nila_pic.jpg",
-                  "role": "host",
-                  "level": 5,
-                  "star": 2,
-                  "package_category": {
-                    "id": 1,
-                    "name": "Royal VIP",
-                    "badge_icon": "/uploads/vip/royal.png",
-                    "color_code": "#f59e0b"
-                  }
-                }
-              }
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "id": "chat-conversations-list",
-      "category": "chat",
-      "method": "GET",
-      "path": "/api/mobile/chat/conversations",
-      "summary": "Get Conversations / Inbox List",
-      "description": "Retrieves the list of active 1-on-1 conversations for the authenticated user, ordered by most recent message descending. Each item includes the conversation partner profile (name, avatar, VIP package category), unread message count, and last message snippet. Cached via Redis Cache-Aside.",
-      "requiresAuth": true,
-      "requestHeaders": [
-        {
-          "name": "Authorization",
-          "type": "string",
-          "required": true,
-          "example": "Bearer eyJhbGciOiJIUzI1Ni..."
-        }
-      ],
-      "parameters": [
-        {
-          "name": "page",
-          "in": "query",
-          "type": "integer",
-          "required": false,
-          "default": 1,
-          "description": "Page number"
-        },
-        {
-          "name": "limit",
-          "in": "query",
-          "type": "integer",
-          "required": false,
-          "default": 20,
-          "description": "Items per page (max 50)"
-        }
-      ],
-      "requestBody": null,
-      "responses": [
-        {
-          "status": 200,
-          "description": "Conversations list retrieved successfully.",
-          "example": {
-            "success": true,
-            "page": 1,
-            "limit": 20,
-            "total": 8,
-            "total_pages": 1,
-            "conversations": [
-              {
-                "conversation_id": 1,
-                "last_message": "Sounds great! Sending over the video recording now.",
-                "last_message_at": "2026-10-12T08:15:00.000Z",
-                "unread_count": 2,
-                "other_user": {
-                  "id": 2,
-                  "name": "Nila Akter",
-                  "profile_picture": "/uploads/avatars/nila_pic.jpg",
-                  "role": "host",
-                  "level": 5,
-                  "star": 2,
-                  "package_category": {
-                    "id": 1,
-                    "name": "Royal VIP",
-                    "badge_icon": "/uploads/vip/royal.png",
-                    "color_code": "#f59e0b"
-                  }
-                }
-              }
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "id": "chat-search-users",
-      "category": "chat",
-      "method": "GET",
-      "path": "/api/mobile/chat/users/search",
-      "summary": "Search Users for Chat (by ID or Name)",
-      "description": "Searches for registered active users by numeric ID (exact match) or by name/text (partial match) to start or open a 1-on-1 direct message conversation. Automatically returns `has_existing_chat` and `conversation_id` if a conversation already exists. Excludes the current user and banned accounts. Cached via Redis Cache-Aside.",
-      "requiresAuth": true,
-      "requestHeaders": [
-        {
-          "name": "Authorization",
-          "type": "string",
-          "required": true,
-          "example": "Bearer eyJhbGciOiJIUzI1Ni..."
-        }
-      ],
-      "parameters": [
-        {
-          "name": "q",
-          "in": "query",
-          "type": "string",
-          "required": false,
-          "description": "Search keyword - User ID (e.g. '2') or Name (e.g. 'nila')"
-        },
-        {
-          "name": "page",
-          "in": "query",
-          "type": "integer",
-          "required": false,
-          "default": 1,
-          "description": "Page number"
-        },
-        {
-          "name": "limit",
-          "in": "query",
-          "type": "integer",
-          "required": false,
-          "default": 20,
-          "description": "Items per page (max 50)"
-        }
-      ],
-      "requestBody": null,
-      "responses": [
-        {
-          "status": 200,
-          "description": "Matching users retrieved successfully.",
-          "example": {
-            "success": true,
-            "query": "2",
-            "users": [
-              {
-                "id": 2,
-                "full_name": "Nila Akter",
-                "name": "Nila Akter",
-                "avatar_url": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150",
-                "profile": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150",
-                "bio": "Singer & Lifestyle Streamer 🎤",
-                "role": "host",
-                "level": 15,
-                "vip_package": "Standard",
-                "package_category": {
-                  "id": null,
-                  "name": "Standard",
-                  "badge_icon": null,
-                  "color_code": "#9ca3af"
+        ],
+        "requestBody": {
+            "type": "object",
+            "properties": {
+                "background_image": {
+                    "type": "string",
+                    "description": "Image URL or multipart uploaded image file"
                 },
-                "conversation_id": 1,
-                "has_existing_chat": true,
-                "last_message": "Hello! How are you? 👋",
-                "last_message_at": "2026-10-15T07:21:58.000Z"
-              }
-            ],
-            "pagination": {
-              "total": 1,
-              "page": 1,
-              "limit": 20,
-              "total_pages": 1,
-              "has_more": false
+                "background_color": {
+                    "type": "string",
+                    "description": "Hex color code or CSS gradient (e.g. #1e293b, linear-gradient(135deg, #0f172a, #1e1b4b))"
+                }
+            },
+            "example": {
+                "background_image": "https://images.unsplash.com/photo-1579546929518-9e396f3cc809",
+                "background_color": "#1e293b"
             }
-          }
+        },
+        "responses": [
+            {
+                "status": 200,
+                "description": "Chat background updated successfully.",
+                "example": {
+                    "success": true,
+                    "message": "Chat background updated successfully for this conversation.",
+                    "background": {
+                        "conversation_id": 1,
+                        "background_image": "https://images.unsplash.com/photo-1579546929518-9e396f3cc809",
+                        "background_color": "#1e293b",
+                        "updated_by": 1,
+                        "updated_at": "2026-10-18T09:30:00.000Z"
+                    }
+                }
+            },
+            {
+                "status": 400,
+                "description": "Missing background image or color.",
+                "example": {
+                    "success": false,
+                    "message": "Please provide either background_image or background_color."
+                }
+            },
+            {
+                "status": 404,
+                "description": "Conversation or target user not found.",
+                "example": {
+                    "success": false,
+                    "message": "Conversation not found."
+                }
+            }
+        ],
+        "codeSnippets": {
+            "curl": "curl -X PUT \"https://yourdomain.com/api/mobile/chat/conversations/1/background\" \\\n  -H \"Authorization: Bearer <TOKEN>\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n    \"background_image\": \"https://images.unsplash.com/photo-1579546929518-9e396f3cc809\",\n    \"background_color\": \"#1e293b\"\n  }'",
+            "flutter": "import 'dart:convert';\nimport 'package:http/http.dart' as http;\n\n/// Set or change conversation background (shared for both participants)\nFuture<Map<String, dynamic>?> setChatBackground({\n  required String token,\n  required int conversationId,\n  String? backgroundImage,\n  String? backgroundColor,\n}) async {\n  final url = Uri.parse('$BASE_URL/api/mobile/chat/conversations/$conversationId/background');\n  \n  final res = await http.put(\n    url,\n    headers: {\n      'Content-Type': 'application/json',\n      'Authorization': 'Bearer $token',\n    },\n    body: jsonEncode({\n      if (backgroundImage != null) 'background_image': backgroundImage,\n      if (backgroundColor != null) 'background_color': backgroundColor,\n    }),\n  );\n\n  if (res.statusCode == 200) {\n    final data = jsonDecode(res.body);\n    print('Background updated: ${data[\"background\"]}');\n    return data['background'];\n  } else {\n    print('Error setting background: ${res.statusCode} ${res.body}');\n    return null;\n  }\n}"
         }
-      ]
     },
     {
+        "id": "chat-remove-background",
+        "category": "chat",
+        "method": "DELETE",
+        "path": "/api/mobile/chat/conversations/:id/background",
+        "summary": "Remove / Reset Shared Chat Background",
+        "description": "Removes any custom background image or color from the conversation, resetting both participants to default theme. Also accessible via /api/mobile/chat/messages/:otherUserId/background. Broadcasts real-time chat:background_updated Socket.IO event.",
+        "requiresAuth": true,
+        "requestHeaders": [
+            {
+                "name": "Authorization",
+                "type": "string",
+                "required": true,
+                "example": "Bearer eyJhbGciOiJIUzI1Ni..."
+            }
+        ],
+        "parameters": [
+            {
+                "name": "id",
+                "in": "path",
+                "type": "integer",
+                "required": true,
+                "description": "Conversation ID (or target other user ID)"
+            }
+        ],
+        "requestBody": null,
+        "responses": [
+            {
+                "status": 200,
+                "description": "Chat background removed successfully.",
+                "example": {
+                    "success": true,
+                    "message": "Chat background removed successfully.",
+                    "background": {
+                        "conversation_id": 1,
+                        "background_image": null,
+                        "background_color": null,
+                        "updated_by": 1,
+                        "updated_at": "2026-10-18T09:30:00.000Z"
+                    }
+                }
+            },
+            {
+                "status": 404,
+                "description": "Conversation not found.",
+                "example": {
+                    "success": false,
+                    "message": "Conversation not found."
+                }
+            }
+        ],
+        "codeSnippets": {
+            "curl": "curl -X DELETE \"https://yourdomain.com/api/mobile/chat/conversations/1/background\" \\\n  -H \"Authorization: Bearer <TOKEN>\"",
+            "flutter": "import 'dart:convert';\nimport 'package:http/http.dart' as http;\n\n/// Remove/Reset chat background for conversation\nFuture<bool> removeChatBackground({\n  required String token,\n  required int conversationId,\n}) async {\n  final url = Uri.parse('$BASE_URL/api/mobile/chat/conversations/$conversationId/background');\n  \n  final res = await http.delete(\n    url,\n    headers: {\n      'Authorization': 'Bearer $token',\n    },\n  );\n\n  if (res.statusCode == 200) {\n    print('Background removed successfully');\n    return true;\n  }\n  return false;\n}"
+        }
+    },
+    {
+        "id": "chat-clear-messages",
+        "category": "chat",
+        "method": "POST",
+        "path": "/api/mobile/chat/conversations/:id/clear",
+        "summary": "Clear All Chat Messages (For Caller's Account Only)",
+        "description": "Clears all message history with the target user for the calling user's account only (sets caller's user_cleared_at timestamp). The other participant still retains their complete chat history without any loss. Caller will see an empty chat history up to this timestamp. Any subsequent messages will be visible to both. Also accessible via /api/mobile/chat/messages/:otherUserId/clear. Broadcasts chat:chat_cleared via Socket.IO to the caller.",
+        "requiresAuth": true,
+        "requestHeaders": [
+            {
+                "name": "Authorization",
+                "type": "string",
+                "required": true,
+                "example": "Bearer eyJhbGciOiJIUzI1Ni..."
+            }
+        ],
+        "parameters": [
+            {
+                "name": "id",
+                "in": "path",
+                "type": "integer",
+                "required": true,
+                "description": "Conversation ID (or target other user ID)"
+            }
+        ],
+        "requestBody": null,
+        "responses": [
+            {
+                "status": 200,
+                "description": "Messages cleared for caller.",
+                "example": {
+                    "success": true,
+                    "message": "All messages cleared for your account. The other user will still see their chat history.",
+                    "conversation_id": 1,
+                    "cleared_at": "2026-10-18T09:30:00.000Z"
+                }
+            },
+            {
+                "status": 404,
+                "description": "Conversation not found.",
+                "example": {
+                    "success": false,
+                    "message": "Conversation not found."
+                }
+            }
+        ],
+        "codeSnippets": {
+            "curl": "curl -X POST \"https://yourdomain.com/api/mobile/chat/conversations/1/clear\" \\\n  -H \"Authorization: Bearer <TOKEN>\"",
+            "flutter": "import 'dart:convert';\nimport 'package:http/http.dart' as http;\n\n/// Clear chat history for caller only (partner keeps full history)\nFuture<bool> clearChatMessages({\n  required String token,\n  required int conversationId,\n}) async {\n  final url = Uri.parse('$BASE_URL/api/mobile/chat/conversations/$conversationId/clear');\n  \n  final res = await http.post(\n    url,\n    headers: {\n      'Authorization': 'Bearer $token',\n    },\n  );\n\n  if (res.statusCode == 200) {\n    final data = jsonDecode(res.body);\n    print('Messages cleared for caller at: ${data[\"cleared_at\"]}');\n    return true;\n  }\n  return false;\n}"
+        }
+    },
+    {
+        "id": "chat-delete-conversation",
+        "category": "chat",
+        "method": "DELETE",
+        "path": "/api/mobile/chat/conversations/:id",
+        "summary": "Delete / Remove Conversation from Inbox",
+        "description": "Soft-deletes and hides the conversation from the calling user's inbox list and clears their message history. The partner's inbox and messages remain completely untouched unless they also delete it or hard=true query param is passed. If both participants have hidden/deleted the conversation or hard=true is specified, all records are permanently purged from MySQL. Invalidates Redis caches and emits chat:conversation_deleted Socket.IO event.",
+        "requiresAuth": true,
+        "requestHeaders": [
+            {
+                "name": "Authorization",
+                "type": "string",
+                "required": true,
+                "example": "Bearer eyJhbGciOiJIUzI1Ni..."
+            }
+        ],
+        "parameters": [
+            {
+                "name": "id",
+                "in": "path",
+                "type": "integer",
+                "required": true,
+                "description": "Conversation ID (or target other user ID)"
+            },
+            {
+                "name": "hard",
+                "in": "query",
+                "type": "boolean",
+                "required": false,
+                "description": "Optional: hard=true to permanently purge conversation and messages for both users"
+            }
+        ],
+        "requestBody": null,
+        "responses": [
+            {
+                "status": 200,
+                "description": "Conversation deleted successfully.",
+                "example": {
+                    "success": true,
+                    "message": "Conversation removed from your inbox."
+                }
+            },
+            {
+                "status": 404,
+                "description": "Conversation not found.",
+                "example": {
+                    "success": false,
+                    "message": "Conversation not found."
+                }
+            }
+        ],
+        "codeSnippets": {
+            "curl": "curl -X DELETE \"https://yourdomain.com/api/mobile/chat/conversations/1\" \\\n  -H \"Authorization: Bearer <TOKEN>\"",
+            "flutter": "import 'package:http/http.dart' as http;\n\n/// Delete or remove conversation from caller's inbox\nFuture<bool> deleteConversation({\n  required String token,\n  required int conversationId,\n  bool hardDelete = false,\n}) async {\n  final url = Uri.parse('$BASE_URL/api/mobile/chat/conversations/$conversationId${hardDelete ? \"?hard=true\" : \"\"}');\n  \n  final res = await http.delete(\n    url,\n    headers: {\n      'Authorization': 'Bearer $token',\n    },\n  );\n\n  return res.statusCode == 200;\n}"
+        }
+    },
+    {
+        "id": "chat-mark-read",
+        "category": "chat",
+        "method": "PUT",
+        "path": "/api/mobile/chat/conversations/:id/read",
+        "summary": "Mark Conversation as Read",
+        "description": "Marks all unread messages received in this conversation as read. Updates MySQL first, invalidates Redis caches, and broadcasts chat:messages_read Socket.IO event to sender.",
+        "requiresAuth": true,
+        "requestHeaders": [
+            {
+                "name": "Authorization",
+                "type": "string",
+                "required": true,
+                "example": "Bearer eyJhbGciOiJIUzI1Ni..."
+            }
+        ],
+        "parameters": [
+            {
+                "name": "id",
+                "in": "path",
+                "type": "integer",
+                "required": true,
+                "description": "Conversation ID (or target other user ID)"
+            }
+        ],
+        "requestBody": null,
+        "responses": [
+            {
+                "status": 200,
+                "description": "Messages marked as read.",
+                "example": {
+                    "success": true,
+                    "message": "Messages marked as read.",
+                    "conversation_id": 1,
+                    "affected_rows": 3
+                }
+            }
+        ],
+        "codeSnippets": {
+            "curl": "curl -X PUT \"https://yourdomain.com/api/mobile/chat/conversations/1/read\" \\\n  -H \"Authorization: Bearer <TOKEN>\"",
+            "flutter": "import 'package:http/http.dart' as http;\n\n/// Mark conversation as read\nFuture<bool> markConversationAsRead({\n  required String token,\n  required int conversationId,\n}) async {\n  final url = Uri.parse('$BASE_URL/api/mobile/chat/conversations/$conversationId/read');\n  \n  final res = await http.put(\n    url,\n    headers: {\n      'Authorization': 'Bearer $token',\n    },\n  );\n\n  return res.statusCode == 200;\n}"
+        }
+    },
+    {
+        "id": "chat-upload-media",
+        "category": "chat",
+        "method": "POST",
+        "path": "/api/mobile/chat/upload",
+        "summary": "Upload Device Images / Videos for Chat",
+        "description": "Uploads one or more media files (images, videos, audio notes) from the mobile device via multipart/form-data. Returns hosted URLs and metadata ready to be sent in chat messages.",
+        "requiresAuth": true,
+        "requestHeaders": [
+            {
+                "name": "Authorization",
+                "type": "string",
+                "required": true,
+                "example": "Bearer eyJhbGciOiJIUzI1Ni..."
+            },
+            {
+                "name": "Content-Type",
+                "type": "string",
+                "required": true,
+                "example": "multipart/form-data"
+            }
+        ],
+        "parameters": [],
+        "requestBody": {
+            "type": "multipart/form-data",
+            "fields": [
+                {
+                    "name": "media",
+                    "type": "file[]",
+                    "required": true,
+                    "description": "One or more image/video files from mobile device"
+                }
+            ],
+            "example": {
+                "media": "[Binary File Attached]"
+            }
+        },
+        "responses": [
+            {
+                "status": 200,
+                "description": "Media files uploaded successfully.",
+                "example": {
+                    "success": true,
+                    "message": "Media uploaded successfully.",
+                    "media": [
+                        {
+                            "media_type": "image",
+                            "media_url": "/uploads/chat/chat_media_1711200000.jpg"
+                        }
+                    ]
+                }
+            }
+        ],
+        "codeSnippets": {
+            "curl": "curl -X POST \"https://yourdomain.com/api/mobile/chat/upload\" \\\n  -H \"Authorization: Bearer <TOKEN>\" \\\n  -F \"media=@/path/to/device/photo.jpg\"",
+            "flutter": "import 'dart:io';\nimport 'dart:convert';\nimport 'package:http/http.dart' as http;\n\n/// Direct device media upload for chat\nFuture<List<Map<String, dynamic>>> uploadChatMedia({\n  required String token,\n  required List<File> files,\n}) async {\n  final url = Uri.parse('$BASE_URL/api/mobile/chat/upload');\n  final request = http.MultipartRequest('POST', url);\n  request.headers['Authorization'] = 'Bearer $token';\n\n  for (final file in files) {\n    request.files.add(await http.MultipartFile.fromPath('media', file.path));\n  }\n\n  final streamed = await request.send();\n  final res = await http.Response.fromStream(streamed);\n  \n  if (res.statusCode == 200) {\n    final data = jsonDecode(res.body);\n    return List<Map<String, dynamic>>.from(data['media']);\n  }\n  return [];\n}"
+        }
+    },
+    {
+        "id": "chat-send-message",
+        "category": "chat",
+        "method": "POST",
+        "path": "/api/mobile/chat/messages",
+        "summary": "Send Message (Text, Reply / Quote, Images & Videos)",
+        "description": "Sends a direct message to a user or conversation. Supports replying to / quoting an earlier message via reply_to_id. Supports sending text and multiple image/video files selected directly from the user device. Automatically unhides the conversation in both users' inboxes if previously hidden. Updates MySQL SSOT first, invalidates Redis caches, and broadcasts real-time chat:new_message (with full reply_to details) and chat:conversation_update via Socket.IO.",
+        "requiresAuth": true,
+        "requestHeaders": [
+            {
+                "name": "Authorization",
+                "type": "string",
+                "required": true,
+                "example": "Bearer eyJhbGciOiJIUzI1Ni..."
+            },
+            {
+                "name": "Content-Type",
+                "type": "string",
+                "required": false,
+                "example": "application/json (or multipart/form-data for direct file attachments)"
+            }
+        ],
+        "parameters": [],
+        "requestBody": {
+            "type": "object",
+            "properties": {
+                "receiver_id": {
+                    "type": "integer",
+                    "description": "Recipient User ID (required if conversation_id not specified)"
+                },
+                "conversation_id": {
+                    "type": "integer",
+                    "description": "Conversation ID (alternative to receiver_id)"
+                },
+                "message": {
+                    "type": "string",
+                    "description": "Text message content or media caption"
+                },
+                "reply_to_id": {
+                    "type": "integer",
+                    "description": "ID of the specific message being replied to / quoted (optional)"
+                },
+                "media": {
+                    "type": "array",
+                    "description": "Array of pre-uploaded media items",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "media_type": {
+                                "type": "string",
+                                "enum": [
+                                    "image",
+                                    "video",
+                                    "audio"
+                                ]
+                            },
+                            "media_url": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "example": {
+                "receiver_id": 2,
+                "message": "Yes! I saw your video, here is my response.",
+                "reply_to_id": 101,
+                "media": []
+            }
+        },
+        "responses": [
+            {
+                "status": 201,
+                "description": "Message sent and broadcasted successfully.",
+                "example": {
+                    "success": true,
+                    "message": "Message sent successfully.",
+                    "data": {
+                        "id": 102,
+                        "conversation_id": 1,
+                        "sender_id": 5,
+                        "receiver_id": 2,
+                        "message_type": "text",
+                        "message": "Yes! I saw your video, here is my response.",
+                        "reply_to_id": 101,
+                        "reply_to": {
+                            "id": 101,
+                            "sender_id": 2,
+                            "message": "Check out this rehearsal snippet!",
+                            "message_type": "video",
+                            "media_url": "/uploads/chat/rehearsal_clip.mp4",
+                            "sender_name": "Nila Akter"
+                        },
+                        "media_url": null,
+                        "media": [],
+                        "is_read": false,
+                        "is_mine": true,
+                        "created_at": "2026-10-18T09:35:00.000Z"
+                    }
+                }
+            },
+            {
+                "status": 400,
+                "description": "Validation error (missing receiver or message content).",
+                "example": {
+                    "success": false,
+                    "message": "Receiver ID or Conversation ID is required."
+                }
+            }
+        ],
+        "codeSnippets": {
+            "curl": "curl -X POST \"https://yourdomain.com/api/mobile/chat/messages\" \\\n  -H \"Authorization: Bearer <TOKEN>\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n    \"receiver_id\": 2,\n    \"message\": \"Yes! I saw your video, here is my response.\",\n    \"reply_to_id\": 101\n  }'",
+            "flutter": "import 'dart:convert';\nimport 'package:http/http.dart' as http;\n\n/// Send direct message with text, optional reply_to_id, or media\nFuture<Map<String, dynamic>?> sendChatMessage({\n  required String token,\n  int? receiverId,\n  int? conversationId,\n  required String message,\n  int? replyToId,\n  List<Map<String, String>>? media,\n}) async {\n  final url = Uri.parse('$BASE_URL/api/mobile/chat/messages');\n  \n  final res = await http.post(\n    url,\n    headers: {\n      'Content-Type': 'application/json',\n      'Authorization': 'Bearer $token',\n    },\n    body: jsonEncode({\n      if (receiverId != null) 'receiver_id': receiverId,\n      if (conversationId != null) 'conversation_id': conversationId,\n      'message': message,\n      if (replyToId != null) 'reply_to_id': replyToId,\n      if (media != null && media.isNotEmpty) 'media': media,\n    }),\n  );\n\n  if (res.statusCode == 201) {\n    final data = jsonDecode(res.body);\n    return data['data'];\n  }\n  return null;\n}"
+        }
+    },
+    {
+        "id": "chat-get-messages",
+        "category": "chat",
+        "method": "GET",
+        "path": "/api/mobile/chat/conversations/:conversationId/messages",
+        "summary": "Get Messages in Conversation (with Reply Quotes & Shared Background)",
+        "description": "Retrieves chronological chat message history for a conversation. Automatically filters out messages sent prior to the calling user's user_cleared_at timestamp if they previously cleared chat history. Returns the active shared background (image & color) and message reply_to quote objects. Automatically marks unread incoming messages as read and broadcasts real-time chat:messages_read Socket.IO event.",
+        "requiresAuth": true,
+        "requestHeaders": [
+            {
+                "name": "Authorization",
+                "type": "string",
+                "required": true,
+                "example": "Bearer eyJhbGciOiJIUzI1Ni..."
+            }
+        ],
+        "parameters": [
+            {
+                "name": "conversationId",
+                "in": "path",
+                "type": "integer",
+                "required": true,
+                "description": "Conversation ID (or partner user ID via /api/mobile/chat/messages/:otherUserId)"
+            },
+            {
+                "name": "page",
+                "in": "query",
+                "type": "integer",
+                "required": false,
+                "default": 1
+            },
+            {
+                "name": "limit",
+                "in": "query",
+                "type": "integer",
+                "required": false,
+                "default": 30
+            }
+        ],
+        "requestBody": null,
+        "responses": [
+            {
+                "status": 200,
+                "description": "Messages retrieved successfully.",
+                "example": {
+                    "success": true,
+                    "conversation_id": 1,
+                    "background": {
+                        "background_image": "https://images.unsplash.com/photo-1579546929518-9e396f3cc809",
+                        "background_color": "#1e293b",
+                        "updated_by": 1,
+                        "updated_at": "2026-10-18T09:30:00.000Z"
+                    },
+                    "total": 12,
+                    "page": 1,
+                    "limit": 30,
+                    "total_pages": 1,
+                    "messages": [
+                        {
+                            "id": 102,
+                            "conversation_id": 1,
+                            "sender_id": 5,
+                            "receiver_id": 2,
+                            "message_type": "text",
+                            "message": "Yes! I saw your video, here is my response.",
+                            "reply_to_id": 101,
+                            "reply_to": {
+                                "id": 101,
+                                "sender_id": 2,
+                                "message": "Check out this rehearsal snippet!",
+                                "message_type": "video",
+                                "media_url": "/uploads/chat/rehearsal_clip.mp4",
+                                "sender_name": "Nila Akter"
+                            },
+                            "media_url": null,
+                            "media": [],
+                            "is_read": true,
+                            "is_mine": true,
+                            "created_at": "2026-10-18T09:35:00.000Z",
+                            "sender": {
+                                "id": 5,
+                                "name": "Alex Vance",
+                                "profile_picture": "/uploads/avatars/alex.jpg",
+                                "role": "user",
+                                "level": 3,
+                                "star": 1,
+                                "package_category": {
+                                    "id": 1,
+                                    "name": "Royal VIP",
+                                    "badge_icon": "/uploads/vip/royal.png",
+                                    "color_code": "#f59e0b"
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "codeSnippets": {
+            "curl": "curl -X GET \"https://yourdomain.com/api/mobile/chat/conversations/1/messages?page=1&limit=30\" \\\n  -H \"Authorization: Bearer <TOKEN>\"",
+            "flutter": "import 'dart:convert';\nimport 'package:http/http.dart' as http;\n\n/// Get messages and active background styling\nFuture<Map<String, dynamic>?> getChatMessages({\n  required String token,\n  required int conversationId,\n  int page = 1,\n  int limit = 30,\n}) async {\n  final url = Uri.parse('$BASE_URL/api/mobile/chat/conversations/$conversationId/messages?page=$page&limit=$limit');\n  \n  final res = await http.get(\n    url,\n    headers: {\n      'Authorization': 'Bearer $token',\n    },\n  );\n\n  if (res.statusCode == 200) {\n    return jsonDecode(res.body);\n  }\n  return null;\n}"
+        }
+    },
+    {
+        "id": "chat-conversations-list",
+        "category": "chat",
+        "method": "GET",
+        "path": "/api/mobile/chat/conversations",
+        "summary": "Get Conversations Inbox List",
+        "description": "Retrieves active direct message conversations for the authenticated user, ordered by latest message. Excludes conversations hidden by the caller. Includes unread message counter, other user's VIP package badge, online status, last message preview, and active shared background styling.",
+        "requiresAuth": true,
+        "requestHeaders": [
+            {
+                "name": "Authorization",
+                "type": "string",
+                "required": true,
+                "example": "Bearer eyJhbGciOiJIUzI1Ni..."
+            }
+        ],
+        "parameters": [
+            {
+                "name": "page",
+                "in": "query",
+                "type": "integer",
+                "required": false,
+                "default": 1
+            },
+            {
+                "name": "limit",
+                "in": "query",
+                "type": "integer",
+                "required": false,
+                "default": 20
+            }
+        ],
+        "requestBody": null,
+        "responses": [
+            {
+                "status": 200,
+                "description": "Conversations retrieved successfully.",
+                "example": {
+                    "success": true,
+                    "page": 1,
+                    "limit": 20,
+                    "total": 1,
+                    "conversations": [
+                        {
+                            "id": 1,
+                            "partner_id": 2,
+                            "partner_name": "Nila Akter",
+                            "partner_avatar": "/uploads/avatars/nila_pic.jpg",
+                            "partner_role": "host",
+                            "partner_level": 5,
+                            "partner_star": 2,
+                            "partner_package": {
+                                "id": 1,
+                                "name": "Royal VIP",
+                                "badge_icon": "/uploads/vip/royal.png",
+                                "color_code": "#f59e0b"
+                            },
+                            "background": {
+                                "background_image": "https://images.unsplash.com/photo-1579546929518-9e396f3cc809",
+                                "background_color": "#1e293b"
+                            },
+                            "last_message": "Yes! I saw your video, here is my response.",
+                            "last_message_at": "2026-10-18T09:35:00.000Z",
+                            "unread_count": 0,
+                            "is_online": true
+                        }
+                    ]
+                }
+            }
+        ],
+        "codeSnippets": {
+            "curl": "curl -X GET \"https://yourdomain.com/api/mobile/chat/conversations?page=1&limit=20\" \\\n  -H \"Authorization: Bearer <TOKEN>\"",
+            "flutter": "import 'dart:convert';\nimport 'package:http/http.dart' as http;\n\n/// Fetch user's direct chat inbox list\nFuture<List<Map<String, dynamic>>> getConversationsList({\n  required String token,\n  int page = 1,\n  int limit = 20,\n}) async {\n  final url = Uri.parse('$BASE_URL/api/mobile/chat/conversations?page=$page&limit=$limit');\n  \n  final res = await http.get(\n    url,\n    headers: {\n      'Authorization': 'Bearer $token',\n    },\n  );\n\n  if (res.statusCode == 200) {\n    final data = jsonDecode(res.body);\n    return List<Map<String, dynamic>>.from(data['conversations'] ?? []);\n  }\n  return [];\n}"
+        }
+    },
+    {
+        "id": "chat-search-users",
+        "category": "chat",
+        "method": "GET",
+        "path": "/api/mobile/chat/users/search",
+        "summary": "Search Users for Chat (by ID or Name)",
+        "description": "Searches for registered active users by numeric ID (exact match) or by name/text (partial match) to start or open a 1-on-1 direct message conversation. Automatically returns has_existing_chat and conversation_id if a conversation already exists. Excludes the current user and banned accounts. Cached via Redis Cache-Aside.",
+        "requiresAuth": true,
+        "requestHeaders": [
+            {
+                "name": "Authorization",
+                "type": "string",
+                "required": true,
+                "example": "Bearer eyJhbGciOiJIUzI1Ni..."
+            }
+        ],
+        "parameters": [
+            {
+                "name": "q",
+                "in": "query",
+                "type": "string",
+                "required": false,
+                "description": "Search keyword - User ID (e.g. '2') or Name (e.g. 'nila')"
+            },
+            {
+                "name": "page",
+                "in": "query",
+                "type": "integer",
+                "required": false,
+                "default": 1,
+                "description": "Page number"
+            },
+            {
+                "name": "limit",
+                "in": "query",
+                "type": "integer",
+                "required": false,
+                "default": 20,
+                "description": "Items per page (max 50)"
+            }
+        ],
+        "requestBody": null,
+        "responses": [
+            {
+                "status": 200,
+                "description": "Matching users retrieved successfully.",
+                "example": {
+                    "success": true,
+                    "query": "2",
+                    "users": [
+                        {
+                            "id": 2,
+                            "full_name": "Nila Akter",
+                            "name": "Nila Akter",
+                            "avatar_url": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150",
+                            "profile": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150",
+                            "bio": "Singer & Lifestyle Streamer \ud83c\udfa4",
+                            "role": "host",
+                            "level": 15,
+                            "vip_package": "Standard",
+                            "package_category": {
+                                "id": null,
+                                "name": "Standard",
+                                "badge_icon": null,
+                                "color_code": "#9ca3af"
+                            },
+                            "conversation_id": 1,
+                            "has_existing_chat": true,
+                            "last_message": "Hello! How are you? \ud83d\udc4b",
+                            "last_message_at": "2026-10-15T07:21:58.000Z"
+                        }
+                    ],
+                    "pagination": {
+                        "total": 1,
+                        "page": 1,
+                        "limit": 20,
+                        "total_pages": 1,
+                        "has_more": false
+                    }
+                }
+            }
+        ],
+        "codeSnippets": {
+            "curl": "curl -X GET \"https://yourdomain.com/api/mobile/chat/users/search?q=nila\" \\\n  -H \"Authorization: Bearer <TOKEN>\"",
+            "flutter": "import 'dart:convert';\nimport 'package:http/http.dart' as http;\n\n/// Search users by numeric ID or name\nFuture<List<Map<String, dynamic>>> searchUsersForChat({\n  required String token,\n  required String query,\n  int page = 1,\n  int limit = 20,\n}) async {\n  final url = Uri.parse('$BASE_URL/api/mobile/chat/users/search?q=${Uri.encodeComponent(query)}&page=$page&limit=$limit');\n  \n  final res = await http.get(\n    url,\n    headers: {\n      'Authorization': 'Bearer $token',\n    },\n  );\n\n  if (res.statusCode == 200) {\n    final data = jsonDecode(res.body);\n    return List<Map<String, dynamic>>.from(data['users'] ?? []);\n  }\n  return [];\n}"
+        }
+    },
+        {
       "id": "feed-delete-comment",
       "category": "feed",
       "method": "DELETE",
       "path": "/api/mobile/feed/:postId/comments/:commentId",
-      "summary": "Delete Comment or Reply",
-      "description": "Deletes a comment or reply. Allowed for comment author, post owner, or administrators. Updates MySQL first, decrements comments_count and parent replies_count, and invalidates Redis cache. Route aliases: DELETE /api/mobile/feed/:postId/comments/:commentId and DELETE /api/mobile/feed/comments/:commentId.",
+      "summary": "Delete Comment",
+      "description": "Deletes a comment or reply. Allowed for comment author, post owner, or administrators. Updates MySQL first, decrements comments_count, and invalidates Redis cache.",
       "requiresAuth": true,
       "requestHeaders": [
         {
@@ -1044,8 +1324,8 @@ export const API_SPEC = {
           "name": "postId",
           "in": "path",
           "type": "integer",
-          "required": false,
-          "description": "Post ID (Optional, resolved automatically)"
+          "required": true,
+          "description": "Post ID"
         },
         {
           "name": "commentId",
@@ -1062,25 +1342,7 @@ export const API_SPEC = {
           "description": "Comment deleted successfully.",
           "example": {
             "success": true,
-            "message": "Comment deleted successfully.",
-            "deleted_id": 10,
-            "post_id": 1
-          }
-        },
-        {
-          "status": 403,
-          "description": "Unauthorized to delete this comment.",
-          "example": {
-            "success": false,
-            "message": "Unauthorized to delete this comment."
-          }
-        },
-        {
-          "status": 404,
-          "description": "Comment not found.",
-          "example": {
-            "success": false,
-            "message": "Comment not found."
+            "message": "Comment deleted successfully."
           }
         }
       ]
@@ -2380,6 +2642,99 @@ export const API_SPEC = {
       ]
     },
     {
+      "id": "auth-send-otp",
+      "category": "auth",
+      "method": "POST",
+      "path": "/api/mobile/auth/send-otp",
+      "summary": "Send One-Time Password (OTP)",
+      "description": "Generates a 6-digit OTP code sent to user email or phone with 5-minute validity. Used for quick passwordless login and instant live stream account registration.",
+      "requiresAuth": false,
+      "requestBody": {
+        "type": "application/json",
+        "schema": {
+          "identifier": "string (email or mobile number, required)",
+          "email": "string (optional alias)",
+          "phone": "string (optional alias)"
+        },
+        "example": {
+          "identifier": "user@umi.live"
+        }
+      },
+      "responses": [
+        {
+          "status": 200,
+          "description": "OTP generated and dispatched successfully",
+          "example": {
+            "success": true,
+            "message": "OTP sent successfully to user@umi.live.",
+            "otp": "596964",
+            "expiresIn": 300
+          }
+        },
+        {
+          "status": 400,
+          "description": "Missing identifier",
+          "example": {
+            "success": false,
+            "message": "Email or phone number is required."
+          }
+        }
+      ]
+    },
+    {
+      "id": "auth-verify-otp",
+      "category": "auth",
+      "method": "POST",
+      "path": "/api/mobile/auth/verify-otp",
+      "summary": "Verify OTP & Login / Auto-Register",
+      "description": "Verifies the 6-digit OTP code. If the user already exists, logs them in; if not, automatically registers a new account and returns JWT token and full profile.",
+      "requiresAuth": false,
+      "requestBody": {
+        "type": "application/json",
+        "schema": {
+          "identifier": "string (email or phone, required)",
+          "otp": "string (6 digits, required)",
+          "full_name": "string (optional display name for new users)"
+        },
+        "example": {
+          "identifier": "user@umi.live",
+          "otp": "596964",
+          "full_name": "Live Star"
+        }
+      },
+      "responses": [
+        {
+          "status": 200,
+          "description": "OTP verified successfully with JWT session",
+          "example": {
+            "success": true,
+            "message": "Login successful!",
+            "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+            "token_type": "Bearer",
+            "user": {
+              "id": 8,
+              "email": "user@umi.live",
+              "full_name": "Live Star",
+              "avatar_url": "https://api.dicebear.com/7.x/bottts/svg?seed=8",
+              "role": "user",
+              "coins": 100,
+              "diamonds": 0,
+              "level": 1
+            },
+            "isNewUser": false
+          }
+        },
+        {
+          "status": 400,
+          "description": "Invalid or expired OTP code",
+          "example": {
+            "success": false,
+            "message": "Invalid or expired OTP code. Please request a new one."
+          }
+        }
+      ]
+    },
+    {
       "id": "auth-verify-token",
       "category": "auth",
       "method": "GET",
@@ -3138,6 +3493,62 @@ export const API_SPEC = {
       ]
     },
     {
+      "id": "auth-blocked-users",
+      "category": "auth",
+      "method": "GET",
+      "path": "/api/mobile/auth/blocked-users",
+      "summary": "Get My Blocked Users List (Account Privacy & Settings)",
+      "description": "Retrieves the full list of users blocked by the authenticated user with detailed profiles (id, full_name, avatar_url, bio, level, role, country, reason, blocked_at timestamp). Employs Redis Cache-Aside for ultra-low latency. Route alias: GET /api/mobile/users/blocked.",
+      "requiresAuth": true,
+      "requestHeaders": [
+        {
+          "name": "Authorization",
+          "value": "Bearer <TOKEN>",
+          "required": true
+        }
+      ],
+      "parameters": [],
+      "requestBody": null,
+      "responses": [
+        {
+          "status": 200,
+          "description": "Blocked users list retrieved successfully.",
+          "example": {
+            "success": true,
+            "count": 2,
+            "blocked_users": [
+              {
+                "id": 18,
+                "full_name": "Tariq Hasan",
+                "avatar_url": "https://res.cloudinary.com/example/image/upload/v1/avatars/user18.jpg",
+                "bio": "Streaming enthusiast 🎮",
+                "level": 12,
+                "role": "user",
+                "country": "Bangladesh",
+                "reason": "Harassment in chat",
+                "blocked_at": "2026-10-17T18:20:00.000Z"
+              },
+              {
+                "id": 24,
+                "full_name": "Sabbir Ahmed",
+                "avatar_url": "https://api.dicebear.com/7.x/avataaars/svg?seed=24",
+                "bio": "Music lover 🎵",
+                "level": 5,
+                "role": "user",
+                "country": "Bangladesh",
+                "reason": null,
+                "blocked_at": "2026-10-16T12:05:00.000Z"
+              }
+            ]
+          }
+        }
+      ],
+      "codeSnippets": {
+        "curl": "curl -X GET https://yourdomain.com/api/mobile/auth/blocked-users \\\n  -H \"Authorization: Bearer <TOKEN>\"",
+        "flutter": "import 'package:http/http.dart' as http;\nimport 'dart:convert';\n\n// 📋 Fetch Blocked Users List\nFuture<List<dynamic>> fetchBlockedUsers(String token) async {\n  final res = await http.get(\n    Uri.parse('https://yourdomain.com/api/mobile/auth/blocked-users'),\n    headers: {'Authorization': 'Bearer $token'},\n  );\n  final data = jsonDecode(res.body);\n  return data['blocked_users'] ?? [];\n}"
+      }
+    },
+    {
       "id": "live-create-room",
       "category": "live-rooms",
       "method": "POST",
@@ -3809,56 +4220,6 @@ export const API_SPEC = {
           "example": {
             "success": false,
             "message": "You do not have permission to delete this message."
-          }
-        }
-      ],
-      "liveType": "both"
-    },
-    {
-      "id": "live-room-livekit-token",
-      "category": "live-rooms",
-      "method": "GET",
-      "path": "/api/mobile/live/rooms/:roomId/livekit-token",
-      "summary": "[🎥🎙️ LiveKit WebRTC] Generate LiveKit Access Token for Audio/Video Streaming",
-      "description": "**Stream Type**: 🎥🎙️ Applicable to both Video Live & Audio Live rooms.\n\nGenerates a real-time WebRTC LiveKit Access Token for the connected room (`wss://snlive-y3r75itj.livekit.cloud`).\n- **Host & Seated Users**: Granted `canPublish: true`, `canSubscribe: true` (camera/mic active).\n- **Audience Viewers**: Granted `canPublish: false`, `canSubscribe: true` (watch & listen only).\n- **LiveKit Server**: `wss://snlive-y3r75itj.livekit.cloud`\n- Supports both `GET` and `POST` methods.",
-      "requiresAuth": true,
-      "requestHeaders": [
-        {
-          "name": "Authorization",
-          "value": "Bearer <token>",
-          "required": true
-        }
-      ],
-      "parameters": [
-        {
-          "name": "roomId",
-          "type": "string",
-          "in": "path",
-          "required": true,
-          "description": "Unique room identifier"
-        }
-      ],
-      "requestBody": null,
-      "responses": [
-        {
-          "status": 200,
-          "description": "LiveKit WebRTC Access Token generated successfully.",
-          "example": {
-            "success": true,
-            "token": "eyJhbGciOiJIUzI1NiJ9.eyJuYW1lIjoiVXNlciIsInZpZGVvIjp7InJvb21Kb2luIjp0cnVlLCJyb29tIjoicm9vbS0xMDEiLCJjYW5QdWJsaXNoIjp0cnVlLCJjYW5TdWJzY3JpYmUiOnRydWV9fQ...",
-            "url": "wss://snlive-y3r75itj.livekit.cloud",
-            "roomId": "room-101",
-            "identity": "12",
-            "name": "Nila",
-            "canPublish": true
-          }
-        },
-        {
-          "status": 404,
-          "description": "Live room not found.",
-          "example": {
-            "success": false,
-            "message": "Live room not found."
           }
         }
       ],
@@ -9503,11 +9864,640 @@ export const API_SPEC = {
         "curl": "curl -X POST https://yourdomain.com/api/mobile/thumbnails/upload \\\n  -H \"Authorization: Bearer <TOKEN>\" \\\n  -F \"image=@/path/to/my_room_thumbnail.jpg\" \\\n  -F \"name=My Custom Live Room\"",
         "flutter": "import 'package:http/http.dart' as http;\nimport 'dart:convert';\n\nFuture<void> uploadCustomThumbnail(String token, String filePath, String name) async {\n  var request = http.MultipartRequest('POST', Uri.parse('https://yourdomain.com/api/mobile/thumbnails/upload'));\n  request.headers['Authorization'] = 'Bearer $token';\n  request.fields['name'] = name;\n  request.files.add(await http.MultipartFile.fromPath('image', filePath));\n  var res = await request.send();\n  var responseData = await res.stream.bytesToString();\n  print(jsonDecode(responseData));\n}"
       }
+    },
+    {
+      "id": "user-get-profile",
+      "category": "user-profile",
+      "method": "GET",
+      "path": "/api/mobile/users/:userId/profile",
+      "summary": "Get Other User Profile Details (Full Social, Coins & Package Info)",
+      "description": "Inspects full profile data of any user. Returns identity, full name, avatar profile image, country, role, level, VIP package category name & badge image, bio, mutual follow indicators (is_following & is_followed_by), followers count, following count, total posts count, current coin balance, total received gift coins, total gifted coins, block status, and shareable deep-link URL.",
+      "requiresAuth": false,
+      "requestHeaders": [
+        {
+          "name": "Authorization",
+          "value": "Bearer <TOKEN> (Optional - enables is_following, is_followed_by, is_blocked checks)",
+          "required": false
+        }
+      ],
+      "parameters": [
+        {
+          "name": "userId",
+          "in": "path",
+          "type": "integer",
+          "required": true,
+          "description": "Target User ID to inspect"
+        }
+      ],
+      "requestBody": null,
+      "responses": [
+        {
+          "status": 200,
+          "description": "User profile retrieved successfully.",
+          "example": {
+            "success": true,
+            "user": {
+              "id": 12,
+              "name": "Nila Akter",
+              "full_name": "Nila Akter",
+              "profile_image": "https://res.cloudinary.com/example/image/upload/v1/avatars/user12.jpg",
+              "avatar_url": "https://res.cloudinary.com/example/image/upload/v1/avatars/user12.jpg",
+              "country": "Bangladesh",
+              "role": "host",
+              "level": 14,
+              "star": 3,
+              "bio": "Live daily from 8 PM! Welcome to my profile ✨",
+              "is_following": true,
+              "is_followed_by": false,
+              "is_follower": false,
+              "followers_count": 1420,
+              "following_count": 85,
+              "posts_count": 34,
+              "current_balance": 1250,
+              "coins": 1250,
+              "diamonds": 4500,
+              "total_received_coins": 85000,
+              "total_gifted_coins": 12000,
+              "total_sent_coins": 12000,
+              "is_blocked": false,
+              "is_blocking_me": false,
+              "is_mine": false,
+              "share_link": "https://umilive.app/user/12",
+              "profile_url": "https://umilive.app/user/12",
+              "package_category_name": "VIP Diamond",
+              "package_image": "https://res.cloudinary.com/example/image/upload/v1/badges/diamond.png",
+              "package_image_url": "https://res.cloudinary.com/example/image/upload/v1/badges/diamond.png",
+              "package_color": "#06b6d4",
+              "created_at": "2026-01-15T10:00:00.000Z"
+            }
+          }
+        },
+        {
+          "status": 404,
+          "description": "User not found or suspended.",
+          "example": {
+            "success": false,
+            "message": "User not found or account is deactivated."
+          }
+        }
+      ],
+      "codeSnippets": {
+        "curl": "curl -X GET https://yourdomain.com/api/mobile/users/12/profile \\\n  -H \"Authorization: Bearer <TOKEN>\"",
+        "flutter": "import 'package:http/http.dart' as http;\nimport 'dart:convert';\n\nFuture<Map<String, dynamic>?> fetchUserProfile(int userId, String? token) async {\n  final res = await http.get(\n    Uri.parse('https://yourdomain.com/api/mobile/users/$userId/profile'),\n    headers: token != null ? {'Authorization': 'Bearer $token'} : {},\n  );\n  if (res.statusCode == 200) {\n    final data = jsonDecode(res.body);\n    return data['user'];\n  }\n  return null;\n}"
+      }
+    },
+    {
+      "id": "user-get-posts",
+      "category": "user-profile",
+      "method": "GET",
+      "path": "/api/mobile/users/:userId/posts",
+      "summary": "Get User Posts (Paginated Stream with Media & Reactions)",
+      "description": "Retrieves paginated timeline posts created by this user. Returns post ID, text content, media attachments (images, video, audio), likes count, comments count, and viewer's real-time reaction state (is_liked, is_mine).",
+      "requiresAuth": false,
+      "requestHeaders": [
+        {
+          "name": "Authorization",
+          "value": "Bearer <TOKEN> (Optional - indicates whether viewer liked the post)",
+          "required": false
+        }
+      ],
+      "parameters": [
+        {
+          "name": "userId",
+          "in": "path",
+          "type": "integer",
+          "required": true,
+          "description": "Target User ID"
+        },
+        {
+          "name": "page",
+          "in": "query",
+          "type": "integer",
+          "required": false,
+          "description": "Page number (default: 1)"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "type": "integer",
+          "required": false,
+          "description": "Items per page (default: 10, max: 50)"
+        }
+      ],
+      "requestBody": null,
+      "responses": [
+        {
+          "status": 200,
+          "description": "User posts retrieved successfully.",
+          "example": {
+            "success": true,
+            "total": 34,
+            "page": 1,
+            "limit": 10,
+            "total_pages": 4,
+            "posts": [
+              {
+                "id": 101,
+                "user_id": 12,
+                "title": "Welcome to my weekend live stream!",
+                "content": "Excited to meet you all tonight at 8 PM. Join and win surprise gifts!",
+                "media_type": "image",
+                "media_url": "https://res.cloudinary.com/example/image/upload/v1/posts/p1.jpg",
+                "media": [
+                  {
+                    "media_type": "image",
+                    "media_url": "https://res.cloudinary.com/example/image/upload/v1/posts/p1.jpg"
+                  }
+                ],
+                "likes_count": 254,
+                "comments_count": 42,
+                "is_liked": true,
+                "is_mine": false,
+                "created_at": "2026-10-16T14:30:00.000Z"
+              }
+            ]
+          }
+        }
+      ],
+      "codeSnippets": {
+        "curl": "curl -X GET \"https://yourdomain.com/api/mobile/users/12/posts?page=1&limit=10\" \\\n  -H \"Authorization: Bearer <TOKEN>\"",
+        "flutter": "import 'package:http/http.dart' as http;\nimport 'dart:convert';\n\nFuture<List<dynamic>> fetchUserPosts(int userId, {int page = 1, String? token}) async {\n  final res = await http.get(\n    Uri.parse('https://yourdomain.com/api/mobile/users/$userId/posts?page=$page&limit=10'),\n    headers: token != null ? {'Authorization': 'Bearer $token'} : {},\n  );\n  final data = jsonDecode(res.body);\n  return data['posts'] ?? [];\n}"
+      }
+    },
+    {
+      "id": "user-toggle-follow",
+      "category": "user-profile",
+      "method": "POST",
+      "path": "/api/mobile/users/:userId/toggle-follow",
+      "summary": "Toggle Follow / Unfollow User (Single Unified Endpoint)",
+      "description": "Unified 1-click toggle endpoint for mobile apps (Aliases: POST /api/mobile/users/:userId/follow, POST /api/mobile/users/:userId/unfollow). If you do not follow the target user, it follows them (is_following: true). If you already follow them, it unfollows them (is_following: false). Employs MySQL SSOT writes first followed by immediate Redis invalidation.",
+      "requiresAuth": true,
+      "requestHeaders": [
+        {
+          "name": "Authorization",
+          "value": "Bearer <TOKEN>",
+          "required": true
+        }
+      ],
+      "parameters": [
+        {
+          "name": "userId",
+          "in": "path",
+          "type": "integer",
+          "required": true,
+          "description": "Target User ID to toggle follow/unfollow"
+        }
+      ],
+      "requestBody": {
+        "action": "toggle (optional, default: 'toggle' | 'follow' | 'unfollow')"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "description": "Follow status toggled successfully.",
+          "example": {
+            "success": true,
+            "message": "Successfully followed user.",
+            "action": "followed",
+            "is_following": true,
+            "followers_count": 1421,
+            "my_following_count": 86
+          }
+        }
+      ],
+      "codeSnippets": {
+        "curl": "curl -X POST https://yourdomain.com/api/mobile/users/12/toggle-follow \\\n  -H \"Authorization: Bearer <TOKEN>\"",
+        "flutter": "import 'package:http/http.dart' as http;\nimport 'dart:convert';\n\n// 🎯 Single Unified Toggle Follow / Unfollow Function\nFuture<Map<String, dynamic>> toggleFollowUser(int userId, String token) async {\n  final res = await http.post(\n    Uri.parse('https://yourdomain.com/api/mobile/users/$userId/toggle-follow'),\n    headers: {\n      'Authorization': 'Bearer $token',\n      'Content-Type': 'application/json',\n    },\n  );\n  final data = jsonDecode(res.body);\n  return {\n    'success': data['success'] == true,\n    'is_following': data['is_following'] ?? false,\n    'action': data['action'], // 'followed' or 'unfollowed'\n    'followers_count': data['followers_count'] ?? 0,\n  };\n}"
+      }
+    },
+    {
+      "id": "user-unfollow",
+      "category": "user-profile",
+      "method": "POST",
+      "path": "/api/mobile/users/:userId/unfollow",
+      "summary": "Unfollow User (Route alias: DELETE /api/mobile/users/:userId/follow)",
+      "description": "Explicit unfollow route. Decrements followers count and flushes Redis caches.",
+      "requiresAuth": true,
+      "requestHeaders": [
+        {
+          "name": "Authorization",
+          "value": "Bearer <TOKEN>",
+          "required": true
+        }
+      ],
+      "parameters": [
+        {
+          "name": "userId",
+          "in": "path",
+          "type": "integer",
+          "required": true,
+          "description": "User ID to unfollow"
+        }
+      ],
+      "requestBody": null,
+      "responses": [
+        {
+          "status": 200,
+          "description": "Successfully unfollowed user.",
+          "example": {
+            "success": true,
+            "message": "Successfully unfollowed user.",
+            "action": "unfollowed",
+            "is_following": false,
+            "followers_count": 1420,
+            "my_following_count": 85
+          }
+        }
+      ],
+      "codeSnippets": {
+        "curl": "curl -X POST https://yourdomain.com/api/mobile/users/12/unfollow \\\n  -H \"Authorization: Bearer <TOKEN>\"",
+        "flutter": "import 'package:http/http.dart' as http;\nimport 'dart:convert';\n\nFuture<bool> unfollowUser(int userId, String token) async {\n  final res = await http.post(\n    Uri.parse('https://yourdomain.com/api/mobile/users/$userId/unfollow'),\n    headers: {'Authorization': 'Bearer $token'},\n  );\n  final data = jsonDecode(res.body);\n  return data['success'] == true;\n}"
+      }
+    },
+    {
+      "id": "user-block",
+      "category": "user-profile",
+      "method": "POST",
+      "path": "/api/mobile/users/:userId/block",
+      "summary": "Block User (Mutual Unfollow & Privacy Guard)",
+      "description": "Blocks a target user. Automatically deletes mutual follow relationships, hides direct chats, prevents notifications, and blocks profile interactions.",
+      "requiresAuth": true,
+      "requestHeaders": [
+        {
+          "name": "Authorization",
+          "value": "Bearer <TOKEN>",
+          "required": true
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json",
+          "required": false
+        }
+      ],
+      "parameters": [
+        {
+          "name": "userId",
+          "in": "path",
+          "type": "integer",
+          "required": true,
+          "description": "User ID to block"
+        }
+      ],
+      "requestBody": {
+        "contentType": "application/json",
+        "description": "Optional reason for blocking",
+        "example": {
+          "reason": "Harassment or inappropriate behavior"
+        }
+      },
+      "responses": [
+        {
+          "status": 200,
+          "description": "User blocked successfully.",
+          "example": {
+            "success": true,
+            "message": "User blocked successfully.",
+            "is_blocked": true
+          }
+        }
+      ],
+      "codeSnippets": {
+        "curl": "curl -X POST https://yourdomain.com/api/mobile/users/12/block \\\n  -H \"Authorization: Bearer <TOKEN>\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"reason\": \"Harassment\"}'",
+        "flutter": "import 'package:http/http.dart' as http;\nimport 'dart:convert';\n\nFuture<bool> blockUser(int userId, String token, {String? reason}) async {\n  final res = await http.post(\n    Uri.parse('https://yourdomain.com/api/mobile/users/$userId/block'),\n    headers: {\n      'Authorization': 'Bearer $token',\n      'Content-Type': 'application/json',\n    },\n    body: jsonEncode({'reason': reason ?? 'Blocked by user'}),\n  );\n  final data = jsonDecode(res.body);\n  return data['is_blocked'] == true;\n}"
+      }
+    },
+    {
+      "id": "user-unblock",
+      "category": "user-profile",
+      "method": "DELETE",
+      "path": "/api/mobile/users/:userId/block",
+      "summary": "Unblock User (Route alias: POST /api/mobile/users/:userId/unblock)",
+      "description": "Unblocks a previously blocked user and restores interaction capabilities.",
+      "requiresAuth": true,
+      "requestHeaders": [
+        {
+          "name": "Authorization",
+          "value": "Bearer <TOKEN>",
+          "required": true
+        }
+      ],
+      "parameters": [
+        {
+          "name": "userId",
+          "in": "path",
+          "type": "integer",
+          "required": true,
+          "description": "User ID to unblock"
+        }
+      ],
+      "requestBody": null,
+      "responses": [
+        {
+          "status": 200,
+          "description": "User unblocked successfully.",
+          "example": {
+            "success": true,
+            "message": "User unblocked successfully.",
+            "is_blocked": false
+          }
+        }
+      ],
+      "codeSnippets": {
+        "curl": "curl -X DELETE https://yourdomain.com/api/mobile/users/12/block \\\n  -H \"Authorization: Bearer <TOKEN>\"",
+        "flutter": "import 'package:http/http.dart' as http;\nimport 'dart:convert';\n\nFuture<bool> unblockUser(int userId, String token) async {\n  final res = await http.delete(\n    Uri.parse('https://yourdomain.com/api/mobile/users/$userId/block'),\n    headers: {'Authorization': 'Bearer $token'},\n  );\n  final data = jsonDecode(res.body);\n  return data['success'] == true;\n}"
+      }
+    },
+    {
+      "id": "user-get-blocked",
+      "category": "user-profile",
+      "method": "GET",
+      "path": "/api/mobile/users/blocked",
+      "summary": "Get My Blocked Users List",
+      "description": "Returns list of all users currently blocked by the authenticated user with block date and reason.",
+      "requiresAuth": true,
+      "requestHeaders": [
+        {
+          "name": "Authorization",
+          "value": "Bearer <TOKEN>",
+          "required": true
+        }
+      ],
+      "parameters": [],
+      "requestBody": null,
+      "responses": [
+        {
+          "status": 200,
+          "description": "Blocked users list retrieved successfully.",
+          "example": {
+            "success": true,
+            "count": 1,
+            "blocked_users": [
+              {
+                "id": 45,
+                "full_name": "Spammer User",
+                "avatar_url": "https://res.cloudinary.com/example/image/upload/v1/avatars/user45.jpg",
+                "bio": "Spam account",
+                "level": 1,
+                "role": "user",
+                "reason": "Harassment",
+                "blocked_at": "2026-10-15T18:20:00.000Z"
+              }
+            ]
+          }
+        }
+      ],
+      "codeSnippets": {
+        "curl": "curl -X GET https://yourdomain.com/api/mobile/users/blocked \\\n  -H \"Authorization: Bearer <TOKEN>\"",
+        "flutter": "import 'package:http/http.dart' as http;\nimport 'dart:convert';\n\nFuture<List<dynamic>> fetchBlockedUsers(String token) async {\n  final res = await http.get(\n    Uri.parse('https://yourdomain.com/api/mobile/users/blocked'),\n    headers: {'Authorization': 'Bearer $token'},\n  );\n  final data = jsonDecode(res.body);\n  return data['blocked_users'] ?? [];\n}"
+      }
+    },
+    {
+      "id": "user-report",
+      "category": "user-profile",
+      "method": "POST",
+      "path": "/api/mobile/users/:userId/report",
+      "summary": "Report User (Safety & Moderation Ticket)",
+      "description": "Submits a moderation report against a user for inappropriate behavior, harassment, spam, fake profile, or room violations. Saved directly to moderation_reports for admin/moderator investigation.",
+      "requiresAuth": true,
+      "requestHeaders": [
+        {
+          "name": "Authorization",
+          "value": "Bearer <TOKEN>",
+          "required": true
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json",
+          "required": true
+        }
+      ],
+      "parameters": [
+        {
+          "name": "userId",
+          "in": "path",
+          "type": "integer",
+          "required": true,
+          "description": "User ID being reported"
+        }
+      ],
+      "requestBody": {
+        "contentType": "application/json",
+        "description": "Report reason and detailed incident description",
+        "example": {
+          "reason": "Inappropriate Content",
+          "description": "The user posted offensive comments in live stream chat.",
+          "room_id": "room-238880d1"
+        }
+      },
+      "responses": [
+        {
+          "status": 201,
+          "description": "Report submitted successfully.",
+          "example": {
+            "success": true,
+            "message": "User report submitted successfully. Our safety & moderation team will investigate this account.",
+            "report_id": 8
+          }
+        },
+        {
+          "status": 400,
+          "description": "Missing report reason or reporting oneself.",
+          "example": {
+            "success": false,
+            "message": "Report reason is required (e.g. Harassment, Spam, Inappropriate Content, Impersonation)."
+          }
+        }
+      ],
+      "codeSnippets": {
+        "curl": "curl -X POST https://yourdomain.com/api/mobile/users/12/report \\\n  -H \"Authorization: Bearer <TOKEN>\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"reason\": \"Inappropriate Content\", \"description\": \"Offensive chat messages\", \"room_id\": \"room-238880d1\"}'",
+        "flutter": "import 'package:http/http.dart' as http;\nimport 'dart:convert';\n\nFuture<int?> reportUser(int userId, String token, {required String reason, String? description, String? roomId}) async {\n  final res = await http.post(\n    Uri.parse('https://yourdomain.com/api/mobile/users/$userId/report'),\n    headers: {\n      'Authorization': 'Bearer $token',\n      'Content-Type': 'application/json',\n    },\n    body: jsonEncode({\n      'reason': reason,\n      if (description != null) 'description': description,\n      if (roomId != null) 'room_id': roomId,\n    }),\n  );\n  final data = jsonDecode(res.body);\n  return data['report_id'];\n}"
+      }
+    },
+    {
+      "id": "admin-get-reports",
+      "category": "user-profile",
+      "method": "GET",
+      "path": "/api/admin/reports",
+      "summary": "[Admin/Moderator] Get Moderation & Abuse Reports",
+      "description": "Fetches paginated user violation reports with counts breakdown (total, pending, investigating, resolved, dismissed). Supports status filtering and keyword search.",
+      "requiresAuth": true,
+      "requestHeaders": [
+        {
+          "name": "Authorization",
+          "value": "Bearer <TOKEN>",
+          "required": true
+        }
+      ],
+      "parameters": [
+        {
+          "name": "status",
+          "in": "query",
+          "type": "string",
+          "required": false,
+          "description": "Filter by status: all, pending, investigating, resolved, dismissed"
+        },
+        {
+          "name": "search",
+          "in": "query",
+          "type": "string",
+          "required": false,
+          "description": "Keyword search across users, reasons, and rooms"
+        }
+      ],
+      "responses": [
+        {
+          "status": 200,
+          "description": "Reports list retrieved successfully.",
+          "example": {
+            "success": true,
+            "counts": {
+              "total": 12,
+              "pending": 4,
+              "investigating": 2,
+              "resolved": 5,
+              "dismissed": 1
+            },
+            "reports": [
+              {
+                "id": 8,
+                "reporter_id": 4,
+                "reporter_name": "Tanvir Ahmed",
+                "reported_id": 12,
+                "reported_name": "Sabbir Hossain",
+                "reported_is_banned": 0,
+                "reason": "Harassment",
+                "description": "Disruptive and abusive comments in live stream.",
+                "status": "pending",
+                "admin_notes": null
+              }
+            ]
+          }
+        }
+      ],
+      "codeSnippets": {
+        "curl": "curl -X GET \"https://yourdomain.com/api/admin/reports?status=pending\" \\\n  -H \"Authorization: Bearer <TOKEN>\"",
+        "flutter": "import 'package:http/http.dart' as http;\nimport 'dart:convert';\n\nFuture<Map<String, dynamic>> fetchAdminReports(String token, {String status = 'all'}) async {\n  final res = await http.get(\n    Uri.parse('https://yourdomain.com/api/admin/reports?status=$status'),\n    headers: {'Authorization': 'Bearer $token'},\n  );\n  return jsonDecode(res.body);\n}"
+      }
+    },
+    {
+      "id": "admin-report-action",
+      "category": "user-profile",
+      "method": "POST",
+      "path": "/api/admin/reports/:id/action",
+      "summary": "[Admin/Moderator] Execute Moderation Action (Ban, Unban, Resolve, Dismiss)",
+      "description": "Applies swift enforcement on reported user. Supports actions: 'ban' (bans offender and marks report resolved), 'unban', 'resolve', 'dismiss', and 'investigate'.",
+      "requiresAuth": true,
+      "requestHeaders": [
+        {
+          "name": "Authorization",
+          "value": "Bearer <TOKEN>",
+          "required": true
+        }
+      ],
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "type": "integer",
+          "required": true,
+          "description": "Report ID"
+        }
+      ],
+      "requestBody": {
+        "action": "ban | unban | resolve | dismiss | investigate",
+        "admin_notes": "Banned by administrator for severe harassment."
+      },
+      "responses": [
+        {
+          "status": 200,
+          "description": "Action executed successfully.",
+          "example": {
+            "success": true,
+            "message": "User has been banned and report marked as resolved.",
+            "report_id": 8,
+            "status": "resolved"
+          }
+        }
+      ],
+      "codeSnippets": {
+        "curl": "curl -X POST https://yourdomain.com/api/admin/reports/8/action \\\n  -H \"Authorization: Bearer <TOKEN>\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"action\": \"ban\", \"admin_notes\": \"Severe violations\"}'",
+        "flutter": "import 'package:http/http.dart' as http;\nimport 'dart:convert';\n\nFuture<bool> takeReportAction(int reportId, String action, String token) async {\n  final res = await http.post(\n    Uri.parse('https://yourdomain.com/api/admin/reports/$reportId/action'),\n    headers: {\n      'Authorization': 'Bearer $token',\n      'Content-Type': 'application/json',\n    },\n    body: jsonEncode({'action': action}),\n  );\n  final data = jsonDecode(res.body);\n  return data['success'] == true;\n}"
+      }
+    },
+    {
+      "id": "admin-offender-reports",
+      "category": "user-profile",
+      "method": "GET",
+      "path": "/api/admin/reports/offender/:userId",
+      "summary": "[Admin/Moderator] Get Offender Profile & All Linked Complaints History",
+      "description": "Fetches a reported offender's full profile, banned status, registered mobile devices count, complaints breakdown, and the complete list of all users who submitted reports against them with full reporter profiles and complaint details.",
+      "requiresAuth": true,
+      "requestHeaders": [
+        {
+          "name": "Authorization",
+          "value": "Bearer <TOKEN>",
+          "required": true
+        }
+      ],
+      "parameters": [
+        {
+          "name": "userId",
+          "in": "path",
+          "type": "integer",
+          "required": true,
+          "description": "User ID of the reported offender"
+        }
+      ],
+      "responses": [
+        {
+          "status": 200,
+          "description": "Offender details and all complaints retrieved.",
+          "example": {
+            "success": true,
+            "offender": {
+              "reported_id": 2,
+              "reported_name": "Nila Akter",
+              "reported_email": "nila@umi.live",
+              "reported_avatar": "https://example.com/avatar.jpg",
+              "reported_role": "host",
+              "reported_level": 15,
+              "reported_is_banned": 0,
+              "reported_devices_count": 2,
+              "reported_banned_devices_count": 0
+            },
+            "total_reports": 3,
+            "reasons_breakdown": {
+              "Inappropriate Content": 2,
+              "Spam / Scam": 1
+            },
+            "reports": [
+              {
+                "id": 1,
+                "reporter_id": 1,
+                "reporter_name": "System Admin",
+                "reporter_avatar": "https://example.com/admin.jpg",
+                "room_id": "room-demo123",
+                "reason": "Inappropriate Content",
+                "description": "Abusive behavior in live room",
+                "status": "pending",
+                "created_at": "2026-10-17T17:53:16.000Z"
+              }
+            ]
+          }
+        }
+      ],
+      "codeSnippets": {
+        "curl": "curl -X GET \"https://yourdomain.com/api/admin/reports/offender/2\" \\\n  -H \"Authorization: Bearer <TOKEN>\"",
+        "flutter": "import 'package:http/http.dart' as http;\nimport 'dart:convert';\n\nFuture<Map<String, dynamic>> fetchOffenderReports(int userId, String token) async {\n  final res = await http.get(\n    Uri.parse('https://yourdomain.com/api/admin/reports/offender/$userId'),\n    headers: {'Authorization': 'Bearer $token'},\n  );\n  return jsonDecode(res.body);\n}"
+      }
     }
   ]
 };
 
 router.get('/spec', (req, res) => {
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
   return res.json(API_SPEC);
 });
 

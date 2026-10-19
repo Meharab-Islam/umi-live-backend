@@ -27,6 +27,7 @@ import {
   Newspaper,
   Zap,
   Video,
+  ShieldAlert,
 } from 'lucide-react';
 import packageApi from '../api/packageApi';
 
@@ -79,6 +80,7 @@ export default function Sidebar({
     { id: 'resellers', label: 'Resellers', icon: ShoppingBag },
     { id: 'moderators', label: 'Moderators', icon: Shield },
     { id: 'users', label: 'Users', icon: Users, badge: totalUsersCount > 0 ? `${totalUsersCount} Users` : null },
+    { id: 'reports', label: 'User Reports', icon: ShieldAlert },
     { id: 'posts', label: 'Posts & Feed', icon: Newspaper },
     { id: 'account-merge', label: 'Account Merge', icon: GitMerge },
     // VIP Packages item handled specifically below

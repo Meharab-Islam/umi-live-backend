@@ -162,6 +162,30 @@ router.get('/specs', (req, res) => {
         },
         flutter_navigation_example: "final isAudio = data['live_type'] == 'audio'; Get.toNamed(isAudio ? Routes.AUDIO_LIVE : Routes.VIDEO_LIVE, arguments: {'roomId': data['room_id'], 'isHost': false});",
       },
+      {
+        type: 'new_follower',
+        category: 'social',
+        description: 'Dispatched in real-time to a user when someone starts following them.',
+        target_screen: 'user_profile',
+        route: '/user-profile',
+        click_action: 'FLUTTER_NOTIFICATION_CLICK',
+        sample_notification: {
+          title: '👤 New Follower!',
+          body: 'Nibir started following you ✨',
+        },
+        sample_data: {
+          notification_category: 'social',
+          type: 'new_follower',
+          target_screen: 'user_profile',
+          route: '/user-profile',
+          click_action: 'FLUTTER_NOTIFICATION_CLICK',
+          follower_id: '7',
+          follower_name: 'Nibir',
+          follower_avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=7',
+          created_at: '2026-10-17T18:30:00.000Z',
+        },
+        flutter_navigation_example: "Get.toNamed(Routes.USER_PROFILE, arguments: {'userId': int.parse(data['follower_id'])});"
+      },
     ],
   });
 });

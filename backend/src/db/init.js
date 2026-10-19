@@ -222,7 +222,9 @@ export async function initializeDatabase() {
         reason VARCHAR(100) NOT NULL,
         description TEXT,
         status ENUM('pending', 'investigating', 'resolved', 'dismissed') DEFAULT 'pending',
+        admin_notes TEXT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         FOREIGN KEY (reporter_id) REFERENCES users(id) ON DELETE CASCADE,
         FOREIGN KEY (reported_id) REFERENCES users(id) ON DELETE CASCADE
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -560,6 +562,14 @@ export async function initializeDatabase() {
         user2_id INT NOT NULL,
         last_message TEXT,
         last_message_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        background_image TEXT NULL,
+        background_color VARCHAR(64) NULL,
+        background_updated_by INT NULL,
+        background_updated_at TIMESTAMP NULL,
+        user1_cleared_at TIMESTAMP NULL,
+        user2_cleared_at TIMESTAMP NULL,
+        user1_hidden TINYINT(1) DEFAULT 0,
+        user2_hidden TINYINT(1) DEFAULT 0,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         UNIQUE KEY unique_user_pair (user1_id, user2_id),
         INDEX idx_user1 (user1_id),
@@ -575,6 +585,7 @@ export async function initializeDatabase() {
         conversation_id INT NOT NULL,
         sender_id INT NOT NULL,
         receiver_id INT NOT NULL,
+        reply_to_id INT NULL,
         message_type ENUM('text', 'image', 'video', 'audio', 'multiple') DEFAULT 'text',
         message TEXT NULL,
         media_url TEXT NULL,
@@ -584,6 +595,7 @@ export async function initializeDatabase() {
         INDEX idx_conversation_id (conversation_id),
         INDEX idx_sender_id (sender_id),
         INDEX idx_receiver_id (receiver_id),
+        INDEX idx_reply_to_id (reply_to_id),
         FOREIGN KEY (conversation_id) REFERENCES conversations(id) ON DELETE CASCADE,
         FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE,
         FOREIGN KEY (receiver_id) REFERENCES users(id) ON DELETE CASCADE
@@ -593,8 +605,20 @@ export async function initializeDatabase() {
     // Ensure columns exist if table was created in an older schema
     try {
       await connection.query(`
+        ALTER TABLE conversations
+        ADD COLUMN IF NOT EXISTS background_image TEXT NULL,
+        ADD COLUMN IF NOT EXISTS background_color VARCHAR(64) NULL,
+        ADD COLUMN IF NOT EXISTS background_updated_by INT NULL,
+        ADD COLUMN IF NOT EXISTS background_updated_at TIMESTAMP NULL,
+        ADD COLUMN IF NOT EXISTS user1_cleared_at TIMESTAMP NULL,
+        ADD COLUMN IF NOT EXISTS user2_cleared_at TIMESTAMP NULL,
+        ADD COLUMN IF NOT EXISTS user1_hidden TINYINT(1) DEFAULT 0,
+        ADD COLUMN IF NOT EXISTS user2_hidden TINYINT(1) DEFAULT 0;
+      `);
+      await connection.query(`
         ALTER TABLE chat_messages 
         MODIFY COLUMN message TEXT NULL DEFAULT NULL,
+        ADD COLUMN IF NOT EXISTS reply_to_id INT NULL AFTER receiver_id,
         ADD COLUMN IF NOT EXISTS message_type ENUM('text', 'image', 'video', 'audio', 'multiple') DEFAULT 'text' AFTER receiver_id,
         ADD COLUMN IF NOT EXISTS media_url TEXT NULL AFTER message,
         ADD COLUMN IF NOT EXISTS media JSON NULL AFTER media_url;
@@ -863,9 +887,21 @@ export async function initializeDatabase() {
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     `);
 
-    try {
-      await connection.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS fcm_token VARCHAR(512) NULL;');
-    } catch { }
+    // 17. Ensure user_blocks table exists
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS user_blocks (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        blocker_id INT NOT NULL,
+        blocked_id INT NOT NULL,
+        reason VARCHAR(255) DEFAULT '',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE KEY unique_user_block (blocker_id, blocked_id),
+        INDEX idx_blocker (blocker_id),
+        INDEX idx_blocked (blocked_id),
+        FOREIGN KEY (blocker_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (blocked_id) REFERENCES users(id) ON DELETE CASCADE
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `);
 
     // Big Data Performance Indexing Helper
     const safeAddIndex = async (table, indexName, indexDef, isFulltext = false) => {

@@ -40,7 +40,7 @@ export async function searchUsersForModeration(req, res) {
             (SELECT COUNT(ud.id) FROM user_devices ud WHERE ud.user_id = u.id) AS total_devices_count,
             (SELECT COUNT(ud.id) FROM user_devices ud WHERE ud.user_id = u.id AND ud.is_banned = 1) AS banned_devices_count
           FROM users u
-          WHERE u.id = ? OR u.full_name LIKE ? OR u.email LIKE ?
+          WHERE (u.id = ? OR u.full_name LIKE ? OR u.email LIKE ?) AND u.role != 'superadmin'
           ORDER BY (u.id = ?) DESC, u.id ASC
           LIMIT 25
         `;
@@ -61,7 +61,7 @@ export async function searchUsersForModeration(req, res) {
             (SELECT COUNT(ud.id) FROM user_devices ud WHERE ud.user_id = u.id) AS total_devices_count,
             (SELECT COUNT(ud.id) FROM user_devices ud WHERE ud.user_id = u.id AND ud.is_banned = 1) AS banned_devices_count
           FROM users u
-          WHERE u.full_name LIKE ? OR u.email LIKE ?
+          WHERE (u.full_name LIKE ? OR u.email LIKE ?) AND u.role != 'superadmin'
           ORDER BY u.id ASC
           LIMIT 25
         `;

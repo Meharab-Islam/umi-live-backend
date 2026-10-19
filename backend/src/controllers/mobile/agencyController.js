@@ -110,12 +110,12 @@ export async function getAllAgencies(req, res) {
           a.id, a.agency_code, a.name, a.owner_id, a.commission_rate, a.status,
           a.contact_phone, a.notes, a.created_at, a.updated_at,
           u.full_name AS owner_name, u.email AS owner_email, u.avatar_url AS owner_avatar, u.coins AS owner_coins,
-          (SELECT COUNT(u2.id) FROM users u2 WHERE u2.agency_id = a.id) AS total_hosts_count,
+          (SELECT COUNT(u2.id) FROM users u2 WHERE u2.agency_id = a.id AND u2.role != 'superadmin') AS total_hosts_count,
           (SELECT COUNT(DISTINCT lr.host_id) 
            FROM live_rooms lr 
            INNER JOIN users u3 ON u3.id = lr.host_id 
            WHERE u3.agency_id = a.id AND lr.status = 'live') AS active_streaming_hosts_count,
-          (SELECT COUNT(u4.id) FROM users u4 WHERE u4.agency_id = a.id AND u4.broadcast_banned_until > CURRENT_TIMESTAMP) AS banned_hosts_count,
+          (SELECT COUNT(u4.id) FROM users u4 WHERE u4.agency_id = a.id AND u4.broadcast_banned_until > CURRENT_TIMESTAMP AND u4.role != 'superadmin') AS banned_hosts_count,
           (SELECT COUNT(ahr.id) FROM agency_host_requests ahr WHERE ahr.agency_id = a.id AND ahr.status = 'pending') AS pending_requests_count,
           (SELECT COALESCE(SUM(gt.coin_amount), 0)
            FROM gift_transactions gt
@@ -219,7 +219,7 @@ export async function getAgencyOverview(req, res) {
         `SELECT COUNT(DISTINCT lr.host_id) AS active_streaming_hosts
          FROM live_rooms lr
          INNER JOIN users u ON u.id = lr.host_id
-         WHERE u.agency_id = ? AND lr.status = 'live'`,
+         WHERE u.agency_id = ? AND lr.status = 'live' AND u.role != 'superadmin'`,
         [agency.id]
       );
       const activeStreamingHosts = parseInt(streamingStats?.active_streaming_hosts || 0, 10);
@@ -228,7 +228,7 @@ export async function getAgencyOverview(req, res) {
       const [bannedStats] = await query(
         `SELECT COUNT(id) AS banned_hosts_count
          FROM users
-         WHERE agency_id = ? AND broadcast_banned_until > CURRENT_TIMESTAMP`,
+         WHERE agency_id = ? AND broadcast_banned_until > CURRENT_TIMESTAMP AND role != 'superadmin'`,
         [agency.id]
       );
       const bannedHostsCount = parseInt(bannedStats?.banned_hosts_count || 0, 10);
@@ -241,7 +241,7 @@ export async function getAgencyOverview(req, res) {
            COUNT(gt.id) AS total_gifts_count
          FROM gift_transactions gt
          INNER JOIN users u ON u.id = gt.receiver_id
-         WHERE u.agency_id = ? AND gt.created_at >= COALESCE(u.agency_joined_at, u.created_at)`,
+         WHERE u.agency_id = ? AND gt.created_at >= COALESCE(u.agency_joined_at, u.created_at) AND u.role != 'superadmin'`,
         [agency.id]
       );
 
@@ -709,7 +709,7 @@ export async function getBannedHosts(req, res) {
            broadcast_banned_at, broadcast_banned_until, broadcast_ban_reason,
            TIMESTAMPDIFF(SECOND, CURRENT_TIMESTAMP, broadcast_banned_until) AS remaining_seconds
          FROM users
-         WHERE agency_id = ? AND broadcast_banned_until > CURRENT_TIMESTAMP
+         WHERE agency_id = ? AND broadcast_banned_until > CURRENT_TIMESTAMP AND role != 'superadmin'
          ORDER BY broadcast_banned_until ASC`,
         [agency.id]
       );

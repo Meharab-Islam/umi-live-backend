@@ -148,7 +148,7 @@ export async function searchUsers(req, res) {
         sql = `
           SELECT id, full_name, email, avatar_url, role, coins, level, is_banned, created_at 
           FROM users 
-          WHERE id = ? OR full_name LIKE ? OR email LIKE ?
+          WHERE (id = ? OR full_name LIKE ? OR email LIKE ?) AND role != 'superadmin'
           ORDER BY (id = ?) DESC, id ASC 
           LIMIT 20
         `;
@@ -157,7 +157,7 @@ export async function searchUsers(req, res) {
         sql = `
           SELECT id, full_name, email, avatar_url, role, coins, level, is_banned, created_at 
           FROM users 
-          WHERE full_name LIKE ? OR email LIKE ?
+          WHERE (full_name LIKE ? OR email LIKE ?) AND role != 'superadmin'
           ORDER BY id ASC 
           LIMIT 20
         `;

@@ -16,6 +16,7 @@ import { bannerApi } from './bannerApi';
 import { accountMergeApi } from './accountMergeApi';
 import { adminApi } from './adminApi';
 import { postApi } from './postApi';
+import { reportApi } from './reportApi';
 
 // Re-export individual modular API services
 export {
@@ -25,6 +26,7 @@ export {
   dashboardApi,
   userApi,
   postApi,
+  reportApi,
   agencyApi,
   streamApi,
   giftApi,

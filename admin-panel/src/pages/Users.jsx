@@ -115,7 +115,7 @@ export default function Users({ onToast }) {
         limit: limitNum,
       });
       if (res.success) {
-        setUsers(res.users);
+        setUsers((res.users || []).filter((u) => u.role !== 'superadmin'));
         if (res.pagination) {
           setTotalCount(res.pagination.total);
         }
@@ -577,14 +577,13 @@ export default function Users({ onToast }) {
                           u.role === 'host' ? (u.host_type === 'audio' ? 'badge-info' : 'badge-success') :
                           u.role === 'moderator' ? 'badge-info' :
                           u.role === 'reseller' ? 'badge-primary' :
-                          u.role === 'admin' || u.role === 'superadmin' ? 'badge-warning' : 'badge-secondary'
+                          u.role === 'admin' ? 'badge-warning' : 'badge-secondary'
                         }`}>
                           {u.role === 'agency' ? '🏢 Agency' :
                            u.role === 'host' ? (u.host_type === 'audio' ? '🎙️ Audio Host' : '📹 Video Host') :
                            u.role === 'moderator' ? '🛡️ Moderator' :
                            u.role === 'reseller' ? '💎 Reseller' :
-                           u.role === 'admin' ? '🛡️ Admin' :
-                           u.role === 'superadmin' ? '👑 Superadmin' : '👤 User'}
+                           u.role === 'admin' ? '🛡️ Admin' : '👤 User'}
                         </span>
                       </td>
 

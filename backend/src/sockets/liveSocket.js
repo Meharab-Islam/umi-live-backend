@@ -6,6 +6,116 @@ import { sendChatPushNotification } from '../config/firebase.js';
 
 // Store connected viewers: roomId -> Set of socket IDs (Module-level scope)
 const roomViewers = new Map();
+const roomUserJoinAnnounced = new Map();
+const roomLastViewerCount = new Map();
+
+// Track pending host disconnect grace period timers: canonicalRoomId -> { timer, hostId, numericRoomId, startedAt }
+export const hostDisconnectGraceTimers = new Map();
+
+// Reconnection grace period (Default: 90 seconds = 1.5 minutes to withstand 1-minute network drops)
+const HOST_GRACE_PERIOD_MS = (parseInt(process.env.HOST_DISCONNECT_GRACE_PERIOD_SECONDS, 10) || 90) * 1000;
+
+/**
+ * Cancel any pending host disconnect grace timer for a room
+ */
+export function cancelHostDisconnectGraceTimer(roomId) {
+  if (!roomId) return;
+  const key = String(roomId).trim();
+  const entry = hostDisconnectGraceTimers.get(key);
+  if (entry) {
+    if (entry.timer) clearTimeout(entry.timer);
+    hostDisconnectGraceTimers.delete(key);
+    if (entry.canonicalRoomId) hostDisconnectGraceTimers.delete(entry.canonicalRoomId);
+    if (entry.numericRoomId) hostDisconnectGraceTimers.delete(String(entry.numericRoomId));
+    console.log(`⏱️ [Host Grace Timer Cancelled] Room ${roomId} timer cancelled.`);
+  }
+}
+
+/**
+ * Executes full formal termination of a live room in MySQL, Redis, and Socket.IO
+ */
+export async function executeRoomTermination(canonicalRoomId, numericRoomId, hostId, io, reason = 'host_closed') {
+  try {
+    cancelHostDisconnectGraceTimer(canonicalRoomId);
+    if (numericRoomId) cancelHostDisconnectGraceTimer(String(numericRoomId));
+
+    console.log(`🔴 [Room Termination] Live Room ${canonicalRoomId} (ID: ${numericRoomId}) host ${hostId} terminating room (reason: ${reason})...`);
+
+    // 1. Mark room as ended with 0 viewers in MySQL SSOT
+    await query(
+      "UPDATE live_rooms SET status = 'ended', viewer_count = 0, ended_at = CURRENT_TIMESTAMP WHERE id = ? OR room_id = ?",
+      [numericRoomId || -1, canonicalRoomId]
+    );
+
+    // 2. Clear all runtime seats, viewers, requests, admins
+    await query('DELETE FROM live_room_seats WHERE room_id = ? OR room_id = ?', [canonicalRoomId, String(numericRoomId || '')]);
+    await query('DELETE FROM live_room_viewers WHERE room_id = ? OR room_id = ?', [canonicalRoomId, String(numericRoomId || '')]);
+    await query('DELETE FROM live_room_seat_requests WHERE room_id = ? OR room_id = ?', [canonicalRoomId, String(numericRoomId || '')]);
+    await query('DELETE FROM live_room_admins WHERE room_id = ? OR room_id = ?', [canonicalRoomId, String(numericRoomId || '')]);
+
+    // 3. Clear memory viewer tracker
+    if (roomViewers.has(canonicalRoomId)) {
+      roomViewers.delete(canonicalRoomId);
+    }
+    if (numericRoomId && roomViewers.has(String(numericRoomId))) {
+      roomViewers.delete(String(numericRoomId));
+    }
+
+    // 4. Invalidate all Redis caches
+    await Promise.allSettled([
+      cache.delByPattern('mobile:rooms:*'),
+      cache.del(`mobile:room_details:${canonicalRoomId}`),
+      numericRoomId ? cache.del(`mobile:room_details:${numericRoomId}`) : null,
+      cache.delByPattern(`mobile:room:users:${canonicalRoomId}*`),
+      numericRoomId ? cache.delByPattern(`mobile:room:users:${numericRoomId}*`) : null,
+      cache.del(`mobile:live:seat_requests:${canonicalRoomId}`),
+      cache.del(`mobile:live:room_admins:${canonicalRoomId}`),
+      cache.del(`room:${canonicalRoomId}`),
+      numericRoomId ? cache.del(`room:${numericRoomId}`) : null,
+      cache.del(`mobile:live:my_active:${hostId}`),
+      cache.delByPattern('host:*'),
+    ]);
+
+    // 5. Broadcast Room Closed / Ended event to all participants
+    if (io) {
+      const isTimeout = reason === 'host_disconnected_timeout';
+      const closePayload = {
+        roomId: canonicalRoomId,
+        numericRoomId,
+        closedBy: hostId,
+        closedByRole: 'host',
+        message: isTimeout
+          ? 'Host did not reconnect within grace period. Live stream has ended.'
+          : (reason === 'disconnect'
+              ? 'Host disconnected (connection lost). Live stream has ended.'
+              : 'Host has closed the live stream.'),
+        reason: isTimeout ? 'host_disconnected_timeout' : (reason === 'disconnect' ? 'host_disconnected' : 'host_closed'),
+        timestamp: new Date().toISOString(),
+      };
+
+      const channels = new Set([canonicalRoomId, String(numericRoomId)].filter(Boolean));
+      for (const ch of channels) {
+        io.to(ch).emit('room-closed', closePayload);
+        io.to(ch).emit('room_closed', closePayload);
+        io.to(ch).emit('room_ended', { roomId: canonicalRoomId, message: closePayload.message });
+        io.to(ch).emit('stream-terminated', { roomId: canonicalRoomId, reason: closePayload.reason });
+        io.to(ch).emit('viewer-count-update', { roomId: canonicalRoomId, count: 0, viewer_count: 0 });
+        io.to(ch).emit('room_viewers_updated', { roomId: canonicalRoomId, count: 0, viewer_count: 0 });
+      }
+
+      // Evict and unsubscribe all sockets from this room channel
+      if (typeof io.socketsLeave === 'function') {
+        for (const ch of channels) {
+          io.socketsLeave(ch);
+        }
+      }
+    }
+
+    return { isHost: true, roomEnded: true };
+  } catch (err) {
+    console.error('executeRoomTermination error:', err.message);
+  }
+}
 
 /**
  * Helper to completely clean up a user's presence from a room
@@ -35,81 +145,82 @@ async function cleanupUserFromRoom(roomId, userId, io, userInfo = null, reason =
 
     // =========================================================================
     // SCENARIO A: THE DEPARTING / DISCONNECTING USER IS THE HOST!
-    // Server automatically ends the room, clears all runtime data & notifies everyone
+    // If HOST_GRACE_PERIOD_MS > 0, give temporary grace period; otherwise end room immediately!
     // =========================================================================
     if (isHost) {
-      console.log(`🔴 [Host Departure] Live Room ${canonicalRoomId} (ID: ${numericRoomId}) host ${hostId} left/disconnected (reason: ${reason}). Ending room automatically...`);
+      if (reason === 'disconnect' && HOST_GRACE_PERIOD_MS > 0) {
+        // 1. Check if the host has any other active socket connection in this room
+        const hostSockets = Array.from(io?.sockets?.sockets?.values() || []).filter(
+          (s) => (Number(s.userId) === Number(hostId) || Number(s.currentUser?.id) === Number(hostId)) &&
+                 (s.currentRoom === canonicalRoomId || s.rooms?.has(canonicalRoomId))
+        );
+        if (hostSockets.length > 0) {
+          console.log(`ℹ️ [Host Disconnect] Host ${hostId} has another active socket in room ${canonicalRoomId}. Skipping grace period.`);
+          return { isHost: true, activeSocketRemains: true };
+        }
 
-      // 1. Mark room as ended with 0 viewers in MySQL SSOT
-      await query(
-        "UPDATE live_rooms SET status = 'ended', viewer_count = 0, ended_at = CURRENT_TIMESTAMP WHERE id = ?",
-        [numericRoomId]
-      );
+        // 2. Start Reconnection Grace Period if not already started
+        if (hostDisconnectGraceTimers.has(canonicalRoomId) || (numericRoomId && hostDisconnectGraceTimers.has(String(numericRoomId)))) {
+          console.log(`⏳ [Host Disconnect] Reconnection grace period already active for room ${canonicalRoomId}.`);
+          return { isHost: true, waitingForReconnect: true };
+        }
 
-      // 2. Clear all runtime seats, viewers, requests, admins
-      await query('DELETE FROM live_room_seats WHERE room_id = ? OR room_id = ?', [canonicalRoomId, String(numericRoomId)]);
-      await query('DELETE FROM live_room_viewers WHERE room_id = ? OR room_id = ?', [canonicalRoomId, String(numericRoomId)]);
-      await query('DELETE FROM live_room_seat_requests WHERE room_id = ? OR room_id = ?', [canonicalRoomId, String(numericRoomId)]);
-      await query('DELETE FROM live_room_admins WHERE room_id = ? OR room_id = ?', [canonicalRoomId, String(numericRoomId)]);
+        const graceSec = Math.round(HOST_GRACE_PERIOD_MS / 1000);
+        console.log(`⏳ [Host Network Disconnected] Host ${hostId} network lost in room ${canonicalRoomId}. Starting ${graceSec}s reconnection grace period...`);
 
-      // 3. Clear memory viewer tracker
-      if (roomViewers.has(canonicalRoomId)) {
-        roomViewers.delete(canonicalRoomId);
-      }
-      if (numericRoomId && roomViewers.has(String(numericRoomId))) {
-        roomViewers.delete(String(numericRoomId));
-      }
-
-      // 4. Invalidate all Redis caches
-      await Promise.allSettled([
-        cache.delByPattern('mobile:rooms:*'),
-        cache.del(`mobile:room_details:${roomId}`),
-        cache.del(`mobile:room_details:${canonicalRoomId}`),
-        numericRoomId ? cache.del(`mobile:room_details:${numericRoomId}`) : null,
-        cache.delByPattern(`mobile:room:users:${roomId}*`),
-        cache.delByPattern(`mobile:room:users:${canonicalRoomId}*`),
-        numericRoomId ? cache.delByPattern(`mobile:room:users:${numericRoomId}*`) : null,
-        cache.del(`mobile:live:seat_requests:${canonicalRoomId}`),
-        cache.del(`mobile:live:room_admins:${canonicalRoomId}`),
-        cache.del(`room:${canonicalRoomId}`),
-        numericRoomId ? cache.del(`room:${numericRoomId}`) : null,
-        cache.del(`mobile:live:my_active:${hostId}`),
-        cache.delByPattern('host:*'),
-      ]);
-
-      // 5. Broadcast Room Closed / Ended event to all participants
-      if (io) {
-        const closePayload = {
+        // Notify room audience that host is temporarily reconnecting
+        const reconnectNotice = {
           roomId: canonicalRoomId,
           numericRoomId,
-          closedBy: hostId,
-          closedByRole: 'host',
-          message: reason === 'disconnect'
-            ? 'Host disconnected (phone turned off or connection lost). Live stream has ended.'
-            : 'Host has closed the live stream.',
-          reason: reason === 'disconnect' ? 'host_disconnected' : 'host_closed',
+          hostId,
+          status: 'reconnecting',
+          message: 'Host network connection interrupted. Waiting for host to reconnect...',
+          gracePeriodSeconds: graceSec,
+          isReconnecting: true,
           timestamp: new Date().toISOString(),
         };
 
-        const channels = new Set([canonicalRoomId, String(numericRoomId), String(roomId)].filter(Boolean));
-        for (const ch of channels) {
-          io.to(ch).emit('room-closed', closePayload);
-          io.to(ch).emit('room_closed', closePayload);
-          io.to(ch).emit('room_ended', { roomId: canonicalRoomId, message: closePayload.message });
-          io.to(ch).emit('stream-terminated', { roomId: canonicalRoomId, reason: closePayload.reason });
-          io.to(ch).emit('viewer-count-update', { roomId: canonicalRoomId, count: 0, viewer_count: 0 });
-          io.to(ch).emit('room_viewers_updated', { roomId: canonicalRoomId, count: 0, viewer_count: 0 });
+        if (io) {
+          io.to(canonicalRoomId).emit('host_reconnecting', reconnectNotice);
+          io.to(canonicalRoomId).emit('host_disconnected_temporarily', reconnectNotice);
+          io.to(canonicalRoomId).emit('host-connection-state', {
+            roomId: canonicalRoomId,
+            state: 'reconnecting',
+            gracePeriodSeconds: graceSec,
+          });
         }
 
-        // Evict and unsubscribe all sockets from this room channel
-        if (typeof io.socketsLeave === 'function') {
-          for (const ch of channels) {
-            io.socketsLeave(ch);
+        // Schedule termination ONLY if host fails to reconnect within the full grace period
+        const timer = setTimeout(async () => {
+          try {
+            hostDisconnectGraceTimers.delete(canonicalRoomId);
+            if (numericRoomId) hostDisconnectGraceTimers.delete(String(numericRoomId));
+
+            console.log(`🔴 [Host Grace Period Expired] Host ${hostId} failed to reconnect to room ${canonicalRoomId} within ${graceSec}s. Terminating room now...`);
+            await executeRoomTermination(canonicalRoomId, numericRoomId, hostId, io, 'host_disconnected_timeout');
+          } catch (e) {
+            console.error('Error during grace period expiration cleanup:', e.message);
           }
+        }, HOST_GRACE_PERIOD_MS);
+
+        const timerEntry = {
+          timer,
+          hostId,
+          canonicalRoomId,
+          numericRoomId,
+          startedAt: Date.now(),
+        };
+        hostDisconnectGraceTimers.set(canonicalRoomId, timerEntry);
+        if (numericRoomId) {
+          hostDisconnectGraceTimers.set(String(numericRoomId), timerEntry);
         }
+
+        return { isHost: true, waitingForReconnect: true, gracePeriodSeconds: graceSec };
       }
 
-      return { isHost: true, roomEnded: true };
+      // If the host explicitly left or ended the stream, or if grace period is 0 (app closed):
+      console.log(`🔴 [Host Exit/Disconnect] Terminating room ${canonicalRoomId} immediately (reason: ${reason})...`);
+      return await executeRoomTermination(canonicalRoomId, numericRoomId, hostId, io, reason);
     }
 
     // =========================================================================
@@ -270,6 +381,7 @@ async function cleanupUserFromRoom(roomId, userId, io, userInfo = null, reason =
       }
     }
 
+    roomUserJoinAnnounced.delete(`${canonicalRoomId}_${userId}`);
     return { isHost: false, viewerCount: currentViewerCount };
   } catch (err) {
     console.error(`cleanupUserFromRoom error (${roomId}, ${userId}):`, err.message);
@@ -304,7 +416,7 @@ export function setupLiveSocket(io) {
 
     // Join a live streaming room
     const handleJoinRoom = async ({ roomId, room_id, user }) => {
-      roomId = roomId || room_id;
+            roomId = roomId || room_id;
 
       try {
         if (!roomId) return;
@@ -312,7 +424,7 @@ export function setupLiveSocket(io) {
         // Resolve canonical room id
         const isNum = /^\d+$/.test(String(roomId).trim());
         const rooms = await query(
-          'SELECT id, room_id FROM live_rooms WHERE room_id = ? OR id = ?',
+          'SELECT id, room_id, host_id FROM live_rooms WHERE room_id = ? OR id = ?',
           [String(roomId), isNum ? Number(roomId) : -1]
         );
         const room = rooms.length > 0 ? rooms[0] : null;
@@ -337,6 +449,11 @@ export function setupLiveSocket(io) {
         socket.currentRoom = canonicalRoomId;
         socket.currentUser = currentUser;
 
+        // If socket is already in this canonical room, skip re-broadcasting
+        if (socket.rooms && socket.rooms.has(canonicalRoomId)) {
+          return;
+        }
+
         socket.join(canonicalRoomId);
 
         // Host is never counted as a viewer
@@ -349,6 +466,34 @@ export function setupLiveSocket(io) {
           roomViewers.get(canonicalRoomId).add(socket.id);
         } else {
           roomViewers.get(canonicalRoomId).delete(socket.id);
+
+          // Host Reconnect Handler: If a grace timer is active for this room, cancel it immediately!
+          if (hostDisconnectGraceTimers.has(canonicalRoomId) || (numericRoomId && hostDisconnectGraceTimers.has(String(numericRoomId)))) {
+            const entry = hostDisconnectGraceTimers.get(canonicalRoomId) || (numericRoomId ? hostDisconnectGraceTimers.get(String(numericRoomId)) : null);
+            if (entry?.timer) {
+              clearTimeout(entry.timer);
+            }
+            hostDisconnectGraceTimers.delete(canonicalRoomId);
+            if (numericRoomId) hostDisconnectGraceTimers.delete(String(numericRoomId));
+
+            console.log(`🟢 [Host Reconnected] Host ${currentUser.id} successfully reconnected to room ${canonicalRoomId}! Disconnect timer cancelled.`);
+
+            const reconnectedPayload = {
+              roomId: canonicalRoomId,
+              numericRoomId,
+              hostId: currentUser.id,
+              status: 'live',
+              message: 'Host has reconnected! 🎥',
+              isReconnecting: false,
+              timestamp: new Date().toISOString(),
+            };
+
+            io.to(canonicalRoomId).emit('host_reconnected', reconnectedPayload);
+            io.to(canonicalRoomId).emit('host-connection-state', {
+              roomId: canonicalRoomId,
+              state: 'connected',
+            });
+          }
         }
 
         // Fetch DB real viewer count (excludes host)
@@ -357,11 +502,20 @@ export function setupLiveSocket(io) {
           : await query('SELECT viewer_count FROM live_rooms WHERE room_id = ?', [canonicalRoomId]);
         const activeCount = dbCountRow ? Math.max(0, dbCountRow.viewer_count) : roomViewers.get(canonicalRoomId).size;
 
-        // Emit updated viewer count to room
-        io.to(canonicalRoomId).emit('viewer-count-update', { roomId: canonicalRoomId, count: activeCount, viewer_count: activeCount });
+        // Emit updated viewer count to room ONLY if changed
+        const lastCount = roomLastViewerCount.get(canonicalRoomId);
+        if (lastCount !== activeCount) {
+          roomLastViewerCount.set(canonicalRoomId, activeCount);
+          io.to(canonicalRoomId).emit('viewer-count-update', { roomId: canonicalRoomId, count: activeCount, viewer_count: activeCount });
+        }
 
-        // Emit user joined welcome notice ONLY if not host
-        if (!isHost) {
+        // Emit user joined welcome notice ONLY if not host and not announced within 20s
+        const userKey = `${canonicalRoomId}_${currentUser.id}`;
+        const lastAnnounced = roomUserJoinAnnounced.get(userKey);
+        const now = Date.now();
+        const shouldAnnounceJoin = !isHost && currentUser?.id && (!lastAnnounced || (now - lastAnnounced > 20000));
+        if (shouldAnnounceJoin) {
+          roomUserJoinAnnounced.set(userKey, now);
           const joinedPayload = {
             roomId: canonicalRoomId,
             userId: currentUser.id,
@@ -461,7 +615,6 @@ export function setupLiveSocket(io) {
         timestamp: new Date().toISOString(),
       };
 
-      io.to(targetRoom).emit("new-chat", payload);
       io.to(targetRoom).emit("comment", payload);
     };
 
@@ -497,8 +650,6 @@ export function setupLiveSocket(io) {
       };
 
       io.to(targetRoom).emit("new-reaction", reactionPayload);
-      io.to(targetRoom).emit("reaction", reactionPayload);
-      io.to(targetRoom).emit("like", reactionPayload);
     };
 
     socket.on("send-reaction", handleRoomReaction);
@@ -506,16 +657,46 @@ export function setupLiveSocket(io) {
     socket.on("reaction", handleRoomReaction);
     socket.on("like", handleRoomReaction);
 
-    // Live Gift broadcast
-    socket.on('gift-sent', (giftEvent) => {
-      if (!giftEvent || !giftEvent.roomId) return;
+    // Live Gift broadcast with real-time room & user coin updates
+    const handleGiftSentSocket = (giftEvent) => {
+      if (!giftEvent) return;
+      const targetRoomId = giftEvent.roomId || giftEvent.room_id;
+      if (!targetRoomId) return;
 
-      // Broadcast full gift explosion event to all room participants
-      io.to(giftEvent.roomId).emit('gift-broadcast', {
+      const payload = {
         ...giftEvent,
-        timestamp: new Date().toISOString(),
-      });
-    });
+        timestamp: giftEvent.timestamp || new Date().toISOString(),
+      };
+
+      // Broadcast full gift explosion event to all room participants across all standard event names
+      const roomKey = String(targetRoomId).trim();
+      io.to(roomKey).emit('gift-broadcast', payload);
+      io.to(roomKey).emit('gift_broadcast', payload);
+      io.to(roomKey).emit('gift_received', payload);
+      io.to(roomKey).emit('gift:received', payload);
+      io.to(roomKey).emit('gift-sent', payload);
+      io.to(roomKey).emit('gift_sent', payload);
+      io.to(roomKey).emit('room_gift', payload);
+
+      const senderId = giftEvent.sender_id || giftEvent.senderId || giftEvent.sender?.id;
+      const receiverId = giftEvent.receiver_id || giftEvent.receiverId || giftEvent.receiver?.id;
+      const senderCoin = giftEvent.sender_updated_coin ?? giftEvent.senderUpdatedCoin ?? giftEvent.sender?.updated_coin;
+      const receiverCoin = giftEvent.receiver_updated_coin ?? giftEvent.receiverUpdatedCoin ?? giftEvent.receiver?.updated_coin;
+
+      if (senderId && senderCoin !== undefined) {
+        io.to(roomKey).emit('user_balance_updated', { userId: senderId, coins: senderCoin });
+        io.to(`user_${senderId}`).emit('wallet_balance_updated', { coins: senderCoin });
+      }
+      if (receiverId && receiverCoin !== undefined) {
+        io.to(roomKey).emit('user_balance_updated', { userId: receiverId, coins: receiverCoin });
+        io.to(`user_${receiverId}`).emit('wallet_balance_updated', { coins: receiverCoin });
+      }
+    };
+
+    socket.on('gift-sent', handleGiftSentSocket);
+    socket.on('gift_sent', handleGiftSentSocket);
+    socket.on('send-gift', handleGiftSentSocket);
+    socket.on('send_gift', handleGiftSentSocket);
 
     // Admin/Host/Moderator ends the stream
     const handleCloseStreamSocket = async ({ roomId, reason, closedBy }) => {
@@ -803,13 +984,38 @@ export function setupLiveSocket(io) {
           }
         }
 
+        // Check quoted message if replying
+        const rawReplyToId = data?.reply_to_id || data?.reply_to_message_id || data?.replyToId;
+        const replyToId = rawReplyToId ? parseInt(rawReplyToId, 10) : null;
+        let quotedMessage = null;
+        if (replyToId) {
+          const qRows = await query(
+            `SELECT m.id, m.sender_id, m.message_type, m.message, m.media_url, u.full_name as sender_name 
+             FROM chat_messages m 
+             JOIN users u ON u.id = m.sender_id 
+             WHERE m.id = ? AND m.conversation_id = ? LIMIT 1`,
+            [replyToId, conversationId]
+          ).catch(() => []);
+          if (qRows && qRows.length > 0) {
+            quotedMessage = {
+              id: qRows[0].id,
+              sender_id: qRows[0].sender_id,
+              sender_name: qRows[0].sender_name || 'User',
+              message_type: qRows[0].message_type || 'text',
+              message: qRows[0].message,
+              media_url: qRows[0].media_url || null,
+            };
+          }
+        }
+
         // 3. MySQL SSOT: Insert message
         const insMsg = await query(
-          'INSERT INTO chat_messages (conversation_id, sender_id, receiver_id, message_type, message, media_url, media, is_read) VALUES (?, ?, ?, ?, ?, ?, ?, 0)',
+          'INSERT INTO chat_messages (conversation_id, sender_id, receiver_id, reply_to_id, message_type, message, media_url, media, is_read) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)',
           [
             conversationId,
             senderId,
             targetReceiverId,
+            quotedMessage ? quotedMessage.id : null,
             primaryType,
             messageText || null,
             primaryMediaUrl,
@@ -843,8 +1049,8 @@ export function setupLiveSocket(io) {
           }
         }
 
-        // 4. Update conversation last_message
-        await query('UPDATE conversations SET last_message = ?, last_message_at = NOW() WHERE id = ?', [snippet, conversationId]);
+        // 4. Update conversation last_message and unhide for both users
+        await query('UPDATE conversations SET last_message = ?, last_message_at = NOW(), user1_hidden = 0, user2_hidden = 0 WHERE id = ?', [snippet, conversationId]);
 
         // 5. Fetch sender profile
         const [senderProfile] = await query(`
@@ -871,6 +1077,8 @@ export function setupLiveSocket(io) {
           conversation_id: conversationId,
           sender_id: senderId,
           receiver_id: targetReceiverId,
+          reply_to_id: quotedMessage ? quotedMessage.id : null,
+          reply_to: quotedMessage,
           message_type: primaryType,
           message: messageText,
           media_url: primaryMediaUrl,
@@ -1012,6 +1220,94 @@ export function setupLiveSocket(io) {
     socket.on('chat:mark_read', handleMarkRead);
     socket.on('chat:read', handleMarkRead);
 
+    // Real-time Chat Background Update (Shared for both participants)
+    socket.on('chat:update_background', async (data, ackCallback) => {
+      try {
+        const userId = socket.userId || socket.chatUserId || data?.userId;
+        const conversationId = data?.conversation_id || data?.conversationId;
+        const backgroundImage = data?.background_image || data?.backgroundImage || null;
+        const backgroundColor = data?.background_color || data?.backgroundColor || null;
+
+        if (!userId || !conversationId) {
+          ackCallback?.({ success: false, message: 'User ID and conversation ID required.' });
+          return;
+        }
+
+        const convRows = await query('SELECT user1_id, user2_id FROM conversations WHERE id = ? LIMIT 1', [conversationId]);
+        if (!convRows || convRows.length === 0) {
+          ackCallback?.({ success: false, message: 'Conversation not found.' });
+          return;
+        }
+
+        const conv = convRows[0];
+        const partnerId = conv.user1_id === userId ? conv.user2_id : conv.user1_id;
+
+        await query(
+          'UPDATE conversations SET background_image = ?, background_color = ?, background_updated_by = ?, background_updated_at = NOW() WHERE id = ?',
+          [backgroundImage, backgroundColor, userId, conversationId]
+        );
+
+        await cache.delByPattern(`chat:conversations:${userId}:*`);
+        await cache.delByPattern(`chat:conversations:${partnerId}:*`);
+        await cache.del(`chat:conv:${conversationId}`);
+
+        const bgPayload = {
+          conversation_id: conversationId,
+          background_image: backgroundImage,
+          background_color: backgroundColor,
+          updated_by: userId,
+          updated_at: new Date().toISOString(),
+        };
+
+        io.to(`user_${partnerId}`).emit('chat:background_updated', bgPayload);
+        io.to(`user_${userId}`).emit('chat:background_updated', bgPayload);
+        io.to(`conversation_${conversationId}`).emit('chat:background_updated', bgPayload);
+
+        ackCallback?.({ success: true, background: bgPayload });
+      } catch (err) {
+        console.error('Socket chat:update_background error:', err.message);
+        ackCallback?.({ success: false, message: err.message });
+      }
+    });
+
+    // Real-time Clear Chat Messages for Caller
+    socket.on('chat:clear_chat', async (data, ackCallback) => {
+      try {
+        const userId = socket.userId || socket.chatUserId || data?.userId;
+        const conversationId = data?.conversation_id || data?.conversationId;
+
+        if (!userId || !conversationId) {
+          ackCallback?.({ success: false, message: 'User ID and conversation ID required.' });
+          return;
+        }
+
+        const convRows = await query('SELECT user1_id, user2_id FROM conversations WHERE id = ? LIMIT 1', [conversationId]);
+        if (!convRows || convRows.length === 0) {
+          ackCallback?.({ success: false, message: 'Conversation not found.' });
+          return;
+        }
+
+        const conv = convRows[0];
+        const clearField = conv.user1_id === userId ? 'user1_cleared_at' : 'user2_cleared_at';
+        await query(`UPDATE conversations SET ${clearField} = NOW() WHERE id = ?`, [conversationId]);
+
+        await cache.delByPattern(`chat:conversations:${userId}:*`);
+        await cache.delByPattern(`chat:messages:${conversationId}:u:${userId}:*`);
+
+        const clearedPayload = {
+          conversation_id: conversationId,
+          cleared_by: userId,
+          cleared_at: new Date().toISOString(),
+        };
+
+        io.to(`user_${userId}`).emit('chat:chat_cleared', clearedPayload);
+        ackCallback?.({ success: true, ...clearedPayload });
+      } catch (err) {
+        console.error('Socket chat:clear_chat error:', err.message);
+        ackCallback?.({ success: false, message: err.message });
+      }
+    });
+
     // Disconnecting - captures rooms before socket leaves
     socket.on('disconnecting', () => {
       try {
@@ -1039,6 +1335,18 @@ export function setupLiveSocket(io) {
             roomViewers.get(targetRoom).delete(socket.id);
           }
           await cleanupUserFromRoom(targetRoom, targetUserId, io, targetUser, 'disconnect');
+        }
+
+        // FAIL-SAFE: If this disconnecting user is the host of ANY active live room, terminate immediately!
+        if (targetUserId) {
+          const activeHostRooms = await query(
+            "SELECT id, room_id, host_id FROM live_rooms WHERE host_id = ? AND status = 'live'",
+            [targetUserId]
+          );
+          for (const aRoom of activeHostRooms) {
+            console.log(`🔴 [Host Disconnected App Close] Host ${targetUserId} closed app/disconnected while room ${aRoom.room_id} is live. Terminating room now...`);
+            await executeRoomTermination(aRoom.room_id, aRoom.id, targetUserId, io, 'host_disconnected');
+          }
         }
       } catch (err) {
         console.error('Socket disconnect error:', err.message);

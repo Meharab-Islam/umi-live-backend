@@ -6,6 +6,9 @@ import {
   uploadChatMediaDirect,
   markConversationRead,
   deleteConversation,
+  clearChatMessages,
+  updateConversationBackground,
+  removeConversationBackground,
   searchUsersForChat,
 } from '../../controllers/mobile/chatController.js';
 import { requireAuth } from '../../middlewares/authMiddleware.js';
@@ -33,15 +36,29 @@ router.get('/conversations', getConversations);
 router.get('/conversations/:conversationId/messages', getMessages);
 router.get('/messages/:otherUserId', getMessages);
 
-// 3. Send Message (Text & Multiple Images / Video Upload From Device)
+// 3. Send Message (Supports Text, Images, Videos, Audio & Reply/Quote to message)
 router.post('/messages', optionalChatMediaUpload, sendMessage);
 router.post('/conversations/:conversationId/messages', optionalChatMediaUpload, sendMessage);
 
 // 4. Direct Device Media Upload
 router.post('/upload', optionalChatMediaUpload, uploadChatMediaDirect);
 
-// 5. Read Receipt & Deletion
+// 5. Read Receipt
 router.put('/conversations/:id/read', markConversationRead);
+
+// 6. Chat Background Management (Shared between both conversation participants)
+router.put('/conversations/:id/background', optionalChatMediaUpload, updateConversationBackground);
+router.post('/conversations/:id/background', optionalChatMediaUpload, updateConversationBackground);
+router.delete('/conversations/:id/background', removeConversationBackground);
+router.put('/messages/:otherUserId/background', optionalChatMediaUpload, updateConversationBackground);
+router.delete('/messages/:otherUserId/background', removeConversationBackground);
+
+// 7. Clear Messages History for Current User (Partner retains full chat history)
+router.post('/conversations/:id/clear', clearChatMessages);
+router.post('/messages/:otherUserId/clear', clearChatMessages);
+
+// 8. Delete / Remove Conversation for Current User
 router.delete('/conversations/:id', deleteConversation);
+router.delete('/messages/:otherUserId', deleteConversation);
 
 export default router;

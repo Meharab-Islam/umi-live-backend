@@ -3,6 +3,7 @@ import { cache } from '../../config/redis.js';
 import { query } from '../../config/db.js';
 import { generateLiveKitToken, LIVEKIT_URL } from '../../config/livekit.js';
 import { sendLiveRoomStartedPushNotification } from '../../config/firebase.js';
+import { cancelHostDisconnectGraceTimer, hostDisconnectGraceTimers } from '../../sockets/liveSocket.js';
 
 /**
  * Format elapsed seconds into standard timer format:
@@ -272,6 +273,17 @@ export async function getRooms(req, res) {
 
       let whereClauses = ['r.status = ?'];
       let params = [status];
+
+      // Exclude rooms hosted by superadmin
+      whereClauses.push("u.role != 'superadmin'");
+
+      // Exclude rooms currently in disconnected/reconnecting grace period
+      if (hostDisconnectGraceTimers && hostDisconnectGraceTimers.size > 0) {
+        const disIds = Array.from(hostDisconnectGraceTimers.keys());
+        const pl = disIds.map(() => '?').join(', ');
+        whereClauses.push(`r.room_id NOT IN (${pl})`);
+        params.push(...disIds);
+      }
 
       // Exclude current user's own broadcast room
       if (currentUserId) {
@@ -548,7 +560,7 @@ export async function createRoom(req, res) {
 
     const roomData = await buildRoomResponse(roomId, req.user);
 
-    // 3. Asynchronously trigger push notification to followers and all active users
+    // 3. Asynchronously trigger push notification strictly to followers only
     sendLiveRoomStartedPushNotification({
       roomId,
       host: req.user,
@@ -643,12 +655,7 @@ export async function joinRoom(req, res) {
     if (req.io) {
       req.io.to(canonicalRoomId).emit('viewer-count-update', { roomId: canonicalRoomId, count: currentViewerCount, viewer_count: currentViewerCount });
 
-      // Automatically subscribe user's socket to room channel if already connected
-      const userRoom = `user_${currentUser.id}`;
-      const userSockets = await req.io.in(userRoom).fetchSockets().catch(() => []);
-      for (const s of userSockets) {
-        s.join(canonicalRoomId);
-      }
+// Sockets join room explicitly via socket event join-room
     }
 
     // 4. Build comprehensive room response with seats and duration
@@ -1132,14 +1139,14 @@ export async function getRoomUsers(req, res) {
            ON pc.id = ups.category_id AND pc.is_active = 1
          LEFT JOIN live_room_seats s 
            ON s.room_id = v.room_id AND s.user_id = u.id
-         WHERE (v.room_id = ? OR v.room_id = ?) AND v.user_id != r.host_id
+         WHERE (v.room_id = ? OR v.room_id = ?) AND v.user_id != r.host_id AND u.role != 'superadmin'
          ORDER BY is_seated DESC, vip_order ASC, u.coins DESC, v.joined_at ASC
          LIMIT ? OFFSET ?`,
         [roomId, String(room.id), parseInt(limit, 10), offset]
       );
 
       const [countResult] = await query(
-        'SELECT COUNT(*) as total FROM live_room_viewers WHERE (room_id = ? OR room_id = ?) AND user_id != ?',
+        'SELECT COUNT(*) as total FROM live_room_viewers v JOIN users u ON u.id = v.user_id WHERE (v.room_id = ? OR v.room_id = ?) AND v.user_id != ? AND u.role != \'superadmin\'',
         [roomId, String(room.id), room.host_id]
       );
 
@@ -1649,6 +1656,10 @@ export async function endRoom(req, res) {
     const canonicalRoomId = room.room_id;
     const numericRoomId = room.id;
 
+    // If a disconnect grace period timer was pending, cancel it immediately
+    cancelHostDisconnectGraceTimer(canonicalRoomId);
+    if (numericRoomId) cancelHostDisconnectGraceTimer(String(numericRoomId));
+
     // Check permissions: Host, System Admin, Global Moderator, or Room Admin
     const isHost = room.host_id === userId;
     const isSystemAdmin = req.user.role === 'admin' || req.user.role === 'superadmin';
@@ -1892,7 +1903,7 @@ export async function fetchAndCacheSeatRequests(roomId) {
      LEFT JOIN privilege_packages pp ON pp.id = ups.package_id
      LEFT JOIN package_categories pc 
        ON pc.id = ups.category_id AND pc.is_active = 1
-     WHERE sr.room_id = ? AND sr.status = 'pending'
+     WHERE sr.room_id = ? AND sr.status = 'pending' AND u.role != 'superadmin'
      ORDER BY sr.created_at ASC`,
     [roomId]
   );

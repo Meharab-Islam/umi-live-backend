@@ -267,8 +267,11 @@ export const getFeed = async (req, res) => {
         whereClause += " AND (p.media_type = 'image' OR JSON_CONTAINS(p.media, '{\"media_type\":\"image\"}'))";
       }
 
+      // Hide superadmin posts from newsfeed
+      whereClause += " AND u.role != 'superadmin'";
+
       // Count total
-      const countSql = `SELECT COUNT(*) as total FROM posts p WHERE ${whereClause}`;
+      const countSql = `SELECT COUNT(*) as total FROM posts p JOIN users u ON u.id = p.user_id WHERE ${whereClause}`;
       const countRows = await query(countSql, params);
       const total = countRows?.[0]?.total || 0;
 
@@ -1136,9 +1139,11 @@ export const getComments = async (req, res) => {
         whereClause += ' AND c.parent_id IS NULL';
       }
 
+      whereClause += " AND u.role != 'superadmin'";
+
       // Count
       const countRows = await query(
-        `SELECT COUNT(*) as total FROM post_comments c WHERE ${whereClause}`,
+        `SELECT COUNT(*) as total FROM post_comments c JOIN users u ON u.id = c.user_id WHERE ${whereClause}`,
         params
       );
       const total = countRows?.[0]?.total || 0;

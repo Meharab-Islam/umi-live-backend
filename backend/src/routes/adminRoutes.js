@@ -61,6 +61,12 @@ import {
   clearResellerSales,
   getChatTesterUsers,
   getChatTesterConversation,
+  getAdminReports,
+  getOffenderReports,
+  updateAdminReportStatus,
+  takeAdminReportAction,
+  deleteAdminReport,
+  bulkDeleteReports,
 } from '../controllers/adminController.js';
 import {
   getPackageCategories,
@@ -270,5 +276,13 @@ router.get('/merge-accounts/history', getMergeHistory);
 // Real-Time Socket & Message Tester
 router.get('/chat-tester/users', getChatTesterUsers);
 router.get('/chat-tester/conversation', getChatTesterConversation);
+
+// User Moderation & Reports
+router.get('/reports', getAdminReports);
+router.get('/reports/offender/:userId', getOffenderReports);
+router.put('/reports/:id/status', updateAdminReportStatus);
+router.post('/reports/:id/action', takeAdminReportAction);
+router.delete('/reports/:id', deleteAdminReport);
+router.post('/reports/bulk-delete', bulkDeleteReports);
 
 export default router;

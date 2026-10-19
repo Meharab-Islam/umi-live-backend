@@ -14,6 +14,7 @@ export async function getDashboardStats(req, res) {
           SUM(CASE WHEN role = 'host' THEN 1 ELSE 0 END) as total_hosts,
           SUM(CASE WHEN is_banned = TRUE THEN 1 ELSE 0 END) as banned_users
         FROM users
+        WHERE role != 'superadmin'
       `);
 
       // 2. Stream stats
@@ -125,13 +126,16 @@ export async function getUsers(req, res) {
         }
       }
 
+      // Always completely hide superadmin from all lists and counts
+      conditions.push("u.role != 'superadmin'");
+
       if (role && role !== 'all') {
-        conditions.push('role = ?');
+        conditions.push('u.role = ?');
         params.push(role);
       }
 
       if (is_banned !== undefined && is_banned !== 'all') {
-        conditions.push('is_banned = ?');
+        conditions.push('u.is_banned = ?');
         params.push(is_banned === 'true' || is_banned === '1' ? 1 : 0);
       }
 
@@ -159,9 +163,10 @@ export async function getUsers(req, res) {
           SUM(CASE WHEN role = 'moderator' THEN 1 ELSE 0 END) as total_moderators,
           SUM(CASE WHEN role = 'reseller' THEN 1 ELSE 0 END) as total_resellers,
           SUM(CASE WHEN role = 'user' THEN 1 ELSE 0 END) as total_regular,
-          SUM(CASE WHEN role IN ('admin', 'superadmin') THEN 1 ELSE 0 END) as total_admins,
+          SUM(CASE WHEN role = 'admin' THEN 1 ELSE 0 END) as total_admins,
           SUM(CASE WHEN is_banned = TRUE THEN 1 ELSE 0 END) as total_banned
         FROM users
+        WHERE role != 'superadmin'
       `);
 
       return {
@@ -1549,7 +1554,7 @@ export async function getUserDetails(req, res) {
                 u.created_at, u.updated_at
          FROM users u
          LEFT JOIN agencies a ON u.agency_id = a.id
-         WHERE u.id = ?`,
+         WHERE u.id = ? AND u.role != 'superadmin'`,
         [userId]
       );
 
@@ -3798,6 +3803,558 @@ export async function getChatTesterConversation(req, res) {
   } catch (err) {
     console.error('getChatTesterConversation error:', err);
     return res.status(500).json({ success: false, message: 'Failed to load conversation', error: err.message });
+  }
+}
+
+/**
+ * ========================================================
+ * 🛡️ USER MODERATION & REPORTS CONTROLLER
+ * ========================================================
+ */
+
+/**
+ * Get Paginated List of User Reports with Counts
+ * GET /api/admin/reports
+ */
+export async function getAdminReports(req, res) {
+  try {
+    const {
+      status = 'all',
+      search = '',
+      page = 1,
+      limit = 20,
+      view = 'grouped', // 'grouped' (by offender) or 'all' (individual report logs)
+    } = req.query;
+
+    const pageNum = Math.max(1, parseInt(page, 10) || 1);
+    const limitNum = Math.min(100, Math.max(1, parseInt(limit, 10) || 20));
+    const offset = (pageNum - 1) * limitNum;
+
+    // 1. Fetch counts breakdown (Single query)
+    const [counts] = await query(`
+      SELECT 
+        COUNT(*) AS total,
+        SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) AS pending,
+        SUM(CASE WHEN status = 'investigating' THEN 1 ELSE 0 END) AS investigating,
+        SUM(CASE WHEN status = 'resolved' THEN 1 ELSE 0 END) AS resolved,
+        SUM(CASE WHEN status = 'dismissed' THEN 1 ELSE 0 END) AS dismissed
+      FROM moderation_reports
+    `);
+
+    // 2. Build filter conditions
+    const whereClauses = [];
+    const params = [];
+
+    if (status && status !== 'all') {
+      whereClauses.push('r.status = ?');
+      params.push(status);
+    }
+
+    if (search && search.trim()) {
+      const searchTerm = `%${search.trim()}%`;
+      whereClauses.push(`(
+        u_target.full_name LIKE ? OR 
+        u_target.email LIKE ? OR 
+        r.reason LIKE ? OR 
+        r.description LIKE ? OR 
+        r.room_id LIKE ?
+      )`);
+      params.push(searchTerm, searchTerm, searchTerm, searchTerm, searchTerm);
+    }
+
+    const whereSql = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
+
+    if (view === 'grouped') {
+      // 3A. Count total matching offenders (Grouped by reported_id)
+      const [totalGrouped] = await query(
+        `SELECT COUNT(DISTINCT r.reported_id) AS count
+         FROM moderation_reports r
+         JOIN users u_target ON u_target.id = r.reported_id
+         ${whereSql}`,
+        params
+      );
+      const totalFiltered = totalGrouped?.count || 0;
+
+      // 4A. Grouped query by offender user
+      const reports = await query(
+        `SELECT 
+           r.reported_id,
+           u_target.full_name AS reported_name,
+           u_target.email AS reported_email,
+           COALESCE(u_target.avatar_url, CONCAT('https://api.dicebear.com/7.x/avataaars/svg?seed=', u_target.id)) AS reported_avatar,
+           u_target.role AS reported_role,
+           u_target.level AS reported_level,
+           u_target.is_banned AS reported_is_banned,
+           (SELECT COUNT(*) FROM user_devices ud WHERE ud.user_id = r.reported_id) AS reported_devices_count,
+           (SELECT COUNT(*) FROM user_devices ud WHERE ud.user_id = r.reported_id AND ud.is_banned = 1) AS reported_banned_devices_count,
+           (SELECT GROUP_CONCAT(DISTINCT ud.device_model SEPARATOR ', ') FROM user_devices ud WHERE ud.user_id = r.reported_id) AS reported_device_models,
+           COUNT(r.id) AS total_reports_count,
+           SUM(CASE WHEN r.status = 'pending' THEN 1 ELSE 0 END) AS pending_reports_count,
+           SUM(CASE WHEN r.status = 'investigating' THEN 1 ELSE 0 END) AS investigating_reports_count,
+           SUM(CASE WHEN r.status = 'resolved' THEN 1 ELSE 0 END) AS resolved_reports_count,
+           SUM(CASE WHEN r.status = 'dismissed' THEN 1 ELSE 0 END) AS dismissed_reports_count,
+           MAX(r.created_at) AS latest_report_time,
+           MIN(r.created_at) AS first_report_time,
+           GROUP_CONCAT(DISTINCT r.reason SEPARATOR ', ') AS reasons_summary,
+           GROUP_CONCAT(r.id ORDER BY r.created_at DESC) AS report_ids,
+           COUNT(DISTINCT r.reporter_id) AS reporters_count,
+           CASE 
+             WHEN SUM(CASE WHEN r.status = 'pending' THEN 1 ELSE 0 END) > 0 THEN 'pending'
+             WHEN SUM(CASE WHEN r.status = 'investigating' THEN 1 ELSE 0 END) > 0 THEN 'investigating'
+             WHEN SUM(CASE WHEN r.status = 'resolved' THEN 1 ELSE 0 END) > 0 THEN 'resolved'
+             ELSE 'dismissed'
+           END AS status
+         FROM moderation_reports r
+         JOIN users u_target ON u_target.id = r.reported_id
+         ${whereSql}
+         GROUP BY r.reported_id, u_target.id
+         ORDER BY 
+           pending_reports_count DESC,
+           total_reports_count DESC,
+           latest_report_time DESC
+         LIMIT ? OFFSET ?`,
+        [...params, limitNum, offset]
+      );
+
+      return res.json({
+        success: true,
+        view: 'grouped',
+        counts: {
+          total: Number(counts?.total) || 0,
+          pending: Number(counts?.pending) || 0,
+          investigating: Number(counts?.investigating) || 0,
+          resolved: Number(counts?.resolved) || 0,
+          dismissed: Number(counts?.dismissed) || 0,
+        },
+        pagination: {
+          total: totalFiltered,
+          page: pageNum,
+          limit: limitNum,
+          totalPages: Math.ceil(totalFiltered / limitNum) || 1,
+        },
+        reports: reports || [],
+      });
+    }
+
+    // 3B. Standard individual reports feed (view === 'all')
+    const [totalMatching] = await query(
+      `SELECT COUNT(*) AS count
+       FROM moderation_reports r
+       JOIN users u_rep ON u_rep.id = r.reporter_id
+       JOIN users u_target ON u_target.id = r.reported_id
+       ${whereSql}`,
+      params
+    );
+
+    const totalFiltered = totalMatching?.count || 0;
+
+    // 4B. Fetch individual reports rows
+    const reports = await query(
+      `SELECT 
+         r.id,
+         r.reporter_id,
+         u_rep.full_name AS reporter_name,
+         u_rep.email AS reporter_email,
+         COALESCE(u_rep.avatar_url, CONCAT('https://api.dicebear.com/7.x/avataaars/svg?seed=', u_rep.id)) AS reporter_avatar,
+         r.reported_id,
+         u_target.full_name AS reported_name,
+         u_target.email AS reported_email,
+         COALESCE(u_target.avatar_url, CONCAT('https://api.dicebear.com/7.x/avataaars/svg?seed=', u_target.id)) AS reported_avatar,
+         u_target.role AS reported_role,
+         u_target.level AS reported_level,
+         u_target.is_banned AS reported_is_banned,
+         (SELECT COUNT(*) FROM moderation_reports mr WHERE mr.reported_id = r.reported_id) AS total_reports_count,
+         (SELECT COUNT(*) FROM user_devices ud WHERE ud.user_id = r.reported_id) AS reported_devices_count,
+         (SELECT COUNT(*) FROM user_devices ud WHERE ud.user_id = r.reported_id AND ud.is_banned = 1) AS reported_banned_devices_count,
+         (SELECT GROUP_CONCAT(DISTINCT ud.device_model SEPARATOR ', ') FROM user_devices ud WHERE ud.user_id = r.reported_id) AS reported_device_models,
+         r.room_id,
+         r.reason,
+         r.description,
+         r.status,
+         r.admin_notes,
+         r.created_at,
+         r.updated_at
+       FROM moderation_reports r
+       JOIN users u_rep ON u_rep.id = r.reporter_id
+       JOIN users u_target ON u_target.id = r.reported_id
+       ${whereSql}
+       ORDER BY 
+         CASE WHEN r.status = 'pending' THEN 1 WHEN r.status = 'investigating' THEN 2 ELSE 3 END ASC,
+         r.created_at DESC
+       LIMIT ? OFFSET ?`,
+      [...params, limitNum, offset]
+    );
+
+    return res.json({
+      success: true,
+      view: 'all',
+      counts: {
+        total: Number(counts?.total) || 0,
+        pending: Number(counts?.pending) || 0,
+        investigating: Number(counts?.investigating) || 0,
+        resolved: Number(counts?.resolved) || 0,
+        dismissed: Number(counts?.dismissed) || 0,
+      },
+      pagination: {
+        total: totalFiltered,
+        page: pageNum,
+        limit: limitNum,
+        totalPages: Math.ceil(totalFiltered / limitNum) || 1,
+      },
+      reports: reports || [],
+    });
+  } catch (err) {
+    console.error('getAdminReports error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to fetch reports', error: err.message });
+  }
+}
+
+/**
+ * Fetch all reports filed against a specific offender with full reporter details
+ */
+export async function getOffenderReports(req, res) {
+  try {
+    const { userId } = req.params;
+    const offenderId = parseInt(userId, 10);
+    if (!offenderId) {
+      return res.status(400).json({ success: false, message: 'Invalid user ID' });
+    }
+
+    // 1. Offender profile & device info
+    const [offender] = await query(
+      `SELECT 
+         u.id AS reported_id,
+         u.full_name AS reported_name,
+         u.email AS reported_email,
+         COALESCE(u.avatar_url, CONCAT('https://api.dicebear.com/7.x/avataaars/svg?seed=', u.id)) AS reported_avatar,
+         u.role AS reported_role,
+         u.level AS reported_level,
+         u.is_banned AS reported_is_banned,
+         (SELECT COUNT(*) FROM user_devices ud WHERE ud.user_id = u.id) AS reported_devices_count,
+         (SELECT COUNT(*) FROM user_devices ud WHERE ud.user_id = u.id AND ud.is_banned = 1) AS reported_banned_devices_count,
+         (SELECT GROUP_CONCAT(DISTINCT ud.device_model SEPARATOR ', ') FROM user_devices ud WHERE ud.user_id = u.id) AS reported_device_models,
+         (SELECT COUNT(*) FROM moderation_reports mr WHERE mr.reported_id = u.id) AS total_reports_count
+       FROM users u
+       WHERE u.id = ?`,
+      [offenderId]
+    );
+
+    if (!offender) {
+      return res.status(404).json({ success: false, message: 'Reported user not found' });
+    }
+
+    // 2. Fetch all individual reports against this offender with reporter details
+    const reports = await query(
+      `SELECT 
+         r.id,
+         r.reporter_id,
+         u_rep.full_name AS reporter_name,
+         u_rep.email AS reporter_email,
+         COALESCE(u_rep.avatar_url, CONCAT('https://api.dicebear.com/7.x/avataaars/svg?seed=', u_rep.id)) AS reporter_avatar,
+         u_rep.role AS reporter_role,
+         u_rep.level AS reporter_level,
+         r.room_id,
+         r.reason,
+         r.description,
+         r.status,
+         r.admin_notes,
+         r.created_at,
+         r.updated_at
+       FROM moderation_reports r
+       JOIN users u_rep ON u_rep.id = r.reporter_id
+       WHERE r.reported_id = ?
+       ORDER BY 
+         CASE WHEN r.status = 'pending' THEN 1 WHEN r.status = 'investigating' THEN 2 ELSE 3 END ASC,
+         r.created_at DESC`,
+      [offenderId]
+    );
+
+    // 3. Reasons breakdown
+    const reasonsMap = {};
+    for (const rep of reports) {
+      reasonsMap[rep.reason] = (reasonsMap[rep.reason] || 0) + 1;
+    }
+
+    return res.json({
+      success: true,
+      offender,
+      total_reports: reports.length,
+      reasons_breakdown: reasonsMap,
+      reports: reports || [],
+    });
+  } catch (err) {
+    console.error('getOffenderReports error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to fetch offender reports', error: err.message });
+  }
+}
+
+/**
+ * Update Report Status and/or Admin Notes
+ * PUT /api/admin/reports/:id/status
+ */
+export async function updateAdminReportStatus(req, res) {
+  try {
+    const reportId = parseInt(req.params.id, 10);
+    const { status, admin_notes } = req.body;
+
+    if (!reportId || isNaN(reportId)) {
+      return res.status(400).json({ success: false, message: 'Valid report ID is required.' });
+    }
+
+    const validStatuses = ['pending', 'investigating', 'resolved', 'dismissed'];
+    if (status && !validStatuses.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: `Invalid status. Must be one of: ${validStatuses.join(', ')}`,
+      });
+    }
+
+    const [existing] = await query('SELECT * FROM moderation_reports WHERE id = ?', [reportId]);
+    if (!existing) {
+      return res.status(404).json({ success: false, message: 'Report not found.' });
+    }
+
+    const newStatus = status || existing.status;
+    const newNotes = admin_notes !== undefined ? admin_notes : existing.admin_notes;
+
+    await query(
+      'UPDATE moderation_reports SET status = ?, admin_notes = ? WHERE id = ?',
+      [newStatus, newNotes, reportId]
+    );
+
+    // Invalidate reports cache
+    await cache.delByPattern('admin:reports:*');
+
+    return res.json({
+      success: true,
+      message: `Report status updated to "${newStatus}".`,
+      report: {
+        id: reportId,
+        status: newStatus,
+        admin_notes: newNotes,
+      },
+    });
+  } catch (err) {
+    console.error('updateAdminReportStatus error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to update report status.', error: err.message });
+  }
+}
+
+/**
+ * Perform Moderation Action from Report (Account Ban, Device Ban, Both, Unban, Resolve, Dismiss)
+ * POST /api/admin/reports/:id/action
+ */
+export async function takeAdminReportAction(req, res) {
+  try {
+    const reportId = parseInt(req.params.id, 10);
+    const { action, banType = 'both', unbanType = 'both', admin_notes } = req.body;
+
+    let targetUserId = null;
+    let report = null;
+
+    if (reportId && !isNaN(reportId) && reportId > 0) {
+      const [found] = await query('SELECT * FROM moderation_reports WHERE id = ?', [reportId]);
+      report = found;
+      targetUserId = report?.reported_id;
+    }
+
+    if (!targetUserId && req.body.userId) {
+      targetUserId = parseInt(req.body.userId, 10);
+    }
+
+    if (!targetUserId) {
+      return res.status(400).json({ success: false, message: 'Valid report ID or target user ID is required.' });
+    }
+
+    let message = '';
+    let newStatus = report?.status || 'resolved';
+    const banReason = admin_notes || (report ? `Banned via report #${reportId} (${report.reason})` : 'Banned by admin investigation');
+
+    if (action === 'ban') {
+      let devicesAffected = 0;
+      let accountBanned = false;
+
+      // 1. Account Ban
+      if (banType === 'account' || banType === 'both') {
+        await query('UPDATE users SET is_banned = 1 WHERE id = ?', [targetUserId]);
+        accountBanned = true;
+      }
+
+      // 2. Hardware Device Ban
+      if (banType === 'device' || banType === 'both') {
+        const devRes = await query(
+          `UPDATE user_devices 
+           SET is_banned = 1, ban_reason = ?, banned_by = ?, banned_at = NOW() 
+           WHERE user_id = ?`,
+          [banReason, req.user?.id || null, targetUserId]
+        );
+        devicesAffected = devRes?.affectedRows || 0;
+
+        // Invalidate Redis cache for each device
+        const userDevs = await query('SELECT device_id FROM user_devices WHERE user_id = ?', [targetUserId]);
+        for (const d of userDevs) {
+          if (d.device_id) {
+            await cache.set(`device:banned:${d.device_id}`, true, 86400 * 30);
+          }
+        }
+      }
+
+      newStatus = 'resolved';
+      if (banType === 'both') {
+        message = `User account and all registered devices (${devicesAffected}) banned successfully.`;
+      } else if (banType === 'device') {
+        message = `All registered hardware devices (${devicesAffected}) banned successfully. Account remains active.`;
+      } else {
+        message = 'User account suspended/banned successfully. Hardware devices remain unaffected.';
+      }
+
+      // Invalidate target user cache
+      await Promise.allSettled([
+        cache.del(`user:${targetUserId}`),
+        cache.del(`mobile:user:profile:${targetUserId}`),
+        cache.del(`mobile:user:public:${targetUserId}`),
+        cache.delByPattern('moderator:banned_devices:*'),
+        cache.delByPattern('admin:users*'),
+      ]);
+    } else if (action === 'unban') {
+      let devicesAffected = 0;
+
+      // 1. Unban Account
+      if (unbanType === 'account' || unbanType === 'both') {
+        await query('UPDATE users SET is_banned = 0 WHERE id = ?', [targetUserId]);
+      }
+
+      // 2. Unban Devices
+      if (unbanType === 'device' || unbanType === 'both') {
+        const devRes = await query(
+          `UPDATE user_devices 
+           SET is_banned = 0, ban_reason = NULL, banned_at = NULL, banned_by = NULL 
+           WHERE user_id = ?`,
+          [targetUserId]
+        );
+        devicesAffected = devRes?.affectedRows || 0;
+
+        const userDevs = await query('SELECT device_id FROM user_devices WHERE user_id = ?', [targetUserId]);
+        for (const d of userDevs) {
+          if (d.device_id) {
+            await cache.del(`device:banned:${d.device_id}`);
+          }
+        }
+      }
+
+      if (unbanType === 'both') {
+        message = `User account and devices (${devicesAffected}) unbanned successfully.`;
+      } else if (unbanType === 'device') {
+        message = `Hardware devices (${devicesAffected}) unbanned successfully.`;
+      } else {
+        message = 'User account unbanned successfully.';
+      }
+
+      await Promise.allSettled([
+        cache.del(`user:${targetUserId}`),
+        cache.del(`mobile:user:profile:${targetUserId}`),
+        cache.del(`mobile:user:public:${targetUserId}`),
+        cache.delByPattern('moderator:banned_devices:*'),
+        cache.delByPattern('admin:users*'),
+      ]);
+    } else if (action === 'resolve') {
+      newStatus = 'resolved';
+      message = 'Report marked as resolved.';
+    } else if (action === 'dismiss') {
+      newStatus = 'dismissed';
+      message = 'Report dismissed.';
+    } else if (action === 'investigate') {
+      newStatus = 'investigating';
+      message = 'Report marked as under investigation.';
+    } else {
+      return res.status(400).json({ success: false, message: 'Valid action is required (ban, unban, resolve, dismiss, investigate).' });
+    }
+
+    const newNotes = admin_notes !== undefined ? admin_notes : (report ? report.admin_notes : null);
+
+    if (reportId && !isNaN(reportId) && reportId > 0) {
+      await query(
+        'UPDATE moderation_reports SET status = ?, admin_notes = COALESCE(?, admin_notes), updated_at = NOW() WHERE id = ?',
+        [newStatus, newNotes, reportId]
+      );
+    }
+
+    if (action === 'ban' && targetUserId) {
+      await query(
+        'UPDATE moderation_reports SET status = "resolved", admin_notes = COALESCE(?, admin_notes), updated_at = NOW() WHERE reported_id = ? AND status IN ("pending", "investigating")',
+        [banReason, targetUserId]
+      );
+    }
+
+    await cache.delByPattern('admin:reports:*');
+
+    return res.json({
+      success: true,
+      message,
+      report_id: reportId,
+      reported_id: targetUserId,
+      status: newStatus,
+      admin_notes: newNotes,
+    });
+  } catch (err) {
+    console.error('takeAdminReportAction error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to take report action.', error: err.message });
+  }
+}
+
+/**
+ * Delete a Moderation Report
+ * DELETE /api/admin/reports/:id
+ */
+export async function deleteAdminReport(req, res) {
+  try {
+    const reportId = parseInt(req.params.id, 10);
+    if (!reportId || isNaN(reportId)) {
+      return res.status(400).json({ success: false, message: 'Valid report ID is required.' });
+    }
+
+    await query('DELETE FROM moderation_reports WHERE id = ?', [reportId]);
+    await cache.delByPattern('admin:reports:*');
+
+    return res.json({
+      success: true,
+      message: 'Report deleted successfully.',
+    });
+  } catch (err) {
+    console.error('deleteAdminReport error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to delete report.', error: err.message });
+  }
+}
+
+/**
+ * Bulk Delete Moderation Reports
+ * POST /api/admin/reports/bulk-delete
+ */
+export async function bulkDeleteReports(req, res) {
+  try {
+    const { ids } = req.body;
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).json({ success: false, message: 'Array of report IDs is required.' });
+    }
+
+    const cleanIds = ids.map(Number).filter((id) => id > 0);
+    if (cleanIds.length === 0) {
+      return res.status(400).json({ success: false, message: 'No valid report IDs provided.' });
+    }
+
+    const placeholders = cleanIds.map(() => '?').join(',');
+    const result = await query(`DELETE FROM moderation_reports WHERE id IN (${placeholders})`, cleanIds);
+
+    await cache.delByPattern('admin:reports:*');
+
+    return res.json({
+      success: true,
+      message: `${result.affectedRows || cleanIds.length} report(s) deleted successfully.`,
+      deletedCount: result.affectedRows || cleanIds.length,
+    });
+  } catch (err) {
+    console.error('bulkDeleteReports error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to bulk delete reports.', error: err.message });
   }
 }
 

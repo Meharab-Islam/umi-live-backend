@@ -14,6 +14,7 @@ import {
 } from '../../controllers/mobile/authController.js';
 import { requireAuth } from '../../middlewares/authMiddleware.js';
 import { optionalAvatarUpload } from '../../middleware/upload.js';
+import { getBlockedUsers } from '../../controllers/mobile/userController.js';
 
 const router = express.Router();
 
@@ -33,5 +34,9 @@ router.put('/profile', requireAuth, optionalAvatarUpload, updateProfile);
 // FCM Device Token Registration for Push Notifications
 router.post('/fcm-token', requireAuth, updateFcmToken);
 router.delete('/fcm-token', requireAuth, removeFcmToken);
+
+// Blocked Users List (Account Privacy & Settings)
+router.get('/blocked-users', requireAuth, getBlockedUsers);
+router.get('/blocked', requireAuth, getBlockedUsers);
 
 export default router;

@@ -28,6 +28,11 @@
   --text-main: #0f172a;       /* slate-900: sharp readable black/charcoal */
   --text-muted: #475569;      /* slate-600 */
   --text-dim: #64748b;        /* slate-500 */
+  --text-color: #0f172a;      /* compatibility alias */
+
+  /* Surface & Background Aliases */
+  --surface-color: #ffffff;
+  --bg-color: #f8fafc;
 
   /* Shadows */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);

@@ -25,6 +25,7 @@ import TopContributors from './pages/TopContributors';
 import Posts from './pages/Posts';
 import RealtimeChatTester from './pages/RealtimeChatTester';
 import UserLivePortal from './pages/UserLivePortal';
+import Reports from './pages/Reports';
 
 import { checkHealth, getToken, setToken, getCurrentUser, setCurrentUser } from './api/client';
 import dashboardApi from './api/dashboardApi';
@@ -40,6 +41,7 @@ const VALID_TABS = [
   'resellers',
   'moderators',
   'users',
+  'reports',
   'posts',
   'account-merge',
   'packages',
@@ -346,6 +348,10 @@ export default function App() {
 
           {activeTab === 'users' && (
             <Users onToast={addToast} />
+          )}
+
+          {activeTab === 'reports' && (
+            <Reports onToast={addToast} />
           )}
 
           {activeTab === 'posts' && (

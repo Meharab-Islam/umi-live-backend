@@ -497,6 +497,9 @@ export default function ApiDocs({ onToast }) {
 
   // Generate mobile Flutter / Dart code snippet
   const generateFlutterCode = (ep) => {
+    if (ep.codeSnippets?.flutter) {
+      return ep.codeSnippets.flutter;
+    }
     const isAuth = ep.requiresAuth;
     const isPost = ep.method === 'POST';
     const isGet = ep.method === 'GET';
@@ -576,6 +579,9 @@ ${isPost ? `
 
   // Generate cURL command
   const generateCurlCode = (ep) => {
+    if (ep.codeSnippets?.curl) {
+      return ep.codeSnippets.curl;
+    }
     const isAuth = ep.requiresAuth;
     const isMultipart = ep.requestBody?.type?.includes('multipart') || ep.requestBody?.fields?.some((f) => f.type.includes('file'));
 

@@ -231,7 +231,9 @@ CREATE TABLE IF NOT EXISTS moderation_reports (
   reason VARCHAR(100) NOT NULL,
   description TEXT,
   status ENUM('pending', 'investigating', 'resolved', 'dismissed') DEFAULT 'pending',
+  admin_notes TEXT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY (reporter_id) REFERENCES users(id) ON DELETE CASCADE,
   FOREIGN KEY (reported_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -264,6 +266,14 @@ CREATE TABLE IF NOT EXISTS conversations (
   user2_id INT NOT NULL,
   last_message TEXT,
   last_message_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  background_image TEXT NULL,
+  background_color VARCHAR(64) NULL,
+  background_updated_by INT NULL,
+  background_updated_at TIMESTAMP NULL,
+  user1_cleared_at TIMESTAMP NULL,
+  user2_cleared_at TIMESTAMP NULL,
+  user1_hidden TINYINT(1) DEFAULT 0,
+  user2_hidden TINYINT(1) DEFAULT 0,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   UNIQUE KEY unique_user_pair (user1_id, user2_id),
   FOREIGN KEY (user1_id) REFERENCES users(id) ON DELETE CASCADE,
@@ -276,7 +286,11 @@ CREATE TABLE IF NOT EXISTS chat_messages (
   conversation_id INT NOT NULL,
   sender_id INT NOT NULL,
   receiver_id INT NOT NULL,
-  message TEXT NOT NULL,
+  reply_to_id INT NULL,
+  message_type ENUM('text', 'image', 'video', 'audio', 'multiple') DEFAULT 'text',
+  message TEXT NULL,
+  media_url TEXT NULL,
+  media JSON NULL,
   is_read BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (conversation_id) REFERENCES conversations(id) ON DELETE CASCADE,
@@ -480,5 +494,20 @@ CREATE TABLE IF NOT EXISTS user_follows (
   FOREIGN KEY (follower_id) REFERENCES users(id) ON DELETE CASCADE,
   FOREIGN KEY (following_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- User Blocks Table
+CREATE TABLE IF NOT EXISTS user_blocks (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  blocker_id INT NOT NULL,
+  blocked_id INT NOT NULL,
+  reason VARCHAR(255) DEFAULT '',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY unique_user_block (blocker_id, blocked_id),
+  INDEX idx_blocker (blocker_id),
+  INDEX idx_blocked (blocked_id),
+  FOREIGN KEY (blocker_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (blocked_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 

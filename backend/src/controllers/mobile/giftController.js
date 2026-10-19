@@ -162,132 +162,91 @@ export async function sendGift(req, res) {
       settingsMap[row.key_name] = row.key_value;
     }
 
-    const isDiamondMode = settingsMap['is_convert_to_diamond'] !== 'false';
-    const coinToDiamondRatio = parseFloat(settingsMap['coin_to_diamond_ratio'] || '1.0');
     const adminCommissionRate = parseFloat(settingsMap['admin_gift_commission_percent'] || '15.0');
     const defaultAgencyCommissionRate = parseFloat(settingsMap['agency_gift_commission_percent'] || '10.0');
 
-    // Begin Database-First Atomic Transaction
+    // 5. Commission Split Logic
+    // If receiver is a host: Admin commission + Agency commission (if host has agency) deducted; remaining goes to receiver.
+    // If receiver is NOT a host (user / audience / guest): Admin commission deducted; remaining goes to receiver.
+    const isHost = (receiver.role === 'host');
+    const adminCoins = Math.floor(totalCoinCost * (adminCommissionRate / 100));
+
+    let agencyCoins = 0;
+    let agencyOwnerId = null;
+    let agencyName = '';
+    let agencyRate = 0;
+
+    if (isHost && receiver.agency_id) {
+      const [agencies] = await connection.execute('SELECT * FROM agencies WHERE id = ? AND status = "active"', [receiver.agency_id]);
+      if (agencies.length > 0) {
+        const agency = agencies[0];
+        agencyRate = parseFloat(agency.commission_rate || defaultAgencyCommissionRate);
+        agencyCoins = Math.floor(totalCoinCost * (agencyRate / 100));
+        agencyOwnerId = agency.owner_id;
+        agencyName = agency.name;
+      }
+    }
+
+    const recipientCoins = Math.max(0, totalCoinCost - adminCoins - agencyCoins);
+
+    // Begin Database-First Atomic Transaction (SSOT)
     await connection.beginTransaction();
 
     // Deduct coins from sender wallet
     await connection.execute('UPDATE users SET coins = coins - ? WHERE id = ?', [totalCoinCost, senderId]);
 
-    let economyBreakdown = {};
+    // Credit coins to recipient user wallet
+    await connection.execute('UPDATE users SET coins = coins + ? WHERE id = ?', [recipientCoins, finalReceiverId]);
+
+    // Credit coins to agency owner if applicable
+    if (agencyCoins > 0 && agencyOwnerId) {
+      await connection.execute('UPDATE users SET coins = coins + ? WHERE id = ?', [agencyCoins, agencyOwnerId]);
+      await connection.execute(
+        `INSERT INTO transactions (user_id, type, amount, description, status)
+         VALUES (?, 'agency_commission', ?, ?, 'completed')`,
+        [agencyOwnerId, agencyCoins, `Agency commission (${agencyRate}%) from gift ${gift.name} x${giftCount} sent to host ${receiver.full_name}`]
+      );
+    }
+
+    // Record Admin / Platform commission
+    if (adminCoins > 0) {
+      const [adminUsers] = await connection.execute("SELECT id FROM users WHERE role = 'superadmin' LIMIT 1");
+      const adminUserId = adminUsers.length > 0 ? adminUsers[0].id : 1;
+      await connection.execute(
+        `INSERT INTO transactions (user_id, type, amount, description, status)
+         VALUES (?, 'platform_commission', ?, ?, 'completed')`,
+        [adminUserId, adminCoins, `Platform gift commission (${adminCommissionRate}%) on gift ${gift.name} x${giftCount} sent to ${receiver.full_name}`]
+      );
+    }
+
     const recordedRoomId = activeRoom ? activeRoom.room_id : (roomId || '');
 
-    if (isDiamondMode) {
-      // MODE A: CONVERT TO DIAMONDS FOR RECIPIENT
-      const diamondsToReward = Math.round((gift.diamond_reward || gift.coin_cost) * giftCount * coinToDiamondRatio);
-
-      // Credit diamonds to recipient user
-      await connection.execute('UPDATE users SET diamonds = diamonds + ? WHERE id = ?', [diamondsToReward, finalReceiverId]);
-
-      // If in a live room, update room total diamonds counter
-      if (activeRoom) {
-        await connection.execute('UPDATE live_rooms SET total_diamonds = total_diamonds + ? WHERE room_id = ?', [diamondsToReward, activeRoom.room_id]);
-      }
-
-      // Record gift transaction
-      const [giftTx] = await connection.execute(
-        `INSERT INTO gift_transactions (sender_id, receiver_id, room_id, gift_id, gift_name, coin_amount, diamond_amount)
-         VALUES (?, ?, ?, ?, ?, ?, ?)`,
-        [senderId, finalReceiverId, recordedRoomId, gift.id, `${gift.name}${giftCount > 1 ? ` x${giftCount}` : ''}`, totalCoinCost, diamondsToReward]
-      );
-
-      // Ledger entries
-      await connection.execute(
-        `INSERT INTO transactions (user_id, type, amount, description, status)
-         VALUES (?, 'gift_sent', ?, ?, 'completed')`,
-        [senderId, totalCoinCost, `Sent ${gift.name} x${giftCount} to ${receiver.full_name}${recordedRoomId ? ` in room ${recordedRoomId}` : ''}`]
-      );
-
-      await connection.execute(
-        `INSERT INTO transactions (user_id, type, amount, description, status)
-         VALUES (?, 'gift_received', ?, ?, 'completed')`,
-        [finalReceiverId, diamondsToReward, `Received ${gift.name} x${giftCount} (${diamondsToReward} diamonds) from ${senders[0].full_name || `User #${senderId}`}`]
-      );
-
-      economyBreakdown = {
-        mode: 'diamond_conversion',
-        diamondsAwarded: diamondsToReward,
-        ratioApplied: coinToDiamondRatio,
-        transactionId: giftTx.insertId,
-      };
-    } else {
-      // MODE B: DIRECT COIN WITH COMMISSION SPLIT (NO DIAMONDS)
-      // 1. Calculate Admin Commission
-      const adminCoins = Math.floor(totalCoinCost * (adminCommissionRate / 100));
-
-      // 2. Calculate Agency Commission (if recipient belongs to an active agency)
-      let agencyCoins = 0;
-      let agencyOwnerId = null;
-      let agencyName = '';
-
-      if (receiver.agency_id) {
-        const [agencies] = await connection.execute('SELECT * FROM agencies WHERE id = ? AND status = "active"', [receiver.agency_id]);
-        if (agencies.length > 0) {
-          const agency = agencies[0];
-          const rate = parseFloat(agency.commission_rate || defaultAgencyCommissionRate);
-          agencyCoins = Math.floor(totalCoinCost * (rate / 100));
-          agencyOwnerId = agency.owner_id;
-          agencyName = agency.name;
-
-          if (agencyCoins > 0 && agencyOwnerId) {
-            await connection.execute('UPDATE users SET coins = coins + ? WHERE id = ?', [agencyCoins, agencyOwnerId]);
-            await connection.execute(
-              `INSERT INTO transactions (user_id, type, amount, description, status)
-               VALUES (?, 'agency_commission', ?, ?, 'completed')`,
-              [agencyOwnerId, agencyCoins, `Agency commission (${rate}%) from gift ${gift.name} sent to ${receiver.full_name}`]
-            );
-          }
-        }
-      }
-
-      // 3. Recipient receives remaining coins
-      const recipientCoins = Math.max(0, totalCoinCost - adminCoins - agencyCoins);
-      await connection.execute('UPDATE users SET coins = coins + ? WHERE id = ?', [recipientCoins, finalReceiverId]);
-
-      // Record gift transaction (diamond_amount = 0)
-      const [giftTx] = await connection.execute(
-        `INSERT INTO gift_transactions (sender_id, receiver_id, room_id, gift_id, gift_name, coin_amount, diamond_amount)
-         VALUES (?, ?, ?, ?, ?, ?, 0)`,
-        [senderId, finalReceiverId, recordedRoomId, gift.id, `${gift.name}${giftCount > 1 ? ` x${giftCount}` : ''}`, totalCoinCost]
-      );
-
-      // Sender ledger
-      await connection.execute(
-        `INSERT INTO transactions (user_id, type, amount, description, status)
-         VALUES (?, 'gift_sent', ?, ?, 'completed')`,
-        [senderId, totalCoinCost, `Sent ${gift.name} x${giftCount} to ${receiver.full_name}${recordedRoomId ? ` in room ${recordedRoomId}` : ''}`]
-      );
-
-      // Recipient coin ledger
-      await connection.execute(
-        `INSERT INTO transactions (user_id, type, amount, description, status)
-         VALUES (?, 'gift_received', ?, ?, 'completed')`,
-        [finalReceiverId, recipientCoins, `Earned ${recipientCoins} coins from ${gift.name} x${giftCount} sent by ${senders[0].full_name || `User #${senderId}`}`]
-      );
-
-      // Platform commission ledger
-      if (adminCoins > 0) {
-        await connection.execute(
-          `INSERT INTO transactions (user_id, type, amount, description, status)
-           VALUES (1, 'platform_commission', ?, ?, 'completed')`,
-          [adminCoins, `Platform gift commission (${adminCommissionRate}%) on gift ${gift.name} sent to user #${finalReceiverId}`]
-        );
-      }
-
-      economyBreakdown = {
-        mode: 'coin_commission_split',
-        totalCoinsSpent: totalCoinCost,
-        recipientCoinsEarned: recipientCoins,
-        adminCommissionCoins: adminCoins,
-        agencyCommissionCoins: agencyCoins,
-        agencyName: agencyName || null,
-        transactionId: giftTx.insertId,
-      };
+    // If in a live room, update room total diamonds counter
+    if (activeRoom) {
+      const diamondInc = (gift.diamond_reward || gift.coin_cost) * giftCount;
+      await connection.execute('UPDATE live_rooms SET total_diamonds = total_diamonds + ? WHERE room_id = ?', [diamondInc, activeRoom.room_id]);
     }
+
+    // Record gift transaction
+    const [giftTx] = await connection.execute(
+      `INSERT INTO gift_transactions (sender_id, receiver_id, room_id, gift_id, gift_name, coin_amount, diamond_amount)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [senderId, finalReceiverId, recordedRoomId, gift.id, `${gift.name}${giftCount > 1 ? ` x${giftCount}` : ''}`, totalCoinCost, recipientCoins]
+    );
+
+    // Sender transaction ledger
+    await connection.execute(
+      `INSERT INTO transactions (user_id, type, amount, description, status)
+       VALUES (?, 'gift_sent', ?, ?, 'completed')`,
+      [senderId, totalCoinCost, `Sent ${gift.name} x${giftCount} to ${receiver.full_name}${recordedRoomId ? ` in room ${recordedRoomId}` : ''}`]
+    );
+
+    // Recipient transaction ledger
+    await connection.execute(
+      `INSERT INTO transactions (user_id, type, amount, description, status)
+       VALUES (?, 'gift_received', ?, ?, 'completed')`,
+      [finalReceiverId, recipientCoins, `Earned ${recipientCoins} coins from ${gift.name} x${giftCount} sent by ${senders[0].full_name || `User #${senderId}`}`]
+    );
 
     // Commit Transaction to MySQL (SSOT)
     await connection.commit();
@@ -315,44 +274,125 @@ export async function sendGift(req, res) {
       cache.delByPattern('host:*'),
     ]);
 
-    // Get updated sender balance
+    // Query fresh updated balances directly from MySQL
     const [freshSender] = await connection.execute('SELECT coins FROM users WHERE id = ?', [senderId]);
+    const [freshReceiver] = await connection.execute('SELECT coins FROM users WHERE id = ?', [finalReceiverId]);
+    const senderUpdatedCoins = freshSender[0]?.coins ?? 0;
+    const receiverUpdatedCoins = freshReceiver[0]?.coins ?? 0;
 
-    const resultPayload = {
-      success: true,
-      message: `Successfully sent ${gift.name} x${giftCount} to ${receiver.full_name}!`,
-      newBalance: freshSender[0].coins,
+    // Resolve gift media URLs (SVGA, GIF, Sound)
+    const animType = String(gift.animation_type || '').toLowerCase();
+    const animUrl = String(gift.animation_url || '').trim();
+
+    let isSvga = animType === 'svga' || animUrl.toLowerCase().endsWith('.svga') || animUrl.toLowerCase().includes('.svga');
+    let isGif = animType === 'gif' || animUrl.toLowerCase().endsWith('.gif') || animUrl.toLowerCase().includes('.gif');
+
+    const resolvedType = isSvga ? 'svga' : (isGif ? 'gif' : (animType || 'simple'));
+    const svgaUrl = isSvga ? animUrl : (animUrl.includes('.svga') ? animUrl : null);
+    const gifUrl = isGif ? animUrl : (animUrl.includes('.gif') ? animUrl : null);
+    const soundUrl = gift.sound_url || null;
+
+    const protocol = req.protocol || 'http';
+    const hostHeader = (req.get ? req.get('host') : (req.headers?.host || 'localhost:5050'));
+    const baseUrl = `${protocol}://${hostHeader}`;
+
+    const toAbsoluteUrl = (path) => {
+      if (!path) return null;
+      if (typeof path !== 'string') return path;
+      if (path.startsWith('http://') || path.startsWith('https://')) return path;
+      if (path.startsWith('/uploads') || path.startsWith('uploads/')) {
+        return `${baseUrl}${path.startsWith('/') ? '' : '/'}${path}`;
+      }
+      return path;
+    };
+
+    const socketPayload = {
       gift: {
         id: gift.id,
         name: gift.name,
+        type: resolvedType,
+        animation_type: gift.animation_type || resolvedType,
+        svga_url: toAbsoluteUrl(svgaUrl),
+        gif_url: toAbsoluteUrl(gifUrl),
+        animation_url: toAbsoluteUrl(animUrl),
+        sound_url: toAbsoluteUrl(soundUrl),
+        sound: toAbsoluteUrl(soundUrl),
+        icon_url: toAbsoluteUrl(gift.icon_url),
         icon: gift.icon_url,
-        animation: gift.animation_type,
-        animation_url: gift.animation_url || null,
-        sound_url: gift.sound_url || null,
+        coin_cost: gift.coin_cost,
+        coins: gift.coin_cost,
         count: giftCount,
         total_coins: totalCoinCost,
-        sender: {
-          id: senderId,
-          full_name: senders[0].full_name,
-          avatar_url: senders[0].avatar_url,
-        },
-        recipient: {
-          id: finalReceiverId,
-          full_name: receiver.full_name,
-          avatar_url: receiver.avatar_url,
-          role: receiver.role,
-        },
       },
-      economy: economyBreakdown,
+      sender_id: senderId,
+      senderId: senderId,
+      sender_updated_coin: senderUpdatedCoins,
+      senderUpdatedCoin: senderUpdatedCoins,
+      sender: {
+        id: senderId,
+        full_name: senders[0].full_name,
+        avatar_url: senders[0].avatar_url,
+        updated_coin: senderUpdatedCoins,
+        coins: senderUpdatedCoins,
+      },
+      receiver_id: finalReceiverId,
+      receiverId: finalReceiverId,
+      receiver_updated_coin: receiverUpdatedCoins,
+      receiverUpdatedCoin: receiverUpdatedCoins,
+      receiver: {
+        id: finalReceiverId,
+        full_name: receiver.full_name,
+        avatar_url: receiver.avatar_url,
+        role: receiver.role,
+        updated_coin: receiverUpdatedCoins,
+        coins: receiverUpdatedCoins,
+      },
+      room_id: recordedRoomId,
+      roomId: recordedRoomId,
+      commission: {
+        is_host: isHost,
+        admin_commission_rate: adminCommissionRate,
+        admin_commission_coins: adminCoins,
+        agency_commission_rate: agencyRate,
+        agency_commission_coins: agencyCoins,
+        agency_name: agencyName || null,
+        receiver_coins_earned: recipientCoins,
+      },
+      timestamp: new Date().toISOString(),
     };
 
     // Broadcast live event via Socket.IO
     if (req.io) {
-      if (activeRoom) {
-        req.io.to(activeRoom.room_id).emit('gift_received', resultPayload);
+      const roomTargets = new Set([
+        activeRoom?.room_id,
+        activeRoom?.id ? String(activeRoom.id) : null,
+        roomId ? String(roomId) : null,
+      ].filter(Boolean));
+
+      for (const rm of roomTargets) {
+        req.io.to(rm).emit('gift-broadcast', socketPayload);
+        req.io.to(rm).emit('gift_broadcast', socketPayload);
+        req.io.to(rm).emit('gift_received', socketPayload);
+        req.io.to(rm).emit('gift:received', socketPayload);
+        req.io.to(rm).emit('gift-sent', socketPayload);
+        req.io.to(rm).emit('gift_sent', socketPayload);
+        req.io.to(rm).emit('room_gift', socketPayload);
+        req.io.to(rm).emit('user_balance_updated', { userId: senderId, coins: senderUpdatedCoins });
+        req.io.to(rm).emit('user_balance_updated', { userId: finalReceiverId, coins: receiverUpdatedCoins });
       }
-      req.io.to(`user_${finalReceiverId}`).emit('gift_received', resultPayload);
+
+      req.io.to(`user_${senderId}`).emit('wallet_balance_updated', { coins: senderUpdatedCoins });
+      req.io.to(`user_${finalReceiverId}`).emit('wallet_balance_updated', { coins: receiverUpdatedCoins });
+      req.io.to(`user_${senderId}`).emit('gift_sent', socketPayload);
+      req.io.to(`user_${finalReceiverId}`).emit('gift_received', socketPayload);
     }
+
+    const resultPayload = {
+      success: true,
+      message: `Successfully sent ${gift.name} x${giftCount} to ${receiver.full_name}!`,
+      newBalance: senderUpdatedCoins,
+      ...socketPayload,
+    };
 
     return res.json(resultPayload);
   } catch (err) {
