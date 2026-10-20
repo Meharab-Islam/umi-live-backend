@@ -249,7 +249,7 @@ export const getFeed = async (req, res) => {
     const targetUserId = req.query.user_id ? parseInt(req.query.user_id, 10) : null;
 
     // Cache key for the base feed chunk
-    const cacheKey = `feed:list:filter:${filter}:user:${targetUserId || 'none'}:page:${page}:limit:${limit}`;
+    const cacheKey = `feed:list:filter:${filter}:viewer:${currentUserId || 'all'}:user:${targetUserId || 'none'}:page:${page}:limit:${limit}`;
     const TTL = 60; // 60 seconds
 
     const feedResult = await cache.getOrSet(cacheKey, TTL, async () => {
@@ -269,6 +269,12 @@ export const getFeed = async (req, res) => {
 
       // Hide superadmin posts from newsfeed
       whereClause += " AND u.role != 'superadmin'";
+
+      // Filter out posts from blocked or blocking users if viewer is logged in
+      if (currentUserId) {
+        whereClause += ' AND p.user_id NOT IN (SELECT blocked_id FROM user_blocks WHERE blocker_id = ? UNION SELECT blocker_id FROM user_blocks WHERE blocked_id = ?)';
+        params.push(currentUserId, currentUserId);
+      }
 
       // Count total
       const countSql = `SELECT COUNT(*) as total FROM posts p JOIN users u ON u.id = p.user_id WHERE ${whereClause}`;
@@ -556,6 +562,26 @@ export const getPostDetails = async (req, res) => {
 
     if (!post) {
       return res.status(404).json({ success: false, message: 'Post not found.' });
+    }
+
+    if (currentUserId && currentUserId !== post.user_id) {
+      const blockCheck = await query(
+        'SELECT blocker_id FROM user_blocks WHERE (blocker_id = ? AND blocked_id = ?) OR (blocker_id = ? AND blocked_id = ?) LIMIT 1',
+        [currentUserId, post.user_id, post.user_id, currentUserId]
+      );
+      if (blockCheck.length > 0) {
+        const isBlockedByMe = blockCheck[0].blocker_id === currentUserId;
+        return res.status(403).json({
+          success: false,
+          message: isBlockedByMe
+            ? 'You have blocked the author of this post.'
+            : 'This post is unavailable because the author has blocked you.',
+          is_blocked: true,
+          blocked_by_me: isBlockedByMe,
+          is_blocked_by_other: !isBlockedByMe,
+          blocked_by_them: !isBlockedByMe,
+        });
+      }
     }
 
     // Check reaction if logged in

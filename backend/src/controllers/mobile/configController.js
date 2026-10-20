@@ -1,5 +1,6 @@
 import { query } from '../../config/db.js';
 import { cache } from '../../config/redis.js';
+import { getLiveKitConfig } from '../../config/livekit.js';
 
 /**
  * Mobile App Global Configuration Endpoint
@@ -24,7 +25,6 @@ export async function getAppConfig(req, res) {
     const socketUrl = process.env.SOCKET_URL || baseUrl;
     const socketPingInterval = parseInt(process.env.SOCKET_PING_INTERVAL || '25000', 10);
     const socketPingTimeout = parseInt(process.env.SOCKET_PING_TIMEOUT || '30000', 10);
-    const livekitHost = process.env.LIVEKIT_HOST || '';
     const agoraAppId = process.env.AGORA_APP_ID || '';
 
     // 2. Fetch and Cache Platform Settings using Cache-Aside (TTL: 120s)
@@ -34,6 +34,10 @@ export async function getAppConfig(req, res) {
       for (const row of rows) {
         settingsMap[row.key_name] = row.key_value;
       }
+
+      const livekitConfig = await getLiveKitConfig();
+      const livekitUrl = livekitConfig.url;
+      const livekitApiKey = livekitConfig.apiKey;
 
       const isDiamondMode = settingsMap['is_convert_to_diamond'] !== 'false';
       const coinToDiamondRatio = parseFloat(settingsMap['coin_to_diamond_ratio'] || '1.0');
@@ -52,7 +56,7 @@ export async function getAppConfig(req, res) {
             ? JSON.parse(wpRaw)
             : wpRaw.split(',').map((s) => parseInt(s.trim(), 10)).filter((n) => !isNaN(n));
         }
-      } catch (e) {}
+      } catch (e) { }
 
       let rechargePresets = [500, 1000, 2500, 5000, 10000, 50000, 100000];
       try {
@@ -62,9 +66,9 @@ export async function getAppConfig(req, res) {
             ? JSON.parse(rpRaw)
             : rpRaw.split(',').map((s) => parseInt(s.trim(), 10)).filter((n) => !isNaN(n));
         }
-      } catch (e) {}
+      } catch (e) { }
 
-      const liveStreamProvider = settingsMap['live_stream_provider'] || 'livekit';
+      const liveStreamProvider = settingsMap['live_stream_provider'] || livekitConfig.provider || 'livekit';
       const appName = settingsMap['app_name'] || `${projectName.toUpperCase()} LIVE`;
       const maintenanceMode = settingsMap['maintenance_mode'] === 'true';
 
@@ -76,7 +80,7 @@ export async function getAppConfig(req, res) {
         min_supported_version: settingsMap['min_supported_version'] || '1.0.0',
         maintenance_mode: maintenanceMode,
         maintenance_message: settingsMap['maintenance_message'] || 'Platform is under scheduled maintenance. Please check back shortly.',
-        
+
         // Economy & Currency Configuration
         economy: {
           is_convert_to_diamond: isDiamondMode,
@@ -104,7 +108,11 @@ export async function getAppConfig(req, res) {
         // WebRTC & Streaming Provider
         streaming: {
           provider: liveStreamProvider, // 'livekit' | 'agora' | 'rtmp'
-          livekit_url: livekitHost || (liveStreamProvider === 'livekit' ? 'wss://livekit.umi.live' : null),
+          livekit_url: livekitUrl,
+          server_url: livekitUrl,
+          livekit_host: livekitUrl,
+          api_key: livekitApiKey,
+          is_configured: Boolean(livekitUrl && livekitApiKey),
           agora_app_id: agoraAppId || null,
         },
 
@@ -125,7 +133,7 @@ export async function getAppConfig(req, res) {
       success: true,
       project_name: projectName,
       server_time: new Date().toISOString(),
-      
+
       // Dynamic URLs
       urls: {
         base_url: baseUrl,
@@ -156,5 +164,27 @@ export async function getAppConfig(req, res) {
       message: 'Failed to retrieve application configuration.',
       error: err.message,
     });
+  }
+}
+
+/**
+ * Dedicated LiveKit Config Endpoint for Mobile App
+ * GET /api/mobile/config/livekit or GET /api/mobile/live/livekit-config
+ */
+export async function getLiveKitConfigEndpoint(req, res) {
+  try {
+    const livekitConfig = await getLiveKitConfig();
+    return res.json({
+      success: true,
+      provider: livekitConfig.provider || 'livekit',
+      livekit_url: livekitConfig.url,
+      server_url: livekitConfig.url,
+      url: livekitConfig.url,
+      api_key: livekitConfig.apiKey,
+      is_configured: Boolean(livekitConfig.url && livekitConfig.apiKey),
+    });
+  } catch (err) {
+    console.error('getLiveKitConfigEndpoint error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to retrieve LiveKit configuration.', error: err.message });
   }
 }

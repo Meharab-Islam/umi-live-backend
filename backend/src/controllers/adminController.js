@@ -1011,18 +1011,20 @@ export async function getSettings(req, res) {
 export async function updateSetting(req, res) {
   try {
     const { key } = req.params;
-    const { value, description } = req.body;
+    const { value, key_value, description } = req.body;
+    const finalValue = value !== undefined ? value : (key_value !== undefined ? key_value : '');
 
     await query(
       `INSERT INTO system_settings (key_name, key_value, description)
        VALUES (?, ?, ?)
        ON DUPLICATE KEY UPDATE key_value = VALUES(key_value), description = COALESCE(VALUES(description), description)`,
-      [key, String(value), description || '']
+      [key, String(finalValue), description || '']
     );
 
     // Database write succeeded -> Invalidate Redis cache
     await cache.del('settings:all');
     await cache.del('config:mobile:app');
+    await cache.del('config:livekit');
     await cache.delByPattern('setting*');
     await cache.delByPattern('mobile:user:profile*');
     await cache.del('host_ratios:all');

@@ -91,6 +91,30 @@ export async function getUserProfile(req, res) {
       isBlockingMe = blockedMeCheck.length > 0;
     }
 
+    if (isBlocked || isBlockingMe) {
+      return res.status(403).json({
+        success: false,
+        message: isBlocked
+          ? 'You have blocked this user. Unblock them to view their profile.'
+          : 'This profile is unavailable because this user has blocked you.',
+        is_blocked: true,
+        blocked_by_me: isBlocked,
+        is_blocked_by_other: isBlockingMe,
+        blocked_by_them: isBlockingMe,
+        user: {
+          id: profile.id,
+          name: profile.full_name || 'Umi User',
+          full_name: profile.full_name || 'Umi User',
+          avatar_url: profile.avatar_url || '',
+          profile_image: profile.avatar_url || '',
+          is_blocked: true,
+          blocked_by_me: isBlocked,
+          is_blocked_by_other: isBlockingMe,
+          blocked_by_them: isBlockingMe,
+        },
+      });
+    }
+
     const followersCount = Number(profile.followers_count) || 0;
     const followingCount = Number(profile.following_count) || 0;
     const postsCount = Number(profile.posts_count) || 0;
@@ -127,8 +151,11 @@ export async function getUserProfile(req, res) {
         total_received_coins: totalReceivedCoins,
         total_gifted_coins: totalGiftedCoins,
         total_sent_coins: totalGiftedCoins,
-        is_blocked: isBlocked,
-        is_blocking_me: isBlockingMe,
+        is_blocked: false,
+        blocked_by_me: false,
+        is_blocked_by_other: false,
+        blocked_by_them: false,
+        is_blocking_me: false,
         is_mine: currentUserId === targetUserId,
         share_link: shareLink,
         profile_url: shareLink,
@@ -402,6 +429,29 @@ export async function getUserPosts(req, res) {
       return res.status(400).json({ success: false, message: 'Valid user ID is required.' });
     }
 
+    // Check if either user has blocked the other
+    if (currentUserId && currentUserId !== targetUserId) {
+      const blockCheck = await query(
+        'SELECT blocker_id FROM user_blocks WHERE (blocker_id = ? AND blocked_id = ?) OR (blocker_id = ? AND blocked_id = ?) LIMIT 1',
+        [currentUserId, targetUserId, targetUserId, currentUserId]
+      );
+      if (blockCheck.length > 0) {
+        const isBlockedByMe = blockCheck[0].blocker_id === currentUserId;
+        return res.status(403).json({
+          success: false,
+          message: isBlockedByMe
+            ? 'You have blocked this user. Unblock them to view their posts.'
+            : 'Posts are unavailable because this user has blocked you.',
+          is_blocked: true,
+          blocked_by_me: isBlockedByMe,
+          is_blocked_by_other: !isBlockedByMe,
+          blocked_by_them: !isBlockedByMe,
+          posts: [],
+          total: 0,
+        });
+      }
+    }
+
     const cacheKey = `mobile:user:posts:${targetUserId}:page:${page}:limit:${limit}`;
     const cachedData = await cache.getOrSet(cacheKey, 30, async () => {
       // 1. Total posts count
@@ -578,6 +628,11 @@ export async function blockUser(req, res) {
       cache.del(`mobile:user:${blockedId}:followers`),
       cache.del(`mobile:user:${blockerId}:following`),
       cache.del(`mobile:user:${blockerId}:blocked`),
+      cache.delByPattern('chat:conversations:*'),
+      cache.delByPattern('feed:list:*'),
+      cache.delByPattern('mobile:rooms:*'),
+      cache.delByPattern(`mobile:user:posts:${blockedId}:*`),
+      cache.delByPattern(`mobile:user:posts:${blockerId}:*`),
     ]);
 
     return res.json({
@@ -617,6 +672,11 @@ export async function unblockUser(req, res) {
       cache.del(`mobile:user:public:${blockedId}`),
       cache.del(`mobile:user:public:${blockerId}`),
       cache.del(`mobile:user:${blockerId}:blocked`),
+      cache.delByPattern('chat:conversations:*'),
+      cache.delByPattern('feed:list:*'),
+      cache.delByPattern('mobile:rooms:*'),
+      cache.delByPattern(`mobile:user:posts:${blockedId}:*`),
+      cache.delByPattern(`mobile:user:posts:${blockerId}:*`),
     ]);
 
     return res.json({

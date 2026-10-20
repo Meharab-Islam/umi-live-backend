@@ -115,6 +115,8 @@ export const getConversations = async (req, res) => {
           u_other.level as other_level,
           u_other.star as other_star,
           u_other.vip_package as other_vip_package,
+          CASE WHEN ub_me.id IS NOT NULL THEN 1 ELSE 0 END as blocked_by_me,
+          CASE WHEN ub_other.id IS NOT NULL THEN 1 ELSE 0 END as blocked_by_other,
           pc.id as package_category_id,
           pc.name as package_category_name,
           pc.badge_icon as package_badge_icon,
@@ -132,6 +134,10 @@ export const getConversations = async (req, res) => {
           ) as unread_count
         FROM conversations c
         JOIN users u_other ON u_other.id = (CASE WHEN c.user1_id = ? THEN c.user2_id ELSE c.user1_id END)
+        LEFT JOIN user_blocks ub_me 
+          ON ub_me.blocker_id = ? AND ub_me.blocked_id = u_other.id
+        LEFT JOIN user_blocks ub_other 
+          ON ub_other.blocker_id = u_other.id AND ub_other.blocked_id = ?
         LEFT JOIN user_package_subscriptions ups 
           ON ups.user_id = u_other.id AND ups.status = 'active' AND ups.expires_at > NOW() AND ups.is_equipped = 1
         LEFT JOIN package_categories pc 
@@ -143,6 +149,8 @@ export const getConversations = async (req, res) => {
       `;
 
       const rows = await query(selectSql, [
+        userId,
+        userId,
         userId,
         userId,
         userId,
@@ -166,11 +174,19 @@ export const getConversations = async (req, res) => {
         const clearedAt = r.user1_id === userId ? r.user1_cleared_at : r.user2_cleared_at;
         const isCleared = clearedAt && r.last_message_at && new Date(r.last_message_at) <= new Date(clearedAt);
 
+        const blockedByMe = Boolean(r.blocked_by_me);
+        const blockedByOther = Boolean(r.blocked_by_other);
+        const isBlocked = blockedByMe || blockedByOther;
+
         return {
           conversation_id: r.conversation_id,
           last_message: isCleared ? null : r.last_message,
           last_message_at: r.last_message_at,
           unread_count: isCleared ? 0 : parseInt(r.unread_count || 0, 10),
+          is_blocked: isBlocked,
+          blocked_by_me: blockedByMe,
+          is_blocked_by_other: blockedByOther,
+          blocked_by_them: blockedByOther,
           background: {
             image_url: r.background_image || null,
             color: r.background_color || null,
@@ -185,6 +201,10 @@ export const getConversations = async (req, res) => {
             level: r.other_level || 1,
             star: r.other_star || 0,
             package_category: packageCategory,
+            is_blocked: isBlocked,
+            blocked_by_me: blockedByMe,
+            is_blocked_by_other: blockedByOther,
+            blocked_by_them: blockedByOther,
           },
         };
       });
@@ -448,9 +468,31 @@ export const getMessages = async (req, res) => {
     // Return in chronological order (oldest to newest) for messaging UI
     messages.reverse();
 
+    const partnerId = conversation.user1_id === currentUserId ? conversation.user2_id : conversation.user1_id;
+    let isBlocked = false;
+    let blockedByMe = false;
+    let blockedByOther = false;
+
+    const blockRows = await query(
+      `SELECT blocker_id, blocked_id FROM user_blocks 
+       WHERE (blocker_id = ? AND blocked_id = ?) OR (blocker_id = ? AND blocked_id = ?)`,
+      [currentUserId, partnerId, partnerId, currentUserId]
+    ).catch(() => []);
+
+    if (blockRows.length > 0) {
+      blockedByMe = blockRows.some((b) => b.blocker_id === currentUserId);
+      blockedByOther = blockRows.some((b) => b.blocker_id === partnerId);
+      isBlocked = blockedByMe || blockedByOther;
+    }
+
     return res.status(200).json({
       success: true,
       conversation_id: conversationId,
+      partner_id: partnerId,
+      is_blocked: isBlocked,
+      blocked_by_me: blockedByMe,
+      is_blocked_by_other: blockedByOther,
+      blocked_by_them: blockedByOther,
       background: {
         image_url: conversation.background_image || null,
         color: conversation.background_color || null,
@@ -557,6 +599,28 @@ export const sendMessage = async (req, res) => {
     if (!recipRows || recipRows.length === 0) {
       await conn.rollback();
       return res.status(404).json({ success: false, message: 'Recipient user not found.' });
+    }
+
+    // Check if either user has blocked the other
+    const [blockRows] = await conn.execute(
+      `SELECT blocker_id, blocked_id FROM user_blocks 
+       WHERE (blocker_id = ? AND blocked_id = ?) OR (blocker_id = ? AND blocked_id = ?) LIMIT 1`,
+      [senderId, targetReceiverId, targetReceiverId, senderId]
+    );
+
+    if (blockRows && blockRows.length > 0) {
+      const isBlockedByMe = blockRows[0].blocker_id === senderId;
+      await conn.rollback();
+      return res.status(403).json({
+        success: false,
+        message: isBlockedByMe
+          ? 'You have blocked this user. Unblock them to send a message.'
+          : 'You cannot send a message because you have been blocked by this user.',
+        is_blocked: true,
+        blocked_by_me: isBlockedByMe,
+        is_blocked_by_other: !isBlockedByMe,
+        blocked_by_them: !isBlockedByMe,
+      });
     }
 
     // Get or create conversation row

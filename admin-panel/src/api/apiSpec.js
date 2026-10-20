@@ -1027,6 +1027,18 @@ export const API_SPEC = {
                     "success": false,
                     "message": "Receiver ID or Conversation ID is required."
                 }
+            },
+            {
+                "status": 403,
+                "description": "Forbidden - Either sender has blocked recipient or recipient has blocked sender.",
+                "example": {
+                    "success": false,
+                    "message": "You cannot send a message because you have been blocked by this user.",
+                    "is_blocked": true,
+                    "blocked_by_me": false,
+                    "is_blocked_by_other": true,
+                    "blocked_by_them": true
+                }
             }
         ],
         "codeSnippets": {
@@ -1201,6 +1213,10 @@ export const API_SPEC = {
                             "last_message": "Yes! I saw your video, here is my response.",
                             "last_message_at": "2026-10-18T09:35:00.000Z",
                             "unread_count": 0,
+                            "is_blocked": false,
+                            "blocked_by_me": false,
+                            "is_blocked_by_other": false,
+                            "blocked_by_them": false,
                             "is_online": true
                         }
                     ]
@@ -2392,6 +2408,33 @@ export const API_SPEC = {
       ]
     },
     {
+      "id": "livekit-config",
+      "category": "config",
+      "method": "GET",
+      "path": "/api/mobile/config/livekit",
+      "summary": "Get Dynamic LiveKit WebRTC Configuration",
+      "description": "Returns the active LiveKit server WebSocket connection URL, streaming provider, and client API Key dynamically configured by the admin in Admin Panel Settings. Cached in Redis ('config:livekit', TTL 120s) with instant invalidation upon admin credential updates. LiveKit API secret is safely preserved on the backend server and never exposed to the client app.",
+      "requiresAuth": false,
+      "requestHeaders": [],
+      "parameters": [],
+      "requestBody": null,
+      "responses": [
+        {
+          "status": 200,
+          "description": "Dynamic LiveKit server configuration returned successfully.",
+          "example": {
+            "success": true,
+            "provider": "livekit",
+            "livekit_url": "wss://your-project.livekit.cloud",
+            "server_url": "wss://your-project.livekit.cloud",
+            "url": "wss://your-project.livekit.cloud",
+            "api_key": "APINbXqxxxxxxxx",
+            "is_configured": true
+          }
+        }
+      ]
+    },
+    {
       "id": "auth-register",
       "category": "auth",
       "method": "POST",
@@ -3204,7 +3247,13 @@ export const API_SPEC = {
             "name": "receiverId",
             "type": "integer",
             "required": false,
-            "description": "Target recipient user ID (host or user). Either receiverId or roomId is required."
+            "description": "Single target recipient user ID (host or user)."
+          },
+          {
+            "name": "receiverIds",
+            "type": "array of integers",
+            "required": false,
+            "description": "Array of multiple recipient user IDs (e.g. [10, 11, 12]) to gift simultaneously with a single event trigger."
           },
           {
             "name": "roomId",
@@ -3216,12 +3265,12 @@ export const API_SPEC = {
             "name": "count",
             "type": "integer",
             "required": false,
-            "description": "Number of gifts to send (default: 1)."
+            "description": "Number of gifts to send per recipient (default: 1)."
           }
         ],
         "example": {
           "giftId": 5,
-          "receiverId": 2,
+          "receiverIds": [10, 11],
           "roomId": "room-bd7825ca",
           "count": 1
         }
@@ -3229,38 +3278,48 @@ export const API_SPEC = {
       "responses": [
         {
           "status": 200,
-          "description": "Gift sent successfully, balances updated, and real-time socket explosion emitted.",
+          "description": "Gift sent successfully to single or multiple recipients, balances updated, and single real-time socket explosion emitted.",
           "example": {
             "success": true,
-            "message": "Successfully sent Sports Car x1 to Nila Akter!",
+            "message": "Successfully sent Sports Car x1 to 2 users (Nila Akter, kooo)!",
+            "is_batch": true,
+            "receivers_count": 2,
             "newBalance": 21900,
             "gift": {
               "id": 5,
               "name": "Sports Car",
               "type": "svga",
               "animation_type": "svga",
-              "svga_url": "http://192.168.0.209:5050/uploads/gifts/sports_car_anim_1791794056871-502798849.svga",
+              "svga_url": "https://yourdomain.com/uploads/gifts/sports_car.svga",
               "gif_url": null,
-              "sound_url": "http://192.168.0.209:5050/uploads/gifts/dragon_roar_1791794086446-125382975.mp3",
+              "sound_url": "https://yourdomain.com/uploads/gifts/car_sound.mp3",
               "icon_url": "🏎️",
               "coin_cost": 1200,
               "count": 1,
-              "total_coins": 1200
+              "cost_per_receiver": 1200,
+              "total_coins": 2400
             },
             "sender_id": 5,
             "sender_updated_coin": 21900,
-            "receiver_id": 2,
-            "receiver_updated_coin": 5840,
-            "room_id": "room-bd7825ca",
-            "commission": {
-              "is_host": true,
-              "admin_commission_rate": 15,
-              "admin_commission_coins": 180,
-              "agency_commission_rate": 15,
-              "agency_commission_coins": 180,
-              "agency_name": "Dhaka Royals Talent Agency",
-              "receiver_coins_earned": 840
-            }
+            "receiver_id": 10,
+            "receiver_ids": [10, 11],
+            "receivers": [
+              {
+                "id": 10,
+                "name": "Nila Akter",
+                "role": "host",
+                "received_coins": 840,
+                "updated_coin": 5840
+              },
+              {
+                "id": 11,
+                "name": "kooo",
+                "role": "user",
+                "received_coins": 1020,
+                "updated_coin": 1200
+              }
+            ],
+            "room_id": "room-bd7825ca"
           }
         },
         {
@@ -3268,7 +3327,7 @@ export const API_SPEC = {
           "description": "Insufficient coin balance, self-gifting, or suspended account.",
           "example": {
             "success": false,
-            "message": "Insufficient coins balance. You need 1200 coins (your balance: 50)."
+            "message": "Insufficient coins balance. You need 2400 coins for 2 recipient(s) (your balance: 50)."
           }
         }
       ]

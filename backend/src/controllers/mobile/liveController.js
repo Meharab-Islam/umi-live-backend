@@ -285,10 +285,15 @@ export async function getRooms(req, res) {
         params.push(...disIds);
       }
 
-      // Exclude current user's own broadcast room
+      // Exclude current user's own broadcast room and rooms hosted by blocked/blocking users
       if (currentUserId) {
         whereClauses.push('r.host_id != ?');
         params.push(currentUserId);
+
+        whereClauses.push(
+          'r.host_id NOT IN (SELECT blocked_id FROM user_blocks WHERE blocker_id = ? UNION SELECT blocker_id FROM user_blocks WHERE blocked_id = ?)'
+        );
+        params.push(currentUserId, currentUserId);
       }
 
       if (['video', 'audio'].includes(filterLiveType)) {

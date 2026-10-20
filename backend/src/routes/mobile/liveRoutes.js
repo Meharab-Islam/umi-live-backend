@@ -38,6 +38,7 @@ import {
   getLiveKitToken,
   updateRoomBackground,
 } from '../../controllers/mobile/liveController.js';
+import { getLiveKitConfigEndpoint } from '../../controllers/mobile/configController.js';
 import { requireAuth } from '../../middlewares/authMiddleware.js';
 import { optionalRoomMediaUpload } from '../../middleware/upload.js';
 import { query } from '../../config/db.js';
@@ -182,6 +183,7 @@ router.get('/rooms/:roomId/chat', getRoomChatMessages);
 router.delete('/rooms/:roomId/messages/:messageId', requireAuth, deleteRoomChatMessage);
 
 // LiveKit WebRTC Video & Audio Token Generation
+router.get('/livekit-config', getLiveKitConfigEndpoint);
 router.get('/rooms/:roomId/livekit-token', requireAuth, getLiveKitToken);
 router.post('/rooms/:roomId/livekit-token', requireAuth, getLiveKitToken);
 router.get('/rooms/:roomId/token', requireAuth, getLiveKitToken);

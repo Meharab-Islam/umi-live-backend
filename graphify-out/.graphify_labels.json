@@ -52,5 +52,5 @@
   "50": "tag_live_types_in_docs.mjs",
   "51": "entryEffectController.js",
   "52": "hostController.js",
-  "53": "routes/liveRoutes.js"
+  "53": "userRoutes.js"
 }
