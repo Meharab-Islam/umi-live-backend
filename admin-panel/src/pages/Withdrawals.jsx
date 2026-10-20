@@ -56,9 +56,6 @@ export default function Withdrawals({ onToast }) {
       setLoadingConfig(true);
       const res = await withdrawalApi.getWithdrawalConfig();
       if (res.success && res.config) {
-        if (res.config.is_convert_to_diamond !== undefined) {
-          setIsDiamondMode(res.config.is_convert_to_diamond === true || res.config.is_convert_to_diamond === 'true' || res.config.is_convert_to_diamond === 1);
-        }
         setMinDiamonds(res.config.min_withdrawal_diamonds || res.config.minWithdrawalDiamonds || 1000);
         setPresets(res.config.withdrawal_presets || res.config.withdrawalPresets || [1000, 2000, 5000, 10000, 25000, 50000]);
         setAllowManualInput(res.config.allow_manual_withdrawal_input !== false && res.config.allowManualInput !== false);
@@ -265,22 +262,6 @@ export default function Withdrawals({ onToast }) {
                 </div>
               </div>
 
-              {isDiamondMode && (
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <button
-                    type="button"
-                    onClick={() => setIsDiamondMode(false)}
-                    className="btn btn-sm btn-secondary"
-                    style={{
-                      padding: '5px 12px',
-                      fontSize: '0.76rem',
-                      fontWeight: 700,
-                    }}
-                  >
-                    Switch to Coin Cashout
-                  </button>
-                </div>
-              )}
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem' }}>
