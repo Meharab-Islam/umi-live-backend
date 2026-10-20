@@ -1669,7 +1669,7 @@
       "file_type": "code",
       "norm_label": "withdrawals()",
       "source_file": "admin-panel/src/pages/Withdrawals.jsx",
-      "source_location": "L28"
+      "source_location": "L29"
     },
     {
       "id": "backend_src_controllers_mobile_agencycontroller_applytoagency",
@@ -1972,222 +1972,6 @@
       "source_location": "L35"
     },
     {
-      "id": "backend_src_controllers_mobile_chatcontroller_clearchatmessages",
-      "label": "clearChatMessages()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "chatController.js",
-      "file_type": "code",
-      "norm_label": "clearchatmessages()",
-      "source_file": "backend/src/controllers/mobile/chatController.js",
-      "source_location": "L1053"
-    },
-    {
-      "id": "backend_src_controllers_mobile_chatcontroller_deleteconversation",
-      "label": "deleteConversation()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "chatController.js",
-      "file_type": "code",
-      "norm_label": "deleteconversation()",
-      "source_file": "backend/src/controllers/mobile/chatController.js",
-      "source_location": "L958"
-    },
-    {
-      "id": "backend_src_controllers_mobile_chatcontroller_extractpackagecategory",
-      "label": "extractPackageCategory()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "chatController.js",
-      "file_type": "code",
-      "norm_label": "extractpackagecategory()",
-      "source_file": "backend/src/controllers/mobile/chatController.js",
-      "source_location": "L9"
-    },
-    {
-      "id": "backend_src_controllers_mobile_chatcontroller_getconversations",
-      "label": "getConversations()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "chatController.js",
-      "file_type": "code",
-      "norm_label": "getconversations()",
-      "source_file": "backend/src/controllers/mobile/chatController.js",
-      "source_location": "L72"
-    },
-    {
-      "id": "backend_src_controllers_mobile_chatcontroller_getmessages",
-      "label": "getMessages()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "chatController.js",
-      "file_type": "code",
-      "norm_label": "getmessages()",
-      "source_file": "backend/src/controllers/mobile/chatController.js",
-      "source_location": "L244"
-    },
-    {
-      "id": "backend_src_controllers_mobile_chatcontroller_getorcreateconversation",
-      "label": "getOrCreateConversation()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "chatController.js",
-      "file_type": "code",
-      "norm_label": "getorcreateconversation()",
-      "source_file": "backend/src/controllers/mobile/chatController.js",
-      "source_location": "L45"
-    },
-    {
-      "id": "backend_src_controllers_mobile_chatcontroller_invalidatechatcache",
-      "label": "invalidateChatCache()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "chatController.js",
-      "file_type": "code",
-      "norm_label": "invalidatechatcache()",
-      "source_file": "backend/src/controllers/mobile/chatController.js",
-      "source_location": "L29"
-    },
-    {
-      "id": "backend_src_controllers_mobile_chatcontroller_markconversationread",
-      "label": "markConversationRead()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "chatController.js",
-      "file_type": "code",
-      "norm_label": "markconversationread()",
-      "source_file": "backend/src/controllers/mobile/chatController.js",
-      "source_location": "L893"
-    },
-    {
-      "id": "backend_src_controllers_mobile_chatcontroller_removeconversationbackground",
-      "label": "removeConversationBackground()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "chatController.js",
-      "file_type": "code",
-      "norm_label": "removeconversationbackground()",
-      "source_file": "backend/src/controllers/mobile/chatController.js",
-      "source_location": "L1245"
-    },
-    {
-      "id": "backend_src_controllers_mobile_chatcontroller_searchusersforchat",
-      "label": "searchUsersForChat()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "chatController.js",
-      "file_type": "code",
-      "norm_label": "searchusersforchat()",
-      "source_file": "backend/src/controllers/mobile/chatController.js",
-      "source_location": "L1338"
-    },
-    {
-      "id": "backend_src_controllers_mobile_chatcontroller_sendmessage",
-      "label": "sendMessage()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "chatController.js",
-      "file_type": "code",
-      "norm_label": "sendmessage()",
-      "source_file": "backend/src/controllers/mobile/chatController.js",
-      "source_location": "L522"
-    },
-    {
-      "id": "backend_src_controllers_mobile_chatcontroller_updateconversationbackground",
-      "label": "updateConversationBackground()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "chatController.js",
-      "file_type": "code",
-      "norm_label": "updateconversationbackground()",
-      "source_file": "backend/src/controllers/mobile/chatController.js",
-      "source_location": "L1135"
-    },
-    {
-      "id": "backend_src_controllers_mobile_chatcontroller_uploadchatmediadirect",
-      "label": "uploadChatMediaDirect()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "chatController.js",
-      "file_type": "code",
-      "norm_label": "uploadchatmediadirect()",
-      "source_file": "backend/src/controllers/mobile/chatController.js",
-      "source_location": "L840"
-    },
-    {
-      "id": "backend_src_middleware_upload_filefilter",
-      "label": "fileFilter()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "chatController.js",
-      "file_type": "code",
-      "norm_label": "filefilter()",
-      "source_file": "backend/src/middleware/upload.js",
-      "source_location": "L39"
-    },
-    {
-      "id": "backend_src_middleware_upload_optionalavatarupload",
-      "label": "optionalAvatarUpload()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "chatController.js",
-      "file_type": "code",
-      "norm_label": "optionalavatarupload()",
-      "source_file": "backend/src/middleware/upload.js",
-      "source_location": "L96"
-    },
-    {
-      "id": "backend_src_middleware_upload_optionalchatmediaupload",
-      "label": "optionalChatMediaUpload()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "chatController.js",
-      "file_type": "code",
-      "norm_label": "optionalchatmediaupload()",
-      "source_file": "backend/src/middleware/upload.js",
-      "source_location": "L192"
-    },
-    {
-      "id": "backend_src_middleware_upload_optionalfeedmediaupload",
-      "label": "optionalFeedMediaUpload()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "chatController.js",
-      "file_type": "code",
-      "norm_label": "optionalfeedmediaupload()",
-      "source_file": "backend/src/middleware/upload.js",
-      "source_location": "L146"
-    },
-    {
-      "id": "backend_src_middleware_upload_optionalroommediaupload",
-      "label": "optionalRoomMediaUpload()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "chatController.js",
-      "file_type": "code",
-      "norm_label": "optionalroommediaupload()",
-      "source_file": "backend/src/middleware/upload.js",
-      "source_location": "L120"
-    },
-    {
       "id": "backend_src_config_firebase_getallactivefcmtokens",
       "label": "getAllActiveFcmTokens()",
       "_callable": true,
@@ -2197,7 +1981,7 @@
       "file_type": "code",
       "norm_label": "getallactivefcmtokens()",
       "source_file": "backend/src/config/firebase.js",
-      "source_location": "L305"
+      "source_location": "L313"
     },
     {
       "id": "backend_src_config_firebase_getfollowerfcmtokens",
@@ -2209,7 +1993,7 @@
       "file_type": "code",
       "norm_label": "getfollowerfcmtokens()",
       "source_file": "backend/src/config/firebase.js",
-      "source_location": "L280"
+      "source_location": "L288"
     },
     {
       "id": "backend_src_config_firebase_getuserfcmtokens",
@@ -2221,7 +2005,7 @@
       "file_type": "code",
       "norm_label": "getuserfcmtokens()",
       "source_file": "backend/src/config/firebase.js",
-      "source_location": "L260"
+      "source_location": "L268"
     },
     {
       "id": "backend_src_config_firebase_isfirebaseready",
@@ -2233,7 +2017,7 @@
       "file_type": "code",
       "norm_label": "isfirebaseready()",
       "source_file": "backend/src/config/firebase.js",
-      "source_location": "L48"
+      "source_location": "L49"
     },
     {
       "id": "backend_src_config_firebase_sendchatpushnotification",
@@ -2245,7 +2029,7 @@
       "file_type": "code",
       "norm_label": "sendchatpushnotification()",
       "source_file": "backend/src/config/firebase.js",
-      "source_location": "L184"
+      "source_location": "L185"
     },
     {
       "id": "backend_src_config_firebase_sendcommentreplypushnotification",
@@ -2257,7 +2041,7 @@
       "file_type": "code",
       "norm_label": "sendcommentreplypushnotification()",
       "source_file": "backend/src/config/firebase.js",
-      "source_location": "L367"
+      "source_location": "L375"
     },
     {
       "id": "backend_src_config_firebase_sendliveroomstartedpushnotification",
@@ -2269,7 +2053,7 @@
       "file_type": "code",
       "norm_label": "sendliveroomstartedpushnotification()",
       "source_file": "backend/src/config/firebase.js",
-      "source_location": "L460"
+      "source_location": "L468"
     },
     {
       "id": "backend_src_config_firebase_sendnewfollowerpushnotification",
@@ -2281,7 +2065,7 @@
       "file_type": "code",
       "norm_label": "sendnewfollowerpushnotification()",
       "source_file": "backend/src/config/firebase.js",
-      "source_location": "L509"
+      "source_location": "L517"
     },
     {
       "id": "backend_src_config_firebase_sendnewpostpushnotification",
@@ -2293,7 +2077,7 @@
       "file_type": "code",
       "norm_label": "sendnewpostpushnotification()",
       "source_file": "backend/src/config/firebase.js",
-      "source_location": "L413"
+      "source_location": "L421"
     },
     {
       "id": "backend_src_config_firebase_sendpostcommentpushnotification",
@@ -2305,7 +2089,7 @@
       "file_type": "code",
       "norm_label": "sendpostcommentpushnotification()",
       "source_file": "backend/src/config/firebase.js",
-      "source_location": "L323"
+      "source_location": "L331"
     },
     {
       "id": "backend_src_config_firebase_sendpushnotification",
@@ -2317,7 +2101,163 @@
       "file_type": "code",
       "norm_label": "sendpushnotification()",
       "source_file": "backend/src/config/firebase.js",
-      "source_location": "L64"
+      "source_location": "L65"
+    },
+    {
+      "id": "backend_src_controllers_mobile_chatcontroller_clearchatmessages",
+      "label": "clearChatMessages()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 17,
+      "community_name": "feedController.js",
+      "file_type": "code",
+      "norm_label": "clearchatmessages()",
+      "source_file": "backend/src/controllers/mobile/chatController.js",
+      "source_location": "L1053"
+    },
+    {
+      "id": "backend_src_controllers_mobile_chatcontroller_deleteconversation",
+      "label": "deleteConversation()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 17,
+      "community_name": "feedController.js",
+      "file_type": "code",
+      "norm_label": "deleteconversation()",
+      "source_file": "backend/src/controllers/mobile/chatController.js",
+      "source_location": "L958"
+    },
+    {
+      "id": "backend_src_controllers_mobile_chatcontroller_extractpackagecategory",
+      "label": "extractPackageCategory()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 17,
+      "community_name": "feedController.js",
+      "file_type": "code",
+      "norm_label": "extractpackagecategory()",
+      "source_file": "backend/src/controllers/mobile/chatController.js",
+      "source_location": "L9"
+    },
+    {
+      "id": "backend_src_controllers_mobile_chatcontroller_getconversations",
+      "label": "getConversations()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 17,
+      "community_name": "feedController.js",
+      "file_type": "code",
+      "norm_label": "getconversations()",
+      "source_file": "backend/src/controllers/mobile/chatController.js",
+      "source_location": "L72"
+    },
+    {
+      "id": "backend_src_controllers_mobile_chatcontroller_getmessages",
+      "label": "getMessages()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 17,
+      "community_name": "feedController.js",
+      "file_type": "code",
+      "norm_label": "getmessages()",
+      "source_file": "backend/src/controllers/mobile/chatController.js",
+      "source_location": "L244"
+    },
+    {
+      "id": "backend_src_controllers_mobile_chatcontroller_getorcreateconversation",
+      "label": "getOrCreateConversation()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 17,
+      "community_name": "feedController.js",
+      "file_type": "code",
+      "norm_label": "getorcreateconversation()",
+      "source_file": "backend/src/controllers/mobile/chatController.js",
+      "source_location": "L45"
+    },
+    {
+      "id": "backend_src_controllers_mobile_chatcontroller_invalidatechatcache",
+      "label": "invalidateChatCache()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 17,
+      "community_name": "feedController.js",
+      "file_type": "code",
+      "norm_label": "invalidatechatcache()",
+      "source_file": "backend/src/controllers/mobile/chatController.js",
+      "source_location": "L29"
+    },
+    {
+      "id": "backend_src_controllers_mobile_chatcontroller_markconversationread",
+      "label": "markConversationRead()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 17,
+      "community_name": "feedController.js",
+      "file_type": "code",
+      "norm_label": "markconversationread()",
+      "source_file": "backend/src/controllers/mobile/chatController.js",
+      "source_location": "L893"
+    },
+    {
+      "id": "backend_src_controllers_mobile_chatcontroller_removeconversationbackground",
+      "label": "removeConversationBackground()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 17,
+      "community_name": "feedController.js",
+      "file_type": "code",
+      "norm_label": "removeconversationbackground()",
+      "source_file": "backend/src/controllers/mobile/chatController.js",
+      "source_location": "L1245"
+    },
+    {
+      "id": "backend_src_controllers_mobile_chatcontroller_searchusersforchat",
+      "label": "searchUsersForChat()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 17,
+      "community_name": "feedController.js",
+      "file_type": "code",
+      "norm_label": "searchusersforchat()",
+      "source_file": "backend/src/controllers/mobile/chatController.js",
+      "source_location": "L1338"
+    },
+    {
+      "id": "backend_src_controllers_mobile_chatcontroller_sendmessage",
+      "label": "sendMessage()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 17,
+      "community_name": "feedController.js",
+      "file_type": "code",
+      "norm_label": "sendmessage()",
+      "source_file": "backend/src/controllers/mobile/chatController.js",
+      "source_location": "L522"
+    },
+    {
+      "id": "backend_src_controllers_mobile_chatcontroller_updateconversationbackground",
+      "label": "updateConversationBackground()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 17,
+      "community_name": "feedController.js",
+      "file_type": "code",
+      "norm_label": "updateconversationbackground()",
+      "source_file": "backend/src/controllers/mobile/chatController.js",
+      "source_location": "L1135"
+    },
+    {
+      "id": "backend_src_controllers_mobile_chatcontroller_uploadchatmediadirect",
+      "label": "uploadChatMediaDirect()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 17,
+      "community_name": "feedController.js",
+      "file_type": "code",
+      "norm_label": "uploadchatmediadirect()",
+      "source_file": "backend/src/controllers/mobile/chatController.js",
+      "source_location": "L840"
     },
     {
       "id": "backend_src_controllers_mobile_feedcontroller_addcomment",
@@ -2512,6 +2452,66 @@
       "source_location": "L1721"
     },
     {
+      "id": "backend_src_middleware_upload_filefilter",
+      "label": "fileFilter()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 17,
+      "community_name": "feedController.js",
+      "file_type": "code",
+      "norm_label": "filefilter()",
+      "source_file": "backend/src/middleware/upload.js",
+      "source_location": "L39"
+    },
+    {
+      "id": "backend_src_middleware_upload_optionalavatarupload",
+      "label": "optionalAvatarUpload()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 17,
+      "community_name": "feedController.js",
+      "file_type": "code",
+      "norm_label": "optionalavatarupload()",
+      "source_file": "backend/src/middleware/upload.js",
+      "source_location": "L96"
+    },
+    {
+      "id": "backend_src_middleware_upload_optionalchatmediaupload",
+      "label": "optionalChatMediaUpload()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 17,
+      "community_name": "feedController.js",
+      "file_type": "code",
+      "norm_label": "optionalchatmediaupload()",
+      "source_file": "backend/src/middleware/upload.js",
+      "source_location": "L192"
+    },
+    {
+      "id": "backend_src_middleware_upload_optionalfeedmediaupload",
+      "label": "optionalFeedMediaUpload()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 17,
+      "community_name": "feedController.js",
+      "file_type": "code",
+      "norm_label": "optionalfeedmediaupload()",
+      "source_file": "backend/src/middleware/upload.js",
+      "source_location": "L146"
+    },
+    {
+      "id": "backend_src_middleware_upload_optionalroommediaupload",
+      "label": "optionalRoomMediaUpload()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 17,
+      "community_name": "feedController.js",
+      "file_type": "code",
+      "norm_label": "optionalroommediaupload()",
+      "source_file": "backend/src/middleware/upload.js",
+      "source_location": "L120"
+    },
+    {
       "id": "scratch_add_host_api_docs_updatedocsfile",
       "label": "updateDocsFile()",
       "_callable": true,
@@ -2524,12 +2524,24 @@
       "source_location": "L315"
     },
     {
+      "id": "backend_src_config_db_testconnection",
+      "label": "testConnection()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "db.js",
+      "file_type": "code",
+      "norm_label": "testconnection()",
+      "source_file": "backend/src/config/db.js",
+      "source_location": "L42"
+    },
+    {
       "id": "backend_src_controllers_walletcontroller_getbalances",
       "label": "getBalances()",
       "_callable": true,
       "_origin": "ast",
       "community": 2,
-      "community_name": "server.js",
+      "community_name": "db.js",
       "file_type": "code",
       "norm_label": "getbalances()",
       "source_file": "backend/src/controllers/walletController.js",
@@ -2541,7 +2553,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 2,
-      "community_name": "server.js",
+      "community_name": "db.js",
       "file_type": "code",
       "norm_label": "getpackages()",
       "source_file": "backend/src/controllers/walletController.js",
@@ -2553,7 +2565,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 2,
-      "community_name": "server.js",
+      "community_name": "db.js",
       "file_type": "code",
       "norm_label": "getrechargeconfig()",
       "source_file": "backend/src/controllers/walletController.js",
@@ -2565,7 +2577,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 2,
-      "community_name": "server.js",
+      "community_name": "db.js",
       "file_type": "code",
       "norm_label": "gettransactions()",
       "source_file": "backend/src/controllers/walletController.js",
@@ -2577,7 +2589,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 2,
-      "community_name": "server.js",
+      "community_name": "db.js",
       "file_type": "code",
       "norm_label": "getwithdrawalconfig()",
       "source_file": "backend/src/controllers/walletController.js",
@@ -2589,7 +2601,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 2,
-      "community_name": "server.js",
+      "community_name": "db.js",
       "file_type": "code",
       "norm_label": "purchasecoins()",
       "source_file": "backend/src/controllers/walletController.js",
@@ -2601,7 +2613,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 2,
-      "community_name": "server.js",
+      "community_name": "db.js",
       "file_type": "code",
       "norm_label": "requestwithdrawal()",
       "source_file": "backend/src/controllers/walletController.js",
@@ -2613,7 +2625,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 2,
-      "community_name": "server.js",
+      "community_name": "db.js",
       "file_type": "code",
       "norm_label": "initializedatabase()",
       "source_file": "backend/src/db/init.js",
@@ -2625,7 +2637,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 2,
-      "community_name": "server.js",
+      "community_name": "db.js",
       "file_type": "code",
       "norm_label": "startserver()",
       "source_file": "backend/src/server.js",
@@ -2637,11 +2649,83 @@
       "_callable": true,
       "_origin": "ast",
       "community": 2,
-      "community_name": "server.js",
+      "community_name": "db.js",
       "file_type": "code",
       "norm_label": "waitfordatabase()",
       "source_file": "backend/src/server.js",
       "source_location": "L147"
+    },
+    {
+      "id": "scratch_test_audio_live_seats_maketoken",
+      "label": "makeToken()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "db.js",
+      "file_type": "code",
+      "norm_label": "maketoken()",
+      "source_file": "scratch/test_audio_live_seats.mjs",
+      "source_location": "L10"
+    },
+    {
+      "id": "scratch_test_audio_live_seats_runtests",
+      "label": "runTests()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "db.js",
+      "file_type": "code",
+      "norm_label": "runtests()",
+      "source_file": "scratch/test_audio_live_seats.mjs",
+      "source_location": "L18"
+    },
+    {
+      "id": "scratch_test_socket_realtime_emission_main",
+      "label": "main()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "db.js",
+      "file_type": "code",
+      "norm_label": "main()",
+      "source_file": "scratch/test_socket_realtime_emission.mjs",
+      "source_location": "L19"
+    },
+    {
+      "id": "scratch_test_socket_realtime_emission_maketoken",
+      "label": "makeToken()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "db.js",
+      "file_type": "code",
+      "norm_label": "maketoken()",
+      "source_file": "scratch/test_socket_realtime_emission.mjs",
+      "source_location": "L11"
+    },
+    {
+      "id": "scratch_test_video_live_seat_guard_maketoken",
+      "label": "makeToken()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "db.js",
+      "file_type": "code",
+      "norm_label": "maketoken()",
+      "source_file": "scratch/test_video_live_seat_guard.mjs",
+      "source_location": "L10"
+    },
+    {
+      "id": "scratch_test_video_live_seat_guard_runtest",
+      "label": "runTest()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "db.js",
+      "file_type": "code",
+      "norm_label": "runtest()",
+      "source_file": "scratch/test_video_live_seat_guard.mjs",
+      "source_location": "L18"
     },
     {
       "id": "backend_src_config_livekit_generatelivekittoken",
@@ -3388,24 +3472,12 @@
       "source_location": "L9"
     },
     {
-      "id": "backend_src_config_db_testconnection",
-      "label": "testConnection()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 23,
-      "community_name": "db.js",
-      "file_type": "code",
-      "norm_label": "testconnection()",
-      "source_file": "backend/src/config/db.js",
-      "source_location": "L42"
-    },
-    {
       "id": "backend_src_controllers_mobile_resellercontroller_cleartransactions",
       "label": "clearTransactions()",
       "_callable": true,
       "_origin": "ast",
       "community": 23,
-      "community_name": "db.js",
+      "community_name": "resellerController.js",
       "file_type": "code",
       "norm_label": "cleartransactions()",
       "source_file": "backend/src/controllers/mobile/resellerController.js",
@@ -3417,7 +3489,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 23,
-      "community_name": "db.js",
+      "community_name": "resellerController.js",
       "file_type": "code",
       "norm_label": "deletetransaction()",
       "source_file": "backend/src/controllers/mobile/resellerController.js",
@@ -3429,7 +3501,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 23,
-      "community_name": "db.js",
+      "community_name": "resellerController.js",
       "file_type": "code",
       "norm_label": "getresellerbalance()",
       "source_file": "backend/src/controllers/mobile/resellerController.js",
@@ -3441,7 +3513,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 23,
-      "community_name": "db.js",
+      "community_name": "resellerController.js",
       "file_type": "code",
       "norm_label": "getresellertransactions()",
       "source_file": "backend/src/controllers/mobile/resellerController.js",
@@ -3453,7 +3525,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 23,
-      "community_name": "db.js",
+      "community_name": "resellerController.js",
       "file_type": "code",
       "norm_label": "getuserdetails()",
       "source_file": "backend/src/controllers/mobile/resellerController.js",
@@ -3465,7 +3537,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 23,
-      "community_name": "db.js",
+      "community_name": "resellerController.js",
       "file_type": "code",
       "norm_label": "rechargeuser()",
       "source_file": "backend/src/controllers/mobile/resellerController.js",
@@ -3477,7 +3549,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 23,
-      "community_name": "db.js",
+      "community_name": "resellerController.js",
       "file_type": "code",
       "norm_label": "resolveresellerid()",
       "source_file": "backend/src/controllers/mobile/resellerController.js",
@@ -3489,83 +3561,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 23,
-      "community_name": "db.js",
+      "community_name": "resellerController.js",
       "file_type": "code",
       "norm_label": "searchusers()",
       "source_file": "backend/src/controllers/mobile/resellerController.js",
       "source_location": "L130"
-    },
-    {
-      "id": "scratch_test_audio_live_seats_maketoken",
-      "label": "makeToken()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 23,
-      "community_name": "db.js",
-      "file_type": "code",
-      "norm_label": "maketoken()",
-      "source_file": "scratch/test_audio_live_seats.mjs",
-      "source_location": "L10"
-    },
-    {
-      "id": "scratch_test_audio_live_seats_runtests",
-      "label": "runTests()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 23,
-      "community_name": "db.js",
-      "file_type": "code",
-      "norm_label": "runtests()",
-      "source_file": "scratch/test_audio_live_seats.mjs",
-      "source_location": "L18"
-    },
-    {
-      "id": "scratch_test_socket_realtime_emission_main",
-      "label": "main()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 23,
-      "community_name": "db.js",
-      "file_type": "code",
-      "norm_label": "main()",
-      "source_file": "scratch/test_socket_realtime_emission.mjs",
-      "source_location": "L19"
-    },
-    {
-      "id": "scratch_test_socket_realtime_emission_maketoken",
-      "label": "makeToken()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 23,
-      "community_name": "db.js",
-      "file_type": "code",
-      "norm_label": "maketoken()",
-      "source_file": "scratch/test_socket_realtime_emission.mjs",
-      "source_location": "L11"
-    },
-    {
-      "id": "scratch_test_video_live_seat_guard_maketoken",
-      "label": "makeToken()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 23,
-      "community_name": "db.js",
-      "file_type": "code",
-      "norm_label": "maketoken()",
-      "source_file": "scratch/test_video_live_seat_guard.mjs",
-      "source_location": "L10"
-    },
-    {
-      "id": "scratch_test_video_live_seat_guard_runtest",
-      "label": "runTest()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 23,
-      "community_name": "db.js",
-      "file_type": "code",
-      "norm_label": "runtest()",
-      "source_file": "scratch/test_video_live_seat_guard.mjs",
-      "source_location": "L18"
     },
     {
       "id": "scratch_add_reseller_api_docs_updatedocsfile",
@@ -6744,94 +6744,6 @@
       "source_location": "L1"
     },
     {
-      "id": "backend_src_controllers_mobile_chatcontroller",
-      "label": "chatController.js",
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "chatController.js",
-      "file_type": "code",
-      "norm_label": "chatcontroller.js",
-      "source_file": "backend/src/controllers/mobile/chatController.js",
-      "source_location": "L1"
-    },
-    {
-      "id": "backend_src_middleware_upload",
-      "label": "upload.js",
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "chatController.js",
-      "file_type": "code",
-      "norm_label": "upload.js",
-      "source_file": "backend/src/middleware/upload.js",
-      "source_location": "L1"
-    },
-    {
-      "id": "backend_src_middleware_upload_baseuploaddir",
-      "label": "baseUploadDir",
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "chatController.js",
-      "file_type": "code",
-      "norm_label": "baseuploaddir",
-      "source_file": "backend/src/middleware/upload.js",
-      "source_location": "L10"
-    },
-    {
-      "id": "backend_src_middleware_upload_dirname",
-      "label": "__dirname",
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "chatController.js",
-      "file_type": "code",
-      "norm_label": "__dirname",
-      "source_file": "backend/src/middleware/upload.js",
-      "source_location": "L7"
-    },
-    {
-      "id": "backend_src_middleware_upload_filename",
-      "label": "__filename",
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "chatController.js",
-      "file_type": "code",
-      "norm_label": "__filename",
-      "source_file": "backend/src/middleware/upload.js",
-      "source_location": "L6"
-    },
-    {
-      "id": "backend_src_middleware_upload_storage",
-      "label": "storage",
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "chatController.js",
-      "file_type": "code",
-      "norm_label": "storage",
-      "source_file": "backend/src/middleware/upload.js",
-      "source_location": "L16"
-    },
-    {
-      "id": "backend_src_middleware_upload_upload",
-      "label": "upload",
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "chatController.js",
-      "file_type": "code",
-      "norm_label": "upload",
-      "source_file": "backend/src/middleware/upload.js",
-      "source_location": "L82"
-    },
-    {
-      "id": "backend_src_routes_mobile_chatroutes",
-      "label": "chatRoutes.js",
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "chatController.js",
-      "file_type": "code",
-      "norm_label": "chatroutes.js",
-      "source_file": "backend/src/routes/mobile/chatRoutes.js",
-      "source_location": "L1"
-    },
-    {
       "id": "backend_src_config_firebase",
       "label": "firebase.js",
       "_origin": "ast",
@@ -6862,7 +6774,7 @@
       "file_type": "code",
       "norm_label": "credentialsfilepath",
       "source_file": "backend/src/config/firebase.js",
-      "source_location": "L24"
+      "source_location": "L25"
     },
     {
       "id": "backend_src_config_firebase_dirname",
@@ -6887,6 +6799,17 @@
       "source_location": "L8"
     },
     {
+      "id": "backend_src_controllers_mobile_chatcontroller",
+      "label": "chatController.js",
+      "_origin": "ast",
+      "community": 17,
+      "community_name": "feedController.js",
+      "file_type": "code",
+      "norm_label": "chatcontroller.js",
+      "source_file": "backend/src/controllers/mobile/chatController.js",
+      "source_location": "L1"
+    },
+    {
       "id": "backend_src_controllers_mobile_feedcontroller",
       "label": "feedController.js",
       "_origin": "ast",
@@ -6895,6 +6818,83 @@
       "file_type": "code",
       "norm_label": "feedcontroller.js",
       "source_file": "backend/src/controllers/mobile/feedController.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "backend_src_middleware_upload",
+      "label": "upload.js",
+      "_origin": "ast",
+      "community": 17,
+      "community_name": "feedController.js",
+      "file_type": "code",
+      "norm_label": "upload.js",
+      "source_file": "backend/src/middleware/upload.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "backend_src_middleware_upload_baseuploaddir",
+      "label": "baseUploadDir",
+      "_origin": "ast",
+      "community": 17,
+      "community_name": "feedController.js",
+      "file_type": "code",
+      "norm_label": "baseuploaddir",
+      "source_file": "backend/src/middleware/upload.js",
+      "source_location": "L10"
+    },
+    {
+      "id": "backend_src_middleware_upload_dirname",
+      "label": "__dirname",
+      "_origin": "ast",
+      "community": 17,
+      "community_name": "feedController.js",
+      "file_type": "code",
+      "norm_label": "__dirname",
+      "source_file": "backend/src/middleware/upload.js",
+      "source_location": "L7"
+    },
+    {
+      "id": "backend_src_middleware_upload_filename",
+      "label": "__filename",
+      "_origin": "ast",
+      "community": 17,
+      "community_name": "feedController.js",
+      "file_type": "code",
+      "norm_label": "__filename",
+      "source_file": "backend/src/middleware/upload.js",
+      "source_location": "L6"
+    },
+    {
+      "id": "backend_src_middleware_upload_storage",
+      "label": "storage",
+      "_origin": "ast",
+      "community": 17,
+      "community_name": "feedController.js",
+      "file_type": "code",
+      "norm_label": "storage",
+      "source_file": "backend/src/middleware/upload.js",
+      "source_location": "L16"
+    },
+    {
+      "id": "backend_src_middleware_upload_upload",
+      "label": "upload",
+      "_origin": "ast",
+      "community": 17,
+      "community_name": "feedController.js",
+      "file_type": "code",
+      "norm_label": "upload",
+      "source_file": "backend/src/middleware/upload.js",
+      "source_location": "L82"
+    },
+    {
+      "id": "backend_src_routes_mobile_chatroutes",
+      "label": "chatRoutes.js",
+      "_origin": "ast",
+      "community": 17,
+      "community_name": "feedController.js",
+      "file_type": "code",
+      "norm_label": "chatroutes.js",
+      "source_file": "backend/src/routes/mobile/chatRoutes.js",
       "source_location": "L1"
     },
     {
@@ -7085,11 +7085,55 @@
       "source_location": "L9"
     },
     {
+      "id": "backend_src_config_db",
+      "label": "db.js",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "db.js",
+      "file_type": "code",
+      "norm_label": "db.js",
+      "source_file": "backend/src/config/db.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "backend_src_config_db_dbconfig",
+      "label": "dbConfig",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "db.js",
+      "file_type": "code",
+      "norm_label": "dbconfig",
+      "source_file": "backend/src/config/db.js",
+      "source_location": "L14"
+    },
+    {
+      "id": "backend_src_config_db_dirname",
+      "label": "__dirname",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "db.js",
+      "file_type": "code",
+      "norm_label": "__dirname",
+      "source_file": "backend/src/config/db.js",
+      "source_location": "L7"
+    },
+    {
+      "id": "backend_src_config_db_filename",
+      "label": "__filename",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "db.js",
+      "file_type": "code",
+      "norm_label": "__filename",
+      "source_file": "backend/src/config/db.js",
+      "source_location": "L6"
+    },
+    {
       "id": "backend_src_controllers_walletcontroller",
       "label": "controllers/walletController.js",
       "_origin": "ast",
       "community": 2,
-      "community_name": "server.js",
+      "community_name": "db.js",
       "file_type": "code",
       "norm_label": "controllers/walletcontroller.js",
       "source_file": "backend/src/controllers/walletController.js",
@@ -7100,7 +7144,7 @@
       "label": "init.js",
       "_origin": "ast",
       "community": 2,
-      "community_name": "server.js",
+      "community_name": "db.js",
       "file_type": "code",
       "norm_label": "init.js",
       "source_file": "backend/src/db/init.js",
@@ -7111,7 +7155,7 @@
       "label": "__dirname",
       "_origin": "ast",
       "community": 2,
-      "community_name": "server.js",
+      "community_name": "db.js",
       "file_type": "code",
       "norm_label": "__dirname",
       "source_file": "backend/src/db/init.js",
@@ -7122,7 +7166,7 @@
       "label": "__filename",
       "_origin": "ast",
       "community": 2,
-      "community_name": "server.js",
+      "community_name": "db.js",
       "file_type": "code",
       "norm_label": "__filename",
       "source_file": "backend/src/db/init.js",
@@ -7133,7 +7177,7 @@
       "label": "router",
       "_origin": "ast",
       "community": 2,
-      "community_name": "server.js",
+      "community_name": "db.js",
       "file_type": "code",
       "norm_label": "router",
       "source_file": "backend/src/routes/adminRoutes.js",
@@ -7144,7 +7188,7 @@
       "label": "docsRoutes.js",
       "_origin": "ast",
       "community": 2,
-      "community_name": "server.js",
+      "community_name": "db.js",
       "file_type": "code",
       "norm_label": "docsroutes.js",
       "source_file": "backend/src/routes/docsRoutes.js",
@@ -7155,7 +7199,7 @@
       "label": "API_SPEC",
       "_origin": "ast",
       "community": 2,
-      "community_name": "server.js",
+      "community_name": "db.js",
       "file_type": "code",
       "norm_label": "api_spec",
       "source_file": "backend/src/routes/docsRoutes.js",
@@ -7166,7 +7210,7 @@
       "label": "router",
       "_origin": "ast",
       "community": 2,
-      "community_name": "server.js",
+      "community_name": "db.js",
       "file_type": "code",
       "norm_label": "router",
       "source_file": "backend/src/routes/docsRoutes.js",
@@ -7177,7 +7221,7 @@
       "label": "router",
       "_origin": "ast",
       "community": 2,
-      "community_name": "server.js",
+      "community_name": "db.js",
       "file_type": "code",
       "norm_label": "router",
       "source_file": "backend/src/routes/mobile/index.js",
@@ -7188,7 +7232,7 @@
       "label": "router",
       "_origin": "ast",
       "community": 2,
-      "community_name": "server.js",
+      "community_name": "db.js",
       "file_type": "code",
       "norm_label": "router",
       "source_file": "backend/src/routes/packageRoutes.js",
@@ -7199,7 +7243,7 @@
       "label": "routes/walletRoutes.js",
       "_origin": "ast",
       "community": 2,
-      "community_name": "server.js",
+      "community_name": "db.js",
       "file_type": "code",
       "norm_label": "routes/walletroutes.js",
       "source_file": "backend/src/routes/walletRoutes.js",
@@ -7210,7 +7254,7 @@
       "label": "router",
       "_origin": "ast",
       "community": 2,
-      "community_name": "server.js",
+      "community_name": "db.js",
       "file_type": "code",
       "norm_label": "router",
       "source_file": "backend/src/routes/walletRoutes.js",
@@ -7221,7 +7265,7 @@
       "label": "server.js",
       "_origin": "ast",
       "community": 2,
-      "community_name": "server.js",
+      "community_name": "db.js",
       "file_type": "code",
       "norm_label": "server.js",
       "source_file": "backend/src/server.js",
@@ -7232,7 +7276,7 @@
       "label": "app",
       "_origin": "ast",
       "community": 2,
-      "community_name": "server.js",
+      "community_name": "db.js",
       "file_type": "code",
       "norm_label": "app",
       "source_file": "backend/src/server.js",
@@ -7243,7 +7287,7 @@
       "label": "__dirname",
       "_origin": "ast",
       "community": 2,
-      "community_name": "server.js",
+      "community_name": "db.js",
       "file_type": "code",
       "norm_label": "__dirname",
       "source_file": "backend/src/server.js",
@@ -7254,7 +7298,7 @@
       "label": "__filename",
       "_origin": "ast",
       "community": 2,
-      "community_name": "server.js",
+      "community_name": "db.js",
       "file_type": "code",
       "norm_label": "__filename",
       "source_file": "backend/src/server.js",
@@ -7265,7 +7309,7 @@
       "label": "io",
       "_origin": "ast",
       "community": 2,
-      "community_name": "server.js",
+      "community_name": "db.js",
       "file_type": "code",
       "norm_label": "io",
       "source_file": "backend/src/server.js",
@@ -7276,7 +7320,7 @@
       "label": "PORT",
       "_origin": "ast",
       "community": 2,
-      "community_name": "server.js",
+      "community_name": "db.js",
       "file_type": "code",
       "norm_label": "port",
       "source_file": "backend/src/server.js",
@@ -7287,7 +7331,7 @@
       "label": "server",
       "_origin": "ast",
       "community": 2,
-      "community_name": "server.js",
+      "community_name": "db.js",
       "file_type": "code",
       "norm_label": "server",
       "source_file": "backend/src/server.js",
@@ -7298,7 +7342,7 @@
       "label": "SOCKET_MAX_BUFFER_SIZE",
       "_origin": "ast",
       "community": 2,
-      "community_name": "server.js",
+      "community_name": "db.js",
       "file_type": "code",
       "norm_label": "socket_max_buffer_size",
       "source_file": "backend/src/server.js",
@@ -7309,7 +7353,7 @@
       "label": "SOCKET_PING_INTERVAL",
       "_origin": "ast",
       "community": 2,
-      "community_name": "server.js",
+      "community_name": "db.js",
       "file_type": "code",
       "norm_label": "socket_ping_interval",
       "source_file": "backend/src/server.js",
@@ -7320,7 +7364,7 @@
       "label": "SOCKET_PING_TIMEOUT",
       "_origin": "ast",
       "community": 2,
-      "community_name": "server.js",
+      "community_name": "db.js",
       "file_type": "code",
       "norm_label": "socket_ping_timeout",
       "source_file": "backend/src/server.js",
@@ -7331,11 +7375,44 @@
       "label": "uploadsDir",
       "_origin": "ast",
       "community": 2,
-      "community_name": "server.js",
+      "community_name": "db.js",
       "file_type": "code",
       "norm_label": "uploadsdir",
       "source_file": "backend/src/server.js",
       "source_location": "L34"
+    },
+    {
+      "id": "scratch_test_audio_live_seats",
+      "label": "test_audio_live_seats.mjs",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "db.js",
+      "file_type": "code",
+      "norm_label": "test_audio_live_seats.mjs",
+      "source_file": "scratch/test_audio_live_seats.mjs",
+      "source_location": "L1"
+    },
+    {
+      "id": "scratch_test_socket_realtime_emission",
+      "label": "test_socket_realtime_emission.mjs",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "db.js",
+      "file_type": "code",
+      "norm_label": "test_socket_realtime_emission.mjs",
+      "source_file": "scratch/test_socket_realtime_emission.mjs",
+      "source_location": "L1"
+    },
+    {
+      "id": "scratch_test_video_live_seat_guard",
+      "label": "test_video_live_seat_guard.mjs",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "db.js",
+      "file_type": "code",
+      "norm_label": "test_video_live_seat_guard.mjs",
+      "source_file": "scratch/test_video_live_seat_guard.mjs",
+      "source_location": "L1"
     },
     {
       "id": "backend_src_config_livekit",
@@ -7679,55 +7756,11 @@
       "source_location": "L20"
     },
     {
-      "id": "backend_src_config_db",
-      "label": "db.js",
-      "_origin": "ast",
-      "community": 23,
-      "community_name": "db.js",
-      "file_type": "code",
-      "norm_label": "db.js",
-      "source_file": "backend/src/config/db.js",
-      "source_location": "L1"
-    },
-    {
-      "id": "backend_src_config_db_dbconfig",
-      "label": "dbConfig",
-      "_origin": "ast",
-      "community": 23,
-      "community_name": "db.js",
-      "file_type": "code",
-      "norm_label": "dbconfig",
-      "source_file": "backend/src/config/db.js",
-      "source_location": "L14"
-    },
-    {
-      "id": "backend_src_config_db_dirname",
-      "label": "__dirname",
-      "_origin": "ast",
-      "community": 23,
-      "community_name": "db.js",
-      "file_type": "code",
-      "norm_label": "__dirname",
-      "source_file": "backend/src/config/db.js",
-      "source_location": "L7"
-    },
-    {
-      "id": "backend_src_config_db_filename",
-      "label": "__filename",
-      "_origin": "ast",
-      "community": 23,
-      "community_name": "db.js",
-      "file_type": "code",
-      "norm_label": "__filename",
-      "source_file": "backend/src/config/db.js",
-      "source_location": "L6"
-    },
-    {
       "id": "backend_src_controllers_mobile_resellercontroller",
       "label": "resellerController.js",
       "_origin": "ast",
       "community": 23,
-      "community_name": "db.js",
+      "community_name": "resellerController.js",
       "file_type": "code",
       "norm_label": "resellercontroller.js",
       "source_file": "backend/src/controllers/mobile/resellerController.js",
@@ -7738,7 +7771,7 @@
       "label": "resellerRoutes.js",
       "_origin": "ast",
       "community": 23,
-      "community_name": "db.js",
+      "community_name": "resellerController.js",
       "file_type": "code",
       "norm_label": "resellerroutes.js",
       "source_file": "backend/src/routes/mobile/resellerRoutes.js",
@@ -7749,44 +7782,11 @@
       "label": "router",
       "_origin": "ast",
       "community": 23,
-      "community_name": "db.js",
+      "community_name": "resellerController.js",
       "file_type": "code",
       "norm_label": "router",
       "source_file": "backend/src/routes/mobile/resellerRoutes.js",
       "source_location": "L13"
-    },
-    {
-      "id": "scratch_test_audio_live_seats",
-      "label": "test_audio_live_seats.mjs",
-      "_origin": "ast",
-      "community": 23,
-      "community_name": "db.js",
-      "file_type": "code",
-      "norm_label": "test_audio_live_seats.mjs",
-      "source_file": "scratch/test_audio_live_seats.mjs",
-      "source_location": "L1"
-    },
-    {
-      "id": "scratch_test_socket_realtime_emission",
-      "label": "test_socket_realtime_emission.mjs",
-      "_origin": "ast",
-      "community": 23,
-      "community_name": "db.js",
-      "file_type": "code",
-      "norm_label": "test_socket_realtime_emission.mjs",
-      "source_file": "scratch/test_socket_realtime_emission.mjs",
-      "source_location": "L1"
-    },
-    {
-      "id": "scratch_test_video_live_seat_guard",
-      "label": "test_video_live_seat_guard.mjs",
-      "_origin": "ast",
-      "community": 23,
-      "community_name": "db.js",
-      "file_type": "code",
-      "norm_label": "test_video_live_seat_guard.mjs",
-      "source_file": "scratch/test_video_live_seat_guard.mjs",
-      "source_location": "L1"
     },
     {
       "id": "scratch_add_reseller_api_docs",
@@ -10558,7 +10558,19 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "admin-panel/src/pages/Gifts.jsx",
-      "source_location": "L215",
+      "source_location": "L200",
+      "weight": 1.0
+    },
+    {
+      "source": "admin_panel_src_pages_gifts_gifts",
+      "target": "admin_panel_src_context_economycontext_useeconomy",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "admin-panel/src/pages/Gifts.jsx",
+      "source_location": "L51",
       "weight": 1.0
     },
     {
@@ -10570,7 +10582,19 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "admin-panel/src/pages/Gifts.jsx",
-      "source_location": "L580",
+      "source_location": "L565",
+      "weight": 1.0
+    },
+    {
+      "source": "admin_panel_src_pages_hostmanagement_hostmanagement",
+      "target": "admin_panel_src_context_economycontext_useeconomy",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "admin-panel/src/pages/HostManagement.jsx",
+      "source_location": "L46",
       "weight": 1.0
     },
     {
@@ -10718,6 +10742,30 @@
       "weight": 1.0
     },
     {
+      "source": "admin_panel_src_pages_users_users",
+      "target": "admin_panel_src_context_economycontext_useeconomy",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "admin-panel/src/pages/Users.jsx",
+      "source_location": "L33",
+      "weight": 1.0
+    },
+    {
+      "source": "admin_panel_src_pages_withdrawals_withdrawals",
+      "target": "admin_panel_src_context_economycontext_useeconomy",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "admin-panel/src/pages/Withdrawals.jsx",
+      "source_location": "L30",
+      "weight": 1.0
+    },
+    {
       "source": "backend_src_config_db_query",
       "target": "backend_src_config_db_getpool",
       "relation": "calls",
@@ -10750,7 +10798,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/config/firebase.js",
-      "source_location": "L307",
+      "source_location": "L315",
       "weight": 1.0
     },
     {
@@ -10762,7 +10810,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/config/firebase.js",
-      "source_location": "L284",
+      "source_location": "L292",
       "weight": 1.0
     },
     {
@@ -10774,7 +10822,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/config/firebase.js",
-      "source_location": "L265",
+      "source_location": "L273",
       "weight": 1.0
     },
     {
@@ -10786,7 +10834,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/config/firebase.js",
-      "source_location": "L192",
+      "source_location": "L194",
       "weight": 1.0
     },
     {
@@ -10798,7 +10846,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/config/firebase.js",
-      "source_location": "L196",
+      "source_location": "L201",
       "weight": 1.0
     },
     {
@@ -10810,7 +10858,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/config/firebase.js",
-      "source_location": "L227",
+      "source_location": "L235",
       "weight": 1.0
     },
     {
@@ -10822,7 +10870,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/config/firebase.js",
-      "source_location": "L370",
+      "source_location": "L378",
       "weight": 1.0
     },
     {
@@ -10834,7 +10882,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/config/firebase.js",
-      "source_location": "L373",
+      "source_location": "L381",
       "weight": 1.0
     },
     {
@@ -10846,7 +10894,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/config/firebase.js",
-      "source_location": "L380",
+      "source_location": "L388",
       "weight": 1.0
     },
     {
@@ -10858,7 +10906,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/config/firebase.js",
-      "source_location": "L462",
+      "source_location": "L470",
       "weight": 1.0
     },
     {
@@ -10870,7 +10918,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/config/firebase.js",
-      "source_location": "L466",
+      "source_location": "L474",
       "weight": 1.0
     },
     {
@@ -10882,7 +10930,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/config/firebase.js",
-      "source_location": "L476",
+      "source_location": "L484",
       "weight": 1.0
     },
     {
@@ -10894,7 +10942,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/config/firebase.js",
-      "source_location": "L512",
+      "source_location": "L520",
       "weight": 1.0
     },
     {
@@ -10906,7 +10954,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/config/firebase.js",
-      "source_location": "L515",
+      "source_location": "L523",
       "weight": 1.0
     },
     {
@@ -10918,7 +10966,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/config/firebase.js",
-      "source_location": "L524",
+      "source_location": "L532",
       "weight": 1.0
     },
     {
@@ -10930,24 +10978,12 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/config/firebase.js",
-      "source_location": "L415",
+      "source_location": "L423",
       "weight": 1.0
     },
     {
       "source": "backend_src_config_firebase_sendnewpostpushnotification",
       "target": "backend_src_config_firebase_getfollowerfcmtokens",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "backend/src/config/firebase.js",
-      "source_location": "L419",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_src_config_firebase_sendnewpostpushnotification",
-      "target": "backend_src_config_firebase_sendpushnotification",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -10958,6 +10994,18 @@
       "weight": 1.0
     },
     {
+      "source": "backend_src_config_firebase_sendnewpostpushnotification",
+      "target": "backend_src_config_firebase_sendpushnotification",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "backend/src/config/firebase.js",
+      "source_location": "L435",
+      "weight": 1.0
+    },
+    {
       "source": "backend_src_config_firebase_sendpostcommentpushnotification",
       "target": "backend_src_config_firebase_isfirebaseready",
       "relation": "calls",
@@ -10966,7 +11014,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/config/firebase.js",
-      "source_location": "L326",
+      "source_location": "L334",
       "weight": 1.0
     },
     {
@@ -10978,7 +11026,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/config/firebase.js",
-      "source_location": "L329",
+      "source_location": "L337",
       "weight": 1.0
     },
     {
@@ -10990,7 +11038,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/config/firebase.js",
-      "source_location": "L336",
+      "source_location": "L344",
       "weight": 1.0
     },
     {
@@ -11002,7 +11050,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/config/firebase.js",
-      "source_location": "L155",
+      "source_location": "L156",
       "weight": 1.0
     },
     {
@@ -11014,7 +11062,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/config/firebase.js",
-      "source_location": "L65",
+      "source_location": "L66",
       "weight": 1.0
     },
     {
@@ -18483,7 +18531,7 @@
     },
     {
       "source": "admin_panel_src_pages_gifts",
-      "target": "admin_panel_src_api_settingsapi_settingsapi",
+      "target": "admin_panel_src_components_loader_loader",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -18495,7 +18543,7 @@
     },
     {
       "source": "admin_panel_src_pages_gifts",
-      "target": "admin_panel_src_components_loader_loader",
+      "target": "admin_panel_src_components_bulkactionbar_bulkactionbar",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -18507,7 +18555,7 @@
     },
     {
       "source": "admin_panel_src_pages_gifts",
-      "target": "admin_panel_src_components_bulkactionbar_bulkactionbar",
+      "target": "admin_panel_src_context_economycontext_useeconomy",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -18579,7 +18627,7 @@
     },
     {
       "source": "admin_panel_src_pages_hostmanagement",
-      "target": "admin_panel_src_api_settingsapi_settingsapi",
+      "target": "admin_panel_src_components_loader_loader",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -18591,7 +18639,7 @@
     },
     {
       "source": "admin_panel_src_pages_hostmanagement",
-      "target": "admin_panel_src_components_loader_loader",
+      "target": "admin_panel_src_components_pagination_pagination",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -18603,7 +18651,7 @@
     },
     {
       "source": "admin_panel_src_pages_hostmanagement",
-      "target": "admin_panel_src_components_pagination_pagination",
+      "target": "admin_panel_src_components_userdetailsmodal_userdetailsmodal",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -18615,7 +18663,7 @@
     },
     {
       "source": "admin_panel_src_pages_hostmanagement",
-      "target": "admin_panel_src_components_userdetailsmodal_userdetailsmodal",
+      "target": "admin_panel_src_components_bulkactionbar_bulkactionbar",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -18627,7 +18675,7 @@
     },
     {
       "source": "admin_panel_src_pages_hostmanagement",
-      "target": "admin_panel_src_components_bulkactionbar_bulkactionbar",
+      "target": "admin_panel_src_context_economycontext_useeconomy",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -19419,7 +19467,7 @@
     },
     {
       "source": "admin_panel_src_pages_users",
-      "target": "admin_panel_src_api_settingsapi_settingsapi",
+      "target": "admin_panel_src_components_loader_loader",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -19431,7 +19479,7 @@
     },
     {
       "source": "admin_panel_src_pages_users",
-      "target": "admin_panel_src_components_loader_loader",
+      "target": "admin_panel_src_components_pagination_pagination",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -19443,7 +19491,7 @@
     },
     {
       "source": "admin_panel_src_pages_users",
-      "target": "admin_panel_src_components_pagination_pagination",
+      "target": "admin_panel_src_components_userdetailsmodal_userdetailsmodal",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -19455,7 +19503,7 @@
     },
     {
       "source": "admin_panel_src_pages_users",
-      "target": "admin_panel_src_components_userdetailsmodal_userdetailsmodal",
+      "target": "admin_panel_src_components_bulkactionbar_bulkactionbar",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -19467,7 +19515,7 @@
     },
     {
       "source": "admin_panel_src_pages_users",
-      "target": "admin_panel_src_components_bulkactionbar_bulkactionbar",
+      "target": "admin_panel_src_context_economycontext_useeconomy",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -19547,6 +19595,18 @@
       "context": "import",
       "source_file": "admin-panel/src/pages/Withdrawals.jsx",
       "source_location": "L26",
+      "weight": 1.0
+    },
+    {
+      "source": "admin_panel_src_pages_withdrawals",
+      "target": "admin_panel_src_context_economycontext_useeconomy",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "admin-panel/src/pages/Withdrawals.jsx",
+      "source_location": "L27",
       "weight": 1.0
     },
     {
@@ -22911,7 +22971,7 @@
     },
     {
       "source": "admin_panel_src_pages_gifts",
-      "target": "admin_panel_src_api_settingsapi",
+      "target": "admin_panel_src_components_loader",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -22923,7 +22983,7 @@
     },
     {
       "source": "admin_panel_src_pages_gifts",
-      "target": "admin_panel_src_components_loader",
+      "target": "admin_panel_src_components_bulkactionbar",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -22935,7 +22995,7 @@
     },
     {
       "source": "admin_panel_src_pages_gifts",
-      "target": "admin_panel_src_components_bulkactionbar",
+      "target": "admin_panel_src_context_economycontext",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -23019,7 +23079,7 @@
     },
     {
       "source": "admin_panel_src_pages_hostmanagement",
-      "target": "admin_panel_src_api_settingsapi",
+      "target": "admin_panel_src_components_loader",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -23031,7 +23091,7 @@
     },
     {
       "source": "admin_panel_src_pages_hostmanagement",
-      "target": "admin_panel_src_components_loader",
+      "target": "admin_panel_src_components_pagination",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -23043,7 +23103,7 @@
     },
     {
       "source": "admin_panel_src_pages_hostmanagement",
-      "target": "admin_panel_src_components_pagination",
+      "target": "admin_panel_src_components_userdetailsmodal",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -23055,7 +23115,7 @@
     },
     {
       "source": "admin_panel_src_pages_hostmanagement",
-      "target": "admin_panel_src_components_userdetailsmodal",
+      "target": "admin_panel_src_components_bulkactionbar",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -23067,7 +23127,7 @@
     },
     {
       "source": "admin_panel_src_pages_hostmanagement",
-      "target": "admin_panel_src_components_bulkactionbar",
+      "target": "admin_panel_src_context_economycontext",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -23955,7 +24015,7 @@
     },
     {
       "source": "admin_panel_src_pages_users",
-      "target": "admin_panel_src_api_settingsapi",
+      "target": "admin_panel_src_components_loader",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -23967,7 +24027,7 @@
     },
     {
       "source": "admin_panel_src_pages_users",
-      "target": "admin_panel_src_components_loader",
+      "target": "admin_panel_src_components_pagination",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -23979,7 +24039,7 @@
     },
     {
       "source": "admin_panel_src_pages_users",
-      "target": "admin_panel_src_components_pagination",
+      "target": "admin_panel_src_components_userdetailsmodal",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -23991,7 +24051,7 @@
     },
     {
       "source": "admin_panel_src_pages_users",
-      "target": "admin_panel_src_components_userdetailsmodal",
+      "target": "admin_panel_src_components_bulkactionbar",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -24003,7 +24063,7 @@
     },
     {
       "source": "admin_panel_src_pages_users",
-      "target": "admin_panel_src_components_bulkactionbar",
+      "target": "admin_panel_src_context_economycontext",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -24095,6 +24155,18 @@
       "context": "import",
       "source_file": "admin-panel/src/pages/Withdrawals.jsx",
       "source_location": "L26",
+      "weight": 1.0
+    },
+    {
+      "source": "admin_panel_src_pages_withdrawals",
+      "target": "admin_panel_src_context_economycontext",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "admin-panel/src/pages/Withdrawals.jsx",
+      "source_location": "L27",
       "weight": 1.0
     },
     {
@@ -27347,7 +27419,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "admin-panel/src/pages/Withdrawals.jsx",
-      "source_location": "L28",
+      "source_location": "L29",
       "weight": 1.0
     },
     {
@@ -27853,7 +27925,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/config/firebase.js",
-      "source_location": "L184",
+      "source_location": "L185",
       "weight": 1.0
     },
     {
@@ -27864,7 +27936,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/config/firebase.js",
-      "source_location": "L24",
+      "source_location": "L25",
       "weight": 1.0
     },
     {
@@ -27875,7 +27947,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/config/firebase.js",
-      "source_location": "L260",
+      "source_location": "L268",
       "weight": 1.0
     },
     {
@@ -27886,7 +27958,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/config/firebase.js",
-      "source_location": "L280",
+      "source_location": "L288",
       "weight": 1.0
     },
     {
@@ -27897,7 +27969,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/config/firebase.js",
-      "source_location": "L305",
+      "source_location": "L313",
       "weight": 1.0
     },
     {
@@ -27908,7 +27980,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/config/firebase.js",
-      "source_location": "L323",
+      "source_location": "L331",
       "weight": 1.0
     },
     {
@@ -27919,7 +27991,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/config/firebase.js",
-      "source_location": "L367",
+      "source_location": "L375",
       "weight": 1.0
     },
     {
@@ -27930,7 +28002,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/config/firebase.js",
-      "source_location": "L413",
+      "source_location": "L421",
       "weight": 1.0
     },
     {
@@ -27941,7 +28013,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/config/firebase.js",
-      "source_location": "L460",
+      "source_location": "L468",
       "weight": 1.0
     },
     {
@@ -27952,7 +28024,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/config/firebase.js",
-      "source_location": "L48",
+      "source_location": "L49",
       "weight": 1.0
     },
     {
@@ -27963,7 +28035,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/config/firebase.js",
-      "source_location": "L509",
+      "source_location": "L517",
       "weight": 1.0
     },
     {
@@ -27974,7 +28046,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/config/firebase.js",
-      "source_location": "L64",
+      "source_location": "L65",
       "weight": 1.0
     },
     {
@@ -37610,5 +37682,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "fe09bf765e223b0c2e2442b75d68b8c9613cd558"
+  "built_at_commit": "48725af52cf66c4cab1180ced3b50da95076c4c8"
 }

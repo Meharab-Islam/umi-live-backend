@@ -1,23 +1,23 @@
 # Graph Report - umi_backend  (2026-10-21)
 
 ## Corpus Check
-- 165 files · ~1,044,582 words
+- 165 files · ~1,044,410 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 878 nodes · 2341 edges · 48 communities (33 shown, 15 thin omitted)
+- 878 nodes · 2347 edges · 47 communities (32 shown, 15 thin omitted)
 - Extraction: 85% EXTRACTED · 15% INFERRED · 0% AMBIGUOUS · INFERRED: 347 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `fe09bf76`
+- Built from commit: `48725af5`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
 - controllers/packageController.js
 - query
-- server.js
+- db.js
 - admin-panel/package.json
 - dependencies
 - AGENTS.md
@@ -31,14 +31,13 @@
 - 🚀 UMI LIVE - VPS Deployment & Operations Master Guide
 - moderatorRoutes.js
 - test_moderator_agency_oversight.mjs
-- chatController.js
 - feedController.js
 - scripts
 - add_host_api_docs.mjs
 - mobile/liveController.js
 - test_host_api.mjs
 - mobile/walletRoutes.js
-- db.js
+- resellerController.js
 - add_reseller_api_docs.mjs
 - test_reseller_api.mjs
 - add_moderator_api_docs.mjs
@@ -68,9 +67,9 @@
 5. `cache` - 29 edges
 6. `Loader()` - 24 edges
 7. `requireAuth()` - 24 edges
-8. `buildRoomResponse()` - 21 edges
-9. `adminApi` - 14 edges
-10. `userApi` - 13 edges
+8. `useEconomy()` - 21 edges
+9. `buildRoomResponse()` - 21 edges
+10. `adminApi` - 14 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `runTests()` --calls--> `query()`  [EXTRACTED]
@@ -87,7 +86,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (48 total, 15 thin omitted)
+## Communities (47 total, 15 thin omitted)
 
 ### Community 0 - "controllers/packageController.js"
 Cohesion: 0.14
@@ -97,9 +96,9 @@ Nodes (22): checkRoomActionPrivilege(), createPackage(), createPackageCategory()
 Cohesion: 0.10
 Nodes (56): query(), bulkDelete(), bulkDeleteReports(), clearGiftHistoryAdmin(), clearResellerSales(), createCoinPackageAdmin(), createGift(), createHostRequest() (+48 more)
 
-### Community 2 - "server.js"
-Cohesion: 0.08
-Nodes (28): getBalances(), getPackages(), getRechargeConfig(), getTransactions(), getWithdrawalConfig(), purchaseCoins(), requestWithdrawal(), __dirname (+20 more)
+### Community 2 - "db.js"
+Cohesion: 0.06
+Nodes (38): dbConfig, __dirname, __filename, testConnection(), getBalances(), getPackages(), getRechargeConfig(), getTransactions() (+30 more)
 
 ### Community 3 - "admin-panel/package.json"
 Cohesion: 0.06
@@ -149,13 +148,9 @@ Nodes (22): applyToAgency(), approveHostRequest(), banHostBroadcast(), cancelHos
 Cohesion: 0.83
 Nodes (3): checkRedisKey(), makeRequest(), run()
 
-### Community 16 - "chatController.js"
-Cohesion: 0.15
-Nodes (22): clearChatMessages(), deleteConversation(), extractPackageCategory(), getConversations(), getMessages(), getOrCreateConversation(), invalidateChatCache(), markConversationRead() (+14 more)
-
 ### Community 17 - "feedController.js"
-Cohesion: 0.16
-Nodes (31): candidatePaths, credentialsFilePath, __dirname, __filename, getAllActiveFcmTokens(), getFollowerFcmTokens(), getUserFcmTokens(), isFirebaseReady() (+23 more)
+Cohesion: 0.08
+Nodes (53): candidatePaths, credentialsFilePath, __dirname, __filename, getAllActiveFcmTokens(), getFollowerFcmTokens(), getUserFcmTokens(), isFirebaseReady() (+45 more)
 
 ### Community 18 - "scripts"
 Cohesion: 0.15
@@ -169,9 +164,9 @@ Nodes (64): DEFAULT_LIVEKIT_API_KEY, DEFAULT_LIVEKIT_API_SECRET, DEFAULT_LIVEKIT
 Cohesion: 0.23
 Nodes (17): getBalances, getPackages, getRechargeConfig, getTransactions, getWithdrawalConfig, purchaseCoins, requestWithdrawal, cancelWithdrawalRequest() (+9 more)
 
-### Community 23 - "db.js"
-Cohesion: 0.13
-Nodes (19): dbConfig, __dirname, __filename, testConnection(), clearTransactions(), deleteTransaction(), getResellerBalance(), getResellerTransactions() (+11 more)
+### Community 23 - "resellerController.js"
+Cohesion: 0.42
+Nodes (9): clearTransactions(), deleteTransaction(), getResellerBalance(), getResellerTransactions(), getUserDetails(), rechargeUser(), resolveResellerId(), searchUsers() (+1 more)
 
 ### Community 35 - "test_redis_hit_and_freshness.mjs"
 Cohesion: 0.83
@@ -213,11 +208,11 @@ Nodes (7): createBanner(), deleteBanner(), getAdminBanners(), getPublicBanners()
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `query()` connect `query` to `controllers/packageController.js`, `server.js`, `getPool`, `specialItemController.js`, `authMiddleware.js`, `moderatorRoutes.js`, `redis.js`, `chatController.js`, `feedController.js`, `mobile/liveController.js`, `controllers/bannerController.js`, `db.js`, `mobile/walletRoutes.js`?**
+- **Why does `query()` connect `query` to `controllers/packageController.js`, `db.js`, `getPool`, `specialItemController.js`, `authMiddleware.js`, `moderatorRoutes.js`, `redis.js`, `feedController.js`, `mobile/liveController.js`, `controllers/bannerController.js`, `resellerController.js`, `mobile/walletRoutes.js`?**
   _High betweenness centrality (0.185) - this node is a cross-community bridge._
-- **Why does `getPool()` connect `getPool` to `query`, `server.js`, `authMiddleware.js`, `redis.js`, `chatController.js`, `feedController.js`, `mobile/walletRoutes.js`, `db.js`?**
+- **Why does `getPool()` connect `getPool` to `query`, `db.js`, `authMiddleware.js`, `redis.js`, `feedController.js`, `mobile/walletRoutes.js`, `resellerController.js`?**
   _High betweenness centrality (0.011) - this node is a cross-community bridge._
-- **Why does `react` connect `App.jsx` to `.oxlintrc.json`, `ApiDocs.jsx`?**
+- **Why does `requireAuth()` connect `authMiddleware.js` to `controllers/packageController.js`, `query`, `db.js`, `moderatorRoutes.js`, `redis.js`, `feedController.js`, `mobile/liveController.js`, `mobile/walletRoutes.js`, `resellerController.js`?**
   _High betweenness centrality (0.007) - this node is a cross-community bridge._
 - **What connects `$schema`, `oxc`, `react/rules-of-hooks` to the rest of the system?**
   _163 weakly-connected nodes found - possible documentation gaps or missing edges._
@@ -225,5 +220,5 @@ _Questions this graph is uniquely positioned to answer:_
   _Cohesion score 0.14492753623188406 - nodes in this community are weakly interconnected._
 - **Should `query` be split into smaller, more focused modules?**
   _Cohesion score 0.10102843315184513 - nodes in this community are weakly interconnected._
-- **Should `server.js` be split into smaller, more focused modules?**
-  _Cohesion score 0.08333333333333333 - nodes in this community are weakly interconnected._
+- **Should `db.js` be split into smaller, more focused modules?**
+  _Cohesion score 0.058279370952821465 - nodes in this community are weakly interconnected._

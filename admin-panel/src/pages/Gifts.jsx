@@ -29,9 +29,9 @@ import {
 } from 'lucide-react';
 import giftApi from '../api/giftApi';
 import { adminApi } from '../api/adminApi';
-import { settingsApi } from '../api/settingsApi';
 import Loader from '../components/Loader';
 import BulkActionBar from '../components/BulkActionBar';
+import { useEconomy } from '../context/EconomyContext';
 
 const resolveMediaUrl = (url) => {
   if (!url) return '';
@@ -48,6 +48,7 @@ const isMediaUrl = (url) => {
 };
 
 export default function Gifts({ onToast }) {
+  const { isDiamondMode } = useEconomy();
   // Navigation Tabs: 'catalog' | 'contributors'
   const [activeTab, setActiveTab] = useState('catalog');
 
@@ -139,24 +140,8 @@ export default function Gifts({ onToast }) {
     }
   };
 
-  // Economy Mode Setting
-  const [isDiamondMode, setIsDiamondMode] = useState(true);
-
-  const fetchSettings = async () => {
-    try {
-      const res = await settingsApi.getSettings();
-      if (res && res.success && Array.isArray(res.settings)) {
-        const mode = res.settings.find((s) => s.key_name === 'is_convert_to_diamond');
-        setIsDiamondMode(mode ? mode.key_value !== 'false' : true);
-      }
-    } catch (e) {
-      console.warn('Failed to load economy mode in Gifts page:', e);
-    }
-  };
-
   useEffect(() => {
     fetchGifts();
-    fetchSettings();
   }, []);
 
   useEffect(() => {
