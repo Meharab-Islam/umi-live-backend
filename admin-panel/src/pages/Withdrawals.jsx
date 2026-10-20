@@ -24,8 +24,10 @@ import Loader from '../components/Loader';
 import Pagination from '../components/Pagination';
 import UserDetailsModal from '../components/UserDetailsModal';
 import BulkActionBar from '../components/BulkActionBar';
+import { useEconomy } from '../context/EconomyContext';
 
 export default function Withdrawals({ onToast }) {
+  const { isDiamondMode } = useEconomy();
   const [withdrawals, setWithdrawals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('all');
@@ -40,10 +42,7 @@ export default function Withdrawals({ onToast }) {
   const [selectedIds, setSelectedIds] = useState([]);
   const [bulkDeleting, setBulkDeleting] = useState(false);
 
-  // Dual Economy Mode
-  const [isDiamondMode, setIsDiamondMode] = useState(true);
 
-  // Withdrawal Rules & Preset Configuration State
   const [showConfig, setShowConfig] = useState(false);
   const [minDiamonds, setMinDiamonds] = useState(1000);
   const [presets, setPresets] = useState([1000, 2000, 5000, 10000, 25000, 50000]);

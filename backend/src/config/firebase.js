@@ -13,8 +13,9 @@ let isInitialized = false;
 // 1. Locate and load Firebase service account credentials
 const configuredPath = process.env.FIREBASE_CREDENTIALS_PATH;
 const candidatePaths = [
+  configuredPath ? (path.isAbsolute(configuredPath) ? configuredPath : path.resolve(process.cwd(), configuredPath)) : null,
   configuredPath ? path.resolve(__dirname, '../../', configuredPath) : null,
-  configuredPath ? path.resolve(process.cwd(), configuredPath) : null,
+  '/app/umi_firebase.json',
   path.resolve(__dirname, '../../../umi_firebase.json'),
   path.resolve(__dirname, '../../umi_firebase.json'),
   path.resolve(process.cwd(), '../umi_firebase.json'),
@@ -189,7 +190,11 @@ export async function sendChatPushNotification({
   media = [],
   primaryType = 'text',
 }) {
-  if (!receiverId || !isFirebaseReady()) return;
+  if (!receiverId) return;
+  if (!isFirebaseReady()) {
+    console.warn('⚠️ [FCM Chat] Push skipped: Firebase Admin is not initialized on server. Check umi_firebase.json path.');
+    return;
+  }
 
   try {
     // 1. Fetch active recipient FCM tokens from DB
@@ -201,7 +206,10 @@ export async function sendChatPushNotification({
     ).catch(() => []);
 
     const tokens = tokenRows.map((r) => r.fcm_token).filter(Boolean);
-    if (tokens.length === 0) return;
+    if (tokens.length === 0) {
+      console.warn(`⚠️ [FCM Chat] Push skipped: Recipient (User ID: ${receiverId}) does not have an active FCM token registered in DB. Has the recipient device logged in and registered its FCM token?`);
+      return;
+    }
 
     // 2. Format title and body
     const senderName = sender?.name || sender?.full_name || 'Someone';

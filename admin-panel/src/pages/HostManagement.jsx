@@ -36,13 +36,14 @@ import agencyApi from '../api/agencyApi';
 import withdrawalApi from '../api/withdrawalApi';
 import userApi from '../api/userApi';
 import adminApi from '../api/adminApi';
-import settingsApi from '../api/settingsApi';
 import Loader from '../components/Loader';
 import Pagination from '../components/Pagination';
 import UserDetailsModal from '../components/UserDetailsModal';
 import BulkActionBar from '../components/BulkActionBar';
+import { useEconomy } from '../context/EconomyContext';
 
 export default function HostManagement({ onToast }) {
+  const { isDiamondMode } = useEconomy();
   const [activeTab, setActiveTab] = useState('hosts'); // 'hosts' | 'requests' | 'ratios'
   const [loading, setLoading] = useState(true);
 
@@ -172,28 +173,10 @@ export default function HostManagement({ onToast }) {
   // User details modal
   const [detailsUserId, setDetailsUserId] = useState(null);
 
-  // Dual Economy Mode State
-  const [isDiamondMode, setIsDiamondMode] = useState(true);
-
-  const fetchSettings = async () => {
-    try {
-      const res = await settingsApi.getSettings();
-      if (res.success && res.settings) {
-        const modeSetting = res.settings.find((s) => s.key_name === 'is_convert_to_diamond');
-        if (modeSetting) {
-          setIsDiamondMode(modeSetting.key_value === 'true' || modeSetting.key_value === '1');
-        }
-      }
-    } catch (err) {
-      console.warn('Failed to load settings in HostManagement:', err.message);
-    }
-  };
-
   // Load initial data
   useEffect(() => {
     fetchAgencies();
     fetchRatios();
-    fetchSettings();
   }, []);
 
   useEffect(() => {

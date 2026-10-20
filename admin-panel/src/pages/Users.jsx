@@ -23,13 +23,14 @@ import {
 } from 'lucide-react';
 import userApi from '../api/userApi';
 import { adminApi } from '../api/adminApi';
-import settingsApi from '../api/settingsApi';
 import Loader from '../components/Loader';
 import Pagination from '../components/Pagination';
 import UserDetailsModal from '../components/UserDetailsModal';
 import BulkActionBar from '../components/BulkActionBar';
+import { useEconomy } from '../context/EconomyContext';
 
 export default function Users({ onToast }) {
+  const { isDiamondMode } = useEconomy();
   const [users, setUsers] = useState([]);
   const [summary, setSummary] = useState({
     total_users: 0,
@@ -137,26 +138,6 @@ export default function Users({ onToast }) {
     }
   };
 
-  // Dual Economy Mode State
-  const [isDiamondMode, setIsDiamondMode] = useState(true);
-
-  const fetchSettings = async () => {
-    try {
-      const res = await settingsApi.getSettings();
-      if (res.success && res.settings) {
-        const modeSetting = res.settings.find((s) => s.key_name === 'is_convert_to_diamond');
-        if (modeSetting) {
-          setIsDiamondMode(modeSetting.key_value === 'true' || modeSetting.key_value === '1');
-        }
-      }
-    } catch (err) {
-      console.warn('Failed to load settings in Users.jsx:', err.message);
-    }
-  };
-
-  useEffect(() => {
-    fetchSettings();
-  }, []);
 
   useEffect(() => {
     setPage(1);
