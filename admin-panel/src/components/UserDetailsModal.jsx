@@ -39,6 +39,7 @@ import {
 } from 'lucide-react';
 import userApi from '../api/userApi';
 import Loader from './Loader';
+import { useEconomy } from '../context/EconomyContext';
 
 const MODERATOR_POWER_LABELS = {
   silent_room_entry: 'Silent Room Entry (No join notification)',
@@ -60,6 +61,7 @@ export default function UserDetailsModal({
   onUserUpdated,
   onToast,
 }) {
+  const { isDiamondMode } = useEconomy();
   const [details, setDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'posts' | 'chats' | 'packages' | 'powers' | 'financials' | 'deduct'
@@ -596,12 +598,14 @@ export default function UserDetailsModal({
                 </div>
               </div>
 
-              <div className="stat-card" style={{ padding: '0.85rem', textAlign: 'center' }}>
-                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 600 }}>DIAMONDS (💎)</div>
-                <div style={{ fontSize: '1.35rem', fontWeight: 800, color: '#06b6d4', marginTop: '2px' }}>
-                  {Number(user.diamonds || 0).toLocaleString()}
+              {isDiamondMode && (
+                <div className="stat-card" style={{ padding: '0.85rem', textAlign: 'center' }}>
+                  <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 600 }}>DIAMONDS (💎)</div>
+                  <div style={{ fontSize: '1.35rem', fontWeight: 800, color: '#06b6d4', marginTop: '2px' }}>
+                    {Number(user.diamonds || 0).toLocaleString()}
+                  </div>
                 </div>
-              </div>
+              )}
 
               <div className="stat-card" style={{ padding: '0.85rem', textAlign: 'center' }}>
                 <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 600 }}>EXP LEVEL</div>
@@ -741,12 +745,14 @@ export default function UserDetailsModal({
                       </div>
                     </div>
 
-                    <div style={{ padding: '0.85rem', background: 'var(--bg-primary)', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-                      <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)' }}>Total Diamonds Earned</div>
-                      <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#06b6d4' }}>
-                        💎 {Number(details?.streamStats?.total_stream_diamonds || 0).toLocaleString()}
+                    {isDiamondMode && (
+                      <div style={{ padding: '0.85rem', background: 'var(--bg-primary)', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                        <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)' }}>Total Diamonds Earned</div>
+                        <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#06b6d4' }}>
+                          💎 {Number(details?.streamStats?.total_stream_diamonds || 0).toLocaleString()}
+                        </div>
                       </div>
-                    </div>
+                    )}
 
                     <div style={{ padding: '0.85rem', background: 'var(--bg-primary)', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
                       <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)' }}>Peak Viewer Record</div>
@@ -1364,7 +1370,7 @@ export default function UserDetailsModal({
                   }}>
                     <AlertTriangle size={18} color="#ef4444" style={{ flexShrink: 0 }} />
                     <div>
-                      <strong>Strict Financial Policy:</strong> Adding coins or diamonds is disabled here. To add coins, use the <strong>Coin Recharge</strong> page. From this page, only deductions down to 0 are authorized.
+                      <strong>Strict Financial Policy:</strong> Adding coins{isDiamondMode ? ' or diamonds' : ''} is disabled here. To add coins, use the <strong>Coin Recharge</strong> page. From this page, only deductions down to 0 are authorized.
                     </div>
                   </div>
 
@@ -1417,51 +1423,53 @@ export default function UserDetailsModal({
                     </div>
 
                     {/* Diamond Deduction */}
-                    <div style={{ padding: '1rem', borderRadius: '10px', background: 'var(--bg-primary)', border: '1px solid var(--border-color)' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
-                        <label style={{ fontSize: '0.82rem', fontWeight: 700, color: '#06b6d4', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <Gem size={15} /> Deduct Diamonds (💎)
-                        </label>
-                        <span style={{ fontSize: '0.74rem', color: 'var(--text-dim)', fontWeight: 600 }}>
-                          Current: {Number(user.diamonds || 0).toLocaleString()} diamonds
-                        </span>
-                      </div>
+                    {isDiamondMode && (
+                      <div style={{ padding: '1rem', borderRadius: '10px', background: 'var(--bg-primary)', border: '1px solid var(--border-color)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
+                          <label style={{ fontSize: '0.82rem', fontWeight: 700, color: '#06b6d4', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            <Gem size={15} /> Deduct Diamonds (💎)
+                          </label>
+                          <span style={{ fontSize: '0.74rem', color: 'var(--text-dim)', fontWeight: 600 }}>
+                            Current: {Number(user.diamonds || 0).toLocaleString()} diamonds
+                          </span>
+                        </div>
 
-                      <input
-                        type="number"
-                        min="0"
-                        max={user.diamonds || 0}
-                        className="input-field"
-                        placeholder="Enter diamonds to deduct (e.g. 1000)"
-                        value={deductDiamonds}
-                        onChange={(e) => setDeductDiamonds(e.target.value)}
-                      />
+                        <input
+                          type="number"
+                          min="0"
+                          max={user.diamonds || 0}
+                          className="input-field"
+                          placeholder="Enter diamonds to deduct (e.g. 1000)"
+                          value={deductDiamonds}
+                          onChange={(e) => setDeductDiamonds(e.target.value)}
+                        />
 
-                      {/* Quick preset chips */}
-                      <div style={{ display: 'flex', gap: '6px', marginTop: '8px', flexWrap: 'wrap' }}>
-                        {[500, 1000, 5000].map((amt) => (
-                          <button
-                            key={amt}
-                            type="button"
-                            className="btn btn-secondary btn-sm"
-                            style={{ fontSize: '0.7rem', padding: '2px 8px', height: 'auto' }}
-                            onClick={() => setDeductDiamonds(Math.min(amt, Number(user.diamonds || 0)))}
-                          >
-                            -{amt}
-                          </button>
-                        ))}
-                        {Number(user.diamonds || 0) > 0 && (
-                          <button
-                            type="button"
-                            className="btn btn-secondary btn-sm"
-                            style={{ fontSize: '0.7rem', padding: '2px 8px', height: 'auto', color: '#ef4444' }}
-                            onClick={() => setDeductDiamonds(Number(user.diamonds || 0))}
-                          >
-                            Deduct All to 0
-                          </button>
-                        )}
+                        {/* Quick preset chips */}
+                        <div style={{ display: 'flex', gap: '6px', marginTop: '8px', flexWrap: 'wrap' }}>
+                          {[500, 1000, 5000].map((amt) => (
+                            <button
+                              key={amt}
+                              type="button"
+                              className="btn btn-secondary btn-sm"
+                              style={{ fontSize: '0.7rem', padding: '2px 8px', height: 'auto' }}
+                              onClick={() => setDeductDiamonds(Math.min(amt, Number(user.diamonds || 0)))}
+                            >
+                              -{amt}
+                            </button>
+                          ))}
+                          {Number(user.diamonds || 0) > 0 && (
+                            <button
+                              type="button"
+                              className="btn btn-secondary btn-sm"
+                              style={{ fontSize: '0.7rem', padding: '2px 8px', height: 'auto', color: '#ef4444' }}
+                              onClick={() => setDeductDiamonds(Number(user.diamonds || 0))}
+                            >
+                              Deduct All to 0
+                            </button>
+                          )}
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </div>
 
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem', marginBottom: '1.25rem' }}>

@@ -29,6 +29,7 @@ import {
 } from 'lucide-react';
 import giftApi from '../api/giftApi';
 import { adminApi } from '../api/adminApi';
+import { settingsApi } from '../api/settingsApi';
 import Loader from '../components/Loader';
 import BulkActionBar from '../components/BulkActionBar';
 
@@ -102,7 +103,7 @@ export default function Gifts({ onToast }) {
   const [clearingHistory, setClearingHistory] = useState(false);
   const [clearPeriod, setClearPeriod] = useState('all'); // 'all' | 'month'
 
-  const quickIcons = ['🌹', '💖', '🍦', '👑', '🏎️', '🚀', '🏰', '🐉', '🛥️', '💎', '🎉', '🦄'];
+  const quickIcons = ['🌹', '💖', '🍦', '👑', '🏎️', '🚀', '🏰', '🐉', '🛥️', '⭐', '🎉', '🦄'];
 
   // ==========================================
   // Fetch Functions
@@ -138,8 +139,24 @@ export default function Gifts({ onToast }) {
     }
   };
 
+  // Economy Mode Setting
+  const [isDiamondMode, setIsDiamondMode] = useState(true);
+
+  const fetchSettings = async () => {
+    try {
+      const res = await settingsApi.getSettings();
+      if (res && res.success && Array.isArray(res.settings)) {
+        const mode = res.settings.find((s) => s.key_name === 'is_convert_to_diamond');
+        setIsDiamondMode(mode ? mode.key_value !== 'false' : true);
+      }
+    } catch (e) {
+      console.warn('Failed to load economy mode in Gifts page:', e);
+    }
+  };
+
   useEffect(() => {
     fetchGifts();
+    fetchSettings();
   }, []);
 
   useEffect(() => {
@@ -240,7 +257,7 @@ export default function Gifts({ onToast }) {
       animation_url: '',
       sound_url: '',
       coin_cost: 100,
-      diamond_reward: 50,
+      diamond_reward: isDiamondMode ? 50 : 0,
       category: 'Popular',
     });
     setModalOpen(true);
@@ -257,7 +274,7 @@ export default function Gifts({ onToast }) {
       animation_url: gift.animation_url || '',
       sound_url: gift.sound_url || '',
       coin_cost: gift.coin_cost || 100,
-      diamond_reward: gift.diamond_reward || Math.floor((gift.coin_cost || 100) / 2),
+      diamond_reward: isDiamondMode ? (gift.diamond_reward || Math.floor((gift.coin_cost || 100) / 2)) : (gift.diamond_reward || 0),
       category: gift.category || 'Popular',
     });
     setModalOpen(true);
@@ -294,7 +311,7 @@ export default function Gifts({ onToast }) {
       animation_url: finalAnim,
       sound_url: finalSound,
       animation_type: formatMode,
-      diamond_reward: formData.diamond_reward || Math.floor(formData.coin_cost / 2),
+      diamond_reward: isDiamondMode ? (formData.diamond_reward || Math.floor(formData.coin_cost / 2)) : 0,
     };
 
     try {
@@ -636,12 +653,14 @@ export default function Gifts({ onToast }) {
                         marginBottom: '1rem',
                       }}
                     >
-                      <div style={{ fontSize: '0.8rem', color: '#b45309', fontWeight: 700 }}>
-                        🪙 {gift.coin_cost}
+                      <div style={{ fontSize: '0.85rem', color: '#b45309', fontWeight: 700 }}>
+                        🪙 {gift.coin_cost} Coins
                       </div>
-                      <div style={{ fontSize: '0.8rem', color: '#0e7490', fontWeight: 700 }}>
-                        💎 +{gift.diamond_reward}
-                      </div>
+                      {isDiamondMode && (
+                        <div style={{ fontSize: '0.8rem', color: '#0e7490', fontWeight: 700 }}>
+                          💎 +{gift.diamond_reward}
+                        </div>
+                      )}
                     </div>
 
                     {/* Actions */}
@@ -1382,22 +1401,24 @@ export default function Gifts({ onToast }) {
                   </span>
                 </div>
 
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#06b6d4', marginBottom: '0.35rem' }}>
-                    Host Diamond Reward (💎):
-                  </label>
-                  <input
-                    type="number"
-                    min="0"
-                    className="input-field"
-                    placeholder="e.g. 250"
-                    value={formData.diamond_reward}
-                    onChange={(e) => setFormData({ ...formData, diamond_reward: parseInt(e.target.value, 10) || 0 })}
-                  />
-                  <span style={{ fontSize: '0.72rem', color: 'var(--text-dim)', display: 'block', marginTop: '3px' }}>
-                    Auto-set to 50% of coins
-                  </span>
-                </div>
+                {isDiamondMode && (
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#06b6d4', marginBottom: '0.35rem' }}>
+                      Host Diamond Reward (💎):
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      className="input-field"
+                      placeholder="e.g. 250"
+                      value={formData.diamond_reward}
+                      onChange={(e) => setFormData({ ...formData, diamond_reward: parseInt(e.target.value, 10) || 0 })}
+                    />
+                    <span style={{ fontSize: '0.72rem', color: 'var(--text-dim)', display: 'block', marginTop: '3px' }}>
+                      Auto-set to 50% of coins
+                    </span>
+                  </div>
+                )}
               </div>
 
               {/* Category */}

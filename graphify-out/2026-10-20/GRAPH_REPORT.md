@@ -1,16 +1,16 @@
 # Graph Report - umi_backend  (2026-10-20)
 
 ## Corpus Check
-- 164 files · ~1,040,912 words
+- 164 files · ~1,041,870 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 871 nodes · 2295 edges · 54 communities (39 shown, 15 thin omitted)
-- Extraction: 85% EXTRACTED · 15% INFERRED · 0% AMBIGUOUS · INFERRED: 346 edges (avg confidence: 0.85)
+- 872 nodes · 2298 edges · 53 communities (38 shown, 15 thin omitted)
+- Extraction: 85% EXTRACTED · 15% INFERRED · 0% AMBIGUOUS · INFERRED: 347 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `8b79fcc1`
+- Built from commit: `fe09bf76`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -62,12 +62,11 @@
 - redis.js
 - mobile/packageRoutes.js
 - add_audio_live_api_docs.mjs
-- entryEffectController.js
 - hostController.js
 - userRoutes.js
 
 ## God Nodes (most connected - your core abstractions)
-1. `query()` - 282 edges
+1. `query()` - 283 edges
 2. `react` - 40 edges
 3. `getPool()` - 37 edges
 4. `request()` - 30 edges
@@ -93,7 +92,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (54 total, 15 thin omitted)
+## Communities (53 total, 15 thin omitted)
 
 ### Community 0 - "controllers/packageController.js"
 Cohesion: 0.14
@@ -169,7 +168,7 @@ Nodes (12): description, name, private, scripts, build, dev, dev:admin, dev:all 
 
 ### Community 20 - "mobile/liveController.js"
 Cohesion: 0.07
-Nodes (63): DEFAULT_LIVEKIT_API_KEY, DEFAULT_LIVEKIT_API_SECRET, DEFAULT_LIVEKIT_URL, __dirname, __filename, generateLiveKitToken(), getLiveKitConfig(), LIVEKIT_API_KEY (+55 more)
+Nodes (64): DEFAULT_LIVEKIT_API_KEY, DEFAULT_LIVEKIT_API_SECRET, DEFAULT_LIVEKIT_URL, __dirname, __filename, generateLiveKitToken(), getLiveKitConfig(), LIVEKIT_API_KEY (+56 more)
 
 ### Community 22 - "mobile/walletRoutes.js"
 Cohesion: 0.23
@@ -180,8 +179,8 @@ Cohesion: 0.25
 Nodes (7): createBanner(), deleteBanner(), getAdminBanners(), getPublicBanners(), reorderBanners(), toggleBannerStatus(), updateBanner()
 
 ### Community 34 - "mobile/index.js"
-Cohesion: 0.14
-Nodes (14): getTopAgencies(), getTopGifters(), router, router, router, router, router, router (+6 more)
+Cohesion: 0.12
+Nodes (18): getEntryEffectCatalog(), getMyEntryEffects(), getUserActiveEntryEffectsMap(), purchaseEntryEffect(), toggleEntryEffect(), router, router, router (+10 more)
 
 ### Community 35 - "test_redis_hit_and_freshness.mjs"
 Cohesion: 0.83
@@ -216,20 +215,16 @@ Cohesion: 0.17
 Nodes (19): __dirname, __filename, signToken(), getMe(), login(), register(), getMe(), googleLogin() (+11 more)
 
 ### Community 47 - "redis.js"
-Cohesion: 0.12
-Nodes (10): cache, __dirname, __filename, REDIS_COMMAND_TIMEOUT, REDIS_CONNECT_TIMEOUT, REDIS_DB, REDIS_DEFAULT_TTL, REDIS_PORT (+2 more)
+Cohesion: 0.11
+Nodes (13): cache, __dirname, __filename, REDIS_COMMAND_TIMEOUT, REDIS_CONNECT_TIMEOUT, REDIS_DB, REDIS_DEFAULT_TTL, REDIS_PORT (+5 more)
 
 ### Community 48 - "mobile/packageRoutes.js"
 Cohesion: 0.31
 Nodes (9): checkRoomActionPrivilege, getMyPackages, getPackageCategories, getPackages, getPackagesByCategory, getUserPrivileges, purchasePackage, togglePackageActive (+1 more)
 
-### Community 51 - "entryEffectController.js"
-Cohesion: 0.43
-Nodes (6): getEntryEffectCatalog(), getMyEntryEffects(), getUserActiveEntryEffectsMap(), purchaseEntryEffect(), toggleEntryEffect(), router
-
 ### Community 52 - "hostController.js"
-Cohesion: 0.56
-Nodes (7): formatDuration(), getHostAgencySummary(), getHostDashboardOverview(), getHostMonthlyBreakdown(), getHostStreamHistory(), resolveHostId(), router
+Cohesion: 0.68
+Nodes (6): formatDuration(), getHostAgencySummary(), getHostDashboardOverview(), getHostMonthlyBreakdown(), getHostStreamHistory(), resolveHostId()
 
 ### Community 53 - "userRoutes.js"
 Cohesion: 0.30
@@ -243,11 +238,11 @@ Nodes (12): blockUser(), followUser(), getBlockedUsers(), getFollowers(), getFol
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `query()` connect `query` to `controllers/packageController.js`, `server.js`, `mobile/index.js`, `getPool`, `specialItemController.js`, `db.js`, `authMiddleware.js`, `mobile/authController.js`, `moderatorRoutes.js`, `redis.js`, `chatController.js`, `feedController.js`, `entryEffectController.js`, `mobile/liveController.js`, `hostController.js`, `userRoutes.js`, `controllers/bannerController.js`, `mobile/walletRoutes.js`?**
+- **Why does `query()` connect `query` to `controllers/packageController.js`, `server.js`, `mobile/index.js`, `getPool`, `specialItemController.js`, `db.js`, `authMiddleware.js`, `mobile/authController.js`, `moderatorRoutes.js`, `redis.js`, `chatController.js`, `feedController.js`, `mobile/liveController.js`, `hostController.js`, `userRoutes.js`, `controllers/bannerController.js`, `mobile/walletRoutes.js`?**
   _High betweenness centrality (0.186) - this node is a cross-community bridge._
 - **Why does `getPool()` connect `getPool` to `query`, `server.js`, `db.js`, `authMiddleware.js`, `chatController.js`, `feedController.js`, `mobile/walletRoutes.js`?**
   _High betweenness centrality (0.010) - this node is a cross-community bridge._
-- **Why does `requireAuth()` connect `authMiddleware.js` to `controllers/packageController.js`, `query`, `server.js`, `db.js`, `mobile/authController.js`, `moderatorRoutes.js`, `chatController.js`, `feedController.js`, `mobile/packageRoutes.js`, `entryEffectController.js`, `hostController.js`, `mobile/liveController.js`, `userRoutes.js`, `mobile/walletRoutes.js`?**
+- **Why does `requireAuth()` connect `authMiddleware.js` to `controllers/packageController.js`, `query`, `server.js`, `mobile/index.js`, `db.js`, `mobile/authController.js`, `moderatorRoutes.js`, `chatController.js`, `feedController.js`, `mobile/packageRoutes.js`, `hostController.js`, `mobile/liveController.js`, `userRoutes.js`, `mobile/walletRoutes.js`?**
   _High betweenness centrality (0.007) - this node is a cross-community bridge._
 - **What connects `$schema`, `oxc`, `react/rules-of-hooks` to the rest of the system?**
   _162 weakly-connected nodes found - possible documentation gaps or missing edges._

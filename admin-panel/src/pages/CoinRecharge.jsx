@@ -36,8 +36,10 @@ import coinPackageApi from '../api/coinPackageApi';
 import Loader from '../components/Loader';
 import Pagination from '../components/Pagination';
 import UserDetailsModal from '../components/UserDetailsModal';
+import { useEconomy } from '../context/EconomyContext';
 
 export default function CoinRecharge({ onToast }) {
+  const { isDiamondMode } = useEconomy();
   const [activeTab, setActiveTab] = useState('desk'); // 'desk' | 'history' | 'presets'
 
   // Form fields
@@ -703,7 +705,7 @@ export default function CoinRecharge({ onToast }) {
                   </div>
 
                   {/* Balances Display */}
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginTop: '0.25rem' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: isDiamondMode ? '1fr 1fr' : '1fr', gap: '0.75rem', marginTop: '0.25rem' }}>
                     <div
                       style={{
                         background: 'var(--bg-secondary)',
@@ -720,21 +722,23 @@ export default function CoinRecharge({ onToast }) {
                       </div>
                     </div>
 
-                    <div
-                      style={{
-                        background: 'var(--bg-secondary)',
-                        padding: '0.85rem',
-                        borderRadius: '10px',
-                        border: '1px solid var(--border-color)',
-                      }}
-                    >
-                      <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        <span>💎 CURRENT DIAMONDS</span>
+                    {isDiamondMode && (
+                      <div
+                        style={{
+                          background: 'var(--bg-secondary)',
+                          padding: '0.85rem',
+                          borderRadius: '10px',
+                          border: '1px solid var(--border-color)',
+                        }}
+                      >
+                        <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <span>💎 CURRENT DIAMONDS</span>
+                        </div>
+                        <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#06b6d4', marginTop: '4px' }}>
+                          {Number(selectedUser.diamonds || 0).toLocaleString()}
+                        </div>
                       </div>
-                      <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#06b6d4', marginTop: '4px' }}>
-                        {Number(selectedUser.diamonds || 0).toLocaleString()}
-                      </div>
-                    </div>
+                    )}
                   </div>
                 </div>
               ) : (

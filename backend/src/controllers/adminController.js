@@ -6,18 +6,53 @@ import { signToken } from '../config/jwt.js';
 
 export async function getDashboardStats(req, res) {
   try {
-    const statsData = await cache.getOrSet('admin:dashboard', 30, async () => {
-      // 1. User stats
+    const { period = 'all', start_date, end_date } = req.query;
+    const cacheKey = `admin:dashboard:${period}:${start_date || ''}:${end_date || ''}`;
+
+    const statsData = await cache.getOrSet(cacheKey, 20, async () => {
+      // 1. Time filter condition for transactions & activity
+      let dateCondition = '';
+      const dateParams = [];
+
+      if (period === 'today') {
+        dateCondition = ' AND created_at >= CURDATE()';
+      } else if (period === 'yesterday') {
+        dateCondition = ' AND created_at >= CURDATE() - INTERVAL 1 DAY AND created_at < CURDATE()';
+      } else if (period === 'week') {
+        dateCondition = ' AND created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)';
+      } else if (period === 'month') {
+        dateCondition = ' AND created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)';
+      } else if (period === 'custom' && start_date) {
+        if (end_date) {
+          dateCondition = ' AND created_at >= ? AND created_at <= ?';
+          dateParams.push(`${start_date} 00:00:00`, `${end_date} 23:59:59`);
+        } else {
+          dateCondition = ' AND created_at >= ?';
+          dateParams.push(`${start_date} 00:00:00`);
+        }
+      }
+
+      // 2. User stats & current circulating coin balances
       const [userCounts] = await query(`
         SELECT 
           COUNT(*) as total_users,
           SUM(CASE WHEN role = 'host' THEN 1 ELSE 0 END) as total_hosts,
-          SUM(CASE WHEN is_banned = TRUE THEN 1 ELSE 0 END) as banned_users
+          SUM(CASE WHEN is_banned = TRUE THEN 1 ELSE 0 END) as banned_users,
+          COALESCE(SUM(coins), 0) as total_user_coins,
+          COALESCE(SUM(diamonds), 0) as total_user_diamonds,
+          COALESCE(SUM(CASE WHEN role = 'host' THEN coins ELSE 0 END), 0) as host_coins,
+          COALESCE(SUM(CASE WHEN role != 'host' THEN coins ELSE 0 END), 0) as regular_user_coins
         FROM users
         WHERE role != 'superadmin'
       `);
 
-      // 2. Stream stats
+      // New users registered in filtered timeframe
+      const [newUsersCount] = await query(
+        `SELECT COUNT(*) as new_users FROM users WHERE role != 'superadmin' ${dateCondition}`,
+        dateParams
+      );
+
+      // 3. Stream stats (Active live rooms, viewers)
       const [streamCounts] = await query(`
         SELECT 
           COUNT(*) as total_streams,
@@ -26,25 +61,46 @@ export async function getDashboardStats(req, res) {
         FROM live_rooms
       `);
 
-      // 3. Financial stats
-      const [financeCounts] = await query(`
-        SELECT 
-          COALESCE(SUM(CASE WHEN type = 'coin_purchase' THEN amount ELSE 0 END), 0) as total_coins_sold,
+      // 4. Period-filtered financial metrics (Coins Sold, Admin Commission, Gift Coins Spent)
+      const [financeCounts] = await query(
+        `SELECT 
+          COALESCE(SUM(CASE WHEN (type = 'coin_purchase' OR description LIKE '[Recharge]%') THEN amount ELSE 0 END), 0) as total_coins_sold,
           COALESCE(SUM(CASE WHEN type = 'gift_sent' THEN amount ELSE 0 END), 0) as total_gift_coins_spent,
-          COALESCE(SUM(CASE WHEN type = 'gift_received' THEN amount ELSE 0 END), 0) as total_diamonds_rewarded
+          COALESCE(SUM(CASE WHEN type = 'gift_received' THEN amount ELSE 0 END), 0) as total_diamonds_rewarded,
+          COALESCE(SUM(CASE WHEN type IN ('platform_commission', 'admin_commission') THEN amount ELSE 0 END), 0) as total_admin_commission,
+          COUNT(CASE WHEN (type = 'coin_purchase' OR description LIKE '[Recharge]%') THEN 1 END) as total_coin_sales_count,
+          COUNT(CASE WHEN type IN ('platform_commission', 'admin_commission') THEN 1 END) as total_commission_count
+        FROM transactions
+        WHERE 1=1 ${dateCondition}`,
+        dateParams
+      );
+
+      // 5. All-Time financial metrics for comparison
+      const [allTimeFinance] = await query(`
+        SELECT 
+          COALESCE(SUM(CASE WHEN (type = 'coin_purchase' OR description LIKE '[Recharge]%') THEN amount ELSE 0 END), 0) as all_time_coins_sold,
+          COALESCE(SUM(CASE WHEN type = 'gift_sent' THEN amount ELSE 0 END), 0) as all_time_gift_coins_spent,
+          COALESCE(SUM(CASE WHEN type IN ('platform_commission', 'admin_commission') THEN amount ELSE 0 END), 0) as all_time_admin_commission
         FROM transactions
       `);
 
-      // 4. Pending withdrawals
+      // 6. Pending withdrawals & Diamond Conversion setting
+      const diamondSettingRows = await query("SELECT key_value FROM system_settings WHERE key_name = 'is_convert_to_diamond' LIMIT 1");
+      const isDiamondMode = diamondSettingRows && diamondSettingRows.length > 0
+        ? (diamondSettingRows[0].key_value === 'true' || diamondSettingRows[0].key_value === '1')
+        : false;
+
       const [withdrawalStats] = await query(`
         SELECT 
           COUNT(*) as pending_count,
+          COALESCE(SUM(coin_amount), 0) as pending_coins,
+          COALESCE(SUM(diamond_amount), 0) as pending_diamonds,
           COALESCE(SUM(usd_amount), 0) as pending_usd
         FROM withdrawals
         WHERE status = 'pending'
       `);
 
-      // 5. Recent gifts activity
+      // 7. Recent gifts activity
       const recentGifts = await query(`
         SELECT gt.*, u1.full_name as sender_name, u1.avatar_url as sender_avatar,
                u2.full_name as receiver_name, u2.avatar_url as receiver_avatar
@@ -55,21 +111,31 @@ export async function getDashboardStats(req, res) {
         LIMIT 6
       `);
 
-      // 6. Currently active live streams
+      // 8. Currently active live streams
       const activeStreamsList = await query(`
         SELECT r.*, u.full_name as host_name, u.avatar_url as host_avatar
         FROM live_rooms r
         JOIN users u ON r.host_id = u.id
         WHERE r.status = 'live'
         ORDER BY r.viewer_count DESC
-        LIMIT 5
+        LIMIT 6
       `);
 
       return {
+        filter: {
+          period,
+          startDate: start_date || null,
+          endDate: end_date || null,
+        },
         users: {
           total: userCounts.total_users || 0,
           hosts: userCounts.total_hosts || 0,
           banned: userCounts.banned_users || 0,
+          newUsers: newUsersCount?.new_users || 0,
+          totalCoins: Number(userCounts.total_user_coins) || 0,
+          totalDiamonds: Number(userCounts.total_user_diamonds) || 0,
+          hostCoins: Number(userCounts.host_coins) || 0,
+          regularUserCoins: Number(userCounts.regular_user_coins) || 0,
         },
         streams: {
           active: streamCounts.active_streams || 0,
@@ -77,10 +143,19 @@ export async function getDashboardStats(req, res) {
           liveViewers: streamCounts.current_viewers || 0,
         },
         financials: {
-          coinsSold: financeCounts.total_coins_sold || 0,
-          giftCoinsSpent: financeCounts.total_gift_coins_spent || 0,
-          diamondsRewarded: financeCounts.total_diamonds_rewarded || 0,
+          coinsSold: Number(financeCounts.total_coins_sold) || 0,
+          adminCommission: Number(financeCounts.total_admin_commission) || 0,
+          giftCoinsSpent: Number(financeCounts.total_gift_coins_spent) || 0,
+          diamondsRewarded: Number(financeCounts.total_diamonds_rewarded) || 0,
+          coinSalesCount: financeCounts.total_coin_sales_count || 0,
+          commissionCount: financeCounts.total_commission_count || 0,
+          allTimeCoinsSold: Number(allTimeFinance.all_time_coins_sold) || 0,
+          allTimeAdminCommission: Number(allTimeFinance.all_time_admin_commission) || 0,
+          totalUserCoins: Number(userCounts.total_user_coins) || 0,
+          isDiamondMode,
           pendingWithdrawalCount: withdrawalStats.pending_count || 0,
+          pendingWithdrawalCoins: Number(withdrawalStats.pending_coins || 0),
+          pendingWithdrawalDiamonds: Number(withdrawalStats.pending_diamonds || 0),
           pendingWithdrawalUsd: parseFloat(withdrawalStats.pending_usd || 0).toFixed(2),
         },
         recentGifts,
@@ -599,9 +674,21 @@ export async function createGift(req, res) {
     }
 
     const parsedCoinCost = parseInt(coin_cost, 10);
-    const diamondReward = diamond_reward !== undefined && !isNaN(parseInt(diamond_reward, 10))
-      ? parseInt(diamond_reward, 10)
-      : Math.floor(parsedCoinCost / 2);
+
+    // Check system diamond conversion setting
+    const diamondSettingRows = await query("SELECT key_value FROM system_settings WHERE key_name = 'is_convert_to_diamond' LIMIT 1");
+    const isDiamondMode = diamondSettingRows && diamondSettingRows.length > 0
+      ? (diamondSettingRows[0].key_value === 'true' || diamondSettingRows[0].key_value === '1')
+      : false;
+
+    let diamondReward = 0;
+    if (diamond_reward !== undefined && diamond_reward !== null && !isNaN(parseInt(diamond_reward, 10))) {
+      diamondReward = parseInt(diamond_reward, 10);
+    } else if (isDiamondMode) {
+      diamondReward = Math.floor(parsedCoinCost / 2);
+    } else {
+      diamondReward = 0; // Diamond conversion is off -> no diamond reward needed
+    }
 
     const result = await query(
       `INSERT INTO gifts (name, icon_url, animation_type, animation_url, sound_url, coin_cost, diamond_reward, category, is_active)
@@ -1026,6 +1113,7 @@ export async function updateSetting(req, res) {
     await cache.del('config:mobile:app');
     await cache.del('config:livekit');
     await cache.delByPattern('setting*');
+    await cache.delByPattern('admin:dashboard*');
     await cache.delByPattern('mobile:user:profile*');
     await cache.del('host_ratios:all');
     await cache.del('wallet:withdrawal:config');

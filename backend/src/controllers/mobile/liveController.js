@@ -35,6 +35,7 @@ export async function buildRoomResponse(roomId, currentUser = null) {
   const rooms = await query(
     `SELECT r.id, r.room_id, r.host_id, r.title, r.category, r.live_type, r.total_seats,
             r.cover_image, r.background_image, r.status, r.viewer_count, r.total_diamonds,
+            r.is_comment_disabled, r.is_reaction_disabled,
             r.stream_key, r.started_at, r.created_at,
             u.full_name as host_name, u.avatar_url as host_avatar, u.level as host_level,
             u.coins as host_coins, u.diamonds as host_diamonds, u.role as host_role
@@ -220,6 +221,8 @@ export async function buildRoomResponse(roomId, currentUser = null) {
     status: room.status,
     viewer_count: room.viewer_count,
     total_diamonds: room.total_diamonds,
+    is_comment_disabled: Boolean(room.is_comment_disabled),
+    is_reaction_disabled: Boolean(room.is_reaction_disabled),
     started_at: room.started_at,
     live_duration: {
       started_at: room.started_at,
@@ -317,7 +320,7 @@ export async function getRooms(req, res) {
       const rooms = await query(
         `SELECT r.id, r.room_id, r.host_id, r.title, r.category, r.live_type, r.total_seats,
                 r.background_image, r.status,
-                r.viewer_count, r.total_diamonds, r.started_at,
+                r.viewer_count, r.total_diamonds, r.is_comment_disabled, r.is_reaction_disabled, r.started_at,
                 u.full_name as host_name, u.avatar_url as host_avatar, u.level as host_level,
                 pc.name as host_vip_category,
                 pc.badge_icon as host_vip_icon,
@@ -346,6 +349,8 @@ export async function getRooms(req, res) {
           return {
             ...rm,
             is_audio: rm.live_type === 'audio',
+            is_comment_disabled: Boolean(rm.is_comment_disabled),
+            is_reaction_disabled: Boolean(rm.is_reaction_disabled),
             background_image_url: bg,
             room_background_url: bg,
             thumbnail_url: bg,
@@ -523,10 +528,13 @@ export async function createRoom(req, res) {
       seatCount = requested ? Math.max(7, requested) : 7;
     }
 
+    const isCommentDisabled = req.body.is_comment_disabled === true || req.body.is_comment_disabled === 'true' || req.body.is_comment_disabled === 1 ? 1 : 0;
+    const isReactionDisabled = req.body.is_reaction_disabled === true || req.body.is_reaction_disabled === 'true' || req.body.is_reaction_disabled === 1 ? 1 : 0;
+
     await query(
-      `INSERT INTO live_rooms (room_id, host_id, title, category, live_type, total_seats, cover_image, background_image, status, stream_key)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'live', ?)`,
-      [roomId, hostId, title, category, liveType, seatCount, defaultCover, defaultBg, streamKey]
+      `INSERT INTO live_rooms (room_id, host_id, title, category, live_type, total_seats, cover_image, background_image, is_comment_disabled, is_reaction_disabled, status, stream_key)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'live', ?)`,
+      [roomId, hostId, title, category, liveType, seatCount, defaultCover, defaultBg, isCommentDisabled, isReactionDisabled, streamKey]
     );
 
     // Auto-register host in live_room_admins
@@ -3810,6 +3818,80 @@ export async function getLiveKitToken(req, res) {
     return res.status(500).json({ success: false, message: 'Failed to generate LiveKit token.', error: err.message });
   }
 }
+
+/**
+ * Host Update Room Settings (Disable/Enable comments & reactions)
+ * PATCH /api/mobile/live/rooms/:roomId/settings
+ * PUT /api/mobile/live/rooms/:roomId/settings
+ */
+export async function updateRoomSettings(req, res) {
+  try {
+    const { roomId } = req.params;
+    const hostId = req.user.id;
+    const { is_comment_disabled, is_reaction_disabled } = req.body;
+
+    const isNum = /^\d+$/.test(String(roomId).trim());
+    const rooms = await query(
+      'SELECT id, room_id, host_id, is_comment_disabled, is_reaction_disabled FROM live_rooms WHERE (room_id = ? OR id = ?) AND status = "live" LIMIT 1',
+      [String(roomId), isNum ? Number(roomId) : -1]
+    );
+
+    if (rooms.length === 0) {
+      return res.status(404).json({ success: false, message: 'Active live room not found.' });
+    }
+
+    const room = rooms[0];
+    if (room.host_id !== hostId) {
+      return res.status(403).json({ success: false, message: 'Only the room host can update room settings.' });
+    }
+
+    const newCommentDisabled = is_comment_disabled !== undefined
+      ? (is_comment_disabled === true || is_comment_disabled === 'true' || is_comment_disabled === 1 ? 1 : 0)
+      : room.is_comment_disabled;
+
+    const newReactionDisabled = is_reaction_disabled !== undefined
+      ? (is_reaction_disabled === true || is_reaction_disabled === 'true' || is_reaction_disabled === 1 ? 1 : 0)
+      : room.is_reaction_disabled;
+
+    // 1. DB-First mutation
+    await query(
+      'UPDATE live_rooms SET is_comment_disabled = ?, is_reaction_disabled = ? WHERE id = ?',
+      [newCommentDisabled, newReactionDisabled, room.id]
+    );
+
+    // 2. Instant Redis cache invalidation
+    await Promise.allSettled([
+      cache.del(`mobile:room_details:${room.room_id}`),
+      cache.del(`mobile:room_details:${room.id}`),
+      cache.delByPattern('mobile:rooms:*'),
+    ]);
+
+    // 3. Real-time broadcast to all room viewers
+    const io = req.io || req.app.get('io');
+    if (io) {
+      io.to(room.room_id).emit('room-settings-updated', {
+        roomId: room.room_id,
+        room_id: room.room_id,
+        is_comment_disabled: Boolean(newCommentDisabled),
+        is_reaction_disabled: Boolean(newReactionDisabled),
+        updated_by: hostId,
+        timestamp: new Date().toISOString(),
+      });
+    }
+
+    return res.json({
+      success: true,
+      message: 'Room settings updated successfully.',
+      roomId: room.room_id,
+      is_comment_disabled: Boolean(newCommentDisabled),
+      is_reaction_disabled: Boolean(newReactionDisabled),
+    });
+  } catch (err) {
+    console.error('updateRoomSettings error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to update room settings.', error: err.message });
+  }
+}
+
 
 
 

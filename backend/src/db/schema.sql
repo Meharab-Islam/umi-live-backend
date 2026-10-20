@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS users (
   level INT DEFAULT 1,
   star INT DEFAULT 0,
   vip_package VARCHAR(50) DEFAULT 'Standard',
+  fcm_token VARCHAR(512) NULL,
   is_banned BOOLEAN DEFAULT FALSE,
   broadcast_banned_until TIMESTAMP NULL DEFAULT NULL,
   broadcast_ban_reason VARCHAR(255) NULL DEFAULT NULL,
@@ -77,6 +78,8 @@ CREATE TABLE IF NOT EXISTS live_rooms (
   viewer_count INT DEFAULT 0,
   total_diamonds INT DEFAULT 0,
   stream_key VARCHAR(100),
+  is_comment_disabled BOOLEAN DEFAULT FALSE,
+  is_reaction_disabled BOOLEAN DEFAULT FALSE,
   started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   ended_at TIMESTAMP NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -249,14 +252,66 @@ CREATE TABLE IF NOT EXISTS system_settings (
 CREATE TABLE IF NOT EXISTS posts (
   id INT AUTO_INCREMENT PRIMARY KEY,
   user_id INT NOT NULL,
+  title VARCHAR(255) NULL,
   content TEXT NOT NULL,
   media_url VARCHAR(255) DEFAULT '',
-  media_type ENUM('image', 'video', 'none') DEFAULT 'none',
+  media_type ENUM('image','video','audio','multiple','none') DEFAULT 'none',
+  media JSON NULL,
   likes_count INT DEFAULT 0,
   comments_count INT DEFAULT 0,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_user_id (user_id),
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Post Media Attachments (Supports multiple photos, videos, audio clips per post)
+CREATE TABLE IF NOT EXISTS post_media (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  post_id INT NOT NULL,
+  media_type ENUM('image', 'video', 'audio') NOT NULL,
+  media_url TEXT NOT NULL,
+  thumbnail_url TEXT NULL,
+  duration INT DEFAULT 0,
+  display_order INT DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_post_id (post_id),
+  FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Post Reactions (Likes, hearts, applause)
+CREATE TABLE IF NOT EXISTS post_reactions (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  post_id INT NOT NULL,
+  user_id INT NOT NULL,
+  reaction_type VARCHAR(20) DEFAULT 'like',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY uk_post_user (post_id, user_id),
+  INDEX idx_reaction_post (post_id),
+  INDEX idx_reaction_user (user_id),
+  FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Post Comments & Nested Replies
+CREATE TABLE IF NOT EXISTS post_comments (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  post_id INT NOT NULL,
+  user_id INT NOT NULL,
+  parent_id INT NULL,
+  content TEXT NOT NULL,
+  media_url VARCHAR(255) NULL,
+  likes_count INT DEFAULT 0,
+  replies_count INT DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_comment_post (post_id),
+  INDEX idx_comment_parent (parent_id),
+  INDEX idx_comment_user (user_id),
+  FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (parent_id) REFERENCES post_comments(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Conversations Thread
@@ -296,6 +351,22 @@ CREATE TABLE IF NOT EXISTS chat_messages (
   FOREIGN KEY (conversation_id) REFERENCES conversations(id) ON DELETE CASCADE,
   FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE,
   FOREIGN KEY (receiver_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Chat Message Media Attachments
+CREATE TABLE IF NOT EXISTS chat_message_media (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  message_id INT NOT NULL,
+  media_type ENUM('image', 'video', 'audio') NOT NULL,
+  media_url TEXT NOT NULL,
+  thumbnail_url TEXT NULL,
+  file_name VARCHAR(255) NULL,
+  file_size INT DEFAULT 0,
+  duration INT DEFAULT 0,
+  display_order INT DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_message_id (message_id),
+  FOREIGN KEY (message_id) REFERENCES chat_messages(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Reseller Sales & Coin Transfers
@@ -508,6 +579,23 @@ CREATE TABLE IF NOT EXISTS user_blocks (
   FOREIGN KEY (blocker_id) REFERENCES users(id) ON DELETE CASCADE,
   FOREIGN KEY (blocked_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- User FCM Push Notification Device Tokens (Multi-device support)
+CREATE TABLE IF NOT EXISTS user_fcm_tokens (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  fcm_token VARCHAR(512) NOT NULL,
+  device_type ENUM('android', 'ios', 'web') DEFAULT 'android',
+  device_name VARCHAR(100) NULL,
+  is_active TINYINT(1) DEFAULT 1,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY uniq_user_fcm (user_id, fcm_token(255)),
+  INDEX idx_fcm_user (user_id),
+  INDEX idx_fcm_token (fcm_token(255)),
+  INDEX idx_user_active (user_id, is_active),
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
 

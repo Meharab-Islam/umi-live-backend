@@ -44,12 +44,100 @@ const invalidateFeedCache = async (postId = null) => {
 };
 
 /**
+ * Auto-Heal & Ensure Feed Database Schema
+ * Automatically verifies that 'title', 'media' and auxiliary tables exist
+ * to completely eliminate 'Unknown column title' 500 crashes across all MySQL versions.
+ */
+let isFeedSchemaVerified = false;
+export const ensureFeedSchema = async () => {
+  if (isFeedSchemaVerified) return;
+  try {
+    const pool = getPool();
+    const [cols] = await pool.query(
+      `SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS 
+       WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'posts' AND COLUMN_NAME IN ('title', 'media')`
+    );
+    const existingColNames = (cols || []).map((c) => c.COLUMN_NAME);
+
+    if (!existingColNames.includes('title')) {
+      await pool.query('ALTER TABLE posts ADD COLUMN title VARCHAR(255) NULL AFTER user_id');
+      console.log('✅ [Self-Healing] Added missing `title` column to `posts` table.');
+    }
+    if (!existingColNames.includes('media')) {
+      await pool.query('ALTER TABLE posts ADD COLUMN media JSON NULL AFTER media_type');
+      console.log('✅ [Self-Healing] Added missing `media` column to `posts` table.');
+    }
+    await pool.query("ALTER TABLE posts MODIFY COLUMN media_type ENUM('image','video','audio','multiple','none') DEFAULT 'none'").catch(() => {});
+
+    // Ensure post_media table exists
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS post_media (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        post_id INT NOT NULL,
+        media_type ENUM('image', 'video', 'audio') NOT NULL,
+        media_url TEXT NOT NULL,
+        thumbnail_url TEXT NULL,
+        duration INT DEFAULT 0,
+        display_order INT DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        INDEX idx_post_id (post_id),
+        FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    `).catch(() => {});
+
+    // Ensure post_reactions table exists
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS post_reactions (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        post_id INT NOT NULL,
+        user_id INT NOT NULL,
+        reaction_type VARCHAR(20) DEFAULT 'like',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        UNIQUE KEY uk_post_user (post_id, user_id),
+        INDEX idx_reaction_post (post_id),
+        INDEX idx_reaction_user (user_id),
+        FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    `).catch(() => {});
+
+    // Ensure post_comments table exists
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS post_comments (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        post_id INT NOT NULL,
+        user_id INT NOT NULL,
+        parent_id INT NULL,
+        content TEXT NOT NULL,
+        media_url VARCHAR(255) NULL,
+        likes_count INT DEFAULT 0,
+        replies_count INT DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        INDEX idx_comment_post (post_id),
+        INDEX idx_comment_parent (parent_id),
+        INDEX idx_comment_user (user_id),
+        FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (parent_id) REFERENCES post_comments(id) ON DELETE CASCADE
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    `).catch(() => {});
+
+    isFeedSchemaVerified = true;
+  } catch (err) {
+    console.warn('[Self-Healing] Schema verification warning:', err.message);
+  }
+};
+
+/**
  * 1. Create a New Feed Post
  * Supports multiple images, videos, audio clips, text, title.
  * Accepts multipart/form-data via optionalFeedMediaUpload or application/json.
  * POST /api/mobile/feed
  */
 export const createPost = async (req, res) => {
+  await ensureFeedSchema();
   const userId = req.user?.id;
   if (!userId) {
     return res.status(401).json({ success: false, message: 'Authentication required.' });
@@ -240,6 +328,7 @@ export const createPost = async (req, res) => {
  */
 export const getFeed = async (req, res) => {
   try {
+    await ensureFeedSchema();
     const currentUserId = req.user?.id ? parseInt(req.user.id, 10) : null;
     const page = Math.max(1, parseInt(req.query.page || '1', 10));
     const limit = Math.min(50, Math.max(1, parseInt(req.query.limit || '10', 10)));
@@ -457,6 +546,7 @@ export const getFeed = async (req, res) => {
  */
 export const getPostDetails = async (req, res) => {
   try {
+    await ensureFeedSchema();
     const postId = parseInt(req.params.id, 10);
     const currentUserId = req.user?.id ? parseInt(req.user.id, 10) : null;
 

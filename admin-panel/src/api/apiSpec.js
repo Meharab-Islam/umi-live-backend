@@ -3924,6 +3924,80 @@ export const API_SPEC = {
       "liveType": "both"
     },
     {
+      "id": "live-update-room-settings",
+      "category": "live-rooms",
+      "method": "PATCH",
+      "path": "/api/mobile/live/rooms/:roomId/settings",
+      "summary": "[🎥🎙️ Video & Audio Live] Host Update Room Settings (Disable/Enable Comments & Reactions)",
+      "description": "**Stream Type**: 🎥🎙️ Applicable to both Video Live & Audio Live rooms.\n\nAllows the room host to dynamically disable or enable audience comments (`is_comment_disabled`) and floating emoji reactions (`is_reaction_disabled`).\n\n**Late Joining & State Sync**:\n- Instantly commits changes to the MySQL database.\n- Flushes Redis caches (`mobile:room_details:{roomId}`, `mobile:rooms:*`).\n- Any late-joining user calling `POST /api/mobile/live/rooms/:roomId/join` or `GET /api/mobile/live/rooms/:roomId` immediately receives `room.is_comment_disabled` and `room.is_reaction_disabled` as booleans, allowing the Flutter app to disable comment and reaction buttons without needing separate text validation.\n- Real-time Socket.IO event `room-settings-updated` is broadcast to all active room viewers so existing viewers' UI buttons update instantly.",
+      "requiresAuth": true,
+      "requestHeaders": [
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>",
+          "required": true,
+          "description": "JWT Bearer token of Room Host"
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json",
+          "required": true
+        }
+      ],
+      "parameters": [
+        {
+          "name": "roomId",
+          "in": "path",
+          "required": true,
+          "description": "Room ID (e.g., room-nila-101 or numeric id 1)",
+          "example": "room-nila-101"
+        }
+      ],
+      "requestBody": {
+        "type": "application/json",
+        "fields": [
+          {
+            "name": "is_comment_disabled",
+            "type": "boolean",
+            "required": false,
+            "description": "Pass true to disable audience comments, false to enable."
+          },
+          {
+            "name": "is_reaction_disabled",
+            "type": "boolean",
+            "required": false,
+            "description": "Pass true to disable audience reactions/likes, false to enable."
+          }
+        ],
+        "example": {
+          "is_comment_disabled": true,
+          "is_reaction_disabled": true
+        }
+      },
+      "responses": [
+        {
+          "status": 200,
+          "description": "Room settings updated successfully.",
+          "example": {
+            "success": true,
+            "message": "Room settings updated successfully.",
+            "roomId": "room-nila-101",
+            "is_comment_disabled": true,
+            "is_reaction_disabled": true
+          }
+        },
+        {
+          "status": 403,
+          "description": "Forbidden if caller is not the room host."
+        }
+      ],
+      "codeSnippets": {
+        "curl": "curl -X PATCH https://yourdomain.com/api/mobile/live/rooms/room-nila-101/settings \\\n  -H \"Authorization: Bearer <HOST_TOKEN>\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"is_comment_disabled\": true, \"is_reaction_disabled\": true}'",
+        "flutter": "import 'package:http/http.dart' as http;\nimport 'dart:convert';\n\nFuture<void> updateRoomSettings(String roomId, String hostJwt, {bool? disableComment, bool? disableReaction}) async {\n  final res = await http.patch(\n    Uri.parse('https://yourdomain.com/api/mobile/live/rooms/$roomId/settings'),\n    headers: {\n      'Authorization': 'Bearer $hostJwt',\n      'Content-Type': 'application/json',\n    },\n    body: jsonEncode({\n      if (disableComment != null) 'is_comment_disabled': disableComment,\n      if (disableReaction != null) 'is_reaction_disabled': disableReaction,\n    }),\n  );\n  final data = jsonDecode(res.body);\n  print(data);\n}"
+      },
+      "liveType": "both"
+    },
+    {
       "id": "live-room-users",
       "category": "live-viewers",
       "method": "GET",

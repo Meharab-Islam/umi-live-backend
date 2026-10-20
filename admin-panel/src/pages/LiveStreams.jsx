@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Radio, Search, Filter, ShieldAlert, CheckCircle, Eye, User, Sparkles } from 'lucide-react';
 import streamApi from '../api/streamApi';
 import Loader from '../components/Loader';
+import { useEconomy } from '../context/EconomyContext';
 
 export default function LiveStreams({ onToast }) {
+  const { isDiamondMode } = useEconomy();
   const [streams, setStreams] = useState([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('live');
@@ -174,9 +176,11 @@ export default function LiveStreams({ onToast }) {
                       Room: {stream.room_id}
                     </div>
                   </div>
-                  <div style={{ fontSize: '0.75rem', color: '#06b6d4', fontWeight: 700 }}>
-                    💎 {stream.total_diamonds}
-                  </div>
+                  {isDiamondMode && (
+                    <div style={{ fontSize: '0.75rem', color: '#06b6d4', fontWeight: 700 }}>
+                      💎 {stream.total_diamonds}
+                    </div>
+                  )}
                 </div>
 
                 {stream.status === 'live' && (

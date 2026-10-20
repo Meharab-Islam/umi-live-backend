@@ -64,6 +64,8 @@ export async function initializeDatabase() {
         viewer_count INT DEFAULT 0,
         total_diamonds INT DEFAULT 0,
         stream_key VARCHAR(100),
+        is_comment_disabled BOOLEAN DEFAULT FALSE,
+        is_reaction_disabled BOOLEAN DEFAULT FALSE,
         started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         ended_at TIMESTAMP NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -663,44 +665,47 @@ export async function initializeDatabase() {
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     `);
 
-    // Schema Migrations - Ensure newly added columns exist on existing tables
-    try {
-      await connection.query(`
-        ALTER TABLE users ADD COLUMN IF NOT EXISTS mobile_number VARCHAR(30) DEFAULT '' AFTER bio;
-      `);
-      await connection.query(`
-        ALTER TABLE users ADD COLUMN IF NOT EXISTS country VARCHAR(50) DEFAULT '' AFTER mobile_number;
-      `);
-      await connection.query(`
-        ALTER TABLE users ADD COLUMN IF NOT EXISTS star INT DEFAULT 0 AFTER level;
-      `);
-      await connection.query(`
-        ALTER TABLE live_rooms ADD COLUMN IF NOT EXISTS live_type ENUM('video', 'audio') DEFAULT 'video' AFTER category;
-      `);
-      await connection.query(`
-        ALTER TABLE live_rooms ADD COLUMN IF NOT EXISTS total_seats INT DEFAULT 9 AFTER live_type;
-      `);
-      await connection.query(`
-        ALTER TABLE live_rooms ADD COLUMN IF NOT EXISTS background_image VARCHAR(255) DEFAULT '' AFTER cover_image;
-      `);
-      await connection.query(`
-        ALTER TABLE posts ADD COLUMN IF NOT EXISTS title VARCHAR(255) NULL AFTER user_id;
-      `);
-      await connection.query(`
-        ALTER TABLE posts ADD COLUMN IF NOT EXISTS media JSON NULL AFTER media_type;
-      `);
-      await connection.query(`
-        ALTER TABLE posts MODIFY COLUMN media_type ENUM('image','video','audio','multiple','none') DEFAULT 'none';
-      `);
-      await connection.query(`
-        ALTER TABLE special_thumbnails ADD COLUMN IF NOT EXISTS is_custom TINYINT(1) NOT NULL DEFAULT 0;
-      `);
-      await connection.query(`
-        ALTER TABLE special_thumbnails ADD COLUMN IF NOT EXISTS uploader_id INT NULL;
-      `);
-    } catch (migErr) {
-      console.warn('[DB Migration Warning]:', migErr.message);
-    }
+    // Schema Migrations - Ensure newly added columns exist on existing tables (compatible with MySQL 5.7, 8.0, 8.4 & MariaDB)
+    const safeAddColumn = async (table, column, colDef) => {
+      try {
+        const [existing] = await connection.query(
+          `SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS 
+           WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?`,
+          [table, column]
+        );
+        if (!existing || existing.length === 0) {
+          await connection.query(`ALTER TABLE ${table} ADD COLUMN ${column} ${colDef}`);
+          console.log(`✅ [DB Migration] Added column ${column} to table ${table}`);
+        }
+      } catch (colErr) {
+        if (colErr.errno !== 1060 && colErr.code !== 'ER_DUP_FIELDNAME') {
+          console.warn(`[DB Migration Warning] Column ${table}.${column}:`, colErr.message);
+        }
+      }
+    };
+
+    const safeModifyColumn = async (table, column, colDef) => {
+      try {
+        await connection.query(`ALTER TABLE ${table} MODIFY COLUMN ${column} ${colDef}`);
+      } catch (modErr) {
+        console.warn(`[DB Migration Warning] Modify ${table}.${column}:`, modErr.message);
+      }
+    };
+
+    await safeAddColumn('users', 'mobile_number', "VARCHAR(30) DEFAULT '' AFTER bio");
+    await safeAddColumn('users', 'country', "VARCHAR(50) DEFAULT '' AFTER mobile_number");
+    await safeAddColumn('users', 'star', "INT DEFAULT 0 AFTER level");
+    await safeAddColumn('users', 'fcm_token', "VARCHAR(512) NULL");
+    await safeAddColumn('live_rooms', 'live_type', "ENUM('video', 'audio') DEFAULT 'video' AFTER category");
+    await safeAddColumn('live_rooms', 'total_seats', "INT DEFAULT 9 AFTER live_type");
+    await safeAddColumn('live_rooms', 'background_image', "VARCHAR(255) DEFAULT '' AFTER cover_image");
+    await safeAddColumn('live_rooms', 'is_comment_disabled', "BOOLEAN DEFAULT FALSE");
+    await safeAddColumn('live_rooms', 'is_reaction_disabled', "BOOLEAN DEFAULT FALSE");
+    await safeAddColumn('posts', 'title', "VARCHAR(255) NULL AFTER user_id");
+    await safeAddColumn('posts', 'media', "JSON NULL AFTER media_type");
+    await safeModifyColumn('posts', 'media_type', "ENUM('image','video','audio','multiple','none') DEFAULT 'none'");
+    await safeAddColumn('special_thumbnails', 'is_custom', "TINYINT(1) NOT NULL DEFAULT 0");
+    await safeAddColumn('special_thumbnails', 'uploader_id', "INT NULL");
 
     // Seed Admin & Initial Data if users table is empty
     const [userRows] = await connection.query('SELECT COUNT(*) as count FROM users');

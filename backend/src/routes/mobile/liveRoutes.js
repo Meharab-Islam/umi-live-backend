@@ -37,6 +37,7 @@ import {
   deleteRoomChatMessage,
   getLiveKitToken,
   updateRoomBackground,
+  updateRoomSettings,
 } from '../../controllers/mobile/liveController.js';
 import { getLiveKitConfigEndpoint } from '../../controllers/mobile/configController.js';
 import { requireAuth } from '../../middlewares/authMiddleware.js';
@@ -187,5 +188,9 @@ router.get('/livekit-config', getLiveKitConfigEndpoint);
 router.get('/rooms/:roomId/livekit-token', requireAuth, getLiveKitToken);
 router.post('/rooms/:roomId/livekit-token', requireAuth, getLiveKitToken);
 router.get('/rooms/:roomId/token', requireAuth, getLiveKitToken);
+
+// Host Room Settings (Disable/Enable comments & reactions)
+router.patch('/rooms/:roomId/settings', requireAuth, updateRoomSettings);
+router.put('/rooms/:roomId/settings', requireAuth, updateRoomSettings);
 
 export default router;

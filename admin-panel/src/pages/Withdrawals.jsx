@@ -58,7 +58,7 @@ export default function Withdrawals({ onToast }) {
       const res = await withdrawalApi.getWithdrawalConfig();
       if (res.success && res.config) {
         if (res.config.is_convert_to_diamond !== undefined) {
-          setIsDiamondMode(res.config.is_convert_to_diamond !== false);
+          setIsDiamondMode(res.config.is_convert_to_diamond === true || res.config.is_convert_to_diamond === 'true' || res.config.is_convert_to_diamond === 1);
         }
         setMinDiamonds(res.config.min_withdrawal_diamonds || res.config.minWithdrawalDiamonds || 1000);
         setPresets(res.config.withdrawal_presets || res.config.withdrawalPresets || [1000, 2000, 5000, 10000, 25000, 50000]);
@@ -192,7 +192,7 @@ export default function Withdrawals({ onToast }) {
               <span>Host Payout & Cashout Requests</span>
             </h3>
             <p style={{ fontSize: '0.8rem', color: 'var(--text-dim)', margin: '4px 0 0 0' }}>
-              Manage host diamond cashout requests, minimum withdrawal thresholds, and preset cashout options.
+              Manage host {isDiamondMode ? 'diamond' : 'coin'} cashout requests, minimum withdrawal thresholds, and preset cashout options.
             </p>
           </div>
 
@@ -246,58 +246,42 @@ export default function Withdrawals({ onToast }) {
                 </span>
               </div>
               <span className={`badge ${isDiamondMode ? 'badge-primary' : 'badge-warning'}`} style={{ fontSize: '0.74rem', fontWeight: 800 }}>
-                {isDiamondMode ? '💎 Diamond Conversion Mode (ON)' : '🪙 Direct Coin Cashout Mode (OFF)'}
+                {isDiamondMode ? '💎 Diamond Conversion Mode (ON)' : '🪙 Direct Coin Cashout Mode'}
               </span>
             </div>
 
-            {/* Economy Mode Selector Toggle */}
+            {/* Economy Mode Currency Banner */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--bg-secondary)', padding: '0.85rem 1rem', borderRadius: '10px', border: '1px solid var(--border-color)', flexWrap: 'wrap', gap: '10px' }}>
               <div>
                 <div style={{ fontWeight: 700, fontSize: '0.88rem', color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <span>Withdrawal Economy Currency:</span>
                   <span style={{ color: isDiamondMode ? '#7c3aed' : '#d97706', fontWeight: 800 }}>
-                    {isDiamondMode ? '💎 Diamond Cashout' : '🪙 Coin Cashout'}
+                    {isDiamondMode ? '💎 Diamond Cashout' : '🪙 Direct Coin Cashout'}
                   </span>
                 </div>
                 <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: '2px' }}>
                   {isDiamondMode
                     ? 'Diamond Conversion is ON: Streamers cash out accumulated Diamonds (💎).'
-                    : 'Diamond Conversion is OFF: Streamers cash out accumulated Coins (🪙) directly.'}
+                    : 'Streamers cash out accumulated Coins (🪙) directly.'}
                 </div>
               </div>
 
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <button
-                  type="button"
-                  onClick={() => setIsDiamondMode(false)}
-                  className={`btn btn-sm ${!isDiamondMode ? 'btn-primary' : 'btn-secondary'}`}
-                  style={{
-                    padding: '5px 12px',
-                    fontSize: '0.76rem',
-                    fontWeight: 700,
-                    background: !isDiamondMode ? '#d97706' : 'transparent',
-                    borderColor: !isDiamondMode ? '#d97706' : 'var(--border-color)',
-                    color: !isDiamondMode ? '#fff' : 'var(--text-dim)',
-                  }}
-                >
-                  🪙 Coin Mode (OFF)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setIsDiamondMode(true)}
-                  className={`btn btn-sm ${isDiamondMode ? 'btn-primary' : 'btn-secondary'}`}
-                  style={{
-                    padding: '5px 12px',
-                    fontSize: '0.76rem',
-                    fontWeight: 700,
-                    background: isDiamondMode ? '#7c3aed' : 'transparent',
-                    borderColor: isDiamondMode ? '#7c3aed' : 'var(--border-color)',
-                    color: isDiamondMode ? '#fff' : 'var(--text-dim)',
-                  }}
-                >
-                  💎 Diamond Mode (ON)
-                </button>
-              </div>
+              {isDiamondMode && (
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button
+                    type="button"
+                    onClick={() => setIsDiamondMode(false)}
+                    className="btn btn-sm btn-secondary"
+                    style={{
+                      padding: '5px 12px',
+                      fontSize: '0.76rem',
+                      fontWeight: 700,
+                    }}
+                  >
+                    Switch to Coin Cashout
+                  </button>
+                </div>
+              )}
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem' }}>
@@ -483,7 +467,7 @@ export default function Withdrawals({ onToast }) {
                 <th className="user-id-cell" style={{ width: '125px', minWidth: '125px', whiteSpace: 'nowrap' }}>Host User ID</th>
                 <th>Host Details</th>
                 <th>Request ID</th>
-                <th>Requested Currency & Amount</th>
+                <th>{isDiamondMode ? 'Requested Diamonds (💎)' : 'Requested Coins (🪙)'}</th>
                 <th>Amount (USD)</th>
                 <th>Payment Method</th>
                 <th>Account Info</th>
@@ -569,6 +553,33 @@ export default function Withdrawals({ onToast }) {
                     </td>
 
                     {(() => {
+                      if (!isDiamondMode) {
+                        const amt = Number(item.coin_amount || item.diamond_amount || item.amount || 0);
+                        return (
+                          <td>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                              <span style={{ color: '#d97706', fontWeight: 800, fontSize: '0.92rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                <span>🪙</span>
+                                <span>{amt.toLocaleString()}</span>
+                              </span>
+                              <span
+                                style={{
+                                  fontSize: '0.68rem',
+                                  color: '#d97706',
+                                  background: 'rgba(217, 119, 6, 0.12)',
+                                  padding: '1px 6px',
+                                  borderRadius: '4px',
+                                  width: 'fit-content',
+                                  fontWeight: 700,
+                                }}
+                              >
+                                Coin Cashout
+                              </span>
+                            </div>
+                          </td>
+                        );
+                      }
+
                       const isDiamond = Number(item.diamond_amount) > 0;
                       const isCoin = Number(item.coin_amount) > 0;
 
@@ -598,36 +609,27 @@ export default function Withdrawals({ onToast }) {
                         );
                       }
 
-                      if (isCoin) {
-                        return (
-                          <td>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
-                              <span style={{ color: '#d97706', fontWeight: 800, fontSize: '0.92rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                <span>🪙</span>
-                                <span>{Number(item.coin_amount).toLocaleString()}</span>
-                              </span>
-                              <span
-                                style={{
-                                  fontSize: '0.68rem',
-                                  color: '#d97706',
-                                  background: 'rgba(217, 119, 6, 0.12)',
-                                  padding: '1px 6px',
-                                  borderRadius: '4px',
-                                  width: 'fit-content',
-                                  fontWeight: 700,
-                                }}
-                              >
-                                Coin Cashout
-                              </span>
-                            </div>
-                          </td>
-                        );
-                      }
-
-                      const fallbackAmt = Number(item.amount || item.coin_amount || item.diamond_amount || 0);
                       return (
-                        <td style={{ color: isDiamondMode ? '#0284c7' : '#d97706', fontWeight: 700 }}>
-                          {isDiamondMode ? '💎 ' : '🪙 '} {fallbackAmt.toLocaleString()}
+                        <td>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                            <span style={{ color: '#d97706', fontWeight: 800, fontSize: '0.92rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                              <span>🪙</span>
+                              <span>{Number(item.coin_amount || item.amount || 0).toLocaleString()}</span>
+                            </span>
+                            <span
+                              style={{
+                                fontSize: '0.68rem',
+                                color: '#d97706',
+                                background: 'rgba(217, 119, 6, 0.12)',
+                                padding: '1px 6px',
+                                borderRadius: '4px',
+                                width: 'fit-content',
+                                fontWeight: 700,
+                              }}
+                            >
+                              Coin Cashout
+                            </span>
+                          </div>
                         </td>
                       );
                     })()}
@@ -734,13 +736,13 @@ export default function Withdrawals({ onToast }) {
             </h3>
 
             {(() => {
-              const isDiamond = Number(selectedItem.diamond_amount) > 0;
+              const isDiamond = isDiamondMode && Number(selectedItem.diamond_amount) > 0;
               const requestedLabel = isDiamond 
                 ? `💎 ${Number(selectedItem.diamond_amount).toLocaleString()} Diamonds`
-                : `🪙 ${Number(selectedItem.coin_amount || selectedItem.amount || 0).toLocaleString()} Coins`;
+                : `🪙 ${Number(selectedItem.coin_amount || selectedItem.diamond_amount || selectedItem.amount || 0).toLocaleString()} Coins`;
               const refundLabel = isDiamond
                 ? `${Number(selectedItem.diamond_amount).toLocaleString()} diamonds`
-                : `${Number(selectedItem.coin_amount || selectedItem.amount || 0).toLocaleString()} coins`;
+                : `${Number(selectedItem.coin_amount || selectedItem.diamond_amount || selectedItem.amount || 0).toLocaleString()} coins`;
 
               return (
                 <div style={{ fontSize: '0.86rem', color: 'var(--text-dim)', marginBottom: '1.25rem', lineHeight: 1.6 }}>

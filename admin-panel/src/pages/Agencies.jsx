@@ -30,8 +30,10 @@ import Loader from '../components/Loader';
 import Pagination from '../components/Pagination';
 import UserDetailsModal from '../components/UserDetailsModal';
 import BulkActionBar from '../components/BulkActionBar';
+import { useEconomy } from '../context/EconomyContext';
 
 export default function Agencies({ onToast }) {
+  const { isDiamondMode } = useEconomy();
   const [agencies, setAgencies] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -353,18 +355,20 @@ export default function Agencies({ onToast }) {
           </div>
         </div>
 
-        <div className="stat-card">
-          <div className="stat-top">
-            <span className="stat-label">Agency Diamonds</span>
-            <div className="stat-icon-wrap" style={{ background: 'rgba(6, 182, 212, 0.15)', color: '#06b6d4' }}>
-              <Gem size={20} />
+        {isDiamondMode && (
+          <div className="stat-card">
+            <div className="stat-top">
+              <span className="stat-label">Agency Diamonds</span>
+              <div className="stat-icon-wrap" style={{ background: 'rgba(6, 182, 212, 0.15)', color: '#06b6d4' }}>
+                <Gem size={20} />
+              </div>
+            </div>
+            <div className="stat-value">💎 {totalAgencyDiamonds.toLocaleString()}</div>
+            <div className="stat-sub" style={{ color: '#38bdf8' }}>
+              <span>Combined host revenue</span>
             </div>
           </div>
-          <div className="stat-value">💎 {totalAgencyDiamonds.toLocaleString()}</div>
-          <div className="stat-sub" style={{ color: '#38bdf8' }}>
-            <span>Combined host revenue</span>
-          </div>
-        </div>
+        )}
       </div>
 
       {/* Action Header */}
@@ -667,7 +671,9 @@ export default function Agencies({ onToast }) {
                           <span>Lv.{selectedOwner.level}</span>
                           <span style={{ color: '#be185d', fontWeight: 600 }}>👑 {selectedOwner.vip_package || 'Standard'}</span>
                           <span style={{ color: '#b45309', fontWeight: 600 }}>🪙 {Number(selectedOwner.coins || 0).toLocaleString()} coins</span>
-                          <span style={{ color: '#0e7490', fontWeight: 600 }}>💎 {Number(selectedOwner.diamonds || 0).toLocaleString()} diamonds</span>
+                          {isDiamondMode && (
+                            <span style={{ color: '#0e7490', fontWeight: 600 }}>💎 {Number(selectedOwner.diamonds || 0).toLocaleString()} diamonds</span>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -876,12 +882,14 @@ export default function Agencies({ onToast }) {
                 </div>
               </div>
 
-              <div style={{ padding: '0.75rem', borderRadius: '8px', background: 'var(--bg-card-hover)', border: '1px solid var(--border-color)' }}>
-                <div style={{ fontSize: '0.7rem', color: 'var(--text-dim)', fontWeight: 600 }}>HOST DIAMONDS</div>
-                <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0284c7', marginTop: '2px' }}>
-                  💎 {Number(selectedAgencyForHosts.total_host_diamonds || 0).toLocaleString()}
+              {isDiamondMode && (
+                <div style={{ padding: '0.75rem', borderRadius: '8px', background: 'var(--bg-card-hover)', border: '1px solid var(--border-color)' }}>
+                  <div style={{ fontSize: '0.7rem', color: 'var(--text-dim)', fontWeight: 600 }}>HOST DIAMONDS</div>
+                  <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0284c7', marginTop: '2px' }}>
+                    💎 {Number(selectedAgencyForHosts.total_host_diamonds || 0).toLocaleString()}
+                  </div>
                 </div>
-              </div>
+              )}
 
               <div style={{ padding: '0.75rem', borderRadius: '8px', background: 'var(--bg-card-hover)', border: '1px solid var(--border-color)' }}>
                 <div style={{ fontSize: '0.7rem', color: 'var(--text-dim)', fontWeight: 600 }}>CONTACT PHONE</div>
@@ -1036,7 +1044,9 @@ export default function Agencies({ onToast }) {
                           <span style={{ color: '#0284c7', fontWeight: 600 }}>Role: <strong>{foundHostUser.role}</strong></span>
                           <span style={{ color: '#be185d', fontWeight: 600 }}>👑 {foundHostUser.vip_package || 'Standard'}</span>
                           <span style={{ color: '#b45309', fontWeight: 600 }}>🪙 {Number(foundHostUser.coins || 0).toLocaleString()}</span>
-                          <span style={{ color: '#0e7490', fontWeight: 600 }}>💎 {Number(foundHostUser.diamonds || 0).toLocaleString()}</span>
+                          {isDiamondMode && (
+                            <span style={{ color: '#0e7490', fontWeight: 600 }}>💎 {Number(foundHostUser.diamonds || 0).toLocaleString()}</span>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -1217,7 +1227,9 @@ export default function Agencies({ onToast }) {
                           <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)', display: 'flex', gap: '8px', marginTop: '2px', flexWrap: 'wrap' }}>
                             <span style={{ color: '#be185d', fontWeight: 600 }}>👑 {host.vip_package || 'Standard'}</span>
                             <span style={{ color: '#f59e0b' }}>🪙 {Number(host.coins || 0).toLocaleString()} coins</span>
-                            <span style={{ color: '#06b6d4' }}>💎 {Number(host.diamonds || 0).toLocaleString()} diamonds</span>
+                            {isDiamondMode && (
+                              <span style={{ color: '#06b6d4' }}>💎 {Number(host.diamonds || 0).toLocaleString()} diamonds</span>
+                            )}
                           </div>
                         </div>
                       </div>

@@ -146,7 +146,7 @@ export default function Users({ onToast }) {
       if (res.success && res.settings) {
         const modeSetting = res.settings.find((s) => s.key_name === 'is_convert_to_diamond');
         if (modeSetting) {
-          setIsDiamondMode(modeSetting.key_value !== 'false');
+          setIsDiamondMode(modeSetting.key_value === 'true' || modeSetting.key_value === '1');
         }
       }
     } catch (err) {
@@ -496,7 +496,7 @@ export default function Users({ onToast }) {
                 <th>Role</th>
                 <th>Level</th>
                 <th>Coin Balance (🪙)</th>
-                <th>{isDiamondMode ? 'Diamond Balance (💎)' : 'Diamond Balance (💎 Inactive)'}</th>
+                {isDiamondMode && <th>Diamond Balance (💎)</th>}
                 <th>Status</th>
                 <th style={{ textAlign: 'right', width: '80px' }}>Actions</th>
               </tr>
@@ -504,13 +504,13 @@ export default function Users({ onToast }) {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan="9" style={{ padding: '3rem 1rem' }}>
+                  <td colSpan={isDiamondMode ? 9 : 8} style={{ padding: '3rem 1rem' }}>
                     <Loader text="Fetching users & broadcaster directory..." />
                   </td>
                 </tr>
               ) : users.length === 0 ? (
                 <tr>
-                  <td colSpan="9" style={{ textAlign: 'center', padding: '2.5rem', color: 'var(--text-dim)' }}>
+                  <td colSpan={isDiamondMode ? 9 : 8} style={{ textAlign: 'center', padding: '2.5rem', color: 'var(--text-dim)' }}>
                     No users found matching query
                   </td>
                 </tr>
@@ -582,7 +582,7 @@ export default function Users({ onToast }) {
                           {u.role === 'agency' ? '🏢 Agency' :
                            u.role === 'host' ? (u.host_type === 'audio' ? '🎙️ Audio Host' : '📹 Video Host') :
                            u.role === 'moderator' ? '🛡️ Moderator' :
-                           u.role === 'reseller' ? '💎 Reseller' :
+                           u.role === 'reseller' ? '🪙 Reseller' :
                            u.role === 'admin' ? '🛡️ Admin' : '👤 User'}
                         </span>
                       </td>
@@ -617,16 +617,16 @@ export default function Users({ onToast }) {
                       </td>
 
                       {/* Diamond Balance */}
-                      <td>
-                        <div style={{ display: 'flex', flexDirection: 'column' }}>
-                          <span style={{ fontWeight: 700, color: isDiamondMode ? '#06b6d4' : 'var(--text-dim)', fontSize: '0.88rem' }}>
-                            💎 {Number(u.diamonds || 0).toLocaleString()}
-                          </span>
-                          <span style={{ fontSize: '0.68rem', color: 'var(--text-dim)' }}>
-                            {isDiamondMode ? 'diamonds' : 'diamonds (inactive)'}
-                          </span>
-                        </div>
-                      </td>
+                      {isDiamondMode && (
+                        <td>
+                          <div style={{ display: 'flex', flexDirection: 'column' }}>
+                            <span style={{ fontWeight: 700, color: '#06b6d4', fontSize: '0.88rem' }}>
+                              💎 {Number(u.diamonds || 0).toLocaleString()}
+                            </span>
+                            <span style={{ fontSize: '0.68rem', color: 'var(--text-dim)' }}>diamonds</span>
+                          </div>
+                        </td>
+                      )}
 
                       {/* Status */}
                       <td>
@@ -761,7 +761,7 @@ export default function Users({ onToast }) {
               <span>Deduct Wallet Balances: User ID #{selectedUser.id}</span>
             </h3>
             <p style={{ fontSize: '0.85rem', color: 'var(--text-dim)', marginBottom: '1rem' }}>
-              User ID: <strong className="user-id-badge">#{selectedUser.id}</strong> • Current: 🪙 <strong>{Number(selectedUser.coins).toLocaleString()}</strong> coins | 💎 <strong>{Number(selectedUser.diamonds).toLocaleString()}</strong> diamonds
+              User ID: <strong className="user-id-badge">#{selectedUser.id}</strong> • Current: 🪙 <strong>{Number(selectedUser.coins).toLocaleString()}</strong> coins{isDiamondMode ? <> | 💎 <strong>{Number(selectedUser.diamonds).toLocaleString()}</strong> diamonds</> : ''}
             </p>
 
             {/* Policy & Security Notice */}
@@ -781,9 +781,9 @@ export default function Users({ onToast }) {
                 ⚠️ Financial Security Policy:
               </div>
               <ul style={{ paddingLeft: '1.2rem', display: 'flex', flexDirection: 'column', gap: '3px' }}>
-                <li>Diamonds <strong>cannot be added</strong> or increased manually. Only deductions down to 0 are permitted.</li>
+                {isDiamondMode && <li>Diamonds <strong>cannot be added</strong> or increased manually. Only deductions down to 0 are permitted.</li>}
                 <li>To <strong>recharge/add coins</strong>, use the dedicated <strong>Coin Recharge</strong> menu.</li>
-                <li>Deducting coins or diamonds requires your <strong>Admin Action Password</strong>.</li>
+                <li>Deducting coins{isDiamondMode ? ' or diamonds' : ''} requires your <strong>Admin Action Password</strong>.</li>
               </ul>
             </div>
 
@@ -833,48 +833,50 @@ export default function Users({ onToast }) {
               </div>
 
               {/* Deduct Diamonds */}
-              <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
-                  <label style={{ fontSize: '0.82rem', fontWeight: 700, color: '#06b6d4', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <Sparkles size={14} /> Deduct Diamonds (💎):
-                  </label>
-                  <span style={{ fontSize: '0.74rem', color: 'var(--text-dim)', fontWeight: 600 }}>
-                    Current: {Number(selectedUser.diamonds || 0).toLocaleString()} diamonds
-                  </span>
+              {isDiamondMode && (
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
+                    <label style={{ fontSize: '0.82rem', fontWeight: 700, color: '#06b6d4', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <Sparkles size={14} /> Deduct Diamonds (💎):
+                    </label>
+                    <span style={{ fontSize: '0.74rem', color: 'var(--text-dim)', fontWeight: 600 }}>
+                      Current: {Number(selectedUser.diamonds || 0).toLocaleString()} diamonds
+                    </span>
+                  </div>
+                  <input
+                    type="number"
+                    className="input-field"
+                    min="0"
+                    max={selectedUser.diamonds || 0}
+                    placeholder="Enter amount to deduct (e.g. 1000)"
+                    value={diamondDelta}
+                    onChange={(e) => setDiamondDelta(e.target.value)}
+                  />
+                  <div style={{ display: 'flex', gap: '6px', marginTop: '6px', flexWrap: 'wrap' }}>
+                    {[500, 1000, 5000].map((amt) => (
+                      <button
+                        key={amt}
+                        type="button"
+                        className="btn btn-secondary btn-sm"
+                        style={{ fontSize: '0.7rem', padding: '2px 8px', height: 'auto' }}
+                        onClick={() => setDiamondDelta(Math.min(amt, Number(selectedUser.diamonds || 0)))}
+                      >
+                        -{amt}
+                      </button>
+                    ))}
+                    {Number(selectedUser.diamonds || 0) > 0 && (
+                      <button
+                        type="button"
+                        className="btn btn-secondary btn-sm"
+                        style={{ fontSize: '0.7rem', padding: '2px 8px', height: 'auto', color: '#ef4444' }}
+                        onClick={() => setDiamondDelta(Number(selectedUser.diamonds || 0))}
+                      >
+                        Deduct All to 0
+                      </button>
+                    )}
+                  </div>
                 </div>
-                <input
-                  type="number"
-                  className="input-field"
-                  min="0"
-                  max={selectedUser.diamonds || 0}
-                  placeholder="Enter amount to deduct (e.g. 1000)"
-                  value={diamondDelta}
-                  onChange={(e) => setDiamondDelta(e.target.value)}
-                />
-                <div style={{ display: 'flex', gap: '6px', marginTop: '6px', flexWrap: 'wrap' }}>
-                  {[500, 1000, 5000].map((amt) => (
-                    <button
-                      key={amt}
-                      type="button"
-                      className="btn btn-secondary btn-sm"
-                      style={{ fontSize: '0.7rem', padding: '2px 8px', height: 'auto' }}
-                      onClick={() => setDiamondDelta(Math.min(amt, Number(selectedUser.diamonds || 0)))}
-                    >
-                      -{amt}
-                    </button>
-                  ))}
-                  {Number(selectedUser.diamonds || 0) > 0 && (
-                    <button
-                      type="button"
-                      className="btn btn-secondary btn-sm"
-                      style={{ fontSize: '0.7rem', padding: '2px 8px', height: 'auto', color: '#ef4444' }}
-                      onClick={() => setDiamondDelta(Number(selectedUser.diamonds || 0))}
-                    >
-                      Deduct All to 0
-                    </button>
-                  )}
-                </div>
-              </div>
+              )}
 
               {/* Reason / Audit Log */}
               <div>

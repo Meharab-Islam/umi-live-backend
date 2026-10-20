@@ -181,7 +181,7 @@ export default function HostManagement({ onToast }) {
       if (res.success && res.settings) {
         const modeSetting = res.settings.find((s) => s.key_name === 'is_convert_to_diamond');
         if (modeSetting) {
-          setIsDiamondMode(modeSetting.key_value !== 'false');
+          setIsDiamondMode(modeSetting.key_value === 'true' || modeSetting.key_value === '1');
         }
       }
     } catch (err) {
@@ -464,7 +464,7 @@ export default function HostManagement({ onToast }) {
           <div style={{ fontSize: '0.78rem', color: isDiamondMode ? '#06b6d4' : '#f59e0b', marginTop: '6px', fontWeight: 600 }}>
             {isDiamondMode
               ? `💎 ${hostSummary?.total_host_diamonds?.toLocaleString() || 0} Total Diamonds`
-              : '🪙 Direct Coin Revenue Active (No Diamonds)'}
+              : '🪙 Direct Coin Earnings Mode'}
           </div>
         </div>
 
@@ -739,8 +739,8 @@ export default function HostManagement({ onToast }) {
                       <th>Host ID</th>
                       <th>Host Classification</th>
                       <th>Agency Membership</th>
-                      <th>{isDiamondMode ? 'Diamond Balance (💎)' : 'Diamond Balance (💎 Inactive)'}</th>
-                      <th>{isDiamondMode ? 'Coin Balance (🪙)' : 'Coin Balance (🪙 Active Income)'}</th>
+                      {isDiamondMode && <th>Diamond Balance (💎)</th>}
+                      <th>Coin Balance (🪙)</th>
                       <th>Broadcasting Activity</th>
                       <th style={{ textAlign: 'right' }}>Actions</th>
                     </tr>
@@ -895,22 +895,24 @@ export default function HostManagement({ onToast }) {
                           </td>
 
                           {/* Diamonds */}
-                          <td>
-                            <div style={{ fontWeight: 800, color: isDiamondMode ? '#06b6d4' : 'var(--text-dim)', fontSize: '0.92rem' }}>
-                              💎 {h.diamonds?.toLocaleString() || 0}
-                            </div>
-                            <div style={{ fontSize: '0.7rem', color: 'var(--text-dim)' }}>
-                              {isDiamondMode ? 'Diamond balance' : 'Diamonds (Inactive mode)'}
-                            </div>
-                          </td>
+                          {isDiamondMode && (
+                            <td>
+                              <div style={{ fontWeight: 800, color: '#06b6d4', fontSize: '0.92rem' }}>
+                                💎 {h.diamonds?.toLocaleString() || 0}
+                              </div>
+                              <div style={{ fontSize: '0.7rem', color: 'var(--text-dim)' }}>
+                                Diamond balance
+                              </div>
+                            </td>
+                          )}
 
                           {/* Coins */}
                           <td>
                             <div style={{ fontWeight: 800, color: '#f59e0b', fontSize: '0.9rem' }}>
                               🪙 {h.coins?.toLocaleString() || 0}
                             </div>
-                            <div style={{ fontSize: '0.7rem', color: isDiamondMode ? 'var(--text-dim)' : '#10b981', fontWeight: isDiamondMode ? 'normal' : 600 }}>
-                              {isDiamondMode ? 'Coin balance' : 'Earned Coins (Direct Mode)'}
+                            <div style={{ fontSize: '0.7rem', color: 'var(--text-dim)' }}>
+                              Coin balance
                             </div>
                           </td>
 

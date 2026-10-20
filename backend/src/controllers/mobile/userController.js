@@ -1,6 +1,7 @@
 import { query } from '../../config/db.js';
 import { cache } from '../../config/redis.js';
 import { sendNewFollowerPushNotification } from '../../config/firebase.js';
+import { ensureFeedSchema } from './feedController.js';
 
 /**
  * Mobile User & Follow Controller
@@ -419,6 +420,7 @@ export async function getFollowing(req, res) {
  */
 export async function getUserPosts(req, res) {
   try {
+    await ensureFeedSchema();
     const targetUserId = parseInt(req.params.userId, 10);
     const currentUserId = req.user?.id || null;
     const page = Math.max(1, parseInt(req.query.page, 10) || 1);

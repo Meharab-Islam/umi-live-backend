@@ -289,7 +289,9 @@ export default function Settings({ onToast }) {
       badge: isDiamondMode ? '💎 Diamond Mode' : '🪙 Direct Coins',
       badgeColor: isDiamondMode ? '#8b5cf6' : '#f59e0b',
       accent: '#8b5cf6',
-      description: 'Diamond conversion, host cashout exchange rates, and revenue sharing rules.',
+      description: isDiamondMode
+        ? 'Diamond conversion, host cashout exchange rates, and revenue sharing rules.'
+        : 'Direct Coin split, host cashout exchange rates, and revenue sharing rules.',
     },
     {
       id: 'streaming',
@@ -611,7 +613,7 @@ export default function Settings({ onToast }) {
                       {!isDiamondMode && <CheckCircle2 size={20} color="#f59e0b" />}
                     </div>
                     <p style={{ fontSize: '0.82rem', color: 'var(--text-dim)', lineHeight: 1.5, margin: 0 }}>
-                      <strong>Zero diamond conversion!</strong> Gifts and transfers reward direct <strong>Coins (🪙)</strong>. Hosts retain a configurable percentage and cash out directly from their coin balance into Taka (৳).
+                      <strong>Direct Coin split active!</strong> Gifts and transfers reward direct <strong>Coins (🪙)</strong>. Hosts retain a configurable percentage and cash out directly from their coin balance into Taka (৳).
                     </p>
                   </div>
                 </div>

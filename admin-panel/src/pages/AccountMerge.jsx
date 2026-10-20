@@ -21,8 +21,10 @@ import {
 import userApi from '../api/userApi';
 import accountMergeApi from '../api/accountMergeApi';
 import Loader from '../components/Loader';
+import { useEconomy } from '../context/EconomyContext';
 
 export default function AccountMerge({ onToast }) {
+  const { isDiamondMode } = useEconomy();
   const [activeTab, setActiveTab] = useState('merge'); // 'merge' | 'history'
 
   // Input IDs
@@ -248,7 +250,7 @@ export default function AccountMerge({ onToast }) {
             <div style={{ fontSize: '0.85rem', color: 'var(--text-main)', lineHeight: 1.5 }}>
               <strong>How Account Merge Works:</strong>
               <div style={{ color: 'var(--text-dim)', marginTop: '4px' }}>
-                When a user loses access to their registered email, they create a new account in the app. Use this tool to select their <strong>Old Account</strong> (which holds their ID, coins, diamonds, and VIP role) and their <strong>New Account</strong> (which has their new working login email and password). After merging, the old account is updated with the new email and password, keeping their original ID and all assets!
+                When a user loses access to their registered email, they create a new account in the app. Use this tool to select their <strong>Old Account</strong> (which holds their ID, coins, {isDiamondMode ? 'diamonds, ' : ''}and VIP role) and their <strong>New Account</strong> (which has their new working login email and password). After merging, the old account is updated with the new email and password, keeping their original ID and all assets!
               </div>
             </div>
           </div>
@@ -357,10 +359,12 @@ export default function AccountMerge({ onToast }) {
                       <span style={{ color: 'var(--text-dim)' }}>Coins: </span>
                       <strong style={{ color: '#d97706' }}>🪙 {oldUser.coins?.toLocaleString()}</strong>
                     </div>
-                    <div style={{ background: 'var(--bg-secondary)', padding: '6px 8px', borderRadius: '6px' }}>
-                      <span style={{ color: 'var(--text-dim)' }}>Diamonds: </span>
-                      <strong style={{ color: '#06b6d4' }}>💎 {oldUser.diamonds?.toLocaleString()}</strong>
-                    </div>
+                    {isDiamondMode && (
+                      <div style={{ background: 'var(--bg-secondary)', padding: '6px 8px', borderRadius: '6px' }}>
+                        <span style={{ color: 'var(--text-dim)' }}>Diamonds: </span>
+                        <strong style={{ color: '#06b6d4' }}>💎 {oldUser.diamonds?.toLocaleString()}</strong>
+                      </div>
+                    )}
                   </div>
                 </div>
               ) : (
@@ -467,10 +471,12 @@ export default function AccountMerge({ onToast }) {
                       <span style={{ color: 'var(--text-dim)' }}>New Coins: </span>
                       <strong style={{ color: '#d97706' }}>🪙 {newUser.coins?.toLocaleString()}</strong>
                     </div>
-                    <div style={{ background: 'var(--bg-secondary)', padding: '6px 8px', borderRadius: '6px' }}>
-                      <span style={{ color: 'var(--text-dim)' }}>New Diamonds: </span>
-                      <strong style={{ color: '#06b6d4' }}>💎 {newUser.diamonds?.toLocaleString()}</strong>
-                    </div>
+                    {isDiamondMode && (
+                      <div style={{ background: 'var(--bg-secondary)', padding: '6px 8px', borderRadius: '6px' }}>
+                        <span style={{ color: 'var(--text-dim)' }}>New Diamonds: </span>
+                        <strong style={{ color: '#06b6d4' }}>💎 {newUser.diamonds?.toLocaleString()}</strong>
+                      </div>
+                    )}
                     <div style={{ gridColumn: 'span 2', background: 'rgba(16, 185, 129, 0.08)', padding: '6px 8px', borderRadius: '6px', color: '#10b981' }}>
                       🔑 Password and email from this account will be transferred to Account #{oldUser?.id || '...'}.
                     </div>
@@ -540,11 +546,13 @@ export default function AccountMerge({ onToast }) {
                   <span style={{ fontSize: '0.7rem', color: 'var(--text-dim)', display: 'block' }}>(Combined balance)</span>
                 </div>
 
-                <div style={{ background: 'var(--bg-primary)', padding: '0.85rem', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
-                  <span style={{ fontSize: '0.74rem', color: 'var(--text-dim)', display: 'block' }}>Consolidated Diamonds:</span>
-                  <strong style={{ fontSize: '1.1rem', color: '#06b6d4' }}>💎 {previewData.combinedDiamonds?.toLocaleString()}</strong>
-                  <span style={{ fontSize: '0.7rem', color: 'var(--text-dim)', display: 'block' }}>(Combined balance)</span>
-                </div>
+                {isDiamondMode && (
+                  <div style={{ background: 'var(--bg-primary)', padding: '0.85rem', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
+                    <span style={{ fontSize: '0.74rem', color: 'var(--text-dim)', display: 'block' }}>Consolidated Diamonds:</span>
+                    <strong style={{ fontSize: '1.1rem', color: '#06b6d4' }}>💎 {previewData.combinedDiamonds?.toLocaleString()}</strong>
+                    <span style={{ fontSize: '0.7rem', color: 'var(--text-dim)', display: 'block' }}>(Combined balance)</span>
+                  </div>
+                )}
 
                 <div style={{ background: 'var(--bg-primary)', padding: '0.85rem', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
                   <span style={{ fontSize: '0.74rem', color: 'var(--text-dim)', display: 'block' }}>Preserved Role & VIP:</span>

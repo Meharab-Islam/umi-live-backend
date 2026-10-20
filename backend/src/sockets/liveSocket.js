@@ -496,10 +496,10 @@ export function setupLiveSocket(io) {
           }
         }
 
-        // Fetch DB real viewer count (excludes host)
+        // Fetch DB real viewer count (excludes host) & room settings
         const [dbCountRow] = numericRoomId
-          ? await query('SELECT viewer_count FROM live_rooms WHERE id = ?', [numericRoomId])
-          : await query('SELECT viewer_count FROM live_rooms WHERE room_id = ?', [canonicalRoomId]);
+          ? await query('SELECT viewer_count, is_comment_disabled, is_reaction_disabled FROM live_rooms WHERE id = ?', [numericRoomId])
+          : await query('SELECT viewer_count, is_comment_disabled, is_reaction_disabled FROM live_rooms WHERE room_id = ?', [canonicalRoomId]);
         const activeCount = dbCountRow ? Math.max(0, dbCountRow.viewer_count) : roomViewers.get(canonicalRoomId).size;
 
         // Emit updated viewer count to room ONLY if changed
@@ -508,6 +508,14 @@ export function setupLiveSocket(io) {
           roomLastViewerCount.set(canonicalRoomId, activeCount);
           io.to(canonicalRoomId).emit('viewer-count-update', { roomId: canonicalRoomId, count: activeCount, viewer_count: activeCount });
         }
+
+        // Sync room settings (comments & reactions disabled flags) directly to the joining socket (supports late joiners)
+        socket.emit('room-settings-sync', {
+          roomId: canonicalRoomId,
+          room_id: canonicalRoomId,
+          is_comment_disabled: Boolean(dbCountRow ? dbCountRow.is_comment_disabled : false),
+          is_reaction_disabled: Boolean(dbCountRow ? dbCountRow.is_reaction_disabled : false),
+        });
 
         // Emit user joined welcome notice ONLY if not host and not announced within 20s
         const userKey = `${canonicalRoomId}_${currentUser.id}`;
@@ -534,6 +542,8 @@ export function setupLiveSocket(io) {
             user: currentUser,
             count: activeCount,
             viewer_count: activeCount,
+            is_comment_disabled: Boolean(dbCountRow ? dbCountRow.is_comment_disabled : false),
+            is_reaction_disabled: Boolean(dbCountRow ? dbCountRow.is_reaction_disabled : false),
             timestamp: new Date().toISOString(),
           };
           io.to(canonicalRoomId).emit('user-joined', joinedPayload);
@@ -544,6 +554,51 @@ export function setupLiveSocket(io) {
     };
     socket.on('join-room', handleJoinRoom);
     socket.on('join_room', handleJoinRoom);
+
+    // Host live room settings toggle (disable/enable comments & reactions)
+    socket.on('update-room-settings', async (data = {}) => {
+      try {
+        const targetRoom = data?.roomId || data?.room_id || currentRoom;
+        if (!targetRoom || !currentUser?.id) return;
+
+        const isNum = /^\d+$/.test(String(targetRoom).trim());
+        const [roomRow] = await query(
+          'SELECT id, room_id, host_id, is_comment_disabled, is_reaction_disabled FROM live_rooms WHERE (room_id = ? OR id = ?) LIMIT 1',
+          [String(targetRoom), isNum ? Number(targetRoom) : -1]
+        );
+        if (!roomRow || roomRow.host_id !== currentUser.id) return;
+
+        const newCommentDisabled = data.is_comment_disabled !== undefined
+          ? (data.is_comment_disabled === true || data.is_comment_disabled === 'true' || data.is_comment_disabled === 1 ? 1 : 0)
+          : roomRow.is_comment_disabled;
+
+        const newReactionDisabled = data.is_reaction_disabled !== undefined
+          ? (data.is_reaction_disabled === true || data.is_reaction_disabled === 'true' || data.is_reaction_disabled === 1 ? 1 : 0)
+          : roomRow.is_reaction_disabled;
+
+        await query(
+          'UPDATE live_rooms SET is_comment_disabled = ?, is_reaction_disabled = ? WHERE id = ?',
+          [newCommentDisabled, newReactionDisabled, roomRow.id]
+        );
+
+        await Promise.allSettled([
+          cache.del(`mobile:room_details:${roomRow.room_id}`),
+          cache.del(`mobile:room_details:${roomRow.id}`),
+          cache.delByPattern('mobile:rooms:*'),
+        ]);
+
+        io.to(roomRow.room_id).emit('room-settings-updated', {
+          roomId: roomRow.room_id,
+          room_id: roomRow.room_id,
+          is_comment_disabled: Boolean(newCommentDisabled),
+          is_reaction_disabled: Boolean(newReactionDisabled),
+          updated_by: currentUser.id,
+          timestamp: new Date().toISOString(),
+        });
+      } catch (err) {
+        console.error('Socket update-room-settings error:', err.message);
+      }
+    });
 
     // Leave live room
     const handleLeaveRoom = async (data = {}) => {
