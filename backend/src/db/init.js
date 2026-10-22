@@ -284,6 +284,7 @@ export async function initializeDatabase() {
         price INT NOT NULL DEFAULT 1000,
         currency VARCHAR(20) DEFAULT 'coins',
         description TEXT NULL,
+        color VARCHAR(50) DEFAULT '#8b5cf6',
         is_active BOOLEAN DEFAULT TRUE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -706,6 +707,7 @@ export async function initializeDatabase() {
     await safeModifyColumn('posts', 'media_type', "ENUM('image','video','audio','multiple','none') DEFAULT 'none'");
     await safeAddColumn('special_thumbnails', 'is_custom', "TINYINT(1) NOT NULL DEFAULT 0");
     await safeAddColumn('special_thumbnails', 'uploader_id', "INT NULL");
+    await safeAddColumn('privilege_packages', 'color', "VARCHAR(50) DEFAULT '#8b5cf6' AFTER description");
 
     // Seed Admin & Initial Data if users table is empty
     const [userRows] = await connection.query('SELECT COUNT(*) as count FROM users');

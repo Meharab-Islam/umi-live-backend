@@ -34,6 +34,21 @@ import UserDetailsModal from '../components/UserDetailsModal';
 import FileUploadInput from '../components/FileUploadInput';
 import BulkActionBar from '../components/BulkActionBar';
 
+const PACKAGE_COLOR_PRESETS = [
+  { name: 'Royal Violet', hex: '#8b5cf6' },
+  { name: 'Hot Pink', hex: '#ec4899' },
+  { name: 'Amber Gold', hex: '#f59e0b' },
+  { name: 'Emerald', hex: '#10b981' },
+  { name: 'Sky Blue', hex: '#3b82f6' },
+  { name: 'Crimson', hex: '#ef4444' },
+  { name: 'Cyan Neon', hex: '#06b6d4' },
+  { name: 'Indigo Glow', hex: '#6366f1' },
+  { name: 'Sunset Orange', hex: '#f97316' },
+  { name: 'Teal Gem', hex: '#14b8a6' },
+  { name: 'Fuchsia', hex: '#d946ef' },
+  { name: 'Ruby Dark', hex: '#e11d48' },
+];
+
 export default function PackageManagement({ activeTabKey = 'packages', onNavigateTab, onToast }) {
   // Loading states
   const [loadingCategories, setLoadingCategories] = useState(false);
@@ -210,6 +225,7 @@ export default function PackageManagement({ activeTabKey = 'packages', onNavigat
     price: 10000,
     currency: 'coins',
     description: '',
+    color: '#8b5cf6',
     is_active: true,
   });
   const [savingPackage, setSavingPackage] = useState(false);
@@ -432,6 +448,7 @@ export default function PackageManagement({ activeTabKey = 'packages', onNavigat
       price: 10000,
       currency: 'coins',
       description: '',
+      color: '#8b5cf6',
       is_active: true,
     });
     setPackageModalOpen(true);
@@ -447,6 +464,7 @@ export default function PackageManagement({ activeTabKey = 'packages', onNavigat
       price: pkg.price,
       currency: pkg.currency || 'coins',
       description: pkg.description || '',
+      color: pkg.color || '#8b5cf6',
       is_active: Boolean(pkg.is_active),
     });
     setPackageModalOpen(true);
@@ -1118,12 +1136,14 @@ export default function PackageManagement({ activeTabKey = 'packages', onNavigat
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
               {currentCategoryPackages.map((pkg) => {
                 const isSelected = selectedPkgIds.includes(pkg.id);
+                const pkgThemeColor = pkg.color || '#8b5cf6';
                 return (
                 <div
                   key={pkg.id}
                   style={{
                     background: 'var(--bg-primary)',
                     border: isSelected ? '2px solid #ef4444' : '1px solid var(--border-color)',
+                    borderLeft: `4px solid ${pkgThemeColor}`,
                     boxShadow: isSelected ? '0 0 0 3px rgba(239, 68, 68, 0.2)' : 'none',
                     borderRadius: '12px',
                     padding: '1rem',
@@ -1150,7 +1170,14 @@ export default function PackageManagement({ activeTabKey = 'packages', onNavigat
                       <img
                         src={resolveAssetUrl(pkg.image_url)}
                         alt=""
-                        style={{ width: '48px', height: '48px', borderRadius: '10px', objectFit: 'cover' }}
+                        style={{
+                          width: '48px',
+                          height: '48px',
+                          borderRadius: '10px',
+                          objectFit: 'cover',
+                          border: `2px solid ${pkgThemeColor}50`,
+                          boxShadow: `0 2px 8px ${pkgThemeColor}30`,
+                        }}
                       />
                     ) : (
                       <div
@@ -1163,6 +1190,7 @@ export default function PackageManagement({ activeTabKey = 'packages', onNavigat
                           alignItems: 'center',
                           justifyContent: 'center',
                           fontSize: '1.4rem',
+                          border: `2px solid ${pkgThemeColor}50`,
                         }}
                       >
                         📦
@@ -1193,9 +1221,38 @@ export default function PackageManagement({ activeTabKey = 'packages', onNavigat
                       paddingTop: '0.65rem',
                     }}
                   >
-                    <span className={`badge ${pkg.is_active ? 'badge-success' : 'badge-danger'}`} style={{ fontSize: '0.68rem' }}>
-                      {pkg.is_active ? 'Active' : 'Disabled'}
-                    </span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span className={`badge ${pkg.is_active ? 'badge-success' : 'badge-danger'}`} style={{ fontSize: '0.68rem' }}>
+                        {pkg.is_active ? 'Active' : 'Disabled'}
+                      </span>
+                      <span
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                          background: `${pkgThemeColor}18`,
+                          color: pkgThemeColor,
+                          border: `1px solid ${pkgThemeColor}40`,
+                          borderRadius: '6px',
+                          padding: '2px 6px',
+                          fontSize: '0.68rem',
+                          fontWeight: 700,
+                          fontFamily: 'monospace',
+                        }}
+                        title="Package Theme Color"
+                      >
+                        <span
+                          style={{
+                            width: '7px',
+                            height: '7px',
+                            borderRadius: '50%',
+                            background: pkgThemeColor,
+                            boxShadow: `0 0 5px ${pkgThemeColor}`,
+                          }}
+                        />
+                        {pkgThemeColor}
+                      </span>
+                    </div>
 
                     <div style={{ display: 'flex', gap: '4px' }}>
                       <button
@@ -1920,6 +1977,118 @@ export default function PackageManagement({ activeTabKey = 'packages', onNavigat
                       required
                     />
                   </div>
+                </div>
+
+                {/* Package Specific Color Selector */}
+                <div style={{ background: 'var(--bg-secondary)', padding: '0.85rem', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '0.45rem' }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      🎨 Package Color / Accent Theme: *
+                    </span>
+                    <span style={{ fontSize: '0.74rem', color: packageForm.color || '#8b5cf6', fontWeight: 800, fontFamily: 'monospace' }}>
+                      {packageForm.color || '#8b5cf6'}
+                    </span>
+                  </label>
+
+                  {/* Swatches */}
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '7px', marginBottom: '0.65rem' }}>
+                    {PACKAGE_COLOR_PRESETS.map((p) => {
+                      const isSelected = (packageForm.color || '').toLowerCase() === p.hex.toLowerCase();
+                      return (
+                        <button
+                          key={p.hex}
+                          type="button"
+                          onClick={() => setPackageForm({ ...packageForm, color: p.hex })}
+                          style={{
+                            width: '26px',
+                            height: '26px',
+                            borderRadius: '7px',
+                            background: p.hex,
+                            border: isSelected ? '2px solid #ffffff' : '2px solid transparent',
+                            boxShadow: isSelected ? `0 0 0 2px ${p.hex}, 0 2px 6px ${p.hex}80` : 'none',
+                            cursor: 'pointer',
+                            transition: 'transform 0.15s, box-shadow 0.15s',
+                            transform: isSelected ? 'scale(1.15)' : 'scale(1)',
+                            padding: 0,
+                          }}
+                          title={`${p.name} (${p.hex})`}
+                        />
+                      );
+                    })}
+                  </div>
+
+                  {/* Color Wheel + Hex input */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div
+                      style={{
+                        position: 'relative',
+                        width: '38px',
+                        height: '36px',
+                        borderRadius: '8px',
+                        background: packageForm.color || '#8b5cf6',
+                        border: '1px solid var(--border-color)',
+                        overflow: 'hidden',
+                        cursor: 'pointer',
+                        boxShadow: `0 0 10px ${(packageForm.color || '#8b5cf6')}50`,
+                        flexShrink: 0,
+                      }}
+                    >
+                      <input
+                        type="color"
+                        value={packageForm.color?.startsWith('#') && packageForm.color.length === 7 ? packageForm.color : '#8b5cf6'}
+                        onChange={(e) => setPackageForm({ ...packageForm, color: e.target.value })}
+                        style={{
+                          position: 'absolute',
+                          top: '-10px',
+                          left: '-10px',
+                          width: '60px',
+                          height: '60px',
+                          cursor: 'pointer',
+                          opacity: 0,
+                        }}
+                      />
+                    </div>
+                    <input
+                      type="text"
+                      className="input-field"
+                      placeholder="#8b5cf6"
+                      value={packageForm.color}
+                      onChange={(e) => setPackageForm({ ...packageForm, color: e.target.value })}
+                      style={{ flex: 1, fontFamily: 'monospace', fontWeight: 600, padding: '0.4rem 0.65rem', fontSize: '0.85rem' }}
+                      required
+                    />
+                  </div>
+                  <span style={{ fontSize: '0.7rem', color: 'var(--text-dim)', display: 'block', marginTop: '5px' }}>
+                    Visual accent color for this specific package item (not the whole category).
+                  </span>
+                </div>
+
+                {/* Description */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '0.35rem' }}>
+                    Description (Optional):
+                  </label>
+                  <textarea
+                    className="input-field"
+                    rows="2"
+                    placeholder="e.g. 30 days of VIP privileges with exclusive colored badge"
+                    value={packageForm.description}
+                    onChange={(e) => setPackageForm({ ...packageForm, description: e.target.value })}
+                  />
+                </div>
+
+                {/* Active Status */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <input
+                    type="checkbox"
+                    id="pkg_is_active"
+                    checked={packageForm.is_active}
+                    onChange={(e) => setPackageForm({ ...packageForm, is_active: e.target.checked })}
+                    style={{ width: '16px', height: '16px', accentColor: '#7c3aed', cursor: 'pointer' }}
+                  />
+                  <label htmlFor="pkg_is_active" style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-main)', cursor: 'pointer' }}>
+                    Active & Available for Users in Mobile App
+                  </label>
                 </div>
 
                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '0.5rem' }}>

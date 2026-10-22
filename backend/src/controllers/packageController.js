@@ -82,6 +82,7 @@ export async function getUserActiveSubscriptionsMap(userId) {
         (ups.status = 'active' AND ups.expires_at > NOW()) as is_active,
         pp.name as package_name,
         pp.image_url as package_image_url,
+        pp.color as package_color,
         pc.name as category_name,
         pc.badge_icon as category_badge_icon,
         pc.color_code as category_color
@@ -102,6 +103,8 @@ export async function getUserActiveSubscriptionsMap(userId) {
         package_name: r.package_name || '',
         package_image: r.package_image_url || '',
         package_image_url: r.package_image_url || '',
+        package_color: r.package_color || '#8b5cf6',
+        color: r.package_color || '#8b5cf6',
         category_id: r.category_id,
         category_name: r.category_name || '',
         category_badge_icon: r.category_badge_icon || '',
@@ -572,6 +575,7 @@ export async function createPackage(req, res) {
       price = 1000,
       currency = 'coins',
       description = '',
+      color = '#8b5cf6',
       is_active = true,
     } = req.body;
 
@@ -590,8 +594,8 @@ export async function createPackage(req, res) {
 
     const result = await query(
       `INSERT INTO privilege_packages 
-       (category_id, name, image_url, validity_days, price, currency, description, is_active)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+       (category_id, name, image_url, validity_days, price, currency, description, color, is_active)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         category_id,
         name.trim(),
@@ -600,6 +604,7 @@ export async function createPackage(req, res) {
         parseInt(price, 10) || 0,
         currency || 'coins',
         description || '',
+        color && color.trim() ? color.trim() : '#8b5cf6',
         is_active ? 1 : 0,
       ]
     );
@@ -629,6 +634,7 @@ export async function updatePackage(req, res) {
       price,
       currency,
       description,
+      color,
       is_active,
     } = req.body;
 
@@ -667,6 +673,10 @@ export async function updatePackage(req, res) {
     if (description !== undefined) {
       updates.push('description = ?');
       params.push(description);
+    }
+    if (color !== undefined) {
+      updates.push('color = ?');
+      params.push(color && color.trim() ? color.trim() : '#8b5cf6');
     }
     if (is_active !== undefined) {
       updates.push('is_active = ?');
@@ -1217,6 +1227,7 @@ export async function getMyPackages(req, res) {
           pp.price as package_price,
           pp.image_url as package_image,
           pp.validity_days,
+          pp.color as package_color,
           pc.name as category_name,
           pc.badge_icon,
           pc.color_code,
@@ -1242,6 +1253,8 @@ export async function getMyPackages(req, res) {
         price: row.package_price,
         image_url: row.package_image,
         validity_days: row.validity_days,
+        color: row.package_color || '#8b5cf6',
+        package_color: row.package_color || '#8b5cf6',
         category_name: row.category_name,
         badge_icon: row.badge_icon,
         color_code: row.color_code,
@@ -1436,6 +1449,7 @@ export async function getPackagesByCategory(req, res) {
           pp.price,
           pp.currency,
           pp.description,
+          pp.color,
           pp.is_active,
           pp.created_at,
           (SELECT COUNT(*) FROM user_package_subscriptions ups

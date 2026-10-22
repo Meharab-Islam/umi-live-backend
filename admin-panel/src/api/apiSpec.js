@@ -6482,6 +6482,7 @@ export const API_SPEC = {
                 "price": 50000,
                 "currency": "coins",
                 "description": "30 days of supreme Royal VIP status and privileges.",
+                "color": "#8b5cf6",
                 "is_active": 1,
                 "active_users_count": 1,
                 "is_purchased": true,
