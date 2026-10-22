@@ -1667,24 +1667,94 @@ export default function PackageManagement({ activeTabKey = 'packages', onNavigat
       <>
         {/* MODAL 1: CREATE / EDIT CATEGORY */}
         {categoryModalOpen && (
-          <div className="modal-overlay" onClick={(e) => { if (e.target === e.currentTarget) setCategoryModalOpen(false); }}>
-            <div className="modal-box" style={{ maxWidth: '580px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
-                <div style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <Crown size={20} color="#7c3aed" />
-                  <span>{editingCategory ? 'Edit Category & Privileges' : 'Create Package Category'}</span>
+          <div
+            className="modal-overlay"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setCategoryModalOpen(false);
+            }}
+          >
+            <div
+              className="modal-box"
+              style={{
+                maxWidth: '600px',
+                width: '100%',
+                maxHeight: 'min(90vh, 800px)',
+                display: 'flex',
+                flexDirection: 'column',
+                padding: 0,
+                overflow: 'hidden',
+                borderRadius: '16px',
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+              }}
+            >
+              {/* Fixed Header */}
+              <div
+                style={{
+                  padding: '1.25rem 1.5rem',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  borderBottom: '1px solid var(--border-color)',
+                  background: 'var(--bg-primary)',
+                  flexShrink: 0,
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div
+                    style={{
+                      width: '36px',
+                      height: '36px',
+                      borderRadius: '10px',
+                      background: 'rgba(124, 58, 237, 0.12)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <Crown size={20} color="#7c3aed" />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-main)', lineHeight: 1.2 }}>
+                      {editingCategory ? 'Edit Category & Privileges' : 'Create Package Category'}
+                    </div>
+                    <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)', marginTop: '2px' }}>
+                      Configure VIP tier privileges, permissions, badge and ranking
+                    </div>
+                  </div>
                 </div>
                 <button
                   type="button"
                   className="btn btn-secondary btn-sm"
                   onClick={() => setCategoryModalOpen(false)}
                   style={{ borderRadius: '50%', width: '32px', height: '32px', padding: 0 }}
+                  title="Close"
                 >
                   <X size={16} />
                 </button>
               </div>
 
-              <form onSubmit={handleSaveCategory} style={{ display: 'flex', flexDirection: 'column', gap: '1.15rem' }}>
+              {/* Form wrapping scrollable content and fixed footer */}
+              <form
+                onSubmit={handleSaveCategory}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  flex: 1,
+                  minHeight: 0,
+                  overflow: 'hidden',
+                }}
+              >
+                {/* Scrollable Body */}
+                <div
+                  style={{
+                    padding: '1.25rem 1.5rem',
+                    overflowY: 'auto',
+                    flex: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '1.1rem',
+                  }}
+                >
                 <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1rem' }}>
                   <div>
                     <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '0.35rem' }}>
@@ -1868,12 +1938,24 @@ export default function PackageManagement({ activeTabKey = 'packages', onNavigat
                     />
                   </label>
                 </div>
+              </div>
 
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '0.5rem' }}>
+                {/* Fixed Footer */}
+                <div
+                  style={{
+                    padding: '1rem 1.5rem',
+                    display: 'flex',
+                    justifyContent: 'flex-end',
+                    gap: '10px',
+                    borderTop: '1px solid var(--border-color)',
+                    background: 'var(--bg-primary)',
+                    flexShrink: 0,
+                  }}
+                >
                   <button type="button" className="btn btn-secondary" onClick={() => setCategoryModalOpen(false)}>
                     Cancel
                   </button>
-                  <button type="submit" className="btn btn-primary" disabled={savingCategory} style={{ minWidth: '120px' }}>
+                  <button type="submit" className="btn btn-primary" disabled={savingCategory} style={{ minWidth: '130px', fontWeight: 700 }}>
                     {savingCategory ? 'Saving...' : editingCategory ? 'Save Changes' : 'Create Category'}
                   </button>
                 </div>
@@ -1884,218 +1966,300 @@ export default function PackageManagement({ activeTabKey = 'packages', onNavigat
 
         {/* MODAL 2: CREATE / EDIT PACKAGE */}
         {packageModalOpen && (
-          <div className="modal-overlay" onClick={(e) => { if (e.target === e.currentTarget) setPackageModalOpen(false); }}>
-            <div className="modal-box" style={{ maxWidth: '540px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
-                <div style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <Layers size={20} color="#7c3aed" />
-                  <span>{editingPackage ? 'Edit Package' : 'Create Package'}</span>
+          <div
+            className="modal-overlay"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setPackageModalOpen(false);
+            }}
+          >
+            <div
+              className="modal-box"
+              style={{
+                maxWidth: '560px',
+                width: '100%',
+                maxHeight: 'min(90vh, 760px)',
+                display: 'flex',
+                flexDirection: 'column',
+                padding: 0,
+                overflow: 'hidden',
+                borderRadius: '16px',
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+              }}
+            >
+              {/* Fixed Modal Header */}
+              <div
+                style={{
+                  padding: '1.25rem 1.5rem',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  borderBottom: '1px solid var(--border-color)',
+                  background: 'var(--bg-primary)',
+                  flexShrink: 0,
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div
+                    style={{
+                      width: '36px',
+                      height: '36px',
+                      borderRadius: '10px',
+                      background: 'rgba(124, 58, 237, 0.12)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <Layers size={20} color="#7c3aed" />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-main)', lineHeight: 1.2 }}>
+                      {editingPackage ? 'Edit Package' : 'Create Package'}
+                    </div>
+                    <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)', marginTop: '2px' }}>
+                      Configure package details, duration, price & custom accent color
+                    </div>
+                  </div>
                 </div>
                 <button
                   type="button"
                   className="btn btn-secondary btn-sm"
                   onClick={() => setPackageModalOpen(false)}
                   style={{ borderRadius: '50%', width: '32px', height: '32px', padding: 0 }}
+                  title="Close"
                 >
                   <X size={16} />
                 </button>
               </div>
 
-              <form onSubmit={handleSavePackage} style={{ display: 'flex', flexDirection: 'column', gap: '1.15rem' }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '0.35rem' }}>
-                    Category: *
-                  </label>
-                  <select
-                    className="input-field"
-                    value={packageForm.category_id}
-                    onChange={(e) => setPackageForm({ ...packageForm, category_id: e.target.value })}
-                    required
-                  >
-                    <option value="">-- Choose Category --</option>
-                    {categories.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.name} (Rank #{c.display_order})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '0.35rem' }}>
-                    Package Name: *
-                  </label>
-                  <input
-                    type="text"
-                    className="input-field"
-                    placeholder="e.g. King Monthly Pass, Duke 7-Day"
-                    value={packageForm.name}
-                    onChange={(e) => setPackageForm({ ...packageForm, name: e.target.value })}
-                    required
-                  />
-                </div>
-
-                <FileUploadInput
-                  label="Package Badge / Image:"
-                  value={packageForm.image_url}
-                  onChange={(url) => setPackageForm({ ...packageForm, image_url: url })}
-                  category="packages"
-                  accept="image/*,.svg,.png,.jpg,.webp"
-                  type="image"
-                  placeholder="https://example.com/badge.png or Upload from PC"
-                  helperText="Package badge icon shown in user profiles, streams, and VIP list. Upload from PC or paste URL."
-                  onToast={onToast}
-                />
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              {/* Form wrapping scrollable content and fixed footer */}
+              <form
+                onSubmit={handleSavePackage}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  flex: 1,
+                  minHeight: 0,
+                  overflow: 'hidden',
+                }}
+              >
+                {/* Scrollable Form Body */}
+                <div
+                  style={{
+                    padding: '1.25rem 1.5rem',
+                    overflowY: 'auto',
+                    flex: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '1.1rem',
+                  }}
+                >
                   <div>
                     <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '0.35rem' }}>
-                      Validity Time (Days): *
+                      Category: *
                     </label>
-                    <input
-                      type="number"
-                      min="1"
+                    <select
                       className="input-field"
-                      placeholder="e.g. 30"
-                      value={packageForm.validity_days}
-                      onChange={(e) => setPackageForm({ ...packageForm, validity_days: parseInt(e.target.value, 10) || 1 })}
+                      value={packageForm.category_id}
+                      onChange={(e) => setPackageForm({ ...packageForm, category_id: e.target.value })}
                       required
-                    />
-                  </div>
-
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '0.35rem' }}>
-                      Price (in Coins): *
-                    </label>
-                    <input
-                      type="number"
-                      min="0"
-                      className="input-field"
-                      placeholder="e.g. 10000"
-                      value={packageForm.price}
-                      onChange={(e) => setPackageForm({ ...packageForm, price: parseInt(e.target.value, 10) || 0 })}
-                      required
-                    />
-                  </div>
-                </div>
-
-                {/* Package Specific Color Selector */}
-                <div style={{ background: 'var(--bg-secondary)', padding: '0.85rem', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
-                  <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '0.45rem' }}>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      🎨 Package Color / Accent Theme: *
-                    </span>
-                    <span style={{ fontSize: '0.74rem', color: packageForm.color || '#8b5cf6', fontWeight: 800, fontFamily: 'monospace' }}>
-                      {packageForm.color || '#8b5cf6'}
-                    </span>
-                  </label>
-
-                  {/* Swatches */}
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '7px', marginBottom: '0.65rem' }}>
-                    {PACKAGE_COLOR_PRESETS.map((p) => {
-                      const isSelected = (packageForm.color || '').toLowerCase() === p.hex.toLowerCase();
-                      return (
-                        <button
-                          key={p.hex}
-                          type="button"
-                          onClick={() => setPackageForm({ ...packageForm, color: p.hex })}
-                          style={{
-                            width: '26px',
-                            height: '26px',
-                            borderRadius: '7px',
-                            background: p.hex,
-                            border: isSelected ? '2px solid #ffffff' : '2px solid transparent',
-                            boxShadow: isSelected ? `0 0 0 2px ${p.hex}, 0 2px 6px ${p.hex}80` : 'none',
-                            cursor: 'pointer',
-                            transition: 'transform 0.15s, box-shadow 0.15s',
-                            transform: isSelected ? 'scale(1.15)' : 'scale(1)',
-                            padding: 0,
-                          }}
-                          title={`${p.name} (${p.hex})`}
-                        />
-                      );
-                    })}
-                  </div>
-
-                  {/* Color Wheel + Hex input */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <div
-                      style={{
-                        position: 'relative',
-                        width: '38px',
-                        height: '36px',
-                        borderRadius: '8px',
-                        background: packageForm.color || '#8b5cf6',
-                        border: '1px solid var(--border-color)',
-                        overflow: 'hidden',
-                        cursor: 'pointer',
-                        boxShadow: `0 0 10px ${(packageForm.color || '#8b5cf6')}50`,
-                        flexShrink: 0,
-                      }}
                     >
-                      <input
-                        type="color"
-                        value={packageForm.color?.startsWith('#') && packageForm.color.length === 7 ? packageForm.color : '#8b5cf6'}
-                        onChange={(e) => setPackageForm({ ...packageForm, color: e.target.value })}
-                        style={{
-                          position: 'absolute',
-                          top: '-10px',
-                          left: '-10px',
-                          width: '60px',
-                          height: '60px',
-                          cursor: 'pointer',
-                          opacity: 0,
-                        }}
-                      />
-                    </div>
+                      <option value="">-- Choose Category --</option>
+                      {categories.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.name} (Rank #{c.display_order})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '0.35rem' }}>
+                      Package Name: *
+                    </label>
                     <input
                       type="text"
                       className="input-field"
-                      placeholder="#8b5cf6"
-                      value={packageForm.color}
-                      onChange={(e) => setPackageForm({ ...packageForm, color: e.target.value })}
-                      style={{ flex: 1, fontFamily: 'monospace', fontWeight: 600, padding: '0.4rem 0.65rem', fontSize: '0.85rem' }}
+                      placeholder="e.g. King Monthly Pass, Duke 7-Day"
+                      value={packageForm.name}
+                      onChange={(e) => setPackageForm({ ...packageForm, name: e.target.value })}
                       required
                     />
                   </div>
-                  <span style={{ fontSize: '0.7rem', color: 'var(--text-dim)', display: 'block', marginTop: '5px' }}>
-                    Visual accent color for this specific package item (not the whole category).
-                  </span>
-                </div>
 
-                {/* Description */}
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '0.35rem' }}>
-                    Description (Optional):
-                  </label>
-                  <textarea
-                    className="input-field"
-                    rows="2"
-                    placeholder="e.g. 30 days of VIP privileges with exclusive colored badge"
-                    value={packageForm.description}
-                    onChange={(e) => setPackageForm({ ...packageForm, description: e.target.value })}
+                  <FileUploadInput
+                    label="Package Badge / Image:"
+                    value={packageForm.image_url}
+                    onChange={(url) => setPackageForm({ ...packageForm, image_url: url })}
+                    category="packages"
+                    accept="image/*,.svg,.png,.jpg,.webp"
+                    type="image"
+                    placeholder="https://example.com/badge.png or Upload from PC"
+                    helperText="Package badge icon shown in user profiles, streams, and VIP list. Upload from PC or paste URL."
+                    onToast={onToast}
                   />
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '0.35rem' }}>
+                        Validity Time (Days): *
+                      </label>
+                      <input
+                        type="number"
+                        min="1"
+                        className="input-field"
+                        placeholder="e.g. 30"
+                        value={packageForm.validity_days}
+                        onChange={(e) => setPackageForm({ ...packageForm, validity_days: parseInt(e.target.value, 10) || 1 })}
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '0.35rem' }}>
+                        Price (in Coins): *
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        className="input-field"
+                        placeholder="e.g. 10000"
+                        value={packageForm.price}
+                        onChange={(e) => setPackageForm({ ...packageForm, price: parseInt(e.target.value, 10) || 0 })}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  {/* Package Specific Color Selector */}
+                  <div style={{ background: 'var(--bg-secondary)', padding: '0.85rem', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '0.45rem' }}>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        🎨 Package Color / Accent Theme: *
+                      </span>
+                      <span style={{ fontSize: '0.74rem', color: packageForm.color || '#8b5cf6', fontWeight: 800, fontFamily: 'monospace' }}>
+                        {packageForm.color || '#8b5cf6'}
+                      </span>
+                    </label>
+
+                    {/* Swatches */}
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '7px', marginBottom: '0.65rem' }}>
+                      {PACKAGE_COLOR_PRESETS.map((p) => {
+                        const isSelected = (packageForm.color || '').toLowerCase() === p.hex.toLowerCase();
+                        return (
+                          <button
+                            key={p.hex}
+                            type="button"
+                            onClick={() => setPackageForm({ ...packageForm, color: p.hex })}
+                            style={{
+                              width: '26px',
+                              height: '26px',
+                              borderRadius: '7px',
+                              background: p.hex,
+                              border: isSelected ? '2px solid #ffffff' : '2px solid transparent',
+                              boxShadow: isSelected ? `0 0 0 2px ${p.hex}, 0 2px 6px ${p.hex}80` : 'none',
+                              cursor: 'pointer',
+                              transition: 'transform 0.15s, box-shadow 0.15s',
+                              transform: isSelected ? 'scale(1.15)' : 'scale(1)',
+                              padding: 0,
+                            }}
+                            title={`${p.name} (${p.hex})`}
+                          />
+                        );
+                      })}
+                    </div>
+
+                    {/* Color Wheel + Hex input */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <div
+                        style={{
+                          position: 'relative',
+                          width: '38px',
+                          height: '36px',
+                          borderRadius: '8px',
+                          background: packageForm.color || '#8b5cf6',
+                          border: '1px solid var(--border-color)',
+                          overflow: 'hidden',
+                          cursor: 'pointer',
+                          boxShadow: `0 0 10px ${(packageForm.color || '#8b5cf6')}50`,
+                          flexShrink: 0,
+                        }}
+                      >
+                        <input
+                          type="color"
+                          value={packageForm.color?.startsWith('#') && packageForm.color.length === 7 ? packageForm.color : '#8b5cf6'}
+                          onChange={(e) => setPackageForm({ ...packageForm, color: e.target.value })}
+                          style={{
+                            position: 'absolute',
+                            top: '-10px',
+                            left: '-10px',
+                            width: '60px',
+                            height: '60px',
+                            cursor: 'pointer',
+                            opacity: 0,
+                          }}
+                        />
+                      </div>
+                      <input
+                        type="text"
+                        className="input-field"
+                        placeholder="#8b5cf6"
+                        value={packageForm.color}
+                        onChange={(e) => setPackageForm({ ...packageForm, color: e.target.value })}
+                        style={{ flex: 1, fontFamily: 'monospace', fontWeight: 600, padding: '0.4rem 0.65rem', fontSize: '0.85rem' }}
+                        required
+                      />
+                    </div>
+                    <span style={{ fontSize: '0.7rem', color: 'var(--text-dim)', display: 'block', marginTop: '5px' }}>
+                      Visual accent color for this specific package item (not the whole category).
+                    </span>
+                  </div>
+
+                  {/* Description */}
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '0.35rem' }}>
+                      Description (Optional):
+                    </label>
+                    <textarea
+                      className="input-field"
+                      rows="2"
+                      placeholder="e.g. 30 days of VIP privileges with exclusive colored badge"
+                      value={packageForm.description}
+                      onChange={(e) => setPackageForm({ ...packageForm, description: e.target.value })}
+                    />
+                  </div>
+
+                  {/* Active Status */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <input
+                      type="checkbox"
+                      id="pkg_is_active"
+                      checked={packageForm.is_active}
+                      onChange={(e) => setPackageForm({ ...packageForm, is_active: e.target.checked })}
+                      style={{ width: '16px', height: '16px', accentColor: '#7c3aed', cursor: 'pointer' }}
+                    />
+                    <label htmlFor="pkg_is_active" style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-main)', cursor: 'pointer' }}>
+                      Active & Available for Users in Mobile App
+                    </label>
+                  </div>
                 </div>
 
-                {/* Active Status */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <input
-                    type="checkbox"
-                    id="pkg_is_active"
-                    checked={packageForm.is_active}
-                    onChange={(e) => setPackageForm({ ...packageForm, is_active: e.target.checked })}
-                    style={{ width: '16px', height: '16px', accentColor: '#7c3aed', cursor: 'pointer' }}
-                  />
-                  <label htmlFor="pkg_is_active" style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-main)', cursor: 'pointer' }}>
-                    Active & Available for Users in Mobile App
-                  </label>
-                </div>
-
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '0.5rem' }}>
+                {/* Fixed Modal Footer */}
+                <div
+                  style={{
+                    padding: '1rem 1.5rem',
+                    display: 'flex',
+                    justifyContent: 'flex-end',
+                    gap: '10px',
+                    borderTop: '1px solid var(--border-color)',
+                    background: 'var(--bg-primary)',
+                    flexShrink: 0,
+                  }}
+                >
                   <button type="button" className="btn btn-secondary" onClick={() => setPackageModalOpen(false)}>
                     Cancel
                   </button>
-                  <button type="submit" className="btn btn-primary" disabled={savingPackage} style={{ minWidth: '120px' }}>
+                  <button type="submit" className="btn btn-primary" disabled={savingPackage} style={{ minWidth: '130px', fontWeight: 700 }}>
                     {savingPackage ? 'Saving...' : editingPackage ? 'Save Changes' : 'Create Package'}
                   </button>
                 </div>

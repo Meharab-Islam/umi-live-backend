@@ -808,11 +808,16 @@ body::after {
   border-radius: var(--radius-xl);
   width: 100%;
   max-width: 520px;
+  max-height: min(90vh, 90dvh);
+  display: flex;
+  flex-direction: column;
   padding: 1.75rem;
   position: relative;
   box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.15);
   animation: scaleUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   color: var(--text-main);
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 @keyframes fadeIn {
