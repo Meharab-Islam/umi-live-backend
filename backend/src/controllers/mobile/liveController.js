@@ -2016,10 +2016,17 @@ export async function approveSeatRequest(req, res) {
       assignSeatNum = freeSeats[0].seat_number;
     }
 
-    // Check if target seat is free
+    // Check if target seat is free; if already occupied or locked, auto-assign the next free seat
     const targetSeat = await query('SELECT user_id, is_locked FROM live_room_seats WHERE room_id = ? AND seat_number = ?', [roomId, assignSeatNum]);
-    if (targetSeat.length > 0 && targetSeat[0].user_id) {
-      return res.status(400).json({ success: false, message: `Seat #${assignSeatNum} is already occupied.` });
+    if (targetSeat.length > 0 && (targetSeat[0].user_id || targetSeat[0].is_locked)) {
+      const fallbackFreeSeats = await query(
+        'SELECT seat_number FROM live_room_seats WHERE room_id = ? AND user_id IS NULL AND seat_number > 1 AND is_locked = 0 ORDER BY seat_number ASC LIMIT 1',
+        [roomId]
+      );
+      if (fallbackFreeSeats.length === 0) {
+        return res.status(400).json({ success: false, message: 'All seats in this room are currently occupied.' });
+      }
+      assignSeatNum = fallbackFreeSeats[0].seat_number;
     }
 
     // 1. Assign seat in live_room_seats (DB-First)
