@@ -2785,7 +2785,7 @@
       "file_type": "code",
       "norm_label": "assignroomadmin()",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L2283"
+      "source_location": "L2290"
     },
     {
       "id": "backend_src_controllers_mobile_livecontroller_buildroomresponse",
@@ -2809,7 +2809,7 @@
       "file_type": "code",
       "norm_label": "cancelseatrequest()",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L2122"
+      "source_location": "L2129"
     },
     {
       "id": "backend_src_controllers_mobile_livecontroller_createroom",
@@ -2833,7 +2833,7 @@
       "file_type": "code",
       "norm_label": "decreaseroomseats()",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L2496"
+      "source_location": "L2503"
     },
     {
       "id": "backend_src_controllers_mobile_livecontroller_deleteroomchatmessage",
@@ -2845,7 +2845,7 @@
       "file_type": "code",
       "norm_label": "deleteroomchatmessage()",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L3703"
+      "source_location": "L3710"
     },
     {
       "id": "backend_src_controllers_mobile_livecontroller_endroom",
@@ -2893,7 +2893,7 @@
       "file_type": "code",
       "norm_label": "formathmstime()",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L3284"
+      "source_location": "L3291"
     },
     {
       "id": "backend_src_controllers_mobile_livecontroller_getlivekittoken",
@@ -2905,7 +2905,7 @@
       "file_type": "code",
       "norm_label": "getlivekittoken()",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L3757"
+      "source_location": "L3764"
     },
     {
       "id": "backend_src_controllers_mobile_livecontroller_getmyactiveroom",
@@ -2929,7 +2929,7 @@
       "file_type": "code",
       "norm_label": "getroomadmins()",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L2172"
+      "source_location": "L2179"
     },
     {
       "id": "backend_src_controllers_mobile_livecontroller_getroomchatmessages",
@@ -2941,7 +2941,7 @@
       "file_type": "code",
       "norm_label": "getroomchatmessages()",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L3629"
+      "source_location": "L3636"
     },
     {
       "id": "backend_src_controllers_mobile_livecontroller_getroomdetails",
@@ -3001,7 +3001,7 @@
       "file_type": "code",
       "norm_label": "getuserlivehistory()",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L3313"
+      "source_location": "L3320"
     },
     {
       "id": "backend_src_controllers_mobile_livecontroller_handleuserseatdeparture",
@@ -3025,7 +3025,7 @@
       "file_type": "code",
       "norm_label": "increaseroomseats()",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L2487"
+      "source_location": "L2494"
     },
     {
       "id": "backend_src_controllers_mobile_livecontroller_joinroom",
@@ -3049,7 +3049,7 @@
       "file_type": "code",
       "norm_label": "kickallseatusers()",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L2605"
+      "source_location": "L2612"
     },
     {
       "id": "backend_src_controllers_mobile_livecontroller_kickuserfromroom",
@@ -3061,7 +3061,7 @@
       "file_type": "code",
       "norm_label": "kickuserfromroom()",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L2887"
+      "source_location": "L2894"
     },
     {
       "id": "backend_src_controllers_mobile_livecontroller_leaveroom",
@@ -3097,7 +3097,7 @@
       "file_type": "code",
       "norm_label": "lockallemptyseats()",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L2507"
+      "source_location": "L2514"
     },
     {
       "id": "backend_src_controllers_mobile_livecontroller_lockseat",
@@ -3121,7 +3121,7 @@
       "file_type": "code",
       "norm_label": "muteallseats()",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L2693"
+      "source_location": "L2700"
     },
     {
       "id": "backend_src_controllers_mobile_livecontroller_muteseat",
@@ -3145,7 +3145,7 @@
       "file_type": "code",
       "norm_label": "promotetomainseat()",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L3002"
+      "source_location": "L3009"
     },
     {
       "id": "backend_src_controllers_mobile_livecontroller_rejectseatrequest",
@@ -3157,7 +3157,7 @@
       "file_type": "code",
       "norm_label": "rejectseatrequest()",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L2077"
+      "source_location": "L2084"
     },
     {
       "id": "backend_src_controllers_mobile_livecontroller_removeroomadmin",
@@ -3169,7 +3169,7 @@
       "file_type": "code",
       "norm_label": "removeroomadmin()",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L2331"
+      "source_location": "L2338"
     },
     {
       "id": "backend_src_controllers_mobile_livecontroller_removeseatuser",
@@ -3181,7 +3181,7 @@
       "file_type": "code",
       "norm_label": "removeseatuser()",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L2782"
+      "source_location": "L2789"
     },
     {
       "id": "backend_src_controllers_mobile_livecontroller_requestseat",
@@ -3205,7 +3205,7 @@
       "file_type": "code",
       "norm_label": "sendroomchatmessage()",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L3540"
+      "source_location": "L3547"
     },
     {
       "id": "backend_src_controllers_mobile_livecontroller_switchseat",
@@ -3253,7 +3253,7 @@
       "file_type": "code",
       "norm_label": "updateroombackground()",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L3147"
+      "source_location": "L3154"
     },
     {
       "id": "backend_src_controllers_mobile_livecontroller_updateroomseatscount",
@@ -3265,7 +3265,7 @@
       "file_type": "code",
       "norm_label": "updateroomseatscount()",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L2380"
+      "source_location": "L2387"
     },
     {
       "id": "backend_src_controllers_mobile_livecontroller_updateroomsettings",
@@ -3277,7 +3277,7 @@
       "file_type": "code",
       "norm_label": "updateroomsettings()",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L3827"
+      "source_location": "L3834"
     },
     {
       "id": "backend_src_sockets_livesocket_cancelhostdisconnectgracetimer",
@@ -13856,7 +13856,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L2041",
+      "source_location": "L2048",
       "weight": 1.0
     },
     {
@@ -13868,7 +13868,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L2043",
+      "source_location": "L2050",
       "weight": 1.0
     },
     {
@@ -13880,7 +13880,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L2289",
+      "source_location": "L2296",
       "weight": 1.0
     },
     {
@@ -13916,7 +13916,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L2130",
+      "source_location": "L2137",
       "weight": 1.0
     },
     {
@@ -13928,7 +13928,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L2146",
+      "source_location": "L2153",
       "weight": 1.0
     },
     {
@@ -13976,7 +13976,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L2498",
+      "source_location": "L2505",
       "weight": 1.0
     },
     {
@@ -13988,7 +13988,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L3709",
+      "source_location": "L3716",
       "weight": 1.0
     },
     {
@@ -14036,7 +14036,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L3769",
+      "source_location": "L3776",
       "weight": 1.0
     },
     {
@@ -14048,7 +14048,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L3798",
+      "source_location": "L3805",
       "weight": 1.0
     },
     {
@@ -14084,7 +14084,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L2178",
+      "source_location": "L2185",
       "weight": 1.0
     },
     {
@@ -14096,7 +14096,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L3665",
+      "source_location": "L3672",
       "weight": 1.0
     },
     {
@@ -14156,7 +14156,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L3351",
+      "source_location": "L3358",
       "weight": 1.0
     },
     {
@@ -14168,7 +14168,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L3466",
+      "source_location": "L3473",
       "weight": 1.0
     },
     {
@@ -14192,7 +14192,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L2489",
+      "source_location": "L2496",
       "weight": 1.0
     },
     {
@@ -14228,7 +14228,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L2611",
+      "source_location": "L2618",
       "weight": 1.0
     },
     {
@@ -14240,7 +14240,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L2630",
+      "source_location": "L2637",
       "weight": 1.0
     },
     {
@@ -14252,7 +14252,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L2900",
+      "source_location": "L2907",
       "weight": 1.0
     },
     {
@@ -14264,7 +14264,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L2942",
+      "source_location": "L2949",
       "weight": 1.0
     },
     {
@@ -14336,7 +14336,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L2513",
+      "source_location": "L2520",
       "weight": 1.0
     },
     {
@@ -14348,7 +14348,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L2572",
+      "source_location": "L2579",
       "weight": 1.0
     },
     {
@@ -14396,7 +14396,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L2699",
+      "source_location": "L2706",
       "weight": 1.0
     },
     {
@@ -14408,7 +14408,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L2747",
+      "source_location": "L2754",
       "weight": 1.0
     },
     {
@@ -14444,7 +14444,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L3011",
+      "source_location": "L3018",
       "weight": 1.0
     },
     {
@@ -14456,7 +14456,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L3117",
+      "source_location": "L3124",
       "weight": 1.0
     },
     {
@@ -14468,7 +14468,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L2082",
+      "source_location": "L2089",
       "weight": 1.0
     },
     {
@@ -14480,7 +14480,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L2095",
+      "source_location": "L2102",
       "weight": 1.0
     },
     {
@@ -14492,7 +14492,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L2337",
+      "source_location": "L2344",
       "weight": 1.0
     },
     {
@@ -14504,7 +14504,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L2791",
+      "source_location": "L2798",
       "weight": 1.0
     },
     {
@@ -14516,7 +14516,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L2854",
+      "source_location": "L2861",
       "weight": 1.0
     },
     {
@@ -14528,7 +14528,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L2865",
+      "source_location": "L2872",
       "weight": 1.0
     },
     {
@@ -14576,7 +14576,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L3553",
+      "source_location": "L3560",
       "weight": 1.0
     },
     {
@@ -14648,7 +14648,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L3154",
+      "source_location": "L3161",
       "weight": 1.0
     },
     {
@@ -14660,7 +14660,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L3254",
+      "source_location": "L3261",
       "weight": 1.0
     },
     {
@@ -14672,7 +14672,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L2386",
+      "source_location": "L2393",
       "weight": 1.0
     },
     {
@@ -14684,7 +14684,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L2468",
+      "source_location": "L2475",
       "weight": 1.0
     },
     {
@@ -14696,7 +14696,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L3834",
+      "source_location": "L3841",
       "weight": 1.0
     },
     {
@@ -30269,7 +30269,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L2077",
+      "source_location": "L2084",
       "weight": 1.0
     },
     {
@@ -30280,7 +30280,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L2122",
+      "source_location": "L2129",
       "weight": 1.0
     },
     {
@@ -30291,7 +30291,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L2172",
+      "source_location": "L2179",
       "weight": 1.0
     },
     {
@@ -30302,7 +30302,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L2283",
+      "source_location": "L2290",
       "weight": 1.0
     },
     {
@@ -30313,7 +30313,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L2331",
+      "source_location": "L2338",
       "weight": 1.0
     },
     {
@@ -30324,7 +30324,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L2380",
+      "source_location": "L2387",
       "weight": 1.0
     },
     {
@@ -30335,7 +30335,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L2487",
+      "source_location": "L2494",
       "weight": 1.0
     },
     {
@@ -30346,7 +30346,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L2496",
+      "source_location": "L2503",
       "weight": 1.0
     },
     {
@@ -30357,7 +30357,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L2507",
+      "source_location": "L2514",
       "weight": 1.0
     },
     {
@@ -30368,7 +30368,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L2605",
+      "source_location": "L2612",
       "weight": 1.0
     },
     {
@@ -30390,7 +30390,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L2693",
+      "source_location": "L2700",
       "weight": 1.0
     },
     {
@@ -30401,7 +30401,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L2782",
+      "source_location": "L2789",
       "weight": 1.0
     },
     {
@@ -30412,7 +30412,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L2887",
+      "source_location": "L2894",
       "weight": 1.0
     },
     {
@@ -30423,7 +30423,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L3002",
+      "source_location": "L3009",
       "weight": 1.0
     },
     {
@@ -30434,7 +30434,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L3147",
+      "source_location": "L3154",
       "weight": 1.0
     },
     {
@@ -30456,7 +30456,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L3284",
+      "source_location": "L3291",
       "weight": 1.0
     },
     {
@@ -30467,7 +30467,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L3313",
+      "source_location": "L3320",
       "weight": 1.0
     },
     {
@@ -30478,7 +30478,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L3540",
+      "source_location": "L3547",
       "weight": 1.0
     },
     {
@@ -30489,7 +30489,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L3629",
+      "source_location": "L3636",
       "weight": 1.0
     },
     {
@@ -30500,7 +30500,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L3703",
+      "source_location": "L3710",
       "weight": 1.0
     },
     {
@@ -30511,7 +30511,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L3757",
+      "source_location": "L3764",
       "weight": 1.0
     },
     {
@@ -30533,7 +30533,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L3827",
+      "source_location": "L3834",
       "weight": 1.0
     },
     {
@@ -37738,5 +37738,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "931e5e7d3c89c6c224aa01542248e829b212ea7b"
+  "built_at_commit": "d85ddfd54cac5113de559da5fc5aff26f008560b"
 }
