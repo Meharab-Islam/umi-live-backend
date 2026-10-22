@@ -12,8 +12,41 @@ const roomLastViewerCount = new Map();
 // Track pending host disconnect grace period timers: canonicalRoomId -> { timer, hostId, numericRoomId, startedAt }
 export const hostDisconnectGraceTimers = new Map();
 
-// Reconnection grace period (Default: 90 seconds = 1.5 minutes to withstand 1-minute network drops)
-const HOST_GRACE_PERIOD_MS = (parseInt(process.env.HOST_DISCONNECT_GRACE_PERIOD_SECONDS, 10) || 90) * 1000;
+/**
+ * Retrieve dynamic grace periods from cached system_settings or fallback to env/defaults
+ */
+export async function getLiveGracePeriods() {
+  try {
+    const settings = await cache.getOrSet('settings:all', 300, async () => {
+      const rows = await query('SELECT key_name, key_value FROM system_settings');
+      return rows || [];
+    });
+    const map = {};
+    if (Array.isArray(settings)) {
+      for (const s of settings) {
+        map[s.key_name] = s.key_value;
+      }
+    }
+    const hostSec = Math.max(5, parseInt(map.host_disconnect_grace_period_seconds || process.env.HOST_DISCONNECT_GRACE_PERIOD_SECONDS, 10) || 90);
+    const guestSec = Math.max(5, parseInt(map.guest_seat_disconnect_grace_period_seconds || process.env.GUEST_SEAT_DISCONNECT_GRACE_PERIOD_SECONDS, 10) || 60);
+
+    return {
+      hostGraceMs: hostSec * 1000,
+      hostGraceSec: hostSec,
+      guestGraceMs: guestSec * 1000,
+      guestGraceSec: guestSec,
+    };
+  } catch (err) {
+    const hostSec = Math.max(5, parseInt(process.env.HOST_DISCONNECT_GRACE_PERIOD_SECONDS, 10) || 90);
+    const guestSec = Math.max(5, parseInt(process.env.GUEST_SEAT_DISCONNECT_GRACE_PERIOD_SECONDS, 10) || 60);
+    return {
+      hostGraceMs: hostSec * 1000,
+      hostGraceSec: hostSec,
+      guestGraceMs: guestSec * 1000,
+      guestGraceSec: guestSec,
+    };
+  }
+}
 
 /**
  * Cancel any pending host disconnect grace timer for a room
@@ -33,9 +66,6 @@ export function cancelHostDisconnectGraceTimer(roomId) {
 
 // Track pending seated guest disconnect grace period timers: `${canonicalRoomId}:${userId}` -> { timer, canonicalRoomId, numericRoomId, userId, seatNumber, startedAt }
 export const seatGuestDisconnectGraceTimers = new Map();
-
-// Seated guest reconnection grace period (Default: 60 seconds = 1 minute to withstand network drops)
-const SEAT_GUEST_GRACE_PERIOD_MS = (parseInt(process.env.GUEST_SEAT_DISCONNECT_GRACE_PERIOD_SECONDS, 10) || 60) * 1000;
 
 /**
  * Cancel any pending seat grace timer for a user in a room
@@ -171,13 +201,14 @@ async function cleanupUserFromRoom(roomId, userId, io, userInfo = null, reason =
     }
 
     const isHost = Number(userId) === Number(hostId);
+    const { hostGraceMs, hostGraceSec, guestGraceMs, guestGraceSec } = await getLiveGracePeriods();
 
     // =========================================================================
     // SCENARIO A: THE DEPARTING / DISCONNECTING USER IS THE HOST!
-    // If HOST_GRACE_PERIOD_MS > 0, give temporary grace period; otherwise end room immediately!
+    // If hostGraceMs > 0, give temporary grace period; otherwise end room immediately!
     // =========================================================================
     if (isHost) {
-      if (reason === 'disconnect' && HOST_GRACE_PERIOD_MS > 0) {
+      if (reason === 'disconnect' && hostGraceMs > 0) {
         // 1. Check if the host has any other active socket connection in this room
         const hostSockets = Array.from(io?.sockets?.sockets?.values() || []).filter(
           (s) => (Number(s.userId) === Number(hostId) || Number(s.currentUser?.id) === Number(hostId)) &&
@@ -194,7 +225,7 @@ async function cleanupUserFromRoom(roomId, userId, io, userInfo = null, reason =
           return { isHost: true, waitingForReconnect: true };
         }
 
-        const graceSec = Math.round(HOST_GRACE_PERIOD_MS / 1000);
+        const graceSec = hostGraceSec;
         console.log(`⏳ [Host Network Disconnected] Host ${hostId} network lost in room ${canonicalRoomId}. Starting ${graceSec}s reconnection grace period...`);
 
         // Notify room audience that host is temporarily reconnecting
@@ -230,7 +261,7 @@ async function cleanupUserFromRoom(roomId, userId, io, userInfo = null, reason =
           } catch (e) {
             console.error('Error during grace period expiration cleanup:', e.message);
           }
-        }, HOST_GRACE_PERIOD_MS);
+        }, hostGraceMs);
 
         const timerEntry = {
           timer,
@@ -263,8 +294,8 @@ async function cleanupUserFromRoom(roomId, userId, io, userInfo = null, reason =
     );
     const isSeated = seatedRows.length > 0;
 
-    // Seated co-host network disconnection: Provide 60s Reconnection Grace Period!
-    if (isSeated && reason === 'disconnect' && SEAT_GUEST_GRACE_PERIOD_MS > 0) {
+    // Seated co-host network disconnection: Provide dynamic Reconnection Grace Period!
+    if (isSeated && reason === 'disconnect' && guestGraceMs > 0) {
       // 1. Check if user has another active socket connection in this room
       const userSockets = Array.from(io?.sockets?.sockets?.values() || []).filter(
         (s) => (Number(s.userId) === Number(userId) || Number(s.currentUser?.id) === Number(userId)) &&
@@ -279,7 +310,7 @@ async function cleanupUserFromRoom(roomId, userId, io, userInfo = null, reason =
       const graceKey = `${canonicalRoomId}:${userId}`;
       if (!seatGuestDisconnectGraceTimers.has(graceKey)) {
         const seatNum = seatedRows[0].seat_number;
-        const graceSec = Math.round(SEAT_GUEST_GRACE_PERIOD_MS / 1000);
+        const graceSec = guestGraceSec;
         console.log(`⏳ [Seated Guest Disconnect] User ${userId} on seat #${seatNum} network lost in room ${canonicalRoomId}. Starting ${graceSec}s grace period...`);
 
         // Notify room audience that co-host is temporarily reconnecting
@@ -307,7 +338,7 @@ async function cleanupUserFromRoom(roomId, userId, io, userInfo = null, reason =
           } catch (e) {
             console.error('Error during seated guest grace period cleanup:', e.message);
           }
-        }, SEAT_GUEST_GRACE_PERIOD_MS);
+        }, guestGraceMs);
 
         seatGuestDisconnectGraceTimers.set(graceKey, {
           timer,

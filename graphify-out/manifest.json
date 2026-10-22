@@ -72,9 +72,9 @@
     "semantic_hash": ""
   },
   "admin-panel/src/pages/Settings.jsx": {
-    "mtime": 1792520754.646566,
-    "seen": 1792520769.854985,
-    "ast_hash": "54e14cf86d79570332b76b976d6a4758",
+    "mtime": 1792687990.7555609,
+    "seen": 1792688135.640987,
+    "ast_hash": "90d9d731c891caeff100aa124bbb698a",
     "semantic_hash": ""
   },
   "admin-panel/src/pages/Users.jsx": {
@@ -192,9 +192,9 @@
     "semantic_hash": ""
   },
   "backend/src/sockets/liveSocket.js": {
-    "mtime": 1792686159.232773,
-    "seen": 1792686241.915173,
-    "ast_hash": "d668c27d691d1370e587aae65afa0b34",
+    "mtime": 1792687937.2169693,
+    "seen": 1792688135.642355,
+    "ast_hash": "84912230c4b27b1534075a44808d1230",
     "semantic_hash": ""
   },
   "admin-panel/src/pages/Agencies.jsx": {
@@ -1167,12 +1167,6 @@
     "mtime": 1792522484.5528455,
     "seen": 1792522663.372663,
     "ast_hash": "5729ea3afecfd4d94654240b28682129",
-    "semantic_hash": ""
-  },
-  "umi_firebase.json": {
-    "mtime": 1792525923.7478738,
-    "seen": 1792647414.522141,
-    "ast_hash": "34788f3cde1176073d35a78878c8831f",
     "semantic_hash": ""
   },
   "backend/uploads/chat/1000005420_1792123219502-534245377.jpg": {

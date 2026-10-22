@@ -48,7 +48,39 @@ export default function Settings({ onToast }) {
   const [savingEconomy, setSavingEconomy] = useState(false);
   const [savingSecurity, setSavingSecurity] = useState(false);
   const [savingSystem, setSavingSystem] = useState(false);
+  const [savingGracePeriod, setSavingGracePeriod] = useState(false);
   const [copiedEndpoint, setCopiedEndpoint] = useState(false);
+
+  const handleSaveGracePeriod = async () => {
+    try {
+      setSavingGracePeriod(true);
+      const hostSec = Math.max(5, parseInt(settings.host_disconnect_grace_period_seconds, 10) || 90);
+      const guestSec = Math.max(5, parseInt(settings.guest_seat_disconnect_grace_period_seconds, 10) || 60);
+
+      await Promise.all([
+        settingsApi.updateSetting(
+          'host_disconnect_grace_period_seconds',
+          String(hostSec),
+          'Host reconnection grace period in seconds before terminating room'
+        ),
+        settingsApi.updateSetting(
+          'guest_seat_disconnect_grace_period_seconds',
+          String(guestSec),
+          'Seated guest/co-host reconnection grace period in seconds before removing from seat'
+        ),
+      ]);
+      setSettings((prev) => ({
+        ...prev,
+        host_disconnect_grace_period_seconds: String(hostSec),
+        guest_seat_disconnect_grace_period_seconds: String(guestSec),
+      }));
+      onToast('Reconnection grace periods updated & synchronized in real-time!', 'success');
+    } catch (err) {
+      onToast(err.message, 'error');
+    } finally {
+      setSavingGracePeriod(false);
+    }
+  };
 
   // Live Simulation Calculator State
   const [simCoins, setSimCoins] = useState(1000);
@@ -1293,6 +1325,110 @@ export default function Settings({ onToast }) {
                 >
                   <Save size={16} />
                   <span>{savingLivekit ? 'Saving LiveKit...' : 'Save LiveKit Credentials'}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Reconnection Grace Period Panel */}
+          <div className="panel-card" style={{ border: '1px solid rgba(168, 85, 247, 0.35)' }}>
+            <div className="panel-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div className="panel-title">
+                <Activity size={22} color="#a855f7" />
+                <span>Live Stream Disconnection & Reconnection Grace Periods</span>
+              </div>
+              <span
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '5px',
+                  background: 'rgba(168, 85, 247, 0.12)',
+                  color: '#a855f7',
+                  border: '1px solid rgba(168, 85, 247, 0.3)',
+                  padding: '5px 12px',
+                  borderRadius: '20px',
+                  fontSize: '0.78rem',
+                  fontWeight: 700,
+                }}
+              >
+                ⏱️ Real-time Socket Protection
+              </span>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.35rem' }}>
+              <div style={{ fontSize: '0.82rem', color: 'var(--text-dim)', lineHeight: 1.5 }}>
+                Configure how long the system waits when a host or seated co-host experiences an unexpected internet drop, socket disconnection, or app closure. If they reconnect within this time window, their room and seats remain completely preserved without being closed or evicted.
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem' }}>
+                {/* Host Grace Period */}
+                <div style={{ background: 'var(--bg-secondary)', padding: '1rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '0.35rem' }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      👑 Host Disconnect Grace Period
+                    </span>
+                    <span style={{ color: '#a855f7', fontWeight: 700, fontSize: '0.8rem' }}>
+                      {settings.host_disconnect_grace_period_seconds || '90'}s ({((parseInt(settings.host_disconnect_grace_period_seconds, 10) || 90) / 60).toFixed(1)} min)
+                    </span>
+                  </label>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <input
+                      type="number"
+                      min="10"
+                      max="600"
+                      className="input-field"
+                      style={{ width: '100%', fontFamily: 'var(--font-mono)' }}
+                      value={settings.host_disconnect_grace_period_seconds ?? '90'}
+                      onChange={(e) => handleChange('host_disconnect_grace_period_seconds', e.target.value)}
+                      placeholder="e.g. 90"
+                    />
+                    <span style={{ fontSize: '0.82rem', color: 'var(--text-dim)', fontWeight: 600 }}>Sec</span>
+                  </div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: '0.4rem', lineHeight: 1.4 }}>
+                    If the room host's internet disconnects, wait this many seconds before terminating the live room. (Default: 90s / 1.5 mins)
+                  </div>
+                </div>
+
+                {/* Participant / Seated Guest Grace Period */}
+                <div style={{ background: 'var(--bg-secondary)', padding: '1rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '0.35rem' }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      🎙️ Seated Guest / Co-host Grace Period
+                    </span>
+                    <span style={{ color: '#06b6d4', fontWeight: 700, fontSize: '0.8rem' }}>
+                      {settings.guest_seat_disconnect_grace_period_seconds || '60'}s ({((parseInt(settings.guest_seat_disconnect_grace_period_seconds, 10) || 60) / 60).toFixed(1)} min)
+                    </span>
+                  </label>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <input
+                      type="number"
+                      min="10"
+                      max="300"
+                      className="input-field"
+                      style={{ width: '100%', fontFamily: 'var(--font-mono)' }}
+                      value={settings.guest_seat_disconnect_grace_period_seconds ?? '60'}
+                      onChange={(e) => handleChange('guest_seat_disconnect_grace_period_seconds', e.target.value)}
+                      placeholder="e.g. 60"
+                    />
+                    <span style={{ fontSize: '0.82rem', color: 'var(--text-dim)', fontWeight: 600 }}>Sec</span>
+                  </div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: '0.4rem', lineHeight: 1.4 }}>
+                    If a seated participant loses internet or closes the app, hold and lock their seat for this many seconds before removing them. (Default: 60s / 1 min)
+                  </div>
+                </div>
+              </div>
+
+              {/* Direct Save Button */}
+              <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: '0.75rem', borderTop: '1px solid var(--border-color)' }}>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={handleSaveGracePeriod}
+                  disabled={savingGracePeriod || saving}
+                  style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#a855f7', borderColor: '#9333ea' }}
+                >
+                  <Save size={16} />
+                  <span>{savingGracePeriod ? 'Saving...' : 'Save Grace Period Settings'}</span>
                 </button>
               </div>
             </div>
