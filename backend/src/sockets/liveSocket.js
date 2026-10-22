@@ -31,6 +31,28 @@ export function cancelHostDisconnectGraceTimer(roomId) {
   }
 }
 
+// Track pending seated guest disconnect grace period timers: `${canonicalRoomId}:${userId}` -> { timer, canonicalRoomId, numericRoomId, userId, seatNumber, startedAt }
+export const seatGuestDisconnectGraceTimers = new Map();
+
+// Seated guest reconnection grace period (Default: 60 seconds = 1 minute to withstand network drops)
+const SEAT_GUEST_GRACE_PERIOD_MS = (parseInt(process.env.GUEST_SEAT_DISCONNECT_GRACE_PERIOD_SECONDS, 10) || 60) * 1000;
+
+/**
+ * Cancel any pending seat grace timer for a user in a room
+ */
+export function cancelSeatGuestDisconnectGraceTimer(roomId, userId) {
+  if (!roomId || !userId) return null;
+  const key = `${String(roomId).trim()}:${String(userId).trim()}`;
+  const entry = seatGuestDisconnectGraceTimers.get(key);
+  if (entry) {
+    if (entry.timer) clearTimeout(entry.timer);
+    seatGuestDisconnectGraceTimers.delete(key);
+    console.log(`⏱️ [Seat Grace Timer Cancelled] Room ${roomId} User ${userId} timer cancelled.`);
+    return entry;
+  }
+  return null;
+}
+
 /**
  * Executes full formal termination of a live room in MySQL, Redis, and Socket.IO
  */
@@ -38,6 +60,13 @@ export async function executeRoomTermination(canonicalRoomId, numericRoomId, hos
   try {
     cancelHostDisconnectGraceTimer(canonicalRoomId);
     if (numericRoomId) cancelHostDisconnectGraceTimer(String(numericRoomId));
+
+    for (const [k, sEntry] of seatGuestDisconnectGraceTimers.entries()) {
+      if (sEntry.canonicalRoomId === canonicalRoomId || String(sEntry.numericRoomId) === String(numericRoomId)) {
+        if (sEntry.timer) clearTimeout(sEntry.timer);
+        seatGuestDisconnectGraceTimers.delete(k);
+      }
+    }
 
     console.log(`🔴 [Room Termination] Live Room ${canonicalRoomId} (ID: ${numericRoomId}) host ${hostId} terminating room (reason: ${reason})...`);
 
@@ -227,6 +256,90 @@ async function cleanupUserFromRoom(roomId, userId, io, userInfo = null, reason =
     // SCENARIO B: REGULAR VIEWER OR CO-HOST DEPARTURE
     // =========================================================================
 
+    // Check if departing user is currently occupying a seat in this room
+    const seatedRows = await query(
+      'SELECT seat_number FROM live_room_seats WHERE (room_id = ? OR room_id = ?) AND user_id = ?',
+      [canonicalRoomId, String(numericRoomId || ''), userId]
+    );
+    const isSeated = seatedRows.length > 0;
+
+    // Seated co-host network disconnection: Provide 60s Reconnection Grace Period!
+    if (isSeated && reason === 'disconnect' && SEAT_GUEST_GRACE_PERIOD_MS > 0) {
+      // 1. Check if user has another active socket connection in this room
+      const userSockets = Array.from(io?.sockets?.sockets?.values() || []).filter(
+        (s) => (Number(s.userId) === Number(userId) || Number(s.currentUser?.id) === Number(userId)) &&
+               (s.currentRoom === canonicalRoomId || s.rooms?.has(canonicalRoomId))
+      );
+      if (userSockets.length > 0) {
+        console.log(`ℹ️ [Seated Guest Disconnect] User ${userId} has another active socket in room ${canonicalRoomId}. Skipping grace period.`);
+        return { isSeated: true, activeSocketRemains: true };
+      }
+
+      // 2. Start Reconnection Grace Period if not already active
+      const graceKey = `${canonicalRoomId}:${userId}`;
+      if (!seatGuestDisconnectGraceTimers.has(graceKey)) {
+        const seatNum = seatedRows[0].seat_number;
+        const graceSec = Math.round(SEAT_GUEST_GRACE_PERIOD_MS / 1000);
+        console.log(`⏳ [Seated Guest Disconnect] User ${userId} on seat #${seatNum} network lost in room ${canonicalRoomId}. Starting ${graceSec}s grace period...`);
+
+        // Notify room audience that co-host is temporarily reconnecting
+        if (io) {
+          const reconnectNotice = {
+            roomId: canonicalRoomId,
+            numericRoomId,
+            userId,
+            seatNumber: seatNum,
+            status: 'reconnecting',
+            message: `User on seat #${seatNum} connection lost. Holding seat for ${graceSec}s...`,
+            gracePeriodSeconds: graceSec,
+            isReconnecting: true,
+            timestamp: new Date().toISOString(),
+          };
+          io.to(canonicalRoomId).emit('seat_user_reconnecting', reconnectNotice);
+          if (numericRoomId) io.to(String(numericRoomId)).emit('seat_user_reconnecting', reconnectNotice);
+        }
+
+        const timer = setTimeout(async () => {
+          try {
+            seatGuestDisconnectGraceTimers.delete(graceKey);
+            console.log(`🔴 [Seated Guest Grace Period Expired] User ${userId} failed to reconnect to seat #${seatNum} in room ${canonicalRoomId} within ${graceSec}s. Removing now...`);
+            await executeGuestSeatAndRoomCleanup(canonicalRoomId, numericRoomId, hostId, userId, io, userInfo, 'disconnect_timeout');
+          } catch (e) {
+            console.error('Error during seated guest grace period cleanup:', e.message);
+          }
+        }, SEAT_GUEST_GRACE_PERIOD_MS);
+
+        seatGuestDisconnectGraceTimers.set(graceKey, {
+          timer,
+          canonicalRoomId,
+          numericRoomId,
+          userId,
+          seatNumber: seatNum,
+          startedAt: Date.now(),
+        });
+
+        return { isSeated: true, waitingForReconnect: true, gracePeriodSeconds: graceSec };
+      } else {
+        return { isSeated: true, waitingForReconnect: true };
+      }
+    }
+
+    // Cancel any pending seat grace timer if departing explicitly
+    cancelSeatGuestDisconnectGraceTimer(canonicalRoomId, userId);
+
+    return await executeGuestSeatAndRoomCleanup(canonicalRoomId, numericRoomId, hostId, userId, io, userInfo, reason);
+  } catch (err) {
+    console.error(`cleanupUserFromRoom error (${roomId}, ${userId}):`, err.message);
+  }
+}
+
+/**
+ * Execute actual guest removal from seat, viewers table, and broadcast departure
+ */
+async function executeGuestSeatAndRoomCleanup(canonicalRoomId, numericRoomId, hostId, userId, io, userInfo = null, reason = 'left') {
+  try {
+    cancelSeatGuestDisconnectGraceTimer(canonicalRoomId, userId);
+
     // 1. Handle seat departure & automatic seat rearrangement
     await handleUserSeatDeparture(canonicalRoomId, userId, io);
     if (numericRoomId && String(numericRoomId) !== canonicalRoomId) {
@@ -245,7 +358,7 @@ async function cleanupUserFromRoom(roomId, userId, io, userInfo = null, reason =
       [canonicalRoomId, String(numericRoomId || ''), userId]
     );
     if (delAdminRes && delAdminRes.affectedRows > 0 && io) {
-      const channels = new Set([canonicalRoomId, String(numericRoomId), String(roomId)].filter(Boolean));
+      const channels = new Set([canonicalRoomId, String(numericRoomId)].filter(Boolean));
       for (const ch of channels) {
         io.to(ch).emit('room_admin_removed', { roomId: canonicalRoomId, userId });
       }
@@ -282,10 +395,8 @@ async function cleanupUserFromRoom(roomId, userId, io, userInfo = null, reason =
     // 6. Invalidate all Redis caches
     await Promise.allSettled([
       cache.delByPattern('mobile:rooms:*'),
-      cache.del(`mobile:room_details:${roomId}`),
       cache.del(`mobile:room_details:${canonicalRoomId}`),
       numericRoomId ? cache.del(`mobile:room_details:${numericRoomId}`) : null,
-      cache.delByPattern(`mobile:room:users:${roomId}*`),
       cache.delByPattern(`mobile:room:users:${canonicalRoomId}*`),
       numericRoomId ? cache.delByPattern(`mobile:room:users:${numericRoomId}*`) : null,
       cache.del(`mobile:live:seat_requests:${canonicalRoomId}`),
@@ -371,7 +482,7 @@ async function cleanupUserFromRoom(roomId, userId, io, userInfo = null, reason =
         timestamp: new Date().toISOString(),
       };
 
-      const channels = new Set([canonicalRoomId, String(numericRoomId), String(roomId)].filter(Boolean));
+      const channels = new Set([canonicalRoomId, String(numericRoomId)].filter(Boolean));
       for (const ch of channels) {
         io.to(ch).emit('user-left', leavePayload);
         io.to(ch).emit('user_left', leavePayload);
@@ -384,7 +495,7 @@ async function cleanupUserFromRoom(roomId, userId, io, userInfo = null, reason =
     roomUserJoinAnnounced.delete(`${canonicalRoomId}_${userId}`);
     return { isHost: false, viewerCount: currentViewerCount };
   } catch (err) {
-    console.error(`cleanupUserFromRoom error (${roomId}, ${userId}):`, err.message);
+    console.error(`executeGuestSeatAndRoomCleanup error (${canonicalRoomId}, ${userId}):`, err.message);
   }
 }
 
@@ -464,6 +575,28 @@ export function setupLiveSocket(io) {
         }
         if (!isHost) {
           roomViewers.get(canonicalRoomId).add(socket.id);
+
+          // Seated Guest Reconnect Handler: If a grace timer is active for this user, cancel it immediately!
+          if (currentUser?.id) {
+            const seatEntry = cancelSeatGuestDisconnectGraceTimer(canonicalRoomId, currentUser.id);
+            if (seatEntry) {
+              console.log(`🟢 [Seated Guest Reconnected] User ${currentUser.id} successfully reconnected to seat #${seatEntry.seatNumber} in room ${canonicalRoomId}! Disconnect timer cancelled.`);
+              const guestReconnectedPayload = {
+                roomId: canonicalRoomId,
+                numericRoomId,
+                userId: currentUser.id,
+                seatNumber: seatEntry.seatNumber,
+                status: 'reconnected',
+                message: `User on seat #${seatEntry.seatNumber} has reconnected! 🎙️`,
+                isReconnecting: false,
+                timestamp: new Date().toISOString(),
+              };
+              io.to(canonicalRoomId).emit('seat_user_reconnected', guestReconnectedPayload);
+              if (numericRoomId) {
+                io.to(String(numericRoomId)).emit('seat_user_reconnected', guestReconnectedPayload);
+              }
+            }
+          }
         } else {
           roomViewers.get(canonicalRoomId).delete(socket.id);
 
@@ -627,6 +760,7 @@ export function setupLiveSocket(io) {
         const leaveUserInfo = data?.user || (data?.userName ? data : null) || currentUser;
 
         if (leaveUserId) {
+          cancelSeatGuestDisconnectGraceTimer(canonicalRoomId, leaveUserId);
           await cleanupUserFromRoom(canonicalRoomId, leaveUserId, io, leaveUserInfo, 'left');
         }
 
