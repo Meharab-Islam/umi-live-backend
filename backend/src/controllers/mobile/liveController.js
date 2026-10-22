@@ -2049,18 +2049,35 @@ export async function approveSeatRequest(req, res) {
 
     const roomData = await buildRoomResponse(roomId, req.user);
 
+    // Fetch user details for real-time seat update broadcast
+    const [targetUser] = await query(
+      'SELECT id, full_name, avatar_url, coins, role, level FROM users WHERE id = ?',
+      [targetUserId]
+    );
+
     if (req.io) {
+      const userPayload = targetUser ? {
+        id: targetUser.id,
+        name: targetUser.full_name,
+        profile: targetUser.avatar_url,
+        coin: targetUser.coins,
+        role: targetUser.role,
+        level: targetUser.level,
+      } : null;
+
       req.io.to(roomId).emit('seat_request_approved', {
         roomId,
         requestId,
         userId: targetUserId,
         seatNumber: assignSeatNum,
+        user: userPayload,
       });
       req.io.to(roomId).emit('seat_updated', {
         roomId,
         seatNumber: assignSeatNum,
         action: 'take',
         userId: targetUserId,
+        user: userPayload,
       });
     }
 
