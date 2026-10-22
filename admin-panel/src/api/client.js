@@ -1,8 +1,18 @@
-export const API_BASE = (function() {
-  if (import.meta.env.VITE_API_BASE_URL) return import.meta.env.VITE_API_BASE_URL;
-  if (typeof window !== 'undefined') {
-    return `${window.location.protocol}//${window.location.hostname}:5050/api`;
+export function getApiBase() {
+  if (typeof window !== 'undefined' && window.location && window.location.hostname) {
+    const { protocol, hostname } = window.location;
+    return `${protocol}//${hostname}:5050/api`;
   }
+  if (import.meta.env.VITE_API_BASE_URL) return import.meta.env.VITE_API_BASE_URL;
+  return 'http://localhost:5050/api';
+}
+
+export const API_BASE = (function() {
+  if (typeof window !== 'undefined' && window.location && window.location.hostname) {
+    const { protocol, hostname } = window.location;
+    return `${protocol}//${hostname}:5050/api`;
+  }
+  if (import.meta.env.VITE_API_BASE_URL) return import.meta.env.VITE_API_BASE_URL;
   return 'http://localhost:5050/api';
 })();
 
@@ -49,9 +59,11 @@ export async function request(endpoint, options = {}) {
     ? endpoint.slice(4)
     : endpoint;
 
+  const currentApiBase = getApiBase();
+
   const url = (normalizedEndpoint.startsWith('http://') || normalizedEndpoint.startsWith('https://'))
     ? normalizedEndpoint
-    : `${API_BASE}${normalizedEndpoint.startsWith('/') ? normalizedEndpoint : '/' + normalizedEndpoint}`;
+    : `${currentApiBase}${normalizedEndpoint.startsWith('/') ? normalizedEndpoint : '/' + normalizedEndpoint}`;
 
   const headers = {
     ...(options.body instanceof FormData ? {} : { 'Content-Type': 'application/json' }),
