@@ -33,6 +33,14 @@ export function getPool() {
   return pool;
 }
 
+export const poolProxy = {
+  getConnection: () => getPool().getConnection(),
+  execute: (...args) => getPool().execute(...args),
+  query: (...args) => getPool().query(...args),
+};
+
+export { poolProxy as pool };
+
 export async function query(sql, params) {
   const connection = getPool();
   const [rows, fields] = await connection.execute(sql, params);
