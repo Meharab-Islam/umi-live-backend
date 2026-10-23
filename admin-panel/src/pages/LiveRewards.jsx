@@ -6,16 +6,13 @@ import {
   Radio,
   Users,
   CheckCircle,
-  XCircle,
   RefreshCw,
   Search,
-  Filter,
   Save,
   Sliders,
   Sparkles,
   Calendar,
   Layers,
-  ChevronRight,
   ShieldCheck,
   TrendingUp,
   AlertCircle,
@@ -98,17 +95,17 @@ export default function LiveRewards({ onToast }) {
         page: historyPage,
         limit: historyPageSize,
         search: searchQuery,
-        role: roleFilter,
-        sessionType: sessionTypeFilter,
+        role: roleFilter !== 'all' ? roleFilter : undefined,
+        session_type: sessionTypeFilter !== 'all' ? sessionTypeFilter : undefined,
       });
 
       if (res && res.success) {
-        setHistoryItems(res.items || []);
-        setHistoryTotal(res.pagination?.total || 0);
+        setHistoryItems(res.history || []);
+        setHistoryTotal(res.total || 0);
       }
     } catch (err) {
-      console.error('Failed to load live reward history:', err);
-      if (onToast) onToast('Failed to load reward history', 'error');
+      console.error('Failed to load reward history:', err);
+      if (onToast) onToast(err.message || 'Failed to load history', 'error');
     } finally {
       setHistoryLoading(false);
     }
@@ -122,20 +119,15 @@ export default function LiveRewards({ onToast }) {
     loadHistory();
   }, [loadHistory]);
 
-  // Save Settings
   const handleSaveSettings = async (e) => {
-    if (e) e.preventDefault();
+    e.preventDefault();
 
-    if (settings.required_minutes < 1) {
-      if (onToast) onToast('Required live duration must be at least 1 minute', 'error');
+    if (!settings.required_minutes || settings.required_minutes <= 0) {
+      if (onToast) onToast('Please enter a valid required live streaming duration in minutes', 'warning');
       return;
     }
-    if (settings.reward_coins < 1) {
-      if (onToast) onToast('Reward coins must be at least 1 coin', 'error');
-      return;
-    }
-    if (settings.max_rewards_per_day < 1) {
-      if (onToast) onToast('Daily reward limit must be at least 1 per day', 'error');
+    if (!settings.reward_coins || settings.reward_coins <= 0) {
+      if (onToast) onToast('Please enter a valid coin reward amount', 'warning');
       return;
     }
 
@@ -145,7 +137,6 @@ export default function LiveRewards({ onToast }) {
       if (res && res.success) {
         setSettings(res.settings);
         if (onToast) onToast('Live streaming reward rules updated successfully!', 'success');
-        // Refresh stats
         const statsRes = await liveRewardApi.getStats();
         if (statsRes?.stats) setStats(statsRes.stats);
       } else {
@@ -168,364 +159,341 @@ export default function LiveRewards({ onToast }) {
     return `${mins} minutes`;
   };
 
+  if (loading && !settings.title) {
+    return (
+      <div className="page-container" style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <Loader text="Loading Live Reward System..." />
+      </div>
+    );
+  }
+
   return (
-    <div className="p-4 sm:p-6 space-y-6 max-w-7xl mx-auto">
+    <div className="page-container lr-page" style={{ paddingBottom: '3.5rem' }}>
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-white/10 pb-5">
-        <div>
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-gradient-to-tr from-amber-500/20 to-orange-500/20 text-amber-400 border border-amber-500/30 shadow-lg shadow-amber-500/10">
-              <Award className="w-6 h-6" />
+      <div className="panel-card lr-header-card" style={{ marginBottom: '1.5rem', padding: '1.25rem 1.5rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <div className="lr-header-icon-box">
+              <Award size={26} color="#d97706" />
             </div>
             <div>
-              <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight flex items-center gap-2">
-                Live Streaming Rewards
-                <span
-                  className={`text-xs px-2.5 py-0.5 rounded-full font-medium ${
-                    settings.is_enabled
-                      ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                      : 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
-                  }`}
-                >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+                <h1 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-main)', margin: 0 }}>
+                  Live Streaming Rewards
+                </h1>
+                <span className={`lr-status-pill ${settings.is_enabled ? 'active' : 'disabled'}`}>
+                  <span className="lr-status-dot" />
                   {settings.is_enabled ? 'System Active' : 'System Disabled'}
                 </span>
-              </h1>
-              <p className="text-sm text-slate-400 mt-0.5">
+              </div>
+              <p style={{ margin: '0.25rem 0 0', fontSize: '0.85rem', color: 'var(--text-dim)' }}>
                 Configure live broadcast duration targets, coin incentives, role criteria, and daily distribution limits.
               </p>
             </div>
           </div>
-        </div>
 
-        <div className="flex items-center gap-3">
           <button
+            type="button"
+            className="btn btn-secondary"
             onClick={() => {
               loadData();
               loadHistory();
             }}
             disabled={loading || historyLoading}
-            className="flex items-center gap-2 px-3 py-2 text-xs sm:text-sm font-medium text-slate-300 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg transition-all"
+            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
           >
-            <RefreshCw className={`w-4 h-4 ${loading || historyLoading ? 'animate-spin text-amber-400' : ''}`} />
-            Refresh
+            <RefreshCw size={15} className={loading || historyLoading ? 'spin' : ''} />
+            <span>Refresh</span>
           </button>
         </div>
       </div>
 
-      {/* Metrics Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Total Rewarded Coins */}
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-b from-white/[0.07] to-white/[0.02] border border-white/10 p-5 shadow-xl">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold tracking-wider uppercase text-slate-400">Total Coins Rewarded</span>
-            <div className="p-2 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20">
-              <Coins className="w-5 h-5" />
+      {/* Vibrant Stat Metric Cards */}
+      <div className="stats-grid" style={{ marginBottom: '1.75rem' }}>
+        {/* Card 1: Total Coins Rewarded */}
+        <div className="panel-card lr-stat-card" style={{ borderLeft: '4px solid #f59e0b' }}>
+          <div className="lr-stat-top">
+            <span className="lr-stat-label">Total Coins Rewarded</span>
+            <div className="lr-stat-icon" style={{ background: 'rgba(245, 158, 11, 0.12)', color: '#d97706' }}>
+              <Coins size={20} />
             </div>
           </div>
-          <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-2xl sm:text-3xl font-extrabold text-white">
-              {stats.totalCoinsAwarded.toLocaleString()}
-            </span>
-            <span className="text-xs text-amber-400 font-medium">coins</span>
+          <div className="lr-stat-value">
+            {stats.totalCoinsAwarded.toLocaleString()}{' '}
+            <span style={{ fontSize: '0.85rem', color: '#d97706', fontWeight: 600 }}>coins</span>
           </div>
-          <div className="mt-2 text-xs text-slate-400 flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+          <div className="lr-stat-bottom" style={{ color: 'var(--text-dim)' }}>
+            <Sparkles size={14} color="#d97706" />
             <span>Today: +{stats.todayCoinsAwarded.toLocaleString()} coins</span>
           </div>
         </div>
 
-        {/* Total Claims */}
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-b from-white/[0.07] to-white/[0.02] border border-white/10 p-5 shadow-xl">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold tracking-wider uppercase text-slate-400">Total Claims Granted</span>
-            <div className="p-2 rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20">
-              <Award className="w-5 h-5" />
+        {/* Card 2: Total Claims Granted */}
+        <div className="panel-card lr-stat-card" style={{ borderLeft: '4px solid #7c3aed' }}>
+          <div className="lr-stat-top">
+            <span className="lr-stat-label">Total Claims Granted</span>
+            <div className="lr-stat-icon" style={{ background: 'rgba(124, 58, 237, 0.12)', color: '#7c3aed' }}>
+              <Award size={20} />
             </div>
           </div>
-          <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-2xl sm:text-3xl font-extrabold text-white">
-              {stats.totalClaims.toLocaleString()}
-            </span>
-            <span className="text-xs text-purple-400 font-medium">rewards</span>
+          <div className="lr-stat-value">
+            {stats.totalClaims.toLocaleString()}{' '}
+            <span style={{ fontSize: '0.85rem', color: '#7c3aed', fontWeight: 600 }}>claims</span>
           </div>
-          <div className="mt-2 text-xs text-slate-400 flex items-center gap-1.5">
-            <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />
+          <div className="lr-stat-bottom" style={{ color: 'var(--text-dim)' }}>
+            <TrendingUp size={14} color="#059669" />
             <span>Today: {stats.todayClaims.toLocaleString()} claim(s)</span>
           </div>
         </div>
 
-        {/* Active Hosts Rewarded */}
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-b from-white/[0.07] to-white/[0.02] border border-white/10 p-5 shadow-xl">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold tracking-wider uppercase text-slate-400">Hosts Benefited</span>
-            <div className="p-2 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
-              <Users className="w-5 h-5" />
+        {/* Card 3: Hosts Benefited */}
+        <div className="panel-card lr-stat-card" style={{ borderLeft: '4px solid #0284c7' }}>
+          <div className="lr-stat-top">
+            <span className="lr-stat-label">Hosts Benefited</span>
+            <div className="lr-stat-icon" style={{ background: 'rgba(2, 132, 199, 0.12)', color: '#0284c7' }}>
+              <Users size={20} />
             </div>
           </div>
-          <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-2xl sm:text-3xl font-extrabold text-white">
-              {stats.totalHostsRewarded.toLocaleString()}
-            </span>
-            <span className="text-xs text-cyan-400 font-medium">broadcasters</span>
+          <div className="lr-stat-value">
+            {stats.totalHostsRewarded.toLocaleString()}{' '}
+            <span style={{ fontSize: '0.85rem', color: '#0284c7', fontWeight: 600 }}>broadcasters</span>
           </div>
-          <div className="mt-2 text-xs text-slate-400 flex items-center gap-1.5">
-            <ShieldCheck className="w-3.5 h-3.5 text-cyan-400" />
+          <div className="lr-stat-bottom" style={{ color: 'var(--text-dim)' }}>
+            <ShieldCheck size={14} color="#0284c7" />
             <span>Today: {stats.todayHostsRewarded.toLocaleString()} host(s)</span>
           </div>
         </div>
 
-        {/* Current Active Target Rule */}
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-b from-white/[0.07] to-white/[0.02] border border-white/10 p-5 shadow-xl">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold tracking-wider uppercase text-slate-400">Current Milestone Target</span>
-            <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-              <Flame className="w-5 h-5" />
+        {/* Card 4: Current Active Target */}
+        <div className="panel-card lr-stat-card" style={{ borderLeft: '4px solid #059669' }}>
+          <div className="lr-stat-top">
+            <span className="lr-stat-label">Active Milestone Target</span>
+            <div className="lr-stat-icon" style={{ background: 'rgba(5, 150, 105, 0.12)', color: '#059669' }}>
+              <Flame size={20} />
             </div>
           </div>
-          <div className="mt-3 flex items-baseline gap-1.5">
-            <span className="text-2xl sm:text-3xl font-extrabold text-white">{settings.required_minutes}</span>
-            <span className="text-xs text-emerald-400 font-medium">mins</span>
-            <span className="text-slate-400 text-xs">/</span>
-            <span className="text-xl font-bold text-amber-400">+{settings.reward_coins}</span>
-            <span className="text-xs text-amber-400">coins</span>
+          <div className="lr-stat-value">
+            {settings.required_minutes}{' '}
+            <span style={{ fontSize: '0.85rem', color: '#059669', fontWeight: 600 }}>mins</span>
+            <span style={{ fontSize: '0.85rem', color: 'var(--text-dim)', margin: '0 4px' }}>/</span>
+            <span style={{ color: '#d97706' }}>+{settings.reward_coins}</span>
+            <span style={{ fontSize: '0.85rem', color: '#d97706', fontWeight: 600, marginLeft: '3px' }}>coins</span>
           </div>
-          <div className="mt-2 text-xs text-slate-400 flex items-center gap-1.5 truncate">
-            <Clock className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-            <span className="truncate">
-              {settings.session_type === 'single_continuous' ? 'Single continuous session' : 'Cumulative sessions'} • Max {settings.max_rewards_per_day}x/day
+          <div className="lr-stat-bottom" style={{ color: 'var(--text-dim)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <Clock size={14} color="var(--text-dim)" />
+            <span>
+              {settings.session_type === 'single_continuous' ? 'Single continuous' : 'Cumulative'} • Max {settings.max_rewards_per_day}x/day
             </span>
           </div>
         </div>
       </div>
 
       {/* Main Configuration & Live Preview Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Form Column */}
-        <div className="lg:col-span-7 bg-white/[0.04] backdrop-blur-md border border-white/10 rounded-2xl p-6 shadow-xl space-y-6">
-          <div className="flex items-center justify-between border-b border-white/10 pb-4">
-            <div className="flex items-center gap-2.5">
-              <Sliders className="w-5 h-5 text-amber-400" />
-              <h2 className="text-lg font-bold text-white">Reward Engine Configuration</h2>
+      <div className="lr-content-grid" style={{ marginBottom: '2rem' }}>
+        {/* Left Column: Reward Engine Configuration */}
+        <div className="panel-card lr-form-panel">
+          <div className="lr-panel-header">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+              <div className="lr-icon-badge">
+                <Sliders size={18} color="#d97706" />
+              </div>
+              <div>
+                <h2 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0, color: 'var(--text-main)' }}>
+                  Reward Engine Configuration
+                </h2>
+                <span style={{ fontSize: '0.78rem', color: 'var(--text-dim)' }}>
+                  Define live targets, role criteria, coin amounts & constraints
+                </span>
+              </div>
             </div>
-            {/* Active / Inactive Switch */}
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-slate-300 font-medium">
+
+            {/* Master Toggle */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <span style={{ fontSize: '0.8rem', fontWeight: 600, color: settings.is_enabled ? '#059669' : '#dc2626' }}>
                 {settings.is_enabled ? 'Active' : 'Disabled'}
               </span>
               <button
                 type="button"
+                className={`lr-toggle-switch ${settings.is_enabled ? 'checked' : ''}`}
                 onClick={() => setSettings((s) => ({ ...s, is_enabled: !s.is_enabled }))}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
-                  settings.is_enabled ? 'bg-emerald-500' : 'bg-slate-700'
-                }`}
+                title="Toggle Live Reward Engine"
               >
-                <span
-                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                    settings.is_enabled ? 'translate-x-6' : 'translate-x-1'
-                  }`}
-                />
+                <span className="lr-toggle-thumb" />
               </button>
             </div>
           </div>
 
-          <form onSubmit={handleSaveSettings} className="space-y-5">
-            {/* Title & Description */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-300">
-                Reward Program Title
+          <form onSubmit={handleSaveSettings} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            {/* 1. Title */}
+            <div className="form-group" style={{ margin: 0 }}>
+              <label className="form-label" style={{ fontWeight: 600, fontSize: '0.82rem' }}>
+                Reward Program Title (প্রোগ্রামের নাম)
               </label>
               <input
                 type="text"
+                className="form-input"
                 value={settings.title}
                 onChange={(e) => setSettings((s) => ({ ...s, title: e.target.value }))}
                 placeholder="e.g. Daily Live Streaming Bonus"
-                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-amber-400/60 transition-colors"
                 required
               />
             </div>
 
-            {/* Target Role Selection */}
-            <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-300 flex items-center justify-between">
-                <span>1. Target User Role (ইউজার রোল নির্বাচন)</span>
-                <span className="text-[11px] font-normal text-amber-400">Host & Agency Host are identical</span>
-              </label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <button
-                  type="button"
+            {/* 2. Target Role Selection */}
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.45rem' }}>
+                <label className="form-label" style={{ fontWeight: 600, fontSize: '0.82rem', margin: 0 }}>
+                  1. Target User Role (ইউজার রোল নির্বাচন)
+                </label>
+                <span style={{ fontSize: '0.75rem', color: '#d97706', fontWeight: 600 }}>
+                  Host & Agency Host are identical
+                </span>
+              </div>
+              <div className="lr-cards-row">
+                {/* Host Card */}
+                <div
+                  className={`lr-choice-card ${settings.target_role === 'host' ? 'active' : ''}`}
                   onClick={() => setSettings((s) => ({ ...s, target_role: 'host' }))}
-                  className={`p-3.5 rounded-xl border text-left transition-all flex items-start gap-3 ${
-                    settings.target_role === 'host'
-                      ? 'bg-amber-500/10 border-amber-500/50 text-white shadow-lg shadow-amber-500/5'
-                      : 'bg-black/20 border-white/10 text-slate-400 hover:bg-white/5 hover:text-slate-300'
-                  }`}
                 >
-                  <div
-                    className={`mt-0.5 p-1.5 rounded-lg ${
-                      settings.target_role === 'host' ? 'bg-amber-500 text-black' : 'bg-white/10 text-slate-400'
-                    }`}
-                  >
-                    <Radio className="w-4 h-4" />
+                  <div className="lr-choice-icon" style={{ background: settings.target_role === 'host' ? '#7c3aed' : 'rgba(0,0,0,0.05)', color: settings.target_role === 'host' ? '#fff' : 'var(--text-dim)' }}>
+                    <Radio size={16} />
                   </div>
-                  <div>
-                    <div className="text-sm font-semibold text-white">Host (সকল হোস্ট)</div>
-                    <div className="text-xs text-slate-400 mt-0.5">
-                      Both agency hosts and direct platform hosts.
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--text-main)' }}>
+                      Host (সকল হোস্ট)
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: '2px' }}>
+                      Includes both agency hosts and independent platform hosts.
                     </div>
                   </div>
-                </button>
+                </div>
 
-                <button
-                  type="button"
+                {/* All Users Card */}
+                <div
+                  className={`lr-choice-card ${settings.target_role === 'all' ? 'active' : ''}`}
                   onClick={() => setSettings((s) => ({ ...s, target_role: 'all' }))}
-                  className={`p-3.5 rounded-xl border text-left transition-all flex items-start gap-3 ${
-                    settings.target_role === 'all'
-                      ? 'bg-amber-500/10 border-amber-500/50 text-white shadow-lg shadow-amber-500/5'
-                      : 'bg-black/20 border-white/10 text-slate-400 hover:bg-white/5 hover:text-slate-300'
-                  }`}
                 >
-                  <div
-                    className={`mt-0.5 p-1.5 rounded-lg ${
-                      settings.target_role === 'all' ? 'bg-amber-500 text-black' : 'bg-white/10 text-slate-400'
-                    }`}
-                  >
-                    <Users className="w-4 h-4" />
+                  <div className="lr-choice-icon" style={{ background: settings.target_role === 'all' ? '#7c3aed' : 'rgba(0,0,0,0.05)', color: settings.target_role === 'all' ? '#fff' : 'var(--text-dim)' }}>
+                    <Users size={16} />
                   </div>
-                  <div>
-                    <div className="text-sm font-semibold text-white">All Users (সাধারণ ইউজারসহ সবাই)</div>
-                    <div className="text-xs text-slate-400 mt-0.5">
-                      Any registered user who starts a live broadcast.
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--text-main)' }}>
+                      All Users (সাধারণ ইউজারসহ সবাই)
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: '2px' }}>
+                      Any registered user who starts a live stream broadcast.
                     </div>
                   </div>
-                </button>
+                </div>
               </div>
             </div>
 
-            {/* Session Criteria (Single continuous vs Multiple cumulative) */}
-            <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-300">
+            {/* 3. Session Criteria */}
+            <div>
+              <label className="form-label" style={{ fontWeight: 600, fontSize: '0.82rem', marginBottom: '0.45rem', display: 'block' }}>
                 2. Session Condition (সেশন ক্রাইটেরিয়া)
               </label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <button
-                  type="button"
+              <div className="lr-cards-row">
+                {/* Single Continuous */}
+                <div
+                  className={`lr-choice-card ${settings.session_type === 'single_continuous' ? 'active' : ''}`}
                   onClick={() => setSettings((s) => ({ ...s, session_type: 'single_continuous', min_sessions: 1 }))}
-                  className={`p-3.5 rounded-xl border text-left transition-all flex items-start gap-3 ${
-                    settings.session_type === 'single_continuous'
-                      ? 'bg-amber-500/10 border-amber-500/50 text-white shadow-lg shadow-amber-500/5'
-                      : 'bg-black/20 border-white/10 text-slate-400 hover:bg-white/5 hover:text-slate-300'
-                  }`}
                 >
-                  <div
-                    className={`mt-0.5 p-1.5 rounded-lg ${
-                      settings.session_type === 'single_continuous'
-                        ? 'bg-amber-500 text-black'
-                        : 'bg-white/10 text-slate-400'
-                    }`}
-                  >
-                    <Clock className="w-4 h-4" />
+                  <div className="lr-choice-icon" style={{ background: settings.session_type === 'single_continuous' ? '#0284c7' : 'rgba(0,0,0,0.05)', color: settings.session_type === 'single_continuous' ? '#fff' : 'var(--text-dim)' }}>
+                    <Clock size={16} />
                   </div>
-                  <div>
-                    <div className="text-sm font-semibold text-white">Single Continuous Session</div>
-                    <div className="text-xs text-slate-400 mt-0.5">
-                      একটানা ১টি সেশনে লাইভ থাকতে হবে (কোনো বিরতি ছাড়া)।
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--text-main)' }}>
+                      Single Continuous Session
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: '2px' }}>
+                      একটানা ১টি লাইভ সেশনে নির্ধারিত সময় পূরণ করতে হবে (বিরতি ছাড়া)।
                     </div>
                   </div>
-                </button>
+                </div>
 
-                <button
-                  type="button"
+                {/* Multiple Cumulative */}
+                <div
+                  className={`lr-choice-card ${settings.session_type === 'multiple_cumulative' ? 'active' : ''}`}
                   onClick={() => setSettings((s) => ({ ...s, session_type: 'multiple_cumulative' }))}
-                  className={`p-3.5 rounded-xl border text-left transition-all flex items-start gap-3 ${
-                    settings.session_type === 'multiple_cumulative'
-                      ? 'bg-amber-500/10 border-amber-500/50 text-white shadow-lg shadow-amber-500/5'
-                      : 'bg-black/20 border-white/10 text-slate-400 hover:bg-white/5 hover:text-slate-300'
-                  }`}
                 >
-                  <div
-                    className={`mt-0.5 p-1.5 rounded-lg ${
-                      settings.session_type === 'multiple_cumulative'
-                        ? 'bg-amber-500 text-black'
-                        : 'bg-white/10 text-slate-400'
-                    }`}
-                  >
-                    <Layers className="w-4 h-4" />
+                  <div className="lr-choice-icon" style={{ background: settings.session_type === 'multiple_cumulative' ? '#0284c7' : 'rgba(0,0,0,0.05)', color: settings.session_type === 'multiple_cumulative' ? '#fff' : 'var(--text-dim)' }}>
+                    <Layers size={16} />
                   </div>
-                  <div>
-                    <div className="text-sm font-semibold text-white">Multiple Cumulative Sessions</div>
-                    <div className="text-xs text-slate-400 mt-0.5">
-                      একাধিক সেশন মিলিয়ে মোট সময় ও নির্ধারিত সেশন সংখ্যা।
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--text-main)' }}>
+                      Multiple Cumulative Sessions
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: '2px' }}>
+                      সারাদিনের একাধিক সেশন মিলিয়ে মোট সময় ও নির্ধারিত সেশন সংখ্যা পূরণ করতে হবে।
                     </div>
                   </div>
-                </button>
+                </div>
               </div>
             </div>
 
-            {/* Min Session count if multiple */}
+            {/* Min Sessions input if multiple_cumulative */}
             {settings.session_type === 'multiple_cumulative' && (
-              <div className="space-y-1.5 bg-white/[0.02] border border-white/10 rounded-xl p-3.5">
-                <label className="text-xs font-semibold uppercase tracking-wider text-slate-300 flex items-center justify-between">
-                  <span>Minimum Required Sessions Count (নূন্যতম কতটি সেশন)</span>
-                  <span className="text-xs text-amber-400">{settings.min_sessions} session(s)</span>
-                </label>
-                <div className="flex items-center gap-3">
+              <div className="lr-sub-box">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                  <label className="form-label" style={{ fontWeight: 600, fontSize: '0.8rem', margin: 0 }}>
+                    Minimum Required Sessions Count (নূন্যতম কতটি সেশন)
+                  </label>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#0284c7' }}>
+                    {settings.min_sessions} session(s)
+                  </span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                   <input
                     type="number"
                     min="1"
                     max="10"
+                    className="form-input"
+                    style={{ width: '120px' }}
                     value={settings.min_sessions}
                     onChange={(e) =>
                       setSettings((s) => ({ ...s, min_sessions: Math.max(1, parseInt(e.target.value, 10) || 1) }))
                     }
-                    className="w-32 bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:border-amber-400/60"
                   />
-                  <span className="text-xs text-slate-400">
-                    Host must complete at least this many sessions today.
+                  <span style={{ fontSize: '0.78rem', color: 'var(--text-dim)' }}>
+                    Host must broadcast at least this many sessions today to unlock reward.
                   </span>
                 </div>
               </div>
             )}
 
-            {/* Required Live Duration & Quick Chips */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <label className="text-xs font-semibold uppercase tracking-wider text-slate-300">
+            {/* 4. Required Live Duration */}
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.45rem' }}>
+                <label className="form-label" style={{ fontWeight: 600, fontSize: '0.82rem', margin: 0 }}>
                   3. Required Live Duration (কতো সময় লাইভ করতে হবে)
                 </label>
-                <span className="text-xs font-medium text-amber-400">
+                <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#d97706' }}>
                   {formatHoursMinutes(settings.required_minutes)}
                 </span>
               </div>
-              <div className="flex items-center gap-3">
-                <div className="relative flex-1">
-                  <input
-                    type="number"
-                    min="1"
-                    max="1440"
-                    value={settings.required_minutes}
-                    onChange={(e) =>
-                      setSettings((s) => ({ ...s, required_minutes: Math.max(1, parseInt(e.target.value, 10) || 1) }))
-                    }
-                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-amber-400/60 transition-colors"
-                    required
-                  />
-                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-slate-400 pointer-events-none">
-                    Minutes
-                  </span>
-                </div>
+              <div style={{ position: 'relative' }}>
+                <input
+                  type="number"
+                  min="1"
+                  max="1440"
+                  className="form-input"
+                  value={settings.required_minutes}
+                  onChange={(e) =>
+                    setSettings((s) => ({ ...s, required_minutes: Math.max(1, parseInt(e.target.value, 10) || 1) }))
+                  }
+                  required
+                />
+                <span className="lr-input-unit">Minutes</span>
               </div>
-              {/* Preset Chips */}
-              <div className="flex flex-wrap items-center gap-2 pt-1">
+              {/* Quick Duration Chips */}
+              <div className="lr-chips-row">
                 {[30, 45, 60, 90, 120, 180].map((mins) => (
                   <button
                     key={mins}
                     type="button"
+                    className={`lr-chip ${settings.required_minutes === mins ? 'active' : ''}`}
                     onClick={() => setSettings((s) => ({ ...s, required_minutes: mins }))}
-                    className={`px-3 py-1 rounded-lg text-xs font-medium transition-all ${
-                      settings.required_minutes === mins
-                        ? 'bg-amber-500 text-black font-semibold'
-                        : 'bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10'
-                    }`}
                   >
                     {mins >= 60 ? `${mins / 60} Hour${mins > 60 ? 's' : ''}` : `${mins} Mins`}
                   </button>
@@ -533,58 +501,53 @@ export default function LiveRewards({ onToast }) {
               </div>
             </div>
 
-            {/* Coin Reward & Daily Limit Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* Coins Awarded */}
-              <div className="space-y-2">
-                <label className="text-xs font-semibold uppercase tracking-wider text-slate-300">
+            {/* 5. Coin Reward & Daily Limit Row */}
+            <div className="lr-cards-row">
+              {/* Coin Reward */}
+              <div style={{ flex: 1 }}>
+                <label className="form-label" style={{ fontWeight: 600, fontSize: '0.82rem', marginBottom: '0.45rem', display: 'block' }}>
                   4. Coin Reward (কয়েন রিওয়ার্ড)
                 </label>
-                <div className="relative">
+                <div style={{ position: 'relative' }}>
                   <input
                     type="number"
                     min="1"
+                    className="form-input"
                     value={settings.reward_coins}
                     onChange={(e) =>
                       setSettings((s) => ({ ...s, reward_coins: Math.max(1, parseInt(e.target.value, 10) || 1) }))
                     }
-                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-amber-400/60"
                     required
                   />
-                  <div className="absolute right-3.5 top-1/2 -translate-y-1/2 flex items-center gap-1 text-amber-400 text-xs font-semibold pointer-events-none">
-                    <Coins className="w-3.5 h-3.5" />
-                    Coins
-                  </div>
+                  <span className="lr-input-unit" style={{ color: '#d97706', fontWeight: 700 }}>
+                    🪙 Coins
+                  </span>
                 </div>
-                {/* Coins Quick Chips */}
-                <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                <div className="lr-chips-row">
                   {[100, 200, 300, 500, 1000].map((coins) => (
                     <button
                       key={coins}
                       type="button"
+                      className={`lr-chip ${settings.reward_coins === coins ? 'active' : ''}`}
                       onClick={() => setSettings((s) => ({ ...s, reward_coins: coins }))}
-                      className={`px-2.5 py-0.5 rounded-md text-[11px] font-medium transition-all ${
-                        settings.reward_coins === coins
-                          ? 'bg-amber-500 text-black font-semibold'
-                          : 'bg-white/5 hover:bg-white/10 text-slate-300 border border-white/5'
-                      }`}
                     >
-                      {coins}
+                      +{coins}
                     </button>
                   ))}
                 </div>
               </div>
 
               {/* Daily Limit */}
-              <div className="space-y-2">
-                <label className="text-xs font-semibold uppercase tracking-wider text-slate-300">
-                  5. Daily Limit (দিনে কয়বার পাবে)
+              <div style={{ flex: 1 }}>
+                <label className="form-label" style={{ fontWeight: 600, fontSize: '0.82rem', marginBottom: '0.45rem', display: 'block' }}>
+                  5. Daily Limit (দিনে কতবার পাবে)
                 </label>
-                <div className="relative">
+                <div style={{ position: 'relative' }}>
                   <input
                     type="number"
                     min="1"
                     max="100"
+                    className="form-input"
                     value={settings.max_rewards_per_day}
                     onChange={(e) =>
                       setSettings((s) => ({
@@ -592,25 +555,17 @@ export default function LiveRewards({ onToast }) {
                         max_rewards_per_day: Math.max(1, parseInt(e.target.value, 10) || 1),
                       }))
                     }
-                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-amber-400/60"
                     required
                   />
-                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-slate-400 pointer-events-none">
-                    Times / Day
-                  </span>
+                  <span className="lr-input-unit">Times/Day</span>
                 </div>
-                {/* Daily limit Quick Chips */}
-                <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                <div className="lr-chips-row">
                   {[1, 2, 3, 5].map((times) => (
                     <button
                       key={times}
                       type="button"
+                      className={`lr-chip ${settings.max_rewards_per_day === times ? 'active' : ''}`}
                       onClick={() => setSettings((s) => ({ ...s, max_rewards_per_day: times }))}
-                      className={`px-2.5 py-0.5 rounded-md text-[11px] font-medium transition-all ${
-                        settings.max_rewards_per_day === times
-                          ? 'bg-amber-500 text-black font-semibold'
-                          : 'bg-white/5 hover:bg-white/10 text-slate-300 border border-white/5'
-                      }`}
                     >
                       {times}x / Day
                     </button>
@@ -619,36 +574,48 @@ export default function LiveRewards({ onToast }) {
               </div>
             </div>
 
-            {/* Description note */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-300">
+            {/* Description notice */}
+            <div className="form-group" style={{ margin: 0 }}>
+              <label className="form-label" style={{ fontWeight: 600, fontSize: '0.82rem' }}>
                 Notice to Hosts (অ্যাপে হোস্টদের দেখানো বার্তা)
               </label>
               <textarea
                 rows="2"
+                className="form-input"
+                style={{ resize: 'vertical' }}
                 value={settings.description}
                 onChange={(e) => setSettings((s) => ({ ...s, description: e.target.value }))}
                 placeholder="Brief guidelines or instructions shown in host rewards banner..."
-                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-amber-400/60 transition-colors resize-none"
               />
             </div>
 
-            {/* Save Button */}
-            <div className="pt-2">
+            {/* Submit Button */}
+            <div style={{ paddingTop: '0.5rem' }}>
               <button
                 type="submit"
                 disabled={saving}
-                className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-semibold text-black bg-gradient-to-r from-amber-400 to-orange-400 hover:from-amber-300 hover:to-orange-300 shadow-lg shadow-amber-500/20 transition-all disabled:opacity-50"
+                className="btn btn-primary"
+                style={{
+                  width: '100%',
+                  padding: '0.85rem 1.25rem',
+                  fontSize: '0.95rem',
+                  fontWeight: 700,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.65rem',
+                  boxShadow: '0 4px 14px rgba(124, 58, 237, 0.3)',
+                }}
               >
                 {saving ? (
                   <>
-                    <RefreshCw className="w-4 h-4 animate-spin text-black" />
-                    Updating Reward Rules...
+                    <RefreshCw size={17} className="spin" />
+                    <span>Updating Reward Rules...</span>
                   </>
                 ) : (
                   <>
-                    <Save className="w-4 h-4 text-black" />
-                    Save & Activate Reward Rules
+                    <Save size={17} />
+                    <span>Save & Activate Reward Rules</span>
                   </>
                 )}
               </button>
@@ -656,155 +623,158 @@ export default function LiveRewards({ onToast }) {
           </form>
         </div>
 
-        {/* Live Preview Card & How It Works Column */}
-        <div className="lg:col-span-5 space-y-6">
+        {/* Right Column: Mobile App Live Preview & How it Works */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           {/* Mobile App Live Preview */}
-          <div className="bg-white/[0.04] backdrop-blur-md border border-white/10 rounded-2xl p-6 shadow-xl space-y-4">
-            <div className="flex items-center justify-between border-b border-white/10 pb-3">
-              <div className="flex items-center gap-2">
-                <Radio className="w-4 h-4 text-rose-400 animate-pulse" />
-                <h3 className="text-sm font-bold text-white tracking-wide uppercase">
+          <div className="panel-card lr-preview-panel">
+            <div className="lr-panel-header" style={{ marginBottom: '1rem', paddingBottom: '0.75rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#f43f5e', animation: 'pulse 1.5s infinite' }} />
+                <h3 style={{ fontSize: '0.95rem', fontWeight: 700, margin: 0, color: 'var(--text-main)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                   Mobile App Live Preview
                 </h3>
               </div>
-              <span className="text-[11px] px-2 py-0.5 rounded-full bg-white/10 text-slate-300">
-                Broadcaster View
+              <span className="badge badge-purple" style={{ fontSize: '0.7rem' }}>
+                Host Screen View
               </span>
             </div>
 
             {/* Mock Mobile Host Card */}
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-indigo-950/40 to-slate-900 border border-amber-500/30 p-5 shadow-2xl">
-              <div className="absolute -top-10 -right-10 w-28 h-28 bg-amber-500/20 rounded-full blur-2xl pointer-events-none" />
-
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-2.5">
-                  <div className="p-2.5 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30">
-                    <Award className="w-5 h-5" />
+            <div className="lr-mock-card">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <div className="lr-mock-icon">
+                    <Award size={20} color="#f59e0b" />
                   </div>
                   <div>
-                    <h4 className="text-sm font-bold text-white">{settings.title || 'Live Streaming Reward'}</h4>
-                    <span className="text-[11px] text-amber-400 font-medium">
-                      Target Audience: {settings.target_role === 'host' ? 'Hosts Only' : 'All Broadcasters'}
-                    </span>
+                    <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#ffffff' }}>
+                      {settings.title || 'Live Streaming Reward'}
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: '#f59e0b', fontWeight: 600 }}>
+                      Target: {settings.target_role === 'host' ? 'Host Broadcasters' : 'All Users'}
+                    </div>
                   </div>
                 </div>
-                <div className="flex flex-col items-end">
-                  <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 font-bold text-xs shadow-sm">
-                    <Coins className="w-3.5 h-3.5 text-amber-400" />
-                    +{settings.reward_coins} Coins
-                  </div>
+
+                <div className="lr-mock-badge">
+                  <Coins size={14} color="#f59e0b" />
+                  <span>+{settings.reward_coins} Coins</span>
                 </div>
               </div>
 
-              {/* Progress simulation */}
-              <div className="mt-4 space-y-1.5">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-400">Streaming Progress</span>
-                  <span className="text-slate-300 font-medium">
+              {/* Progress bar simulation */}
+              <div style={{ marginTop: '1.25rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', color: 'rgba(255,255,255,0.7)', marginBottom: '0.35rem' }}>
+                  <span>Live Streaming Progress</span>
+                  <span style={{ color: '#ffffff', fontWeight: 700 }}>
                     0 / {settings.required_minutes} mins (0%)
                   </span>
                 </div>
-                <div className="h-2 w-full rounded-full bg-white/10 overflow-hidden">
-                  <div className="h-full bg-gradient-to-r from-amber-500 to-orange-400 rounded-full w-2/5 animate-pulse" />
+                <div className="lr-progress-track">
+                  <div className="lr-progress-fill" />
                 </div>
               </div>
 
-              {/* Badges / Rules Checklist */}
-              <div className="mt-4 pt-3 border-t border-white/10 grid grid-cols-2 gap-2 text-[11px] text-slate-300">
-                <div className="flex items-center gap-1.5">
-                  <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />
+              {/* Criteria Checklist */}
+              <div className="lr-mock-rules">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.75rem', color: 'rgba(255,255,255,0.85)' }}>
+                  <CheckCircle size={14} color="#10b981" />
                   <span>
                     {settings.session_type === 'single_continuous'
                       ? 'Single Continuous Stream'
                       : `Cumulative (${settings.min_sessions} session(s))`}
                   </span>
                 </div>
-                <div className="flex items-center gap-1.5">
-                  <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.75rem', color: 'rgba(255,255,255,0.85)' }}>
+                  <CheckCircle size={14} color="#10b981" />
                   <span>Max {settings.max_rewards_per_day} claim(s) / day</span>
                 </div>
               </div>
 
               {settings.description && (
-                <p className="mt-3 text-[11px] text-slate-400 bg-white/5 rounded-lg p-2 border border-white/5">
+                <div className="lr-mock-desc">
                   {settings.description}
-                </p>
+                </div>
               )}
             </div>
+          </div>
 
-            {/* Explanation box */}
-            <div className="rounded-xl bg-white/[0.02] border border-white/10 p-4 space-y-2 text-xs text-slate-300">
-              <div className="flex items-center gap-1.5 font-semibold text-white">
-                <HelpCircle className="w-4 h-4 text-cyan-400" />
-                How the Auto-Reward System Works:
-              </div>
-              <ul className="space-y-1.5 text-slate-400 list-disc list-inside">
-                <li>
-                  <strong className="text-slate-300">Automatic Award upon Stream End:</strong> When host ends their live broadcast, the server verifies elapsed minutes, user role, and daily claim limit.
-                </li>
-                <li>
-                  <strong className="text-slate-300">Instant Wallet Credit:</strong> Coins are instantly added to the host's wallet via atomic MySQL transaction and recorded in ledger.
-                </li>
-                <li>
-                  <strong className="text-slate-300">Real-Time Notification:</strong> Broadcasts a celebratory Socket.IO alert in the room and delivers an FCM push notification to the host device.
-                </li>
-              </ul>
+          {/* Explanation Box */}
+          <div className="panel-card lr-info-panel" style={{ padding: '1.25rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700, fontSize: '0.88rem', color: 'var(--text-main)', marginBottom: '0.65rem' }}>
+              <HelpCircle size={17} color="#0284c7" />
+              <span>How the Auto-Reward System Operates:</span>
             </div>
+            <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.8rem', color: 'var(--text-muted)', lineHeight: 1.6 }}>
+              <li>
+                <strong style={{ color: 'var(--text-main)' }}>Stream End Automation:</strong> When a host concludes their live broadcast, the backend calculates elapsed minutes, session criteria, and checks the daily frequency limit.
+              </li>
+              <li>
+                <strong style={{ color: 'var(--text-main)' }}>Instant Wallet Credit:</strong> Coins are credited directly to the host's wallet via an atomic MySQL transaction with an immutable ledger entry.
+              </li>
+              <li>
+                <strong style={{ color: 'var(--text-main)' }}>Real-Time Alert & FCM:</strong> Fires a celebratory Socket.IO animation in the live room and delivers an FCM push notification directly to the host's mobile phone.
+              </li>
+            </ul>
           </div>
         </div>
       </div>
 
       {/* Reward Distribution & Claim Audit History Table */}
-      <div className="bg-white/[0.04] backdrop-blur-md border border-white/10 rounded-2xl p-6 shadow-xl space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-white/10 pb-4">
+      <div className="panel-card lr-history-panel">
+        <div className="lr-panel-header" style={{ marginBottom: '1.25rem' }}>
           <div>
-            <h3 className="text-lg font-bold text-white flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-amber-400" />
-              Reward Distribution & Claim History
+            <h3 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <Calendar size={19} color="#d97706" />
+              Reward Distribution & Claim Audit History
             </h3>
-            <p className="text-xs text-slate-400 mt-0.5">
-              Live audit trail of hosts who received continuous or cumulative live streaming incentives.
+            <p style={{ margin: '0.2rem 0 0', fontSize: '0.8rem', color: 'var(--text-dim)' }}>
+              Complete audit trail of hosts who achieved required live streaming milestones and received coins.
             </p>
           </div>
 
-          {/* Filters and Search */}
-          <div className="flex flex-wrap items-center gap-2.5">
-            <div className="relative min-w-[200px]">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          {/* Filter Bar */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap' }}>
+            {/* Search Input */}
+            <div style={{ position: 'relative', minWidth: '220px' }}>
+              <Search size={15} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-dim)' }} />
               <input
                 type="text"
+                className="form-input"
+                style={{ paddingLeft: '32px', fontSize: '0.82rem', height: '36px' }}
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value);
                   setHistoryPage(1);
                 }}
-                placeholder="Search host, email or room..."
-                className="w-full bg-black/40 border border-white/10 rounded-xl pl-9 pr-4 py-2 text-white text-xs focus:outline-none focus:border-amber-400/60"
+                placeholder="Search host name, email, room..."
               />
             </div>
 
-            {/* Filter by Role */}
+            {/* Role Filter */}
             <select
+              className="form-select"
+              style={{ fontSize: '0.82rem', height: '36px', minWidth: '110px' }}
               value={roleFilter}
               onChange={(e) => {
                 setRoleFilter(e.target.value);
                 setHistoryPage(1);
               }}
-              className="bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-white text-xs focus:outline-none focus:border-amber-400/60"
             >
               <option value="all">All Roles</option>
               <option value="host">Host</option>
               <option value="user">User</option>
             </select>
 
-            {/* Filter by Session Type */}
+            {/* Session Type Filter */}
             <select
+              className="form-select"
+              style={{ fontSize: '0.82rem', height: '36px', minWidth: '140px' }}
               value={sessionTypeFilter}
               onChange={(e) => {
                 setSessionTypeFilter(e.target.value);
                 setHistoryPage(1);
               }}
-              className="bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-white text-xs focus:outline-none focus:border-amber-400/60"
             >
               <option value="all">All Session Types</option>
               <option value="single_continuous">Single Continuous</option>
@@ -814,64 +784,69 @@ export default function LiveRewards({ onToast }) {
         </div>
 
         {/* History Table */}
-        <div className="overflow-x-auto rounded-xl border border-white/10">
-          <table className="w-full text-left text-xs text-slate-300">
-            <thead className="bg-white/[0.03] text-slate-400 uppercase tracking-wider text-[11px] border-b border-white/10">
+        <div className="table-container" style={{ border: '1px solid var(--border-color)', borderRadius: '12px' }}>
+          <table className="data-table">
+            <thead>
               <tr>
-                <th className="py-3 px-4">Broadcaster / Host</th>
-                <th className="py-3 px-4">Role & Agency</th>
-                <th className="py-3 px-4">Live Room</th>
-                <th className="py-3 px-4">Duration Streamed</th>
-                <th className="py-3 px-4">Session Mode</th>
-                <th className="py-3 px-4">Reward Coins</th>
-                <th className="py-3 px-4">Claimed At</th>
+                <th>Broadcaster / Host</th>
+                <th>Role & Agency</th>
+                <th>Live Room</th>
+                <th>Duration Streamed</th>
+                <th>Session Mode</th>
+                <th>Reward Coins</th>
+                <th>Claimed At</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
+            <tbody>
               {historyLoading ? (
                 <tr>
-                  <td colSpan="7" className="py-8 text-center text-slate-400">
-                    <div className="flex items-center justify-center gap-2">
-                      <RefreshCw className="w-4 h-4 animate-spin text-amber-400" />
-                      Loading live rewards history...
+                  <td colSpan="7" style={{ textAlign: 'center', padding: '2.5rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', color: 'var(--text-dim)' }}>
+                      <RefreshCw size={16} className="spin" color="#d97706" />
+                      <span>Loading live reward history...</span>
                     </div>
                   </td>
                 </tr>
               ) : historyItems.length === 0 ? (
                 <tr>
-                  <td colSpan="7" className="py-8 text-center text-slate-400">
-                    <div className="flex flex-col items-center justify-center gap-2">
-                      <Award className="w-8 h-8 text-slate-600" />
-                      <span>No reward claims found matching your filter criteria.</span>
+                  <td colSpan="7" style={{ textAlign: 'center', padding: '3rem' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', color: 'var(--text-dim)' }}>
+                      <Award size={36} color="var(--text-dim)" style={{ opacity: 0.5 }} />
+                      <span style={{ fontWeight: 600 }}>No reward claims found</span>
+                      <span style={{ fontSize: '0.78rem' }}>Reward entries will appear automatically as hosts complete streaming targets.</span>
                     </div>
                   </td>
                 </tr>
               ) : (
                 historyItems.map((item) => (
-                  <tr key={item.id} className="hover:bg-white/[0.02] transition-colors">
+                  <tr key={item.id}>
                     {/* User */}
-                    <td className="py-3 px-4">
-                      <div className="flex items-center gap-2.5">
+                    <td>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
                         <img
                           src={item.avatar_url || 'https://via.placeholder.com/40'}
                           alt={item.full_name}
-                          className="w-8 h-8 rounded-full object-cover border border-white/10"
+                          style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover', border: '1px solid var(--border-color)' }}
                         />
                         <div>
-                          <div className="font-semibold text-white">{item.full_name}</div>
-                          <div className="text-[11px] text-slate-400">{item.email}</div>
+                          <div style={{ fontWeight: 700, color: 'var(--text-main)', fontSize: '0.85rem' }}>
+                            {item.full_name}
+                          </div>
+                          <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)' }}>
+                            {item.email}
+                          </div>
                         </div>
                       </div>
                     </td>
 
                     {/* Role & Agency */}
-                    <td className="py-3 px-4">
-                      <div className="flex flex-col gap-1 items-start">
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/30 uppercase">
+                    <td>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', alignItems: 'flex-start' }}>
+                        <span className="badge badge-purple" style={{ fontSize: '0.68rem', textTransform: 'uppercase' }}>
                           {item.role || 'host'}
                         </span>
                         {item.agency_name && (
-                          <span className="text-[11px] text-cyan-400 truncate max-w-[120px]">
+                          <span style={{ fontSize: '0.72rem', color: '#0284c7', fontWeight: 600 }}>
                             {item.agency_name}
                           </span>
                         )}
@@ -879,21 +854,23 @@ export default function LiveRewards({ onToast }) {
                     </td>
 
                     {/* Room */}
-                    <td className="py-3 px-4 font-mono text-[11px] text-slate-400">
-                      {item.room_id}
+                    <td>
+                      <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--text-dim)' }}>
+                        {item.room_id}
+                      </span>
                     </td>
 
                     {/* Duration */}
-                    <td className="py-3 px-4 font-medium text-white">
-                      <div className="flex items-center gap-1.5">
-                        <Clock className="w-3.5 h-3.5 text-amber-400" />
+                    <td>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontWeight: 600, color: 'var(--text-main)' }}>
+                        <Clock size={14} color="#d97706" />
                         <span>{item.duration_minutes} mins</span>
                       </div>
                     </td>
 
                     {/* Session Type */}
-                    <td className="py-3 px-4">
-                      <span className="px-2 py-0.5 rounded-full text-[10px] bg-white/10 text-slate-300">
+                    <td>
+                      <span className="badge" style={{ background: 'rgba(0,0,0,0.04)', color: 'var(--text-muted)', fontSize: '0.72rem' }}>
                         {item.session_type === 'multiple_cumulative'
                           ? `Cumulative (${item.session_count || 1} sessions)`
                           : 'Single Continuous'}
@@ -901,16 +878,18 @@ export default function LiveRewards({ onToast }) {
                     </td>
 
                     {/* Coins Awarded */}
-                    <td className="py-3 px-4">
-                      <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 font-bold border border-amber-500/30">
-                        <Coins className="w-3.5 h-3.5 text-amber-400" />
+                    <td>
+                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', padding: '3px 8px', borderRadius: '20px', background: 'rgba(245, 158, 11, 0.12)', color: '#d97706', fontWeight: 700, fontSize: '0.8rem' }}>
+                        <Coins size={14} />
                         +{item.coins_awarded}
                       </div>
                     </td>
 
                     {/* Date */}
-                    <td className="py-3 px-4 text-[11px] text-slate-400 whitespace-nowrap">
-                      {new Date(item.created_at).toLocaleString()}
+                    <td>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)', whiteSpace: 'nowrap' }}>
+                        {new Date(item.created_at).toLocaleString()}
+                      </span>
                     </td>
                   </tr>
                 ))
@@ -920,18 +899,314 @@ export default function LiveRewards({ onToast }) {
         </div>
 
         {/* Pagination */}
-        <Pagination
-          currentPage={historyPage}
-          pageSize={historyPageSize}
-          totalItems={historyTotal}
-          onPageChange={(p) => setHistoryPage(p)}
-          onPageSizeChange={(s) => {
-            setHistoryPageSize(s);
-            setHistoryPage(1);
-          }}
-          pageSizeOptions={[15, 30, 50, 100]}
-        />
+        <div style={{ marginTop: '1.25rem' }}>
+          <Pagination
+            currentPage={historyPage}
+            pageSize={historyPageSize}
+            totalItems={historyTotal}
+            onPageChange={(p) => setHistoryPage(p)}
+            onPageSizeChange={(s) => {
+              setHistoryPageSize(s);
+              setHistoryPage(1);
+            }}
+            pageSizeOptions={[15, 30, 50, 100]}
+          />
+        </div>
       </div>
+
+      {/* Scoped CSS Styles for LiveRewards Page */}
+      <style>{`
+        .lr-page {
+          animation: fadeIn 0.25s ease-in-out;
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(4px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .lr-header-icon-box {
+          width: 48px;
+          height: 48px;
+          border-radius: 12px;
+          background: rgba(245, 158, 11, 0.12);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border: 1px solid rgba(245, 158, 11, 0.25);
+        }
+        .lr-status-pill {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 3px 10px;
+          border-radius: 20px;
+          font-size: 0.75rem;
+          font-weight: 700;
+        }
+        .lr-status-pill.active {
+          background: rgba(16, 185, 129, 0.12);
+          color: #059669;
+          border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        .lr-status-pill.disabled {
+          background: rgba(239, 68, 68, 0.12);
+          color: #dc2626;
+          border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        .lr-status-dot {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: currentColor;
+        }
+        .lr-stat-card {
+          padding: 1.25rem;
+          border-radius: 14px;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        }
+        .lr-stat-top {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 0.4rem;
+        }
+        .lr-stat-label {
+          font-size: 0.75rem;
+          font-weight: 700;
+          color: var(--text-dim);
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+        .lr-stat-icon {
+          width: 34px;
+          height: 34px;
+          border-radius: 10px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .lr-stat-value {
+          font-size: 1.65rem;
+          font-weight: 800;
+          color: var(--text-main);
+          letter-spacing: -0.5px;
+        }
+        .lr-stat-bottom {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 0.75rem;
+          margin-top: 6px;
+          font-weight: 600;
+        }
+        .lr-content-grid {
+          display: grid;
+          grid-template-columns: 1fr 420px;
+          gap: 1.5rem;
+        }
+        @media (max-width: 1080px) {
+          .lr-content-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+        .lr-panel-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding-bottom: 0.85rem;
+          border-bottom: 1px solid var(--border-color);
+          margin-bottom: 1.25rem;
+        }
+        .lr-icon-badge {
+          width: 32px;
+          height: 32px;
+          border-radius: 8px;
+          background: rgba(245, 158, 11, 0.12);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .lr-toggle-switch {
+          width: 44px;
+          height: 24px;
+          border-radius: 12px;
+          background: #cbd5e1;
+          border: none;
+          cursor: pointer;
+          position: relative;
+          padding: 2px;
+          transition: background 0.2s ease;
+        }
+        .lr-toggle-switch.checked {
+          background: #10b981;
+        }
+        .lr-toggle-thumb {
+          display: block;
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          background: #ffffff;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+          transition: transform 0.2s ease;
+        }
+        .lr-toggle-switch.checked .lr-toggle-thumb {
+          transform: translateX(20px);
+        }
+        .lr-cards-row {
+          display: flex;
+          gap: 0.85rem;
+        }
+        @media (max-width: 640px) {
+          .lr-cards-row {
+            flex-direction: column;
+          }
+        }
+        .lr-choice-card {
+          flex: 1;
+          display: flex;
+          align-items: flex-start;
+          gap: 0.75rem;
+          padding: 0.85rem 1rem;
+          border-radius: 12px;
+          border: 1.5px solid var(--border-color);
+          background: var(--bg-primary);
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+        .lr-choice-card:hover {
+          border-color: #cbd5e1;
+          background: #ffffff;
+        }
+        .lr-choice-card.active {
+          border-color: #7c3aed;
+          background: rgba(124, 58, 237, 0.04);
+          box-shadow: 0 2px 10px rgba(124, 58, 237, 0.08);
+        }
+        .lr-choice-icon {
+          width: 30px;
+          height: 30px;
+          border-radius: 8px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+          transition: all 0.2s ease;
+        }
+        .lr-sub-box {
+          background: var(--bg-primary);
+          border: 1px dashed var(--border-color);
+          border-radius: 12px;
+          padding: 0.85rem 1rem;
+        }
+        .lr-input-unit {
+          position: absolute;
+          right: 14px;
+          top: 50%;
+          transform: translateY(-50%);
+          font-size: 0.78rem;
+          color: var(--text-dim);
+          pointer-events: none;
+        }
+        .lr-chips-row {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.4rem;
+          margin-top: 0.45rem;
+        }
+        .lr-chip {
+          padding: 3px 10px;
+          border-radius: 6px;
+          font-size: 0.75rem;
+          font-weight: 600;
+          background: var(--bg-primary);
+          border: 1px solid var(--border-color);
+          color: var(--text-muted);
+          cursor: pointer;
+          transition: all 0.15s ease;
+        }
+        .lr-chip:hover {
+          background: #ffffff;
+          border-color: #94a3b8;
+          color: var(--text-main);
+        }
+        .lr-chip.active {
+          background: #7c3aed;
+          border-color: #7c3aed;
+          color: #ffffff;
+        }
+        .lr-mock-card {
+          background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%);
+          border: 1px solid rgba(245, 158, 11, 0.4);
+          border-radius: 16px;
+          padding: 1.25rem;
+          box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+          position: relative;
+          overflow: hidden;
+        }
+        .lr-mock-icon {
+          width: 36px;
+          height: 36px;
+          border-radius: 10px;
+          background: rgba(245, 158, 11, 0.18);
+          border: 1px solid rgba(245, 158, 11, 0.35);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .lr-mock-badge {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          padding: 4px 10px;
+          border-radius: 20px;
+          background: rgba(245, 158, 11, 0.2);
+          border: 1px solid rgba(245, 158, 11, 0.4);
+          color: #fef3c7;
+          font-size: 0.75rem;
+          font-weight: 800;
+        }
+        .lr-progress-track {
+          width: 100%;
+          height: 8px;
+          border-radius: 4px;
+          background: rgba(255, 255, 255, 0.15);
+          overflow: hidden;
+        }
+        .lr-progress-fill {
+          width: 45%;
+          height: 100%;
+          border-radius: 4px;
+          background: linear-gradient(90deg, #f59e0b, #ef4444);
+          animation: pulse 2s infinite;
+        }
+        .lr-mock-rules {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 0.5rem;
+          margin-top: 1rem;
+          padding-top: 0.85rem;
+          border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .lr-mock-desc {
+          margin-top: 0.85rem;
+          padding: 0.5rem 0.75rem;
+          border-radius: 8px;
+          background: rgba(255, 255, 255, 0.06);
+          font-size: 0.73rem;
+          color: rgba(255, 255, 255, 0.7);
+          line-height: 1.4;
+        }
+        .lr-info-panel {
+          border-left: 4px solid #0284c7;
+          background: var(--bg-card);
+        }
+        .spin {
+          animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 }
