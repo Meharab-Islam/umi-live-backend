@@ -3753,6 +3753,121 @@ export const API_SPEC = {
               ]
             }
           }
+        },
+        {
+          "status": 403,
+          "description": "Room is locked and requires a password, or supplied password was incorrect (Moderators with bypass permission bypass this).",
+          "example": {
+            "success": false,
+            "is_locked": true,
+            "is_password_protected": true,
+            "requires_password": true,
+            "message": "This live room is locked with a password. Please enter the password to join."
+          }
+        }
+      ],
+      "liveType": "both"
+    },
+    {
+      "id": "live-lock-room",
+      "category": "live-rooms",
+      "method": "POST",
+      "path": "/api/mobile/live/rooms/:roomId/lock",
+      "summary": "[🎥🎙️ Video & Audio Live] Lock Live Room with Password (Host / Admin)",
+      "description": "**Stream Type**: 🎥🎙️ Applicable to both Video Live & Audio Live rooms.\n\nAllows the room host or authorized admin to dynamically lock the live room with a password.\n- When locked, ordinary users must submit the password to join (via room list, search, notification, or deep link).\n- System moderators with `bypass_private_password` permission can enter freely without password.\n- In real time, invalidates Redis caches and emits `room_lock_updated` to all connected clients (without disclosing the plain password).",
+      "requiresAuth": true,
+      "requestHeaders": [
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>",
+          "required": true
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json",
+          "required": true
+        }
+      ],
+      "parameters": [
+        {
+          "name": "roomId",
+          "type": "string",
+          "in": "path",
+          "required": true,
+          "description": "Room identifier or ID"
+        }
+      ],
+      "requestBody": {
+        "password": "1234"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "description": "Room locked successfully.",
+          "example": {
+            "success": true,
+            "message": "Live room locked with password successfully.",
+            "roomId": "room-nila-101",
+            "is_locked": true,
+            "is_password_protected": true,
+            "room_password": "1234"
+          }
+        },
+        {
+          "status": 400,
+          "description": "Missing password.",
+          "example": {
+            "success": false,
+            "message": "A password is required to lock the room."
+          }
+        },
+        {
+          "status": 403,
+          "description": "Unauthorized user attempting to lock.",
+          "example": {
+            "success": false,
+            "message": "Only the room host or authorized admin can lock/unlock this room."
+          }
+        }
+      ],
+      "liveType": "both"
+    },
+    {
+      "id": "live-unlock-room",
+      "category": "live-rooms",
+      "method": "POST",
+      "path": "/api/mobile/live/rooms/:roomId/unlock",
+      "summary": "[🎥🎙️ Video & Audio Live] Unlock Live Room (Host / Admin)",
+      "description": "**Stream Type**: 🎥🎙️ Applicable to both Video Live & Audio Live rooms.\n\nRemoves the password lock from the live room, allowing any user to join freely without a password.\n- Emits `room_lock_updated` socket event (`is_locked: false`).\n- Invalidates Redis caches.",
+      "requiresAuth": true,
+      "requestHeaders": [
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>",
+          "required": true
+        }
+      ],
+      "parameters": [
+        {
+          "name": "roomId",
+          "type": "string",
+          "in": "path",
+          "required": true,
+          "description": "Room identifier or ID"
+        }
+      ],
+      "requestBody": null,
+      "responses": [
+        {
+          "status": 200,
+          "description": "Room unlocked successfully.",
+          "example": {
+            "success": true,
+            "message": "Live room unlocked successfully.",
+            "roomId": "room-nila-101",
+            "is_locked": false,
+            "is_password_protected": false
+          }
         }
       ],
       "liveType": "both"

@@ -38,11 +38,12 @@ import {
   getLiveKitToken,
   updateRoomBackground,
   updateRoomSettings,
+  toggleRoomLock,
   getLiveRewardStatus,
   claimLiveReward,
 } from '../../controllers/mobile/liveController.js';
 import { getLiveKitConfigEndpoint } from '../../controllers/mobile/configController.js';
-import { requireAuth } from '../../middlewares/authMiddleware.js';
+import { requireAuth, optionalAuth } from '../../middlewares/authMiddleware.js';
 import { optionalRoomMediaUpload } from '../../middleware/upload.js';
 import { query } from '../../config/db.js';
 
@@ -89,7 +90,7 @@ router.get('/rooms', requireAuth, getRooms);
 router.get('/rooms/my-active', requireAuth, getMyActiveRoom);
 
 // Public / Authenticated Room Details (with background image, live duration & seat states)
-router.get('/rooms/:roomId', getRoomDetails);
+router.get('/rooms/:roomId', optionalAuth, getRoomDetails);
 
 // Live Room Audience / Active Users in Room (Name, ID, VIP Package, Coin, Diamond, Avatar, Seats)
 router.get('/rooms/:roomId/users', getRoomUsers);
@@ -194,6 +195,12 @@ router.get('/rooms/:roomId/token', requireAuth, getLiveKitToken);
 // Host Room Settings (Disable/Enable comments & reactions)
 router.patch('/rooms/:roomId/settings', requireAuth, updateRoomSettings);
 router.put('/rooms/:roomId/settings', requireAuth, updateRoomSettings);
+
+// Host / Admin Room Lock & Password Controls (Lock with password, Unlock)
+router.post('/rooms/:roomId/lock', requireAuth, toggleRoomLock);
+router.patch('/rooms/:roomId/lock', requireAuth, toggleRoomLock);
+router.post('/rooms/:roomId/unlock', requireAuth, toggleRoomLock);
+router.patch('/rooms/:roomId/unlock', requireAuth, toggleRoomLock);
 
 // Live Streaming Milestone Duration & Session Reward
 router.get('/rooms/:roomId/reward-status', requireAuth, getLiveRewardStatus);

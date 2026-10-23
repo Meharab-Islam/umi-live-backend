@@ -192,9 +192,9 @@
     "semantic_hash": ""
   },
   "backend/src/sockets/liveSocket.js": {
-    "mtime": 1792687937.2169693,
-    "seen": 1792688135.642355,
-    "ast_hash": "84912230c4b27b1534075a44808d1230",
+    "mtime": 1792766933.977146,
+    "seen": 1792767176.1263292,
+    "ast_hash": "b0995e1b0fbafcb8f6bb0e9ba98d07ca",
     "semantic_hash": ""
   },
   "admin-panel/src/pages/Agencies.jsx": {
@@ -558,9 +558,9 @@
     "semantic_hash": ""
   },
   "backend/src/controllers/mobile/liveController.js": {
-    "mtime": 1792736147.296986,
-    "seen": 1792736401.937696,
-    "ast_hash": "d326cad099b924f561e95b93fe6cf766",
+    "mtime": 1792767151.399226,
+    "seen": 1792767176.125494,
+    "ast_hash": "efa3a4dbd0b2d6780482bc7b95a1193c",
     "semantic_hash": ""
   },
   "backend/src/controllers/mobile/packageController.js": {
@@ -852,9 +852,9 @@
     "semantic_hash": ""
   },
   "backend/src/controllers/mobile/chatController.js": {
-    "mtime": 1792434532.0859554,
-    "seen": 1792434799.2233741,
-    "ast_hash": "93b8bc3ef20999d7d395d89110c85681",
+    "mtime": 1792743734.1303315,
+    "seen": 1792745343.470901,
+    "ast_hash": "87c233b42fc1bab8d775d5941f7d80d6",
     "semantic_hash": ""
   },
   "backend/src/routes/mobile/chatRoutes.js": {
@@ -1341,6 +1341,12 @@
     "mtime": 1792736063.1543834,
     "seen": 1792736401.938472,
     "ast_hash": "ca0befa830d35d31966ff760a7ec4556",
+    "semantic_hash": ""
+  },
+  "scratch/update_flutter_chat.py": {
+    "mtime": 1792743789.2666082,
+    "seen": 1792745343.472306,
+    "ast_hash": "2991cfce9238c7200c1a80a252dd72d6",
     "semantic_hash": ""
   }
 }

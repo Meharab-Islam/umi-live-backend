@@ -1,16 +1,16 @@
 # Graph Report - umi_backend  (2026-10-23)
 
 ## Corpus Check
-- 173 files · ~1,064,321 words
+- 174 files · ~1,066,045 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 932 nodes · 2502 edges · 68 communities (49 shown, 19 thin omitted)
+- 933 nodes · 2502 edges · 69 communities (50 shown, 19 thin omitted)
 - Extraction: 85% EXTRACTED · 15% INFERRED · 0% AMBIGUOUS · INFERRED: 367 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `8429bf1f`
+- Built from commit: `fa38ea69`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -106,7 +106,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (68 total, 19 thin omitted)
+## Communities (69 total, 19 thin omitted)
 
 ### Community 0 - "controllers/packageController.js"
 Cohesion: 0.14

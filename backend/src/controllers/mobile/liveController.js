@@ -36,7 +36,7 @@ export async function buildRoomResponse(roomId, currentUser = null) {
   const rooms = await query(
     `SELECT r.id, r.room_id, r.host_id, r.title, r.category, r.live_type, r.total_seats,
             r.cover_image, r.background_image, r.status, r.viewer_count, r.total_diamonds,
-            r.is_comment_disabled, r.is_reaction_disabled,
+            r.is_comment_disabled, r.is_reaction_disabled, r.is_locked, r.room_password,
             r.stream_key, r.started_at, r.created_at,
             u.full_name as host_name, u.avatar_url as host_avatar, u.level as host_level,
             u.coins as host_coins, u.diamonds as host_diamonds, u.role as host_role
@@ -224,6 +224,8 @@ export async function buildRoomResponse(roomId, currentUser = null) {
     total_diamonds: room.total_diamonds,
     is_comment_disabled: Boolean(room.is_comment_disabled),
     is_reaction_disabled: Boolean(room.is_reaction_disabled),
+    is_locked: Boolean(room.is_locked),
+    is_password_protected: Boolean(room.is_locked && room.room_password),
     started_at: room.started_at,
     live_duration: {
       started_at: room.started_at,
@@ -251,9 +253,12 @@ export async function buildRoomResponse(roomId, currentUser = null) {
     seats,
   };
 
-  // Only host or admin gets the stream_key
-  if (currentUser && (currentUser.id === room.host_id || currentUser.role === 'admin' || currentUser.role === 'superadmin')) {
+  // Only host or admin gets the stream_key and plain room_password
+  if (currentUser && (Number(currentUser.id) === Number(room.host_id) || currentUser.role === 'admin' || currentUser.role === 'superadmin')) {
     roomResponse.stream_key = room.stream_key;
+    if (room.room_password) {
+      roomResponse.room_password = room.room_password;
+    }
   }
 
   return roomResponse;
@@ -321,7 +326,7 @@ export async function getRooms(req, res) {
       const rooms = await query(
         `SELECT r.id, r.room_id, r.host_id, r.title, r.category, r.live_type, r.total_seats,
                 r.background_image, r.status,
-                r.viewer_count, r.total_diamonds, r.is_comment_disabled, r.is_reaction_disabled, r.started_at,
+                r.viewer_count, r.total_diamonds, r.is_comment_disabled, r.is_reaction_disabled, r.is_locked, r.started_at,
                 u.full_name as host_name, u.avatar_url as host_avatar, u.level as host_level,
                 pc.name as host_vip_category,
                 pc.badge_icon as host_vip_icon,
@@ -356,6 +361,8 @@ export async function getRooms(req, res) {
             is_audio: rm.live_type === 'audio',
             is_comment_disabled: Boolean(rm.is_comment_disabled),
             is_reaction_disabled: Boolean(rm.is_reaction_disabled),
+            is_locked: Boolean(rm.is_locked),
+            is_password_protected: Boolean(rm.is_locked),
             background_image_url: bg,
             room_background_url: bg,
             thumbnail_url: bg,
@@ -433,12 +440,29 @@ export async function getMyActiveRoom(req, res) {
 export async function getRoomDetails(req, res) {
   try {
     const { roomId } = req.params;
-    const roomData = await cache.getOrSet(`mobile:room_details:${roomId}`, 10, async () => {
-      return buildRoomResponse(roomId, req.user);
+    // Cache public room details without host private secrets
+    const baseRoom = await cache.getOrSet(`mobile:room_details:${roomId}`, 10, async () => {
+      return buildRoomResponse(roomId, null);
     });
 
-    if (!roomData) {
+    if (!baseRoom) {
       return res.status(404).json({ success: false, message: 'Room not found.' });
+    }
+
+    const roomData = { ...baseRoom };
+    // Attach stream_key and room_password exclusively for the host or platform admins
+    if (req.user && (Number(req.user.id) === Number(baseRoom.host_id) || req.user.role === 'admin' || req.user.role === 'superadmin')) {
+      const isNum = /^\d+$/.test(String(roomId).trim());
+      const secretRows = await query(
+        'SELECT stream_key, room_password FROM live_rooms WHERE (room_id = ? OR id = ?) LIMIT 1',
+        [String(roomId), isNum ? Number(roomId) : -1]
+      );
+      if (secretRows.length > 0) {
+        roomData.stream_key = secretRows[0].stream_key;
+        if (secretRows[0].room_password) {
+          roomData.room_password = secretRows[0].room_password;
+        }
+      }
     }
 
     return res.json({
@@ -540,6 +564,11 @@ export async function createRoom(req, res) {
     const isCommentDisabled = req.body.is_comment_disabled === true || req.body.is_comment_disabled === 'true' || req.body.is_comment_disabled === 1 ? 1 : 0;
     const isReactionDisabled = req.body.is_reaction_disabled === true || req.body.is_reaction_disabled === 'true' || req.body.is_reaction_disabled === 1 ? 1 : 0;
 
+    const rawLocked = req.body.is_locked ?? req.body.isLocked ?? req.body.is_password_protected ?? req.body.isPasswordProtected ?? 0;
+    const rawPass = req.body.room_password ?? req.body.roomPassword ?? req.body.password ?? req.body.pin ?? null;
+    const roomPassword = rawPass ? String(rawPass).trim() : null;
+    const isLocked = (Boolean(rawLocked) || Boolean(roomPassword)) && roomPassword ? 1 : 0;
+
     // Terminate any previous dangling live rooms for this host to prevent duplicate room cards
     const priorActiveRooms = await query(
       "SELECT room_id, id FROM live_rooms WHERE host_id = ? AND status = 'live'",
@@ -561,9 +590,9 @@ export async function createRoom(req, res) {
     }
 
     await query(
-      `INSERT INTO live_rooms (room_id, host_id, title, category, live_type, total_seats, cover_image, background_image, is_comment_disabled, is_reaction_disabled, status, stream_key)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'live', ?)`,
-      [roomId, hostId, title, category, liveType, seatCount, defaultCover, defaultBg, isCommentDisabled, isReactionDisabled, streamKey]
+      `INSERT INTO live_rooms (room_id, host_id, title, category, live_type, total_seats, cover_image, background_image, is_comment_disabled, is_reaction_disabled, is_locked, room_password, status, stream_key)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'live', ?)`,
+      [roomId, hostId, title, category, liveType, seatCount, defaultCover, defaultBg, isCommentDisabled, isReactionDisabled, isLocked, isLocked ? roomPassword : null, streamKey]
     );
 
     // Auto-register host in live_room_admins
@@ -652,6 +681,80 @@ export async function joinRoom(req, res) {
     if (room.status !== 'live') {
       await query("UPDATE live_rooms SET status = 'live', ended_at = NULL WHERE id = ?", [room.id]);
       room.status = 'live';
+    }
+
+    // 0. Verify Room Lock / Password Protection
+    const isRoomLocked = Boolean(room.is_locked && room.room_password);
+    if (isRoomLocked) {
+      const isHost = Number(currentUser.id) === Number(room.host_id);
+      const isSuperOrAdmin = currentUser.role === 'admin' || currentUser.role === 'superadmin';
+
+      let canBypassPassword = isHost || isSuperOrAdmin;
+
+      if (!canBypassPassword) {
+        // A. Check if user is a system-level moderator with bypass permission
+        if (currentUser.role === 'moderator') {
+          const modRows = await query(
+            "SELECT permissions, status FROM moderators WHERE user_id = ? AND status = 'active' LIMIT 1",
+            [currentUser.id]
+          );
+          if (modRows.length > 0) {
+            let perms = modRows[0].permissions;
+            if (typeof perms === 'string') {
+              try { perms = JSON.parse(perms); } catch (_) { perms = {}; }
+            }
+            if (perms && (perms.bypass_private_password === true || perms.bypass_room_password === true || perms.all === true || perms.silent_room_entry === true || perms.enter_locked_room === true)) {
+              canBypassPassword = true;
+            }
+          }
+        }
+
+        // B. Check if user is a room admin with bypass permission
+        if (!canBypassPassword) {
+          const roomAdminRows = await query(
+            'SELECT permissions FROM live_room_admins WHERE (room_id = ? OR room_id = ?) AND user_id = ? LIMIT 1',
+            [canonicalRoomId, String(room.id), currentUser.id]
+          );
+          if (roomAdminRows.length > 0) {
+            let rPerms = roomAdminRows[0].permissions;
+            if (typeof rPerms === 'string') {
+              try { rPerms = JSON.parse(rPerms); } catch (_) { rPerms = []; }
+            }
+            if (Array.isArray(rPerms)) {
+              if (rPerms.includes('all') || rPerms.includes('bypass_private_password') || rPerms.includes('enter_locked_room')) {
+                canBypassPassword = true;
+              }
+            } else if (rPerms && typeof rPerms === 'object') {
+              if (rPerms.bypass_private_password === true || rPerms.all === true || rPerms.enter_locked_room === true) {
+                canBypassPassword = true;
+              }
+            }
+          }
+        }
+      }
+
+      // If user cannot bypass password, verify supplied password
+      if (!canBypassPassword) {
+        const inputPassword = (req.body.password ?? req.body.room_password ?? req.body.pin ?? req.query.password ?? req.headers['x-room-password'] ?? '').toString().trim();
+        if (!inputPassword) {
+          return res.status(403).json({
+            success: false,
+            is_locked: true,
+            is_password_protected: true,
+            requires_password: true,
+            message: 'This live room is locked with a password. Please enter the password to join.',
+          });
+        }
+        if (inputPassword !== String(room.room_password).trim()) {
+          return res.status(403).json({
+            success: false,
+            is_locked: true,
+            is_password_protected: true,
+            requires_password: true,
+            message: 'Incorrect room password. Please try again.',
+          });
+        }
+      }
     }
 
     // 1. DB-First: Record user in live_room_viewers (EXCLUDE HOST)
@@ -4007,7 +4110,7 @@ export async function getLiveKitToken(req, res) {
 }
 
 /**
- * Host Update Room Settings (Disable/Enable comments & reactions)
+ * Host Update Room Settings (Disable/Enable comments & reactions, room lock/password)
  * PATCH /api/mobile/live/rooms/:roomId/settings
  * PUT /api/mobile/live/rooms/:roomId/settings
  */
@@ -4015,11 +4118,11 @@ export async function updateRoomSettings(req, res) {
   try {
     const { roomId } = req.params;
     const hostId = req.user.id;
-    const { is_comment_disabled, is_reaction_disabled } = req.body;
+    const { is_comment_disabled, is_reaction_disabled, is_locked, isLocked, room_password, roomPassword, password } = req.body;
 
     const isNum = /^\d+$/.test(String(roomId).trim());
     const rooms = await query(
-      'SELECT id, room_id, host_id, is_comment_disabled, is_reaction_disabled FROM live_rooms WHERE (room_id = ? OR id = ?) AND status = "live" LIMIT 1',
+      'SELECT id, room_id, host_id, is_comment_disabled, is_reaction_disabled, is_locked, room_password FROM live_rooms WHERE (room_id = ? OR id = ?) AND status = "live" LIMIT 1',
       [String(roomId), isNum ? Number(roomId) : -1]
     );
 
@@ -4028,7 +4131,7 @@ export async function updateRoomSettings(req, res) {
     }
 
     const room = rooms[0];
-    if (room.host_id !== hostId) {
+    if (Number(room.host_id) !== Number(hostId) && req.user.role !== 'admin' && req.user.role !== 'superadmin') {
       return res.status(403).json({ success: false, message: 'Only the room host can update room settings.' });
     }
 
@@ -4040,10 +4143,36 @@ export async function updateRoomSettings(req, res) {
       ? (is_reaction_disabled === true || is_reaction_disabled === 'true' || is_reaction_disabled === 1 ? 1 : 0)
       : room.is_reaction_disabled;
 
+    let newIsLocked = room.is_locked;
+    let newPassword = room.room_password;
+
+    const lockedParam = is_locked ?? isLocked;
+    const passParam = room_password ?? roomPassword ?? password;
+
+    if (lockedParam !== undefined) {
+      if (lockedParam === true || lockedParam === 'true' || lockedParam === 1) {
+        newIsLocked = 1;
+        if (passParam !== undefined && passParam !== null) {
+          newPassword = String(passParam).trim();
+        }
+      } else {
+        newIsLocked = 0;
+        newPassword = null;
+      }
+    } else if (passParam !== undefined) {
+      if (passParam && String(passParam).trim().length > 0) {
+        newIsLocked = 1;
+        newPassword = String(passParam).trim();
+      } else {
+        newIsLocked = 0;
+        newPassword = null;
+      }
+    }
+
     // 1. DB-First mutation
     await query(
-      'UPDATE live_rooms SET is_comment_disabled = ?, is_reaction_disabled = ? WHERE id = ?',
-      [newCommentDisabled, newReactionDisabled, room.id]
+      'UPDATE live_rooms SET is_comment_disabled = ?, is_reaction_disabled = ?, is_locked = ?, room_password = ? WHERE id = ?',
+      [newCommentDisabled, newReactionDisabled, newIsLocked, newPassword, room.id]
     );
 
     // 2. Instant Redis cache invalidation
@@ -4061,6 +4190,16 @@ export async function updateRoomSettings(req, res) {
         room_id: room.room_id,
         is_comment_disabled: Boolean(newCommentDisabled),
         is_reaction_disabled: Boolean(newReactionDisabled),
+        is_locked: Boolean(newIsLocked),
+        is_password_protected: Boolean(newIsLocked && newPassword),
+        updated_by: hostId,
+        timestamp: new Date().toISOString(),
+      });
+      io.to(room.room_id).emit('room_lock_updated', {
+        roomId: room.room_id,
+        room_id: room.room_id,
+        is_locked: Boolean(newIsLocked),
+        is_password_protected: Boolean(newIsLocked && newPassword),
         updated_by: hostId,
         timestamp: new Date().toISOString(),
       });
@@ -4072,10 +4211,128 @@ export async function updateRoomSettings(req, res) {
       roomId: room.room_id,
       is_comment_disabled: Boolean(newCommentDisabled),
       is_reaction_disabled: Boolean(newReactionDisabled),
+      is_locked: Boolean(newIsLocked),
+      is_password_protected: Boolean(newIsLocked && newPassword),
+      ...(newIsLocked && (Number(room.host_id) === Number(hostId) || req.user.role === 'admin' || req.user.role === 'superadmin') && newPassword ? { room_password: newPassword } : {}),
     });
   } catch (err) {
     console.error('updateRoomSettings error:', err);
     return res.status(500).json({ success: false, message: 'Failed to update room settings.', error: err.message });
+  }
+}
+
+/**
+ * Host / Admin Lock or Unlock Room with Password
+ * POST /api/mobile/live/rooms/:roomId/lock
+ * PATCH /api/mobile/live/rooms/:roomId/lock
+ * POST /api/mobile/live/rooms/:roomId/unlock
+ * PATCH /api/mobile/live/rooms/:roomId/unlock
+ */
+export async function toggleRoomLock(req, res) {
+  try {
+    const { roomId } = req.params;
+    const userId = req.user.id;
+    const isNum = /^\d+$/.test(String(roomId).trim());
+
+    const rooms = await query(
+      'SELECT id, room_id, host_id, is_locked, room_password, status FROM live_rooms WHERE (room_id = ? OR id = ?) AND status = "live" LIMIT 1',
+      [String(roomId), isNum ? Number(roomId) : -1]
+    );
+
+    if (rooms.length === 0) {
+      return res.status(404).json({ success: false, message: 'Active live room not found.' });
+    }
+
+    const room = rooms[0];
+    const isHost = Number(room.host_id) === Number(userId);
+    const isAdmin = req.user.role === 'admin' || req.user.role === 'superadmin';
+
+    let isAuthorized = isHost || isAdmin;
+    if (!isAuthorized) {
+      const roomAdmins = await query(
+        'SELECT permissions FROM live_room_admins WHERE (room_id = ? OR room_id = ?) AND user_id = ? LIMIT 1',
+        [room.room_id, String(room.id), userId]
+      );
+      if (roomAdmins.length > 0) {
+        let p = roomAdmins[0].permissions;
+        if (typeof p === 'string') {
+          try { p = JSON.parse(p); } catch (_) { p = []; }
+        }
+        if (Array.isArray(p) && (p.includes('all') || p.includes('manage_room_lock'))) {
+          isAuthorized = true;
+        } else if (p && typeof p === 'object' && (p.all === true || p.manage_room_lock === true)) {
+          isAuthorized = true;
+        }
+      }
+    }
+
+    if (!isAuthorized) {
+      return res.status(403).json({ success: false, message: 'Only the room host or authorized admin can lock/unlock this room.' });
+    }
+
+    const isUnlockRoute = req.path.includes('/unlock');
+    const rawPass = req.body.password ?? req.body.room_password ?? req.body.pin ?? null;
+    const password = rawPass !== null ? String(rawPass).trim() : null;
+    const rawLocked = req.body.is_locked ?? req.body.isLocked;
+
+    let shouldLock = true;
+    if (isUnlockRoute || rawLocked === false || rawLocked === 'false' || rawLocked === 0) {
+      shouldLock = false;
+    } else if (password === '') {
+      shouldLock = false;
+    }
+
+    if (shouldLock && !password && !room.room_password) {
+      return res.status(400).json({
+        success: false,
+        message: 'A password is required to lock the room.',
+      });
+    }
+
+    const finalPassword = shouldLock ? (password || room.room_password) : null;
+    const finalLocked = shouldLock ? 1 : 0;
+
+    // 1. DB-First mutation
+    await query(
+      'UPDATE live_rooms SET is_locked = ?, room_password = ? WHERE id = ?',
+      [finalLocked, finalPassword, room.id]
+    );
+
+    // 2. Instant Redis cache invalidation
+    await Promise.allSettled([
+      cache.del(`mobile:room_details:${room.room_id}`),
+      cache.del(`mobile:room_details:${room.id}`),
+      cache.delByPattern('mobile:rooms:*'),
+    ]);
+
+    // 3. Real-time broadcast to all viewers in room (NEVER broadcast plain password)
+    const io = req.io || req.app.get('io');
+    if (io) {
+      const lockPayload = {
+        roomId: room.room_id,
+        room_id: room.room_id,
+        is_locked: Boolean(finalLocked),
+        is_password_protected: Boolean(finalLocked),
+        updated_by: userId,
+        timestamp: new Date().toISOString(),
+      };
+      io.to(room.room_id).emit('room_lock_updated', lockPayload);
+      io.to(room.room_id).emit('room-lock-updated', lockPayload);
+    }
+
+    return res.json({
+      success: true,
+      message: finalLocked
+        ? 'Live room locked with password successfully.'
+        : 'Live room unlocked successfully.',
+      roomId: room.room_id,
+      is_locked: Boolean(finalLocked),
+      is_password_protected: Boolean(finalLocked),
+      ...(finalLocked && (isHost || isAdmin) && finalPassword ? { room_password: finalPassword } : {}),
+    });
+  } catch (err) {
+    console.error('toggleRoomLock error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to update room lock status.', error: err.message });
   }
 }
 

@@ -66,5 +66,6 @@
   "64": "test_audio_live_seats.mjs",
   "65": "LiveRewards.jsx",
   "66": "test_socket_realtime_emission.mjs",
-  "67": "test_video_live_seat_guard.mjs"
+  "67": "test_video_live_seat_guard.mjs",
+  "68": "update_flutter_chat.py"
 }

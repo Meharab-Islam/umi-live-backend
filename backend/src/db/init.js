@@ -66,6 +66,8 @@ export async function initializeDatabase() {
         stream_key VARCHAR(100),
         is_comment_disabled BOOLEAN DEFAULT FALSE,
         is_reaction_disabled BOOLEAN DEFAULT FALSE,
+        is_locked TINYINT(1) DEFAULT 0,
+        room_password VARCHAR(255) NULL DEFAULT NULL,
         started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         ended_at TIMESTAMP NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -855,6 +857,8 @@ export async function initializeDatabase() {
     await safeAddColumn('live_rooms', 'background_image', "VARCHAR(255) DEFAULT '' AFTER cover_image");
     await safeAddColumn('live_rooms', 'is_comment_disabled', "BOOLEAN DEFAULT FALSE");
     await safeAddColumn('live_rooms', 'is_reaction_disabled', "BOOLEAN DEFAULT FALSE");
+    await safeAddColumn('live_rooms', 'is_locked', "TINYINT(1) DEFAULT 0 AFTER is_reaction_disabled");
+    await safeAddColumn('live_rooms', 'room_password', "VARCHAR(255) NULL DEFAULT NULL AFTER is_locked");
     await safeAddColumn('posts', 'title', "VARCHAR(255) NULL AFTER user_id");
     await safeAddColumn('posts', 'media', "JSON NULL AFTER media_type");
     await safeModifyColumn('posts', 'media_type', "ENUM('image','video','audio','multiple','none') DEFAULT 'none'");
