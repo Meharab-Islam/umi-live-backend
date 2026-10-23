@@ -292,15 +292,16 @@ export default function AppThemes({ onToast }) {
       </div>
 
       {/* ACTIVE DEFAULT THEME SHOWCASE BANNER */}
+      {/* ACTIVE DEFAULT THEME HERO */}
       <div
         className="panel-card"
         style={{
-          background: 'linear-gradient(135deg, rgba(30, 27, 75, 0.6) 0%, rgba(15, 23, 42, 0.7) 100%)',
-          border: '1px solid rgba(124, 58, 237, 0.3)',
+          background: '#ffffff',
+          border: '1px solid var(--border-color)',
           borderRadius: '16px',
           padding: '1.35rem',
           marginBottom: '1.75rem',
-          backdropFilter: 'blur(10px)',
+          boxShadow: 'var(--shadow-sm)',
         }}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
@@ -321,7 +322,7 @@ export default function AppThemes({ onToast }) {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
           {/* Default Page Image Card */}
           <div style={{
-            background: 'rgba(255, 255, 255, 0.03)',
+            background: '#f8fafc',
             border: '1px solid var(--border-color)',
             borderRadius: '12px',
             padding: '1rem',
@@ -334,9 +335,9 @@ export default function AppThemes({ onToast }) {
               height: '64px',
               borderRadius: '8px',
               overflow: 'hidden',
-              background: '#0f172a',
+              background: '#f1f5f9',
               flexShrink: 0,
-              border: '1px solid rgba(124, 58, 237, 0.4)',
+              border: '1px solid var(--border-color)',
             }}>
               {activeDefaultMap.page_image?.value ? (
                 <img
@@ -365,7 +366,7 @@ export default function AppThemes({ onToast }) {
 
           {/* Default Bottom Sheet Image Card */}
           <div style={{
-            background: 'rgba(255, 255, 255, 0.03)',
+            background: '#f8fafc',
             border: '1px solid var(--border-color)',
             borderRadius: '12px',
             padding: '1rem',
@@ -378,9 +379,9 @@ export default function AppThemes({ onToast }) {
               height: '64px',
               borderRadius: '8px',
               overflow: 'hidden',
-              background: '#0f172a',
+              background: '#f1f5f9',
               flexShrink: 0,
-              border: '1px solid rgba(6, 182, 212, 0.4)',
+              border: '1px solid var(--border-color)',
             }}>
               {activeDefaultMap.bottom_sheet_image?.value ? (
                 <img
@@ -395,7 +396,7 @@ export default function AppThemes({ onToast }) {
               )}
             </div>
             <div style={{ overflow: 'hidden' }}>
-              <div style={{ fontSize: '0.75rem', color: '#06b6d4', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              <div style={{ fontSize: '0.75rem', color: '#0284c7', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                 Default Bottom Sheet
               </div>
               <div style={{ fontSize: '0.92rem', fontWeight: 700, color: 'var(--text-main)', marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
@@ -409,7 +410,7 @@ export default function AppThemes({ onToast }) {
 
           {/* Default Color Palette Card */}
           <div style={{
-            background: 'rgba(255, 255, 255, 0.03)',
+            background: '#f8fafc',
             border: '1px solid var(--border-color)',
             borderRadius: '12px',
             padding: '1rem',
@@ -425,8 +426,8 @@ export default function AppThemes({ onToast }) {
                 ? `linear-gradient(135deg, ${activeDefaultMap.color.value} 0%, ${activeDefaultMap.color.secondary_value} 100%)`
                 : (activeDefaultMap.color?.value || '#7c3aed'),
               flexShrink: 0,
-              border: '2px solid rgba(255, 255, 255, 0.2)',
-              boxShadow: `0 4px 12px ${activeDefaultMap.color?.value ? activeDefaultMap.color.value + '40' : 'rgba(0,0,0,0.3)'}`,
+              border: '2px solid rgba(255, 255, 255, 0.9)',
+              boxShadow: `0 4px 12px ${activeDefaultMap.color?.value ? activeDefaultMap.color.value + '40' : 'rgba(0,0,0,0.1)'}`,
             }} />
             <div style={{ overflow: 'hidden' }}>
               <div style={{ fontSize: '0.75rem', color: '#ec4899', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
