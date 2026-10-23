@@ -802,7 +802,8 @@ body::after {
 }
 
 .modal-box,
-.modal-card {
+.modal-card,
+.modal-container {
   background: #ffffff;
   border: 1px solid var(--border-color);
   border-radius: var(--radius-xl);

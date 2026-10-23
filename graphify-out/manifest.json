@@ -1302,9 +1302,9 @@
     "semantic_hash": ""
   },
   "admin-panel/src/pages/AppThemes.jsx": {
-    "mtime": 1792721762.5443268,
-    "seen": 1792721920.478247,
-    "ast_hash": "2a5e68619455330d012c7b7e687afa7d",
+    "mtime": 1792723024.3953705,
+    "seen": 1792723077.0158231,
+    "ast_hash": "71fe043c4807e19fcd04dc49d3cab8b4",
     "semantic_hash": ""
   },
   "backend/src/controllers/adminThemeController.js": {

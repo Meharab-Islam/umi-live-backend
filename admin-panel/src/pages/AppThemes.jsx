@@ -739,21 +739,33 @@ export default function AppThemes({ onToast }) {
 
       {/* CREATE / EDIT MODAL */}
       {modalOpen && (
-        <div className="modal-backdrop" onClick={() => setModalOpen(false)}>
+        <div className="modal-overlay" onClick={() => setModalOpen(false)}>
           <div
-            className="modal-container"
+            className="modal-box"
             onClick={(e) => e.stopPropagation()}
-            style={{ maxWidth: '520px', width: '92%', borderRadius: '16px' }}
+            style={{
+              maxWidth: '560px',
+              width: '92%',
+              borderRadius: '16px',
+              background: '#ffffff',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+              border: '1px solid var(--border-color)',
+            }}
           >
-            <div className="modal-header">
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Palette size={20} color="#7c3aed" />
-                <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 700 }}>
+                <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 700, color: 'var(--text-main)' }}>
                   {editingItem ? 'Edit Theme Item' : `Add New ${formData.type === 'page_image' ? 'Page Wallpaper' : formData.type === 'bottom_sheet_image' ? 'Bottom Sheet' : 'Theme Color'}`}
                 </h3>
               </div>
-              <button type="button" className="modal-close-btn" onClick={() => setModalOpen(false)}>
-                <X size={18} />
+              <button
+                type="button"
+                className="modal-close-btn"
+                onClick={() => setModalOpen(false)}
+                style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '4px' }}
+              >
+                <X size={20} />
               </button>
             </div>
 
@@ -1010,7 +1022,7 @@ export default function AppThemes({ onToast }) {
                 </div>
               </div>
 
-              <div className="modal-footer">
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px solid var(--border-color)' }}>
                 <button type="button" className="btn btn-secondary" onClick={() => setModalOpen(false)} disabled={saving}>
                   Cancel
                 </button>
