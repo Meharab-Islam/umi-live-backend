@@ -23,8 +23,6 @@ import AccountMerge from './pages/AccountMerge';
 import ApiDocs from './pages/ApiDocs';
 import TopContributors from './pages/TopContributors';
 import Posts from './pages/Posts';
-import RealtimeChatTester from './pages/RealtimeChatTester';
-import UserLivePortal from './pages/UserLivePortal';
 import Reports from './pages/Reports';
 
 import { checkHealth, getToken, setToken, getCurrentUser, setCurrentUser } from './api/client';
@@ -34,7 +32,6 @@ import Loader from './components/Loader';
 
 const VALID_TABS = [
   'dashboard',
-  'user-portal',
   'streams',
   'host-management',
   'agencies',
@@ -54,19 +51,16 @@ const VALID_TABS = [
   'gifts',
   'top-contributors',
   'withdrawals',
-  'chat-tester',
   'api-docs',
   'settings',
 ];
 
 const isTabValid = (tab) => {
   if (!tab) return false;
-  if (['portal', 'live', 'user-portal'].includes(tab)) return true;
   return VALID_TABS.includes(tab) || tab.startsWith('vip-');
 };
 
 const normalizeTab = (tab) => {
-  if (['portal', 'live'].includes(tab)) return 'user-portal';
   return tab;
 };
 
@@ -197,34 +191,7 @@ export default function App() {
     }
   };
 
-  const isPortalRoute = activeTab === 'user-portal' ||
-    window.location.hash === '#user-portal' ||
-    window.location.hash === '#portal' ||
-    window.location.hash === '#live' ||
-    window.location.pathname.startsWith('/portal') ||
-    window.location.pathname.startsWith('/live');
 
-  // If on user-portal route: render standalone User Live Portal
-  if (isPortalRoute) {
-    return (
-      <div style={{ minHeight: '100vh', background: 'var(--bg-main)' }}>
-        <UserLivePortal
-          onToast={addToast}
-          onSwitchToAdmin={() => handleTabChange('dashboard')}
-        />
-        <div className="toast-container">
-          {toasts.map((t) => (
-            <div key={t.id} className="toast" style={{
-              borderColor: t.type === 'error' ? 'rgba(244, 63, 94, 0.4)' : t.type === 'success' ? 'rgba(16, 185, 129, 0.4)' : 'var(--border-color)',
-            }}>
-              <span>{t.type === 'error' ? '⚠️' : t.type === 'success' ? '✅' : 'ℹ️'}</span>
-              <span>{t.message}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }
 
   // If not logged in, show Login page
   if (!user) {
@@ -232,7 +199,6 @@ export default function App() {
       <>
         <Login
           onLoginSuccess={handleLoginSuccess}
-          onOpenUserPortal={() => handleTabChange('user-portal')}
         />
         <div className="toast-container">
           {toasts.map((t) => (
@@ -250,7 +216,6 @@ export default function App() {
 
   const tabTitles = {
     dashboard: 'Dashboard Overview',
-    'user-portal': 'Live Stage & User Portal',
     streams: 'Live Video Streams & Rooms',
     'host-management': 'Host Management & Applications',
     agencies: 'Agency & Talent Management',
@@ -322,9 +287,7 @@ export default function App() {
             />
           )}
 
-          {activeTab === 'user-portal' && (
-            <UserLivePortal onToast={addToast} />
-          )}
+
 
           {activeTab === 'streams' && (
             <LiveStreams onToast={addToast} />
@@ -405,9 +368,7 @@ export default function App() {
             <Withdrawals onToast={addToast} />
           )}
 
-          {activeTab === 'chat-tester' && (
-            <RealtimeChatTester onToast={addToast} />
-          )}
+
 
           {activeTab === 'api-docs' && (
             <ApiDocs onToast={addToast} />

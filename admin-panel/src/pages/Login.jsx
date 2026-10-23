@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { ShieldCheck, Lock, User, ArrowRight, Sparkles } from 'lucide-react';
 import authApi, { setToken, setCurrentUser } from '../api/authApi';
 
-export default function Login({ onLoginSuccess, onOpenUserPortal }) {
+export default function Login({ onLoginSuccess }) {
   const [identifier, setIdentifier] = useState('admin@umi.live');
   const [password, setPassword] = useState('admin123');
   const [loading, setLoading] = useState(false);
@@ -166,33 +166,6 @@ export default function Login({ onLoginSuccess, onOpenUserPortal }) {
             Fill: admin / admin123
           </button>
         </div>
-
-        {/* Switch to User Live Portal */}
-        {onOpenUserPortal && (
-          <div style={{ marginTop: '1.25rem', textAlign: 'center' }}>
-            <button
-              type="button"
-              onClick={onOpenUserPortal}
-              className="btn btn-secondary"
-              style={{
-                width: '100%',
-                padding: '0.75rem',
-                fontSize: '0.86rem',
-                borderRadius: '12px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                background: 'rgba(124, 58, 237, 0.08)',
-                color: '#7c3aed',
-                borderColor: 'rgba(124, 58, 237, 0.25)',
-              }}
-            >
-              <span>🎙️</span>
-              <span>Normal User Live Portal (Go Live / OTP)</span>
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );

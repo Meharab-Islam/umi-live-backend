@@ -25,8 +25,6 @@ import {
   GitMerge,
   Terminal,
   Newspaper,
-  Zap,
-  Video,
   ShieldAlert,
 } from 'lucide-react';
 import packageApi from '../api/packageApi';
@@ -73,7 +71,6 @@ export default function Sidebar({
 
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'user-portal', label: 'User Live Portal', icon: Video, badge: 'Live Stage' },
     { id: 'streams', label: 'Live Streams', icon: Radio, badge: activeStreamCount > 0 ? `${activeStreamCount} Live` : null },
     { id: 'host-management', label: 'Host Management', icon: Mic },
     { id: 'agencies', label: 'Agencies', icon: Building2 },
@@ -92,7 +89,6 @@ export default function Sidebar({
     { id: 'gifts', label: 'Gifts Store', icon: Gift },
     { id: 'top-contributors', label: 'Top Contributors', icon: Trophy },
     { id: 'withdrawals', label: 'Withdrawals', icon: CreditCard },
-    { id: 'chat-tester', label: 'Socket & Chat Tester', icon: Zap, badge: 'Live WS' },
     { id: 'api-docs', label: 'API & Socket Docs', icon: Terminal, badge: 'REST + WS' },
     { id: 'settings', label: 'Platform Settings', icon: Settings },
   ];
