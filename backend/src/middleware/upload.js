@@ -15,7 +15,12 @@ if (!fs.existsSync(baseUploadDir)) {
 // Multer disk storage engine
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const rawCategory = req.uploadCategory || req.query?.category || req.body?.category || 'general';
+    const urlCategory = req.originalUrl?.includes('theme')
+      ? 'themes'
+      : req.originalUrl?.includes('banner')
+      ? 'banners'
+      : null;
+    const rawCategory = req.uploadCategory || req.query?.category || req.body?.category || urlCategory || 'general';
     const safeCategory = rawCategory.replace(/[^a-zA-Z0-9_-]/g, '') || 'general';
     req.uploadCategory = safeCategory;
     const targetDir = path.join(baseUploadDir, safeCategory);

@@ -519,6 +519,28 @@ export default function Banners({ onToast }) {
                       <span>{isActive ? 'Active' : 'Inactive'}</span>
                     </button>
                   </div>
+
+                  {/* Banner Image Preview */}
+                  {item.image_url ? (
+                    <img
+                      src={resolveAssetUrl(item.image_url)}
+                      alt={item.title || 'Banner'}
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                        display: 'block',
+                      }}
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = 'https://via.placeholder.com/600x200?text=Banner+Image';
+                      }}
+                    />
+                  ) : (
+                    <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-dim)' }}>
+                      <ImageIcon size={36} />
+                    </div>
+                  )}
                 </div>
 
                 {/* Banner Content Body */}

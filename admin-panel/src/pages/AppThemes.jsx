@@ -152,6 +152,7 @@ export default function AppThemes({ onToast }) {
       let payload;
       if (selectedFile) {
         payload = new FormData();
+        payload.append('category', 'themes');
         payload.append('file', selectedFile);
         payload.append('type', formData.type);
         payload.append('name', formData.name);
@@ -872,7 +873,7 @@ export default function AppThemes({ onToast }) {
                     {/* Image Preview Box */}
                     {previewSrc && (
                       <div style={{ marginTop: '0.75rem', borderRadius: '8px', overflow: 'hidden', height: '120px', background: '#090d16' }}>
-                        <img src={previewSrc} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                        <img src={resolveAssetUrl(previewSrc)} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                       </div>
                     )}
                   </div>

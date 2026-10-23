@@ -1,18 +1,25 @@
 export function getApiBase() {
-  if (typeof window !== 'undefined' && window.location && window.location.hostname) {
-    const { protocol, hostname } = window.location;
-    return `${protocol}//${hostname}:5050/api`;
-  }
   if (import.meta.env.VITE_API_BASE_URL) return import.meta.env.VITE_API_BASE_URL;
+  if (typeof window !== 'undefined' && window.location && window.location.hostname) {
+    const { protocol, hostname, port } = window.location;
+    if (port === '5050') {
+      return `${protocol}//${hostname}:5050/api`;
+    }
+    // Both Vite dev server (port 3000/5173) and Nginx production (port 80/443) proxy /api
+    return '/api';
+  }
   return 'http://localhost:5050/api';
 }
 
 export const API_BASE = (function() {
-  if (typeof window !== 'undefined' && window.location && window.location.hostname) {
-    const { protocol, hostname } = window.location;
-    return `${protocol}//${hostname}:5050/api`;
-  }
   if (import.meta.env.VITE_API_BASE_URL) return import.meta.env.VITE_API_BASE_URL;
+  if (typeof window !== 'undefined' && window.location && window.location.hostname) {
+    const { protocol, hostname, port } = window.location;
+    if (port === '5050') {
+      return `${protocol}//${hostname}:5050/api`;
+    }
+    return '/api';
+  }
   return 'http://localhost:5050/api';
 })();
 
@@ -127,17 +134,37 @@ export async function del(endpoint, options = {}) {
 
 export function resolveAssetUrl(url) {
   if (!url) return '';
-  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:') || url.startsWith('blob:')) {
-    return url;
+  const trimmed = String(url).trim();
+  if (trimmed.startsWith('blob:') || trimmed.startsWith('data:')) {
+    return trimmed;
   }
-  if (url.startsWith('/uploads/')) {
-    if (typeof window !== 'undefined' && window.location.port === '3000') {
-      return url;
+
+  // If URL contains localhost:5050 or old domain with /uploads/, extract relative upload path
+  const uploadIndex = trimmed.indexOf('/uploads/');
+  if (uploadIndex !== -1) {
+    const relativeUpload = trimmed.slice(uploadIndex);
+    if (typeof window !== 'undefined') {
+      return `${window.location.origin}${relativeUpload}`;
     }
-    const host = typeof window !== 'undefined' ? `${window.location.protocol}//${window.location.hostname}:5050` : 'http://localhost:5050';
-    return `${host}${url}`;
+    return `http://localhost:5050${relativeUpload}`;
   }
-  return url;
+
+  if (trimmed.startsWith('uploads/')) {
+    const relativeUpload = `/${trimmed}`;
+    if (typeof window !== 'undefined') {
+      return `${window.location.origin}${relativeUpload}`;
+    }
+    return `http://localhost:5050${relativeUpload}`;
+  }
+
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+    return trimmed;
+  }
+
+  if (typeof window !== 'undefined') {
+    return `${window.location.origin}${trimmed.startsWith('/') ? trimmed : '/' + trimmed}`;
+  }
+  return `http://localhost:5050${trimmed.startsWith('/') ? trimmed : '/' + trimmed}`;
 }
 
 export async function uploadFile(file, category = 'general') {
@@ -150,7 +177,8 @@ export async function uploadFile(file, category = 'general') {
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  const res = await fetch(`${API_BASE}/admin/upload?category=${encodeURIComponent(category)}`, {
+  const currentApiBase = getApiBase();
+  const res = await fetch(`${currentApiBase}/admin/upload?category=${encodeURIComponent(category)}`, {
     method: 'POST',
     headers,
     body: formData,

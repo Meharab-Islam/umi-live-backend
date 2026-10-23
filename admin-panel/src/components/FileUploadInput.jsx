@@ -22,11 +22,22 @@ export default function FileUploadInput({
 }) {
   const [uploading, setUploading] = useState(false);
   const [uploadedFileName, setUploadedFileName] = useState('');
+  const [localPreview, setLocalPreview] = useState('');
   const fileInputRef = useRef(null);
 
   const handleFileSelect = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // Instant local image preview before upload finishes
+    if (type === 'image' && file.type.startsWith('image/')) {
+      try {
+        const objUrl = URL.createObjectURL(file);
+        setLocalPreview(objUrl);
+      } catch (e) {
+        // silent fallback
+      }
+    }
 
     try {
       setUploading(true);
@@ -56,12 +67,13 @@ export default function FileUploadInput({
   const handleClear = () => {
     onChange('');
     setUploadedFileName('');
+    setLocalPreview('');
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
   };
 
-  const resolvedPreviewUrl = resolveAssetUrl(value);
+  const resolvedPreviewUrl = localPreview || resolveAssetUrl(value);
 
   return (
     <div style={{ marginBottom: '1rem' }}>

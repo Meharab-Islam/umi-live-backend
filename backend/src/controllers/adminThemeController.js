@@ -123,7 +123,8 @@ export async function createThemeItem(req, res) {
 
     // Handle uploaded file if present
     if (req.file) {
-      value = `/uploads/themes/${req.file.filename}`;
+      const category = req.uploadCategory || 'themes';
+      value = `/uploads/${category}/${req.file.filename}`;
     }
 
     if (!value || !String(value).trim()) {
@@ -180,7 +181,8 @@ export async function updateThemeItem(req, res) {
 
     let value = req.body.value !== undefined ? req.body.value : existing.value;
     if (req.file) {
-      value = `/uploads/themes/${req.file.filename}`;
+      const category = req.uploadCategory || 'themes';
+      value = `/uploads/${category}/${req.file.filename}`;
     }
 
     const type = req.body.type || existing.type;

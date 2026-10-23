@@ -5,6 +5,7 @@ import cors from 'cors';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -65,7 +66,31 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(morgan('dev'));
 
-// Serve uploaded files statically
+// Serve uploaded files statically with cross-category fallback
+app.use('/uploads/:category/:filename', (req, res, next) => {
+  const { category, filename } = req.params;
+  const targetFile = path.join(uploadsDir, category, filename);
+  if (fs.existsSync(targetFile)) {
+    return res.sendFile(targetFile);
+  }
+  // Fallback to general folder if miscategorized
+  const generalFile = path.join(uploadsDir, 'general', filename);
+  if (fs.existsSync(generalFile)) {
+    return res.sendFile(generalFile);
+  }
+  // Fallback to themes folder
+  const themesFile = path.join(uploadsDir, 'themes', filename);
+  if (fs.existsSync(themesFile)) {
+    return res.sendFile(themesFile);
+  }
+  // Fallback to banners folder
+  const bannersFile = path.join(uploadsDir, 'banners', filename);
+  if (fs.existsSync(bannersFile)) {
+    return res.sendFile(bannersFile);
+  }
+  next();
+});
+
 app.use('/uploads', express.static(uploadsDir));
 
 // Make io accessible in request context if needed

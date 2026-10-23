@@ -281,10 +281,15 @@ router.patch('/banners/:id/toggle', toggleBannerStatus);
 router.post('/banners/reorder', reorderBanners);
 
 // App Custom Themes (Page Backgrounds, Bottom Sheet Images, Color Palettes)
+const setUploadCategory = (category) => (req, res, next) => {
+  req.uploadCategory = category;
+  next();
+};
+
 router.get('/themes', getAdminThemeItems);
 router.get('/themes/stats', getThemeStats);
-router.post('/themes', upload.single('file'), createThemeItem);
-router.put('/themes/:id', upload.single('file'), updateThemeItem);
+router.post('/themes', setUploadCategory('themes'), upload.single('file'), createThemeItem);
+router.put('/themes/:id', setUploadCategory('themes'), upload.single('file'), updateThemeItem);
 router.delete('/themes/:id', deleteThemeItem);
 router.patch('/themes/:id/default', setDefaultThemeItem);
 
