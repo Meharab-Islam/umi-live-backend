@@ -630,3 +630,43 @@ CREATE TABLE IF NOT EXISTS user_theme_items (
   UNIQUE KEY unique_user_theme (user_id, theme_item_id),
   INDEX idx_user_equipped_theme (user_id, is_equipped)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Live Continuous & Cumulative Streaming Duration Rewards Configuration
+CREATE TABLE IF NOT EXISTS live_duration_reward_settings (
+  id INT PRIMARY KEY DEFAULT 1,
+  is_enabled TINYINT(1) NOT NULL DEFAULT 1,
+  target_role VARCHAR(50) NOT NULL DEFAULT 'host',
+  session_type ENUM('single_continuous', 'multiple_cumulative') NOT NULL DEFAULT 'single_continuous',
+  min_sessions INT NOT NULL DEFAULT 1,
+  required_minutes INT NOT NULL DEFAULT 60,
+  reward_coins INT NOT NULL DEFAULT 300,
+  target_audience ENUM('all', 'agency_hosts', 'all_hosts') NOT NULL DEFAULT 'all_hosts',
+  max_rewards_per_day INT NOT NULL DEFAULT 1,
+  title VARCHAR(150) NOT NULL DEFAULT 'Continuous Streaming Reward',
+  description TEXT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Live Continuous & Cumulative Streaming Duration Rewards Distribution History & Audit
+CREATE TABLE IF NOT EXISTS live_duration_reward_history (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  room_id VARCHAR(64) NOT NULL,
+  stream_id INT NULL,
+  duration_minutes INT NOT NULL,
+  duration_seconds INT NOT NULL,
+  coins_awarded INT NOT NULL,
+  target_role VARCHAR(50) NOT NULL DEFAULT 'host',
+  target_audience VARCHAR(50) NOT NULL DEFAULT 'all_hosts',
+  session_type VARCHAR(50) NOT NULL DEFAULT 'single_continuous',
+  session_count INT NOT NULL DEFAULT 1,
+  user_role VARCHAR(50) NOT NULL DEFAULT 'host',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_reward_user_created (user_id, created_at),
+  INDEX idx_reward_created (created_at),
+  INDEX idx_reward_room (room_id),
+  UNIQUE KEY uniq_room_user_reward (room_id, user_id),
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+

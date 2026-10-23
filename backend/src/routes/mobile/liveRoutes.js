@@ -38,6 +38,8 @@ import {
   getLiveKitToken,
   updateRoomBackground,
   updateRoomSettings,
+  getLiveRewardStatus,
+  claimLiveReward,
 } from '../../controllers/mobile/liveController.js';
 import { getLiveKitConfigEndpoint } from '../../controllers/mobile/configController.js';
 import { requireAuth } from '../../middlewares/authMiddleware.js';
@@ -192,5 +194,9 @@ router.get('/rooms/:roomId/token', requireAuth, getLiveKitToken);
 // Host Room Settings (Disable/Enable comments & reactions)
 router.patch('/rooms/:roomId/settings', requireAuth, updateRoomSettings);
 router.put('/rooms/:roomId/settings', requireAuth, updateRoomSettings);
+
+// Live Streaming Milestone Duration & Session Reward
+router.get('/rooms/:roomId/reward-status', requireAuth, getLiveRewardStatus);
+router.post('/rooms/:roomId/claim-reward', requireAuth, claimLiveReward);
 
 export default router;

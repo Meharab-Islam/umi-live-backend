@@ -67,6 +67,10 @@ import {
   takeAdminReportAction,
   deleteAdminReport,
   bulkDeleteReports,
+  getLiveRewardSettingsAdmin,
+  updateLiveRewardSettingsAdmin,
+  getLiveRewardHistoryAdmin,
+  getLiveRewardStatsAdmin,
 } from '../controllers/adminController.js';
 import {
   getPackageCategories,
@@ -300,5 +304,11 @@ router.put('/reports/:id/status', updateAdminReportStatus);
 router.post('/reports/:id/action', takeAdminReportAction);
 router.delete('/reports/:id', deleteAdminReport);
 router.post('/reports/bulk-delete', bulkDeleteReports);
+
+// Live Streaming Duration & Session Reward Engine
+router.get('/live-rewards/settings', getLiveRewardSettingsAdmin);
+router.put('/live-rewards/settings', updateLiveRewardSettingsAdmin);
+router.get('/live-rewards/history', getLiveRewardHistoryAdmin);
+router.get('/live-rewards/stats', getLiveRewardStatsAdmin);
 
 export default router;

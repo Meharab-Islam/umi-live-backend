@@ -1,1 +1,7 @@
 umi_firebase.json
+backend/uploads/*
+!backend/uploads/.gitkeep
+node_modules/
+.env
+admin-panel/.env
+.DS_Store

@@ -534,9 +534,9 @@
     "semantic_hash": ""
   },
   "admin-panel/src/pages/ApiDocs.jsx": {
-    "mtime": 1792724785.2784307,
-    "seen": 1792724801.334249,
-    "ast_hash": "6a9ccec334a7c8ef1985503eac30d217",
+    "mtime": 1792725688.5579104,
+    "seen": 1792725701.875016,
+    "ast_hash": "858cb2227b0122b54be75aef1a34189f",
     "semantic_hash": ""
   },
   "backend/src/routes/docsRoutes.js": {

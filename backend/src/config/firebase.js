@@ -554,3 +554,43 @@ export async function sendNewFollowerPushNotification({ followingUserId, followe
   }
 }
 
+/**
+ * 🎁 FCM Push Notification: Continuous Live Streaming Milestone Reward
+ * Dispatched to host when they stream continuously for the configured duration.
+ */
+export async function sendLiveDurationRewardPushNotification({ userId, coins, durationMinutes, title }) {
+  const targetUserId = Number(userId);
+  if (!targetUserId || !isFirebaseReady()) return;
+
+  try {
+    const tokens = await getUserFcmTokens(targetUserId);
+    if (!tokens || tokens.length === 0) {
+      console.log(`📱 [FCM Live Reward Push] Host user ${targetUserId} has no active FCM tokens.`);
+      return;
+    }
+
+    const rewardTitle = title || '🎉 Continuous Streaming Reward!';
+    const rewardBody = `Congratulations! You streamed continuously for ${durationMinutes} minutes and earned ${coins} bonus coins! 🪙✨`;
+
+    const pushResult = await sendPushNotification({
+      tokens,
+      title: rewardTitle,
+      body: rewardBody,
+      data: {
+        notification_category: 'reward',
+        type: 'live_duration_reward',
+        target_screen: 'wallet',
+        route: '/wallet',
+        click_action: 'FLUTTER_NOTIFICATION_CLICK',
+        coins: String(coins),
+        duration_minutes: String(durationMinutes),
+        created_at: new Date().toISOString(),
+      },
+    });
+
+    console.log(`📱 [FCM Live Reward Push Sent] Host User: ${targetUserId} | Coins: ${coins} | Duration: ${durationMinutes}m | Tokens Notified: ${tokens.length}`);
+    return pushResult;
+  } catch (err) {
+    console.error('🔥 [Live Reward Push] Error:', err.message);
+  }
+}

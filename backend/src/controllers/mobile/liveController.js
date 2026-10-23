@@ -4,6 +4,7 @@ import { query } from '../../config/db.js';
 import { generateLiveKitToken, LIVEKIT_URL } from '../../config/livekit.js';
 import { sendLiveRoomStartedPushNotification } from '../../config/firebase.js';
 import { cancelHostDisconnectGraceTimer, hostDisconnectGraceTimers } from '../../sockets/liveSocket.js';
+import { checkStreamRewardStatus, claimAndAwardLiveReward } from '../../services/liveRewardService.js';
 
 /**
  * Format elapsed seconds into standard timer format:
@@ -1745,9 +1746,30 @@ export async function endRoom(req, res) {
       }
     }
 
+    // 5. Evaluate and auto-award live streaming reward if host is eligible
+    let rewardResult = null;
+    if (isHost) {
+      try {
+        const rewardCheck = await checkStreamRewardStatus({ userId: room.host_id, roomId: canonicalRoomId });
+        if (rewardCheck && rewardCheck.eligible) {
+          rewardResult = await claimAndAwardLiveReward({
+            userId: room.host_id,
+            roomId: canonicalRoomId,
+            io: req.io,
+          });
+          if (rewardResult && rewardResult.success) {
+            console.log(`🎉 [Live Reward] Auto-awarded ${rewardResult.reward?.coins} coins to host ${room.host_id} for stream ${canonicalRoomId}`);
+          }
+        }
+      } catch (rewardErr) {
+        console.warn('⚠️ [Live Reward Auto-Check Warning]:', rewardErr.message);
+      }
+    }
+
     return res.json({
       success: true,
       message: 'Live stream ended successfully. All room data cleared and viewers unsubscribed from socket channel.',
+      reward: rewardResult && rewardResult.success ? rewardResult.reward : null,
     });
   } catch (err) {
     console.error('Mobile endRoom error:', err);
@@ -3913,6 +3935,41 @@ export async function updateRoomSettings(req, res) {
   } catch (err) {
     console.error('updateRoomSettings error:', err);
     return res.status(500).json({ success: false, message: 'Failed to update room settings.', error: err.message });
+  }
+}
+
+/**
+ * Get Live Streaming Reward Status & Milestone Progress for Broadcaster
+ * GET /api/mobile/live/rooms/:roomId/reward-status
+ */
+export async function getLiveRewardStatus(req, res) {
+  try {
+    const { roomId } = req.params;
+    const userId = req.user.id;
+    const status = await checkStreamRewardStatus({ userId, roomId });
+    return res.json({ success: true, rewardStatus: status });
+  } catch (err) {
+    console.error('getLiveRewardStatus error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to fetch live reward status.', error: err.message });
+  }
+}
+
+/**
+ * Claim Live Streaming Reward manually during or after live session
+ * POST /api/mobile/live/rooms/:roomId/claim-reward
+ */
+export async function claimLiveReward(req, res) {
+  try {
+    const { roomId } = req.params;
+    const userId = req.user.id;
+    const result = await claimAndAwardLiveReward({ userId, roomId, io: req.io });
+    if (!result.success) {
+      return res.status(400).json(result);
+    }
+    return res.json(result);
+  } catch (err) {
+    console.error('claimLiveReward error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to claim live reward.', error: err.message });
   }
 }
 

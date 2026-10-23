@@ -18,6 +18,11 @@ export const API_SPEC = {
   ],
   "categories": [
     {
+      "id": "live-rewards",
+      "name": "🎁 Live Streaming Rewards & Host Incentives",
+      "description": "Continuous & Cumulative live duration reward milestones: check real-time stream eligibility, remaining minutes, daily claim limits, coin rewards, and automatic/manual claiming."
+    },
+    {
       "id": "themes",
       "name": "🎨 App Themes & Styling",
       "description": "Customizable mobile app visual themes: full-screen page background wallpapers, modal bottom sheet images, and vibrant accent color palettes with coin store purchases, auto-equip, and system defaults."
@@ -129,6 +134,106 @@ export const API_SPEC = {
     }
   ],
   "endpoints": [
+    {
+      "id": "live-reward-status",
+      "category": "live-rewards",
+      "method": "GET",
+      "path": "/api/mobile/live/rooms/:roomId/reward-status",
+      "summary": "[🎁 Live Rewards] Check Real-time Live Streaming Reward Eligibility & Progress",
+      "description": "Checks whether the currently broadcasting host or user is eligible for the configured live duration reward milestone (e.g. 60 mins continuous live stream for +300 coins). Returns current streamed minutes, remaining minutes, session count, daily claim limit, and eligibility status.",
+      "requiresAuth": true,
+      "requestHeaders": [
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>",
+          "required": true
+        }
+      ],
+      "parameters": [
+        {
+          "name": "roomId",
+          "type": "string",
+          "in": "path",
+          "required": true,
+          "description": "Numeric ID or string room_id of the live broadcast"
+        }
+      ],
+      "responses": [
+        {
+          "status": 200,
+          "description": "Live reward progress details returned.",
+          "example": {
+            "success": true,
+            "rewardStatus": {
+              "enabled": true,
+              "eligible": true,
+              "rolePass": true,
+              "targetRole": "host",
+              "sessionType": "single_continuous",
+              "alreadyClaimed": false,
+              "dailyCount": 0,
+              "dailyLimit": 1,
+              "dailyLimitReached": false,
+              "currentMinutes": 62,
+              "requiredMinutes": 60,
+              "rewardCoins": 300,
+              "remainingMinutes": 0,
+              "title": "Live Streaming Reward",
+              "description": "Earn bonus coins for streaming live and meeting daily targets."
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "live-reward-claim",
+      "category": "live-rewards",
+      "method": "POST",
+      "path": "/api/mobile/live/rooms/:roomId/claim-reward",
+      "summary": "[🎁 Live Rewards] Claim Live Streaming Reward Coins",
+      "description": "Claims the live streaming duration reward coins if eligible. Automatically called on live room end or can be manually triggered by the host. Performs atomic transaction, records ledger entry, credits user balance, invalidates Redis, emits Socket.IO event to room, and sends FCM push notification.",
+      "requiresAuth": true,
+      "requestHeaders": [
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>",
+          "required": true
+        }
+      ],
+      "parameters": [
+        {
+          "name": "roomId",
+          "type": "string",
+          "in": "path",
+          "required": true,
+          "description": "Numeric ID or string room_id of the live broadcast"
+        }
+      ],
+      "responses": [
+        {
+          "status": 200,
+          "description": "Reward coins successfully awarded to host wallet.",
+          "example": {
+            "success": true,
+            "message": "Successfully awarded 300 coins for streaming 60 minutes!",
+            "reward": {
+              "id": 14,
+              "coins": 300,
+              "durationMinutes": 60,
+              "roomId": "room-8f192b03"
+            }
+          }
+        },
+        {
+          "status": 400,
+          "description": "Ineligible, already claimed, or daily limit reached.",
+          "example": {
+            "success": false,
+            "message": "Daily reward claim limit (1 time(s)) reached."
+          }
+        }
+      ]
+    },
     {
       "id": "notifications-specs",
       "category": "notifications",

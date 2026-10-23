@@ -512,6 +512,96 @@ export async function initializeDatabase() {
       console.error('Seed theme error:', e.message);
     }
 
+    // Live Continuous & Cumulative Streaming Duration Rewards Configuration & History
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS live_duration_reward_settings (
+        id INT PRIMARY KEY DEFAULT 1,
+        is_enabled TINYINT(1) NOT NULL DEFAULT 1,
+        target_role VARCHAR(50) NOT NULL DEFAULT 'host',
+        session_type ENUM('single_continuous', 'multiple_cumulative') NOT NULL DEFAULT 'single_continuous',
+        min_sessions INT NOT NULL DEFAULT 1,
+        required_minutes INT NOT NULL DEFAULT 60,
+        reward_coins INT NOT NULL DEFAULT 300,
+        target_audience ENUM('all', 'agency_hosts', 'all_hosts') NOT NULL DEFAULT 'all_hosts',
+        max_rewards_per_day INT NOT NULL DEFAULT 1,
+        title VARCHAR(150) NOT NULL DEFAULT 'Continuous Streaming Reward',
+        description TEXT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `);
+
+    // Ensure columns exist on already created tables
+    try {
+      const [colCheck] = await connection.query(`
+        SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS 
+        WHERE TABLE_SCHEMA = ? AND TABLE_NAME = 'live_duration_reward_settings' AND COLUMN_NAME = 'target_role'
+      `, [database]);
+      if (!colCheck || colCheck.length === 0) {
+        await connection.query(`
+          ALTER TABLE live_duration_reward_settings
+            ADD COLUMN target_role VARCHAR(50) NOT NULL DEFAULT 'host',
+            ADD COLUMN session_type ENUM('single_continuous', 'multiple_cumulative') NOT NULL DEFAULT 'single_continuous',
+            ADD COLUMN min_sessions INT NOT NULL DEFAULT 1;
+        `);
+      }
+    } catch (err) {
+      // Ignore if columns already present
+    }
+
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS live_duration_reward_history (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
+        room_id VARCHAR(64) NOT NULL,
+        stream_id INT NULL,
+        duration_minutes INT NOT NULL,
+        duration_seconds INT NOT NULL,
+        coins_awarded INT NOT NULL,
+        target_role VARCHAR(50) NOT NULL DEFAULT 'host',
+        target_audience VARCHAR(50) NOT NULL DEFAULT 'all_hosts',
+        session_type VARCHAR(50) NOT NULL DEFAULT 'single_continuous',
+        session_count INT NOT NULL DEFAULT 1,
+        user_role VARCHAR(50) NOT NULL DEFAULT 'host',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        INDEX idx_reward_user_created (user_id, created_at),
+        INDEX idx_reward_created (created_at),
+        INDEX idx_reward_room (room_id),
+        UNIQUE KEY uniq_room_user_reward (room_id, user_id),
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `);
+
+    try {
+      const [histColCheck] = await connection.query(`
+        SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS 
+        WHERE TABLE_SCHEMA = ? AND TABLE_NAME = 'live_duration_reward_history' AND COLUMN_NAME = 'target_role'
+      `, [database]);
+      if (!histColCheck || histColCheck.length === 0) {
+        await connection.query(`
+          ALTER TABLE live_duration_reward_history
+            ADD COLUMN target_role VARCHAR(50) NOT NULL DEFAULT 'host',
+            ADD COLUMN session_type VARCHAR(50) NOT NULL DEFAULT 'single_continuous',
+            ADD COLUMN session_count INT NOT NULL DEFAULT 1;
+        `);
+      }
+    } catch (err) {
+      // Ignore if already present
+    }
+
+    // Seed default settings row if missing
+    try {
+      await connection.query(`
+        INSERT IGNORE INTO live_duration_reward_settings 
+          (id, is_enabled, target_role, session_type, min_sessions, required_minutes, reward_coins, target_audience, max_rewards_per_day, title, description)
+        VALUES 
+          (1, 1, 'host', 'single_continuous', 1, 60, 300, 'all_hosts', 1, 'Continuous Streaming Reward', 'Reward hosts for streaming continuously in a single live session.');
+      `);
+      console.log('✅ [DB Init] Live Duration Reward settings table and default seed verified.');
+    } catch (e) {
+      console.error('Seed live duration settings error:', e.message);
+    }
+
     // Ensure google_id exists in users table
     try {
       const [colCheck] = await connection.query(`

@@ -3,6 +3,12 @@ import bcrypt from 'bcryptjs';
 import { query, getPool } from '../config/db.js';
 import { cache } from '../config/redis.js';
 import { signToken } from '../config/jwt.js';
+import {
+  getLiveDurationRewardSettings,
+  updateLiveDurationRewardSettings,
+  getLiveDurationRewardHistory,
+  getLiveDurationRewardStats,
+} from '../services/liveRewardService.js';
 
 export async function getDashboardStats(req, res) {
   try {
@@ -4445,6 +4451,74 @@ export async function bulkDeleteReports(req, res) {
   } catch (err) {
     console.error('bulkDeleteReports error:', err);
     return res.status(500).json({ success: false, message: 'Failed to bulk delete reports.', error: err.message });
+  }
+}
+
+/**
+ * Live Duration & Session Reward Settings for Admin
+ * GET /api/admin/live-rewards/settings
+ */
+export async function getLiveRewardSettingsAdmin(req, res) {
+  try {
+    const settings = await getLiveDurationRewardSettings();
+    return res.json({ success: true, settings });
+  } catch (err) {
+    console.error('getLiveRewardSettingsAdmin error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to fetch reward settings.', error: err.message });
+  }
+}
+
+/**
+ * Update Live Reward Settings for Admin
+ * PUT /api/admin/live-rewards/settings
+ */
+export async function updateLiveRewardSettingsAdmin(req, res) {
+  try {
+    const settings = await updateLiveDurationRewardSettings(req.body);
+    return res.json({
+      success: true,
+      message: 'Live streaming reward settings updated successfully.',
+      settings,
+    });
+  } catch (err) {
+    console.error('updateLiveRewardSettingsAdmin error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to update reward settings.', error: err.message });
+  }
+}
+
+/**
+ * Fetch Live Rewards Claim History for Admin
+ * GET /api/admin/live-rewards/history
+ */
+export async function getLiveRewardHistoryAdmin(req, res) {
+  try {
+    const { page = 1, limit = 20, search = '', role = '', sessionType = '', userId = null } = req.query;
+    const history = await getLiveDurationRewardHistory({
+      page: parseInt(page, 10),
+      limit: parseInt(limit, 10),
+      search,
+      role,
+      sessionType,
+      userId,
+    });
+    return res.json({ success: true, ...history });
+  } catch (err) {
+    console.error('getLiveRewardHistoryAdmin error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to fetch reward history.', error: err.message });
+  }
+}
+
+/**
+ * Fetch Live Rewards Statistics for Admin Dashboard Card
+ * GET /api/admin/live-rewards/stats
+ */
+export async function getLiveRewardStatsAdmin(req, res) {
+  try {
+    const stats = await getLiveDurationRewardStats();
+    return res.json({ success: true, stats });
+  } catch (err) {
+    console.error('getLiveRewardStatsAdmin error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to fetch reward stats.', error: err.message });
   }
 }
 

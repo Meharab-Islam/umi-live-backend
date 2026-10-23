@@ -25,6 +25,7 @@ import TopContributors from './pages/TopContributors';
 import Posts from './pages/Posts';
 import Reports from './pages/Reports';
 import AppThemes from './pages/AppThemes';
+import LiveRewards from './pages/LiveRewards';
 
 import { checkHealth, getToken, setToken, getCurrentUser, setCurrentUser } from './api/client';
 import dashboardApi from './api/dashboardApi';
@@ -35,6 +36,7 @@ const VALID_TABS = [
   'dashboard',
   'streams',
   'host-management',
+  'live-rewards',
   'agencies',
   'resellers',
   'moderators',
@@ -298,6 +300,10 @@ export default function App() {
 
           {activeTab === 'host-management' && (
             <HostManagement onToast={addToast} />
+          )}
+
+          {activeTab === 'live-rewards' && (
+            <LiveRewards onToast={addToast} />
           )}
 
           {activeTab === 'agencies' && (
