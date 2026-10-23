@@ -24,6 +24,7 @@ import ApiDocs from './pages/ApiDocs';
 import TopContributors from './pages/TopContributors';
 import Posts from './pages/Posts';
 import Reports from './pages/Reports';
+import AppThemes from './pages/AppThemes';
 
 import { checkHealth, getToken, setToken, getCurrentUser, setCurrentUser } from './api/client';
 import dashboardApi from './api/dashboardApi';
@@ -47,6 +48,7 @@ const VALID_TABS = [
   'entry-effects',
   'special-items',
   'banners',
+  'themes',
   'recharge',
   'gifts',
   'top-contributors',
@@ -230,6 +232,7 @@ export default function App() {
     'entry-effects': 'Room Entry Effects',
     'special-items': 'Special Items & Effects',
     banners: 'Promotional & Event Banners',
+    themes: 'App Theme Studio (Wallpapers & Colors)',
     recharge: 'Admin Coin Recharge Desk',
     gifts: 'Virtual Gift Economy Store',
     'top-contributors': 'Top Gifting Contributors Leaderboard',
@@ -350,6 +353,10 @@ export default function App() {
 
           {activeTab === 'banners' && (
             <Banners onToast={addToast} />
+          )}
+
+          {activeTab === 'themes' && (
+            <AppThemes onToast={addToast} />
           )}
 
           {activeTab === 'recharge' && (

@@ -449,6 +449,69 @@ export async function initializeDatabase() {
       // Silently continue if already exists
     }
 
+    // App Themes: Page Background Images, Bottom Sheet Images, and Color Palettes
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS app_theme_items (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        type ENUM('page_image', 'bottom_sheet_image', 'color') NOT NULL,
+        name VARCHAR(150) NOT NULL,
+        value VARCHAR(500) NOT NULL,
+        secondary_value VARCHAR(500) NULL,
+        preview_url VARCHAR(500) NULL,
+        price INT NOT NULL DEFAULT 0,
+        validity_days INT NOT NULL DEFAULT 30,
+        is_default TINYINT(1) NOT NULL DEFAULT 0,
+        is_active TINYINT(1) NOT NULL DEFAULT 1,
+        sort_order INT NOT NULL DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        INDEX idx_theme_type_active (type, is_active),
+        INDEX idx_theme_default (type, is_default)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `);
+
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS user_theme_items (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
+        theme_item_id INT NOT NULL,
+        is_equipped TINYINT(1) NOT NULL DEFAULT 0,
+        expires_at TIMESTAMP NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (theme_item_id) REFERENCES app_theme_items(id) ON DELETE CASCADE,
+        UNIQUE KEY unique_user_theme (user_id, theme_item_id),
+        INDEX idx_user_equipped_theme (user_id, is_equipped)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `);
+
+    // Seed default theme items if table is empty
+    try {
+      const [themeRows] = await connection.query('SELECT COUNT(*) as count FROM app_theme_items');
+      if (!themeRows || themeRows[0]?.count === 0) {
+        await connection.query(`
+          INSERT INTO app_theme_items (type, name, value, secondary_value, price, validity_days, is_default, is_active, sort_order) VALUES
+          -- Colors
+          ('color', 'Royal Violet (Default)', '#7C3AED', '#A78BFA', 0, 0, 1, 1, 1),
+          ('color', 'Cyber Neon Cyan', '#06B6D4', '#22D3EE', 100, 30, 0, 1, 2),
+          ('color', 'Sunset Rose Gold', '#F43F5E', '#FB7185', 200, 30, 0, 1, 3),
+          ('color', 'Emerald Glow', '#10B981', '#34D399', 150, 30, 0, 1, 4),
+          ('color', 'Midnight Obsidian', '#0F172A', '#334155', 0, 0, 0, 1, 5),
+          -- Page Background Images
+          ('page_image', 'Default Dark Nebula', 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=1200&q=80', NULL, 0, 0, 1, 1, 1),
+          ('page_image', 'Cyberpunk City Grid', 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=1200&q=80', NULL, 300, 30, 0, 1, 2),
+          ('page_image', 'Deep Space Aurora', 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=1200&q=80', NULL, 500, 30, 0, 1, 3),
+          -- Bottom Sheet Images
+          ('bottom_sheet_image', 'Default Frosted Glass', 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=800&q=80', NULL, 0, 0, 1, 1, 1),
+          ('bottom_sheet_image', 'Dark Wave Texture', 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80', NULL, 250, 30, 0, 1, 2),
+          ('bottom_sheet_image', 'Golden Velvet Shimmer', 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=800&q=80', NULL, 400, 30, 0, 1, 3);
+        `);
+        console.log('✅ [DB Init] App Theme initial seeds created.');
+      }
+    } catch (e) {
+      console.error('Seed theme error:', e.message);
+    }
+
     // Ensure google_id exists in users table
     try {
       const [colCheck] = await connection.query(`

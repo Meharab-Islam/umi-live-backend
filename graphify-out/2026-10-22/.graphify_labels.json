@@ -1,7 +1,7 @@
 {
   "0": "controllers/packageController.js",
-  "1": "adminRoutes.js",
-  "2": "db.js",
+  "1": "query",
+  "2": "server.js",
   "3": "admin-panel/package.json",
   "4": "dependencies",
   "5": "AGENTS.md",
@@ -35,9 +35,9 @@
   "33": "add_moderator_agency_docs.mjs",
   "34": "mobile/index.js",
   "35": "test_redis_hit_and_freshness.mjs",
-  "36": "accountMergeController.js",
+  "36": "getPool",
   "37": "ApiDocs.jsx",
-  "38": "query",
+  "38": "specialItemController.js",
   "39": "test_device_and_google_auth.mjs",
   "40": "test_email_register.mjs",
   "41": "dev.js",
@@ -50,7 +50,9 @@
   "48": "thumbnailRoutes.js",
   "49": "add_audio_live_api_docs.mjs",
   "50": "tag_live_types_in_docs.mjs",
+  "51": "userController.js",
   "52": "entryEffectController.js",
-  "53": "hostController.js",
+  "53": "db.js",
+  "54": "controllers/bannerController.js",
   "56": "ssh_runner.py"
 }

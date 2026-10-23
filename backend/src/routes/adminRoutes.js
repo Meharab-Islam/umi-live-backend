@@ -111,6 +111,14 @@ import {
   executeMerge,
   getMergeHistory,
 } from '../controllers/accountMergeController.js';
+import {
+  getAdminThemeItems,
+  getThemeStats,
+  createThemeItem,
+  updateThemeItem,
+  deleteThemeItem,
+  setDefaultThemeItem,
+} from '../controllers/adminThemeController.js';
 import { upload, optionalFeedMediaUpload } from '../middleware/upload.js';
 import { requireAuth, requireAdmin } from '../middlewares/authMiddleware.js';
 
@@ -267,6 +275,14 @@ router.put('/banners/:id', updateBanner);
 router.delete('/banners/:id', deleteBanner);
 router.patch('/banners/:id/toggle', toggleBannerStatus);
 router.post('/banners/reorder', reorderBanners);
+
+// App Custom Themes (Page Backgrounds, Bottom Sheet Images, Color Palettes)
+router.get('/themes', getAdminThemeItems);
+router.get('/themes/stats', getThemeStats);
+router.post('/themes', upload.single('file'), createThemeItem);
+router.put('/themes/:id', upload.single('file'), updateThemeItem);
+router.delete('/themes/:id', deleteThemeItem);
+router.patch('/themes/:id/default', setDefaultThemeItem);
 
 // Account Merge & Email Transfer (Lost Email Migration)
 router.get('/merge-accounts/preview', previewMerge);

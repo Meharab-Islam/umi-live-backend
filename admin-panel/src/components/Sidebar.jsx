@@ -26,6 +26,7 @@ import {
   Terminal,
   Newspaper,
   ShieldAlert,
+  Palette,
 } from 'lucide-react';
 import packageApi from '../api/packageApi';
 
@@ -85,6 +86,7 @@ export default function Sidebar({
     { id: 'thumbnails', label: 'Thumbnails', icon: ImageIcon },
     { id: 'entry-effects', label: 'Entry Effects', icon: Sparkles },
     { id: 'banners', label: 'Banners', icon: GalleryHorizontal },
+    { id: 'themes', label: 'App Themes', icon: Palette, badge: 'New' },
     { id: 'recharge', label: 'Coin Recharge', icon: Coins },
     { id: 'gifts', label: 'Gifts Store', icon: Gift },
     { id: 'top-contributors', label: 'Top Contributors', icon: Trophy },

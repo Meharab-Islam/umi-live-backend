@@ -598,5 +598,35 @@ CREATE TABLE IF NOT EXISTS user_fcm_tokens (
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- App Themes: Page Background Images, Bottom Sheet Images, and Color Palettes
+CREATE TABLE IF NOT EXISTS app_theme_items (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  type ENUM('page_image', 'bottom_sheet_image', 'color') NOT NULL,
+  name VARCHAR(150) NOT NULL,
+  value VARCHAR(500) NOT NULL,
+  secondary_value VARCHAR(500) NULL,
+  preview_url VARCHAR(500) NULL,
+  price INT NOT NULL DEFAULT 0,
+  validity_days INT NOT NULL DEFAULT 30,
+  is_default TINYINT(1) NOT NULL DEFAULT 0,
+  is_active TINYINT(1) NOT NULL DEFAULT 1,
+  sort_order INT NOT NULL DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_theme_type_active (type, is_active),
+  INDEX idx_theme_default (type, is_default)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-
+-- User Purchased and Equipped Theme Items
+CREATE TABLE IF NOT EXISTS user_theme_items (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  theme_item_id INT NOT NULL,
+  is_equipped TINYINT(1) NOT NULL DEFAULT 0,
+  expires_at TIMESTAMP NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (theme_item_id) REFERENCES app_theme_items(id) ON DELETE CASCADE,
+  UNIQUE KEY unique_user_theme (user_id, theme_item_id),
+  INDEX idx_user_equipped_theme (user_id, is_equipped)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

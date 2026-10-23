@@ -12,9 +12,9 @@
     "semantic_hash": ""
   },
   "admin-panel/src/App.jsx": {
-    "mtime": 1792259437.772668,
-    "seen": 1792259608.983576,
-    "ast_hash": "57c9f8df10ee6b52499d5be3e4935b1f",
+    "mtime": 1792721827.7020476,
+    "seen": 1792721920.4775481,
+    "ast_hash": "ada2742d5086c964343175555bfc0821",
     "semantic_hash": ""
   },
   "admin-panel/src/api.js": {
@@ -30,9 +30,9 @@
     "semantic_hash": ""
   },
   "admin-panel/src/components/Sidebar.jsx": {
-    "mtime": 1792259413.171168,
-    "seen": 1792259608.984073,
-    "ast_hash": "c5a680f1b7c1cce5b03214a949a0a833",
+    "mtime": 1792721798.9723895,
+    "seen": 1792721920.478071,
+    "ast_hash": "2ae2a614f527e17fe9972f139a7d358a",
     "semantic_hash": ""
   },
   "admin-panel/src/components/StatCard.jsx": {
@@ -66,9 +66,9 @@
     "semantic_hash": ""
   },
   "admin-panel/src/pages/Login.jsx": {
-    "mtime": 1792060264.3381991,
-    "seen": 1792060461.6747599,
-    "ast_hash": "82862f8a65148b3cf51fc0b0a3f04b28",
+    "mtime": 1792719816.1809738,
+    "seen": 1792719981.932993,
+    "ast_hash": "7b159902baf928c0a6d9751d5769afd1",
     "semantic_hash": ""
   },
   "admin-panel/src/pages/Settings.jsx": {
@@ -144,9 +144,9 @@
     "semantic_hash": ""
   },
   "backend/src/db/init.js": {
-    "mtime": 1792647200.6909614,
-    "seen": 1792647414.521203,
-    "ast_hash": "36bc988bfdc3925404172053b658b349",
+    "mtime": 1792721532.0610888,
+    "seen": 1792721920.479285,
+    "ast_hash": "be4548238c3b1243c21d026086a28ab9",
     "semantic_hash": ""
   },
   "backend/src/middlewares/authMiddleware.js": {
@@ -156,9 +156,9 @@
     "semantic_hash": ""
   },
   "backend/src/routes/adminRoutes.js": {
-    "mtime": 1792261173.5139844,
-    "seen": 1792262188.343638,
-    "ast_hash": "1f27e890d0c1e3875bd556d9d351eb76",
+    "mtime": 1792721672.9909306,
+    "seen": 1792721920.4793222,
+    "ast_hash": "1f121a427870c2889adcb2ee91fa5cff",
     "semantic_hash": ""
   },
   "backend/src/routes/authRoutes.js": {
@@ -270,9 +270,9 @@
     "semantic_hash": ""
   },
   "admin-panel/src/api/client.js": {
-    "mtime": 1791891447.8247068,
-    "seen": 1791891468.5161989,
-    "ast_hash": "8b5b0d940c9dcbe9d391ca0928779568",
+    "mtime": 1792688540.704074,
+    "seen": 1792688664.177205,
+    "ast_hash": "4e2948252dc69ec769f025d206e6ee03",
     "semantic_hash": ""
   },
   "admin-panel/src/api/dashboardApi.js": {
@@ -528,9 +528,9 @@
     "semantic_hash": ""
   },
   "admin-panel/src/api/apiSpec.js": {
-    "mtime": 1792647285.579789,
-    "seen": 1792647414.519518,
-    "ast_hash": "ebff2e8caf4a765cd09b89cb190933c0",
+    "mtime": 1792721997.4157996,
+    "seen": 1792722009.519775,
+    "ast_hash": "9c2717b3b9b4ae406022267047d77641",
     "semantic_hash": ""
   },
   "admin-panel/src/pages/ApiDocs.jsx": {
@@ -588,9 +588,9 @@
     "semantic_hash": ""
   },
   "backend/src/routes/mobile/index.js": {
-    "mtime": 1792144605.7639735,
-    "seen": 1792144747.157139,
-    "ast_hash": "17f4a8928cb217a86547149785738869",
+    "mtime": 1792721638.3984866,
+    "seen": 1792721920.479562,
+    "ast_hash": "cf80f8d50772e867a262f3c762eae696",
     "semantic_hash": ""
   },
   "backend/src/routes/mobile/liveRoutes.js": {
@@ -1293,6 +1293,36 @@
     "mtime": 1792523504.221895,
     "seen": 1792647414.521869,
     "ast_hash": "70e45d373cc610be8ef77ba2a7fca799",
+    "semantic_hash": ""
+  },
+  "admin-panel/src/api/themeApi.js": {
+    "mtime": 1792721687.8411334,
+    "seen": 1792721920.477927,
+    "ast_hash": "4e378734f495bdbe2d8cedfdbe73e76f",
+    "semantic_hash": ""
+  },
+  "admin-panel/src/pages/AppThemes.jsx": {
+    "mtime": 1792721762.5443268,
+    "seen": 1792721920.478247,
+    "ast_hash": "2a5e68619455330d012c7b7e687afa7d",
+    "semantic_hash": ""
+  },
+  "backend/src/controllers/adminThemeController.js": {
+    "mtime": 1792721562.1722882,
+    "seen": 1792721920.478812,
+    "ast_hash": "fde0b63ef028aed480155f0ad46c6eea",
+    "semantic_hash": ""
+  },
+  "backend/src/controllers/mobile/themeController.js": {
+    "mtime": 1792721963.2249336,
+    "seen": 1792722009.521395,
+    "ast_hash": "89df34359cc26d5120a79072adf10667",
+    "semantic_hash": ""
+  },
+  "backend/src/routes/mobile/themeRoutes.js": {
+    "mtime": 1792721974.921776,
+    "seen": 1792722009.5219798,
+    "ast_hash": "4f290c6ded00fbbf6e315130998f3ff1",
     "semantic_hash": ""
   }
 }
