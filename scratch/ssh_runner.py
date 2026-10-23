@@ -4,7 +4,7 @@ import select
 import sys
 import time
 
-def run_ssh_command(remote_cmd, timeout=15):
+def run_ssh_command(remote_cmd, timeout=300):
     pid, fd = pty.fork()
     if pid == 0:
         os.environ['TERM'] = 'dumb'
@@ -53,4 +53,5 @@ def run_ssh_command(remote_cmd, timeout=15):
 
 if __name__ == '__main__':
     cmd = sys.argv[1] if len(sys.argv) > 1 else 'docker ps'
-    print(run_ssh_command(cmd, timeout=20))
+    timeout = int(sys.argv[2]) if len(sys.argv) > 2 else 300
+    print(run_ssh_command(cmd, timeout=timeout))
