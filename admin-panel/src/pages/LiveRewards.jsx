@@ -309,7 +309,7 @@ export default function LiveRewards({ onToast }) {
 
             {/* Master Toggle */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <span style={{ fontSize: '0.8rem', fontWeight: 600, color: settings.is_enabled ? '#059669' : '#dc2626' }}>
+              <span style={{ fontSize: '0.8rem', fontWeight: 700, color: settings.is_enabled ? '#059669' : '#dc2626' }}>
                 {settings.is_enabled ? 'Active' : 'Disabled'}
               </span>
               <button
@@ -323,30 +323,32 @@ export default function LiveRewards({ onToast }) {
             </div>
           </div>
 
-          <form onSubmit={handleSaveSettings} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+          <form onSubmit={handleSaveSettings} style={{ display: 'flex', flexDirection: 'column', gap: '1.35rem' }}>
             {/* 1. Title */}
-            <div className="form-group" style={{ margin: 0 }}>
-              <label className="form-label" style={{ fontWeight: 600, fontSize: '0.82rem' }}>
-                Reward Program Title (প্রোগ্রামের নাম)
+            <div className="lr-field-group">
+              <label className="lr-field-label">
+                Reward Program Title
               </label>
-              <input
-                type="text"
-                className="form-input"
-                value={settings.title}
-                onChange={(e) => setSettings((s) => ({ ...s, title: e.target.value }))}
-                placeholder="e.g. Daily Live Streaming Bonus"
-                required
-              />
+              <div className="lr-input-box">
+                <input
+                  type="text"
+                  className="lr-custom-input"
+                  value={settings.title}
+                  onChange={(e) => setSettings((s) => ({ ...s, title: e.target.value }))}
+                  placeholder="e.g. Daily Live Streaming Bonus"
+                  required
+                />
+              </div>
             </div>
 
             {/* 2. Target Role Selection */}
-            <div>
+            <div className="lr-field-group">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.45rem' }}>
-                <label className="form-label" style={{ fontWeight: 600, fontSize: '0.82rem', margin: 0 }}>
-                  1. Target User Role (ইউজার রোল নির্বাচন)
+                <label className="lr-field-label" style={{ margin: 0 }}>
+                  1. Target User Role
                 </label>
-                <span style={{ fontSize: '0.75rem', color: '#d97706', fontWeight: 600 }}>
-                  Host & Agency Host are identical
+                <span className="lr-hint-pill">
+                  Host & Agency Host have identical host privileges
                 </span>
               </div>
               <div className="lr-cards-row">
@@ -355,14 +357,14 @@ export default function LiveRewards({ onToast }) {
                   className={`lr-choice-card ${settings.target_role === 'host' ? 'active' : ''}`}
                   onClick={() => setSettings((s) => ({ ...s, target_role: 'host' }))}
                 >
-                  <div className="lr-choice-icon" style={{ background: settings.target_role === 'host' ? '#7c3aed' : 'rgba(0,0,0,0.05)', color: settings.target_role === 'host' ? '#fff' : 'var(--text-dim)' }}>
+                  <div className="lr-choice-icon" style={{ background: settings.target_role === 'host' ? '#7c3aed' : '#f1f5f9', color: settings.target_role === 'host' ? '#fff' : '#64748b' }}>
                     <Radio size={16} />
                   </div>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--text-main)' }}>
-                      Host (সকল হোস্ট)
+                      Official Host
                     </div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: '2px' }}>
+                    <div style={{ fontSize: '0.76rem', color: 'var(--text-dim)', marginTop: '3px', lineHeight: 1.35 }}>
                       Includes both agency hosts and independent platform hosts.
                     </div>
                   </div>
@@ -373,14 +375,14 @@ export default function LiveRewards({ onToast }) {
                   className={`lr-choice-card ${settings.target_role === 'all' ? 'active' : ''}`}
                   onClick={() => setSettings((s) => ({ ...s, target_role: 'all' }))}
                 >
-                  <div className="lr-choice-icon" style={{ background: settings.target_role === 'all' ? '#7c3aed' : 'rgba(0,0,0,0.05)', color: settings.target_role === 'all' ? '#fff' : 'var(--text-dim)' }}>
+                  <div className="lr-choice-icon" style={{ background: settings.target_role === 'all' ? '#7c3aed' : '#f1f5f9', color: settings.target_role === 'all' ? '#fff' : '#64748b' }}>
                     <Users size={16} />
                   </div>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--text-main)' }}>
-                      All Users (সাধারণ ইউজারসহ সবাই)
+                      All Broadcasters
                     </div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: '2px' }}>
+                    <div style={{ fontSize: '0.76rem', color: 'var(--text-dim)', marginTop: '3px', lineHeight: 1.35 }}>
                       Any registered user who starts a live stream broadcast.
                     </div>
                   </div>
@@ -389,9 +391,9 @@ export default function LiveRewards({ onToast }) {
             </div>
 
             {/* 3. Session Criteria */}
-            <div>
-              <label className="form-label" style={{ fontWeight: 600, fontSize: '0.82rem', marginBottom: '0.45rem', display: 'block' }}>
-                2. Session Condition (সেশন ক্রাইটেরিয়া)
+            <div className="lr-field-group">
+              <label className="lr-field-label">
+                2. Session Requirement
               </label>
               <div className="lr-cards-row">
                 {/* Single Continuous */}
@@ -399,15 +401,15 @@ export default function LiveRewards({ onToast }) {
                   className={`lr-choice-card ${settings.session_type === 'single_continuous' ? 'active' : ''}`}
                   onClick={() => setSettings((s) => ({ ...s, session_type: 'single_continuous', min_sessions: 1 }))}
                 >
-                  <div className="lr-choice-icon" style={{ background: settings.session_type === 'single_continuous' ? '#0284c7' : 'rgba(0,0,0,0.05)', color: settings.session_type === 'single_continuous' ? '#fff' : 'var(--text-dim)' }}>
+                  <div className="lr-choice-icon" style={{ background: settings.session_type === 'single_continuous' ? '#0284c7' : '#f1f5f9', color: settings.session_type === 'single_continuous' ? '#fff' : '#64748b' }}>
                     <Clock size={16} />
                   </div>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--text-main)' }}>
                       Single Continuous Session
                     </div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: '2px' }}>
-                      একটানা ১টি লাইভ সেশনে নির্ধারিত সময় পূরণ করতে হবে (বিরতি ছাড়া)।
+                    <div style={{ fontSize: '0.76rem', color: 'var(--text-dim)', marginTop: '3px', lineHeight: 1.35 }}>
+                      Must stream continuously in a single uninterrupted broadcast session.
                     </div>
                   </div>
                 </div>
@@ -417,15 +419,15 @@ export default function LiveRewards({ onToast }) {
                   className={`lr-choice-card ${settings.session_type === 'multiple_cumulative' ? 'active' : ''}`}
                   onClick={() => setSettings((s) => ({ ...s, session_type: 'multiple_cumulative' }))}
                 >
-                  <div className="lr-choice-icon" style={{ background: settings.session_type === 'multiple_cumulative' ? '#0284c7' : 'rgba(0,0,0,0.05)', color: settings.session_type === 'multiple_cumulative' ? '#fff' : 'var(--text-dim)' }}>
+                  <div className="lr-choice-icon" style={{ background: settings.session_type === 'multiple_cumulative' ? '#0284c7' : '#f1f5f9', color: settings.session_type === 'multiple_cumulative' ? '#fff' : '#64748b' }}>
                     <Layers size={16} />
                   </div>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--text-main)' }}>
                       Multiple Cumulative Sessions
                     </div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: '2px' }}>
-                      সারাদিনের একাধিক সেশন মিলিয়ে মোট সময় ও নির্ধারিত সেশন সংখ্যা পূরণ করতে হবে।
+                    <div style={{ fontSize: '0.76rem', color: 'var(--text-dim)', marginTop: '3px', lineHeight: 1.35 }}>
+                      Accumulate broadcast minutes across multiple sessions throughout the day.
                     </div>
                   </div>
                 </div>
@@ -436,25 +438,26 @@ export default function LiveRewards({ onToast }) {
             {settings.session_type === 'multiple_cumulative' && (
               <div className="lr-sub-box">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                  <label className="form-label" style={{ fontWeight: 600, fontSize: '0.8rem', margin: 0 }}>
-                    Minimum Required Sessions Count (নূন্যতম কতটি সেশন)
+                  <label className="lr-field-label" style={{ margin: 0 }}>
+                    Minimum Required Live Sessions
                   </label>
                   <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#0284c7' }}>
                     {settings.min_sessions} session(s)
                   </span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                  <input
-                    type="number"
-                    min="1"
-                    max="10"
-                    className="form-input"
-                    style={{ width: '120px' }}
-                    value={settings.min_sessions}
-                    onChange={(e) =>
-                      setSettings((s) => ({ ...s, min_sessions: Math.max(1, parseInt(e.target.value, 10) || 1) }))
-                    }
-                  />
+                  <div className="lr-input-box" style={{ width: '130px' }}>
+                    <input
+                      type="number"
+                      min="1"
+                      max="10"
+                      className="lr-custom-input"
+                      value={settings.min_sessions}
+                      onChange={(e) =>
+                        setSettings((s) => ({ ...s, min_sessions: Math.max(1, parseInt(e.target.value, 10) || 1) }))
+                      }
+                    />
+                  </div>
                   <span style={{ fontSize: '0.78rem', color: 'var(--text-dim)' }}>
                     Host must broadcast at least this many sessions today to unlock reward.
                   </span>
@@ -463,28 +466,28 @@ export default function LiveRewards({ onToast }) {
             )}
 
             {/* 4. Required Live Duration */}
-            <div>
+            <div className="lr-field-group">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.45rem' }}>
-                <label className="form-label" style={{ fontWeight: 600, fontSize: '0.82rem', margin: 0 }}>
-                  3. Required Live Duration (কতো সময় লাইভ করতে হবে)
+                <label className="lr-field-label" style={{ margin: 0 }}>
+                  3. Required Live Streaming Duration
                 </label>
                 <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#d97706' }}>
                   {formatHoursMinutes(settings.required_minutes)}
                 </span>
               </div>
-              <div style={{ position: 'relative' }}>
+              <div className="lr-input-box">
                 <input
                   type="number"
                   min="1"
                   max="1440"
-                  className="form-input"
+                  className="lr-custom-input lr-has-suffix"
                   value={settings.required_minutes}
                   onChange={(e) =>
                     setSettings((s) => ({ ...s, required_minutes: Math.max(1, parseInt(e.target.value, 10) || 1) }))
                   }
                   required
                 />
-                <span className="lr-input-unit">Minutes</span>
+                <span className="lr-input-suffix-tag">Minutes</span>
               </div>
               {/* Quick Duration Chips */}
               <div className="lr-chips-row">
@@ -504,22 +507,22 @@ export default function LiveRewards({ onToast }) {
             {/* 5. Coin Reward & Daily Limit Row */}
             <div className="lr-cards-row">
               {/* Coin Reward */}
-              <div style={{ flex: 1 }}>
-                <label className="form-label" style={{ fontWeight: 600, fontSize: '0.82rem', marginBottom: '0.45rem', display: 'block' }}>
-                  4. Coin Reward (কয়েন রিওয়ার্ড)
+              <div className="lr-field-group" style={{ flex: 1 }}>
+                <label className="lr-field-label">
+                  4. Coin Reward Amount
                 </label>
-                <div style={{ position: 'relative' }}>
+                <div className="lr-input-box">
                   <input
                     type="number"
                     min="1"
-                    className="form-input"
+                    className="lr-custom-input lr-has-suffix"
                     value={settings.reward_coins}
                     onChange={(e) =>
                       setSettings((s) => ({ ...s, reward_coins: Math.max(1, parseInt(e.target.value, 10) || 1) }))
                     }
                     required
                   />
-                  <span className="lr-input-unit" style={{ color: '#d97706', fontWeight: 700 }}>
+                  <span className="lr-input-suffix-tag" style={{ color: '#d97706' }}>
                     🪙 Coins
                   </span>
                 </div>
@@ -538,16 +541,16 @@ export default function LiveRewards({ onToast }) {
               </div>
 
               {/* Daily Limit */}
-              <div style={{ flex: 1 }}>
-                <label className="form-label" style={{ fontWeight: 600, fontSize: '0.82rem', marginBottom: '0.45rem', display: 'block' }}>
-                  5. Daily Limit (দিনে কতবার পাবে)
+              <div className="lr-field-group" style={{ flex: 1 }}>
+                <label className="lr-field-label">
+                  5. Daily Claim Frequency Limit
                 </label>
-                <div style={{ position: 'relative' }}>
+                <div className="lr-input-box">
                   <input
                     type="number"
                     min="1"
                     max="100"
-                    className="form-input"
+                    className="lr-custom-input lr-has-suffix"
                     value={settings.max_rewards_per_day}
                     onChange={(e) =>
                       setSettings((s) => ({
@@ -557,7 +560,7 @@ export default function LiveRewards({ onToast }) {
                     }
                     required
                   />
-                  <span className="lr-input-unit">Times/Day</span>
+                  <span className="lr-input-suffix-tag">Times / Day</span>
                 </div>
                 <div className="lr-chips-row">
                   {[1, 2, 3, 5].map((times) => (
@@ -575,22 +578,21 @@ export default function LiveRewards({ onToast }) {
             </div>
 
             {/* Description notice */}
-            <div className="form-group" style={{ margin: 0 }}>
-              <label className="form-label" style={{ fontWeight: 600, fontSize: '0.82rem' }}>
-                Notice to Hosts (অ্যাপে হোস্টদের দেখানো বার্তা)
+            <div className="lr-field-group">
+              <label className="lr-field-label">
+                Broadcaster Announcement / Instructions
               </label>
               <textarea
                 rows="2"
-                className="form-input"
-                style={{ resize: 'vertical' }}
+                className="lr-custom-textarea"
                 value={settings.description}
                 onChange={(e) => setSettings((s) => ({ ...s, description: e.target.value }))}
-                placeholder="Brief guidelines or instructions shown in host rewards banner..."
+                placeholder="Brief guidelines or instructions shown in the host rewards banner..."
               />
             </div>
 
             {/* Submit Button */}
-            <div style={{ paddingTop: '0.5rem' }}>
+            <div style={{ paddingTop: '0.25rem' }}>
               <button
                 type="submit"
                 disabled={saving}
@@ -651,7 +653,7 @@ export default function LiveRewards({ onToast }) {
                       {settings.title || 'Live Streaming Reward'}
                     </div>
                     <div style={{ fontSize: '0.75rem', color: '#f59e0b', fontWeight: 600 }}>
-                      Target: {settings.target_role === 'host' ? 'Host Broadcasters' : 'All Users'}
+                      Target: {settings.target_role === 'host' ? 'Host Broadcasters' : 'All Broadcasters'}
                     </div>
                   </div>
                 </div>
@@ -740,8 +742,8 @@ export default function LiveRewards({ onToast }) {
               <Search size={15} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-dim)' }} />
               <input
                 type="text"
-                className="form-input"
-                style={{ paddingLeft: '32px', fontSize: '0.82rem', height: '36px' }}
+                className="lr-custom-input"
+                style={{ paddingLeft: '32px', fontSize: '0.82rem', height: '38px' }}
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value);
@@ -753,8 +755,8 @@ export default function LiveRewards({ onToast }) {
 
             {/* Role Filter */}
             <select
-              className="form-select"
-              style={{ fontSize: '0.82rem', height: '36px', minWidth: '110px' }}
+              className="lr-custom-select"
+              style={{ fontSize: '0.82rem', height: '38px', minWidth: '120px' }}
               value={roleFilter}
               onChange={(e) => {
                 setRoleFilter(e.target.value);
@@ -768,8 +770,8 @@ export default function LiveRewards({ onToast }) {
 
             {/* Session Type Filter */}
             <select
-              className="form-select"
-              style={{ fontSize: '0.82rem', height: '36px', minWidth: '140px' }}
+              className="lr-custom-select"
+              style={{ fontSize: '0.82rem', height: '38px', minWidth: '150px' }}
               value={sessionTypeFilter}
               onChange={(e) => {
                 setSessionTypeFilter(e.target.value);
@@ -1051,6 +1053,116 @@ export default function LiveRewards({ onToast }) {
         .lr-toggle-switch.checked .lr-toggle-thumb {
           transform: translateX(20px);
         }
+
+        /* High-End Form Input Design */
+        .lr-field-group {
+          display: flex;
+          flex-direction: column;
+          gap: 0.45rem;
+        }
+        .lr-field-label {
+          font-size: 0.78rem;
+          font-weight: 700;
+          color: #334155;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+        .lr-hint-pill {
+          font-size: 0.73rem;
+          color: #b45309;
+          background: rgba(245, 158, 11, 0.1);
+          padding: 2px 8px;
+          border-radius: 6px;
+          font-weight: 600;
+        }
+        .lr-input-box {
+          position: relative;
+          display: flex;
+          align-items: center;
+          width: 100%;
+        }
+        .lr-custom-input {
+          width: 100%;
+          height: 44px;
+          border-radius: 10px;
+          border: 1.5px solid #cbd5e1;
+          background: #ffffff;
+          padding: 0 14px;
+          font-size: 0.9rem;
+          font-weight: 600;
+          color: #0f172a;
+          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+          outline: none;
+        }
+        .lr-custom-input:hover {
+          border-color: #94a3b8;
+          background: #fbfcfe;
+        }
+        .lr-custom-input:focus {
+          border-color: #7c3aed;
+          box-shadow: 0 0 0 3.5px rgba(124, 58, 237, 0.12);
+          background: #ffffff;
+        }
+        .lr-custom-input.lr-has-suffix {
+          padding-right: 95px;
+        }
+        .lr-custom-select {
+          border-radius: 10px;
+          border: 1.5px solid #cbd5e1;
+          background: #ffffff;
+          padding: 0 12px;
+          font-size: 0.84rem;
+          font-weight: 600;
+          color: #0f172a;
+          outline: none;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+        .lr-custom-select:focus {
+          border-color: #7c3aed;
+          box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12);
+        }
+        .lr-custom-textarea {
+          width: 100%;
+          min-height: 80px;
+          border-radius: 10px;
+          border: 1.5px solid #cbd5e1;
+          background: #ffffff;
+          padding: 10px 14px;
+          font-size: 0.88rem;
+          font-weight: 500;
+          color: #0f172a;
+          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+          transition: all 0.2s ease;
+          outline: none;
+          font-family: inherit;
+        }
+        .lr-custom-textarea:hover {
+          border-color: #94a3b8;
+        }
+        .lr-custom-textarea:focus {
+          border-color: #7c3aed;
+          box-shadow: 0 0 0 3.5px rgba(124, 58, 237, 0.12);
+          background: #ffffff;
+        }
+        .lr-input-suffix-tag {
+          position: absolute;
+          right: 8px;
+          top: 50%;
+          transform: translateY(-50%);
+          padding: 4px 10px;
+          border-radius: 6px;
+          font-size: 0.72rem;
+          font-weight: 800;
+          letter-spacing: 0.5px;
+          text-transform: uppercase;
+          background: #f1f5f9;
+          color: #475569;
+          pointer-events: none;
+          border: 1px solid #e2e8f0;
+        }
+
         .lr-cards-row {
           display: flex;
           gap: 0.85rem;
@@ -1065,25 +1177,27 @@ export default function LiveRewards({ onToast }) {
           display: flex;
           align-items: flex-start;
           gap: 0.75rem;
-          padding: 0.85rem 1rem;
+          padding: 0.95rem 1rem;
           border-radius: 12px;
-          border: 1.5px solid var(--border-color);
-          background: var(--bg-primary);
+          border: 1.5px solid #cbd5e1;
+          background: #ffffff;
           cursor: pointer;
           transition: all 0.2s ease;
+          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
         }
         .lr-choice-card:hover {
-          border-color: #cbd5e1;
-          background: #ffffff;
+          border-color: #94a3b8;
+          transform: translateY(-1px);
+          box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
         }
         .lr-choice-card.active {
           border-color: #7c3aed;
-          background: rgba(124, 58, 237, 0.04);
-          box-shadow: 0 2px 10px rgba(124, 58, 237, 0.08);
+          background: rgba(124, 58, 237, 0.03);
+          box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.15), 0 4px 12px rgba(124, 58, 237, 0.08);
         }
         .lr-choice-icon {
-          width: 30px;
-          height: 30px;
+          width: 32px;
+          height: 32px;
           border-radius: 8px;
           display: flex;
           align-items: center;
@@ -1092,46 +1206,40 @@ export default function LiveRewards({ onToast }) {
           transition: all 0.2s ease;
         }
         .lr-sub-box {
-          background: var(--bg-primary);
-          border: 1px dashed var(--border-color);
+          background: #f8fafc;
+          border: 1.5px dashed #cbd5e1;
           border-radius: 12px;
           padding: 0.85rem 1rem;
-        }
-        .lr-input-unit {
-          position: absolute;
-          right: 14px;
-          top: 50%;
-          transform: translateY(-50%);
-          font-size: 0.78rem;
-          color: var(--text-dim);
-          pointer-events: none;
         }
         .lr-chips-row {
           display: flex;
           flex-wrap: wrap;
           gap: 0.4rem;
-          margin-top: 0.45rem;
+          margin-top: 0.35rem;
         }
         .lr-chip {
-          padding: 3px 10px;
-          border-radius: 6px;
+          padding: 4px 12px;
+          border-radius: 8px;
           font-size: 0.75rem;
-          font-weight: 600;
-          background: var(--bg-primary);
-          border: 1px solid var(--border-color);
-          color: var(--text-muted);
+          font-weight: 700;
+          background: #ffffff;
+          border: 1.5px solid #e2e8f0;
+          color: #475569;
           cursor: pointer;
           transition: all 0.15s ease;
+          box-shadow: 0 1px 2px rgba(0,0,0,0.02);
         }
         .lr-chip:hover {
-          background: #ffffff;
-          border-color: #94a3b8;
-          color: var(--text-main);
+          background: #f8fafc;
+          border-color: #7c3aed;
+          color: #7c3aed;
+          transform: translateY(-1px);
         }
         .lr-chip.active {
           background: #7c3aed;
           border-color: #7c3aed;
           color: #ffffff;
+          box-shadow: 0 2px 8px rgba(124, 58, 237, 0.25);
         }
         .lr-mock-card {
           background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%);
