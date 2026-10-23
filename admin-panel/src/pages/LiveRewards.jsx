@@ -380,10 +380,10 @@ export default function LiveRewards({ onToast }) {
                   </div>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--text-main)' }}>
-                      All Broadcasters
+                      All Broadcasters (Everyone)
                     </div>
                     <div style={{ fontSize: '0.76rem', color: 'var(--text-dim)', marginTop: '3px', lineHeight: 1.35 }}>
-                      Any registered user who starts a live stream broadcast.
+                      Official, Host, User, Moderator, Agency & Reseller — everyone who broadcasts live earns rewards.
                     </div>
                   </div>
                 </div>
