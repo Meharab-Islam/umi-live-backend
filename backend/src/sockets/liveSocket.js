@@ -1538,6 +1538,47 @@ export function setupLiveSocket(io) {
       }
     });
 
+    // 1-ON-1 P2P AUDIO & VIDEO CALL REAL-TIME SIGNALING
+    socket.on('call:join_call', ({ callId }) => {
+      if (callId) {
+        socket.join(`call_${callId}`);
+      }
+    });
+
+    socket.on('call:leave_call', ({ callId }) => {
+      if (callId) {
+        socket.leave(`call_${callId}`);
+      }
+    });
+
+    socket.on('call:signal', ({ targetUserId, to, signal, callId, data }) => {
+      const recipientId = targetUserId || to;
+      const senderId = socket.userId || socket.chatUserId || currentUser?.id;
+      if (recipientId) {
+        io.to(`user_${recipientId}`).emit('call:signal', {
+          senderId,
+          from: senderId,
+          callId,
+          signal: signal || data,
+          timestamp: new Date().toISOString(),
+        });
+      }
+    });
+
+    socket.on('call:ice_candidate', ({ targetUserId, to, candidate, callId }) => {
+      const recipientId = targetUserId || to;
+      const senderId = socket.userId || socket.chatUserId || currentUser?.id;
+      if (recipientId) {
+        io.to(`user_${recipientId}`).emit('call:ice_candidate', {
+          senderId,
+          from: senderId,
+          callId,
+          candidate,
+          timestamp: new Date().toISOString(),
+        });
+      }
+    });
+
     // Disconnecting - captures rooms before socket leaves
     socket.on('disconnecting', () => {
       try {

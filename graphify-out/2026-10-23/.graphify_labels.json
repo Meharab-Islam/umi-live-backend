@@ -65,8 +65,8 @@
   "63": "db.js",
   "64": "livekit.js",
   "65": "routes/liveRoutes.js",
-  "66": "test_socket_realtime_emission.mjs",
+  "66": "LiveRewards.jsx",
   "67": "configController.js",
   "68": "update_flutter_chat.py",
-  "69": "Posts.jsx"
+  "69": "test_video_live_seat_guard.mjs"
 }

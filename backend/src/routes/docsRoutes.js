@@ -10909,6 +10909,316 @@ export const API_SPEC = {
         "curl": "curl -X GET \"https://yourdomain.com/api/mobile/themes/my\" \\\n  -H \"Authorization: Bearer <TOKEN>\"",
         "flutter": "import 'package:http/http.dart' as http;\nimport 'dart:convert';\n\nFuture<Map<String, dynamic>> fetchMyThemes(String token) async {\n  final res = await http.get(\n    Uri.parse('https://yourdomain.com/api/mobile/themes/my'),\n    headers: {'Authorization': 'Bearer $token'},\n  );\n  return jsonDecode(res.body);\n}"
       }
+    },
+    {
+      "id": "call-get-rates",
+      "category": "direct-calls",
+      "method": "GET",
+      "path": "/api/mobile/call/rates",
+      "summary": "[🎙️📹 1-to-1 Calls] Get Audio & Video Call Rates (Coins per Minute)",
+      "description": "Fetches active administrative per-minute call rates for 1-to-1 Audio calls, Video calls, and Video Live interactions. Also returns caller balance and eligibility flags.",
+      "requiresAuth": false,
+      "requestHeaders": [
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>",
+          "required": false
+        }
+      ],
+      "parameters": [],
+      "requestBody": null,
+      "responses": [
+        {
+          "status": 200,
+          "description": "Call rates and caller eligibility retrieved successfully.",
+          "example": {
+            "success": true,
+            "rates": {
+              "audio_rate_per_minute": 20,
+              "video_rate_per_minute": 50,
+              "video_live_rate_per_minute": 30,
+              "min_balance_required": 20,
+              "receiver_share_percent": 70,
+              "is_enabled": true
+            },
+            "user_coins": 1500,
+            "can_make_audio_call": true,
+            "can_make_video_call": true
+          }
+        }
+      ],
+      "codeSnippets": {
+        "curl": "curl -X GET \"https://yourdomain.com/api/mobile/call/rates\" \\\n  -H \"Authorization: Bearer <TOKEN>\"",
+        "flutter": "final res = await http.get(Uri.parse('$baseUrl/api/mobile/call/rates'), headers: {'Authorization': 'Bearer $token'});"
+      }
+    },
+    {
+      "id": "call-initiate",
+      "category": "direct-calls",
+      "method": "POST",
+      "path": "/api/mobile/call/initiate",
+      "summary": "[🎙️📹 1-to-1 Calls] Initiate Audio or Video Call in Direct Message",
+      "description": "Places an outgoing 1-on-1 call to another user. Validates caller balance, checks receiver availability, creates call session, generates LiveKit WebRTC room token for caller, emits `call:incoming` via Socket.IO, and sends FCM push notification.",
+      "requiresAuth": true,
+      "requestHeaders": [
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>",
+          "required": true
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json",
+          "required": true
+        }
+      ],
+      "parameters": [],
+      "requestBody": {
+        "receiver_id": 5,
+        "call_type": "video"
+      },
+      "responses": [
+        {
+          "status": 201,
+          "description": "Call initiated and receiver is ringing.",
+          "example": {
+            "success": true,
+            "message": "Call initiated successfully. Ringing receiver...",
+            "call_id": "call_1719123456_a1b2c3d4",
+            "call_type": "video",
+            "ratePerMinute": 50,
+            "token": "eyJhbGciOi...",
+            "livekitUrl": "wss://snlive-y3r75itj.livekit.cloud",
+            "livekitRoomId": "p2p_call_1719123456_a1b2c3d4",
+            "receiver": {
+              "id": 5,
+              "name": "Tanvir Ahmed",
+              "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150"
+            }
+          }
+        },
+        {
+          "status": 402,
+          "description": "Insufficient coins to place call.",
+          "example": {
+            "success": false,
+            "insufficient_balance": true,
+            "message": "Insufficient coins. You need at least 50 coins for a 1-minute video call.",
+            "required_coins": 50,
+            "current_coins": 12
+          }
+        },
+        {
+          "status": 409,
+          "description": "Receiver is busy on another call.",
+          "example": {
+            "success": false,
+            "is_busy": true,
+            "message": "User is currently busy on another call."
+          }
+        }
+      ],
+      "codeSnippets": {
+        "curl": "curl -X POST \"https://yourdomain.com/api/mobile/call/initiate\" \\\n  -H \"Authorization: Bearer <TOKEN>\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"receiver_id\": 5, \"call_type\": \"video\"}'",
+        "flutter": "final res = await http.post(Uri.parse('$baseUrl/api/mobile/call/initiate'), headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'}, body: jsonEncode({'receiver_id': 5, 'call_type': 'video'}));"
+      }
+    },
+    {
+      "id": "call-accept",
+      "category": "direct-calls",
+      "method": "POST",
+      "path": "/api/mobile/call/accept",
+      "summary": "[🎙️📹 1-to-1 Calls] Accept Incoming Call",
+      "description": "Receiver answers the incoming call. Deducts the 1st minute coins from caller, awards diamonds to receiver, generates LiveKit room token for receiver, and emits `call:accepted` to caller.",
+      "requiresAuth": true,
+      "requestHeaders": [
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>",
+          "required": true
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json",
+          "required": true
+        }
+      ],
+      "parameters": [],
+      "requestBody": {
+        "call_id": "call_1719123456_a1b2c3d4"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "description": "Call accepted and token generated.",
+          "example": {
+            "success": true,
+            "message": "Call accepted successfully.",
+            "call_id": "call_1719123456_a1b2c3d4",
+            "call_type": "video",
+            "token": "eyJhbGciOi...",
+            "livekitUrl": "wss://snlive-y3r75itj.livekit.cloud",
+            "livekitRoomId": "p2p_call_1719123456_a1b2c3d4",
+            "startedAt": "2026-10-23T15:40:00.000Z"
+          }
+        }
+      ],
+      "codeSnippets": {
+        "curl": "curl -X POST \"https://yourdomain.com/api/mobile/call/accept\" \\\n  -H \"Authorization: Bearer <TOKEN>\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"call_id\": \"call_1719123456_a1b2c3d4\"}'",
+        "flutter": "final res = await http.post(Uri.parse('$baseUrl/api/mobile/call/accept'), headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'}, body: jsonEncode({'call_id': callId}));"
+      }
+    },
+    {
+      "id": "call-heartbeat",
+      "category": "direct-calls",
+      "method": "POST",
+      "path": "/api/mobile/call/heartbeat",
+      "summary": "[🎙️📹 1-to-1 Calls] Heartbeat & Per-Minute Coin Billing",
+      "description": "Triggered every 60 seconds of ongoing active call. Deducts the next minute's coins from caller and awards diamonds to receiver. If caller balance is insufficient, automatically terminates the call and emits `call:ended` to both users.",
+      "requiresAuth": true,
+      "requestHeaders": [
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>",
+          "required": true
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json",
+          "required": true
+        }
+      ],
+      "parameters": [],
+      "requestBody": {
+        "call_id": "call_1719123456_a1b2c3d4"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "description": "Minute billed successfully.",
+          "example": {
+            "success": true,
+            "message": "Minute billed successfully.",
+            "call_id": "call_1719123456_a1b2c3d4",
+            "billed_minutes": 2,
+            "total_coins_spent": 100,
+            "caller_remaining_coins": 1400
+          }
+        }
+      ],
+      "codeSnippets": {
+        "curl": "curl -X POST \"https://yourdomain.com/api/mobile/call/heartbeat\" \\\n  -H \"Authorization: Bearer <TOKEN>\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"call_id\": \"call_1719123456_a1b2c3d4\"}'",
+        "flutter": "final res = await http.post(Uri.parse('$baseUrl/api/mobile/call/heartbeat'), headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'}, body: jsonEncode({'call_id': callId}));"
+      }
+    },
+    {
+      "id": "call-end",
+      "category": "direct-calls",
+      "method": "POST",
+      "path": "/api/mobile/call/end",
+      "summary": "[🎙️📹 1-to-1 Calls] End Call (Hang Up)",
+      "description": "Hangs up the ongoing or ringing call. Records total duration, emits `call:ended` to the peer with summary data.",
+      "requiresAuth": true,
+      "requestHeaders": [
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>",
+          "required": true
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json",
+          "required": true
+        }
+      ],
+      "parameters": [],
+      "requestBody": {
+        "call_id": "call_1719123456_a1b2c3d4",
+        "reason": "user_hung_up"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "description": "Call ended successfully.",
+          "example": {
+            "success": true,
+            "message": "Call ended successfully.",
+            "call_id": "call_1719123456_a1b2c3d4",
+            "duration_seconds": 184,
+            "total_coins_spent": 150,
+            "receiver_earned_diamonds": 105
+          }
+        }
+      ],
+      "codeSnippets": {
+        "curl": "curl -X POST \"https://yourdomain.com/api/mobile/call/end\" \\\n  -H \"Authorization: Bearer <TOKEN>\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"call_id\": \"call_1719123456_a1b2c3d4\"}'",
+        "flutter": "final res = await http.post(Uri.parse('$baseUrl/api/mobile/call/end'), headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'}, body: jsonEncode({'call_id': callId}));"
+      }
+    },
+    {
+      "id": "call-history",
+      "category": "direct-calls",
+      "method": "GET",
+      "path": "/api/mobile/call/history",
+      "summary": "[🎙️📹 1-to-1 Calls] Get User Call History",
+      "description": "Fetches paginated list of incoming and outgoing calls with durations, coin costs, peer profile info, and status.",
+      "requiresAuth": true,
+      "requestHeaders": [
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>",
+          "required": true
+        }
+      ],
+      "parameters": [
+        {
+          "name": "page",
+          "type": "integer",
+          "in": "query",
+          "required": false
+        },
+        {
+          "name": "limit",
+          "type": "integer",
+          "in": "query",
+          "required": false
+        }
+      ],
+      "requestBody": null,
+      "responses": [
+        {
+          "status": 200,
+          "description": "Call history retrieved successfully.",
+          "example": {
+            "success": true,
+            "page": 1,
+            "limit": 20,
+            "calls": [
+              {
+                "id": 1,
+                "call_id": "call_1719123456_a1b2c3d4",
+                "is_incoming": false,
+                "call_type": "video",
+                "status": "ended",
+                "duration_seconds": 184,
+                "duration_formatted": "03:04",
+                "total_coins_spent": 150,
+                "diamonds_earned": 0,
+                "peer": {
+                  "id": 5,
+                  "name": "Tanvir Ahmed",
+                  "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150"
+                },
+                "created_at": "2026-10-23T15:40:00.000Z"
+              }
+            ]
+          }
+        }
+      ],
+      "codeSnippets": {
+        "curl": "curl -X GET \"https://yourdomain.com/api/mobile/call/history\" \\\n  -H \"Authorization: Bearer <TOKEN>\"",
+        "flutter": "final res = await http.get(Uri.parse('$baseUrl/api/mobile/call/history'), headers: {'Authorization': 'Bearer $token'});"
+      }
     }
   ]
 };

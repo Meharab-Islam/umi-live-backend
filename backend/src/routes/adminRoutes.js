@@ -71,6 +71,7 @@ import {
   updateLiveRewardSettingsAdmin,
   getLiveRewardHistoryAdmin,
   getLiveRewardStatsAdmin,
+  getAdminCallLogs,
 } from '../controllers/adminController.js';
 import {
   getPackageCategories,
@@ -315,5 +316,8 @@ router.get('/live-rewards/settings', getLiveRewardSettingsAdmin);
 router.put('/live-rewards/settings', updateLiveRewardSettingsAdmin);
 router.get('/live-rewards/history', getLiveRewardHistoryAdmin);
 router.get('/live-rewards/stats', getLiveRewardStatsAdmin);
+
+// 1-on-1 P2P Call Logs & History
+router.get('/call-logs', getAdminCallLogs);
 
 export default router;

@@ -1123,6 +1123,7 @@ export async function updateSetting(req, res) {
     await cache.delByPattern('mobile:user:profile*');
     await cache.del('host_ratios:all');
     await cache.del('wallet:withdrawal:config');
+    await cache.del('config:call_rates');
     await cache.delByPattern('wallet:*');
     await cache.delByPattern('withdrawal:*');
 
@@ -4521,5 +4522,73 @@ export async function getLiveRewardStatsAdmin(req, res) {
     return res.status(500).json({ success: false, message: 'Failed to fetch reward stats.', error: err.message });
   }
 }
+
+/**
+ * Admin: Get 1-on-1 P2P Call Logs & Sessions
+ * GET /api/admin/call-logs
+ */
+export async function getAdminCallLogs(req, res) {
+  try {
+    const page = Math.max(1, parseInt(req.query.page || '1', 10));
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit || '20', 10)));
+    const offset = (page - 1) * limit;
+    const { status, call_type, search } = req.query;
+
+    let whereClause = '1=1';
+    const params = [];
+
+    if (status && status !== 'all') {
+      whereClause += ' AND c.status = ?';
+      params.push(status);
+    }
+
+    if (call_type && call_type !== 'all') {
+      whereClause += ' AND c.call_type = ?';
+      params.push(call_type);
+    }
+
+    if (search) {
+      whereClause += ' AND (u1.full_name LIKE ? OR u2.full_name LIKE ? OR c.call_id LIKE ?)';
+      params.push(`%${search}%`, `%${search}%`, `%${search}%`);
+    }
+
+    const countRows = await query(
+      `SELECT COUNT(*) as total FROM p2p_calls c
+       LEFT JOIN users u1 ON c.caller_id = u1.id
+       LEFT JOIN users u2 ON c.receiver_id = u2.id
+       WHERE ${whereClause}`,
+      params
+    );
+    const total = countRows[0]?.total || 0;
+
+    const rows = await query(
+      `SELECT c.id, c.call_id, c.caller_id, c.receiver_id, c.call_type, c.status,
+              c.rate_per_minute, c.duration_seconds, c.billed_minutes, c.total_coins_spent,
+              c.receiver_earned_diamonds, c.end_reason, c.started_at, c.ended_at, c.created_at,
+              u1.full_name as caller_name, u1.avatar_url as caller_avatar,
+              u2.full_name as receiver_name, u2.avatar_url as receiver_avatar
+       FROM p2p_calls c
+       LEFT JOIN users u1 ON c.caller_id = u1.id
+       LEFT JOIN users u2 ON c.receiver_id = u2.id
+       WHERE ${whereClause}
+       ORDER BY c.id DESC
+       LIMIT ? OFFSET ?`,
+      [...params, limit, offset]
+    );
+
+    return res.json({
+      success: true,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+      calls: rows,
+    });
+  } catch (err) {
+    console.error('getAdminCallLogs error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to fetch call logs.' });
+  }
+}
+
 
 

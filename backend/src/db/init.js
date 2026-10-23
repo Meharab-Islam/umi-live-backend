@@ -403,6 +403,33 @@ export async function initializeDatabase() {
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     `);
 
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS p2p_calls (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        call_id VARCHAR(64) NOT NULL UNIQUE,
+        caller_id INT NOT NULL,
+        receiver_id INT NOT NULL,
+        call_type ENUM('audio', 'video') NOT NULL DEFAULT 'audio',
+        status ENUM('initiating', 'ringing', 'accepted', 'rejected', 'busy', 'missed', 'ended', 'failed') NOT NULL DEFAULT 'initiating',
+        rate_per_minute INT NOT NULL DEFAULT 20,
+        receiver_share_percent INT NOT NULL DEFAULT 70,
+        duration_seconds INT NOT NULL DEFAULT 0,
+        billed_minutes INT NOT NULL DEFAULT 0,
+        total_coins_spent INT NOT NULL DEFAULT 0,
+        receiver_earned_diamonds INT NOT NULL DEFAULT 0,
+        end_reason VARCHAR(100) NULL,
+        started_at TIMESTAMP NULL DEFAULT NULL,
+        ended_at TIMESTAMP NULL DEFAULT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        INDEX idx_caller (caller_id),
+        INDEX idx_receiver (receiver_id),
+        INDEX idx_status (status),
+        INDEX idx_created (created_at),
+        FOREIGN KEY (caller_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (receiver_id) REFERENCES users(id) ON DELETE CASCADE
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    `);
+
     // Ensure is_equipped column exists for legacy installations
     const tablesToEquip = ['user_entry_effects', 'user_thumbnails', 'user_package_subscriptions'];
     for (const tbl of tablesToEquip) {
@@ -941,7 +968,13 @@ export async function initializeDatabase() {
         ('custom_thumbnail_pricing_tiers', '[{\"days\": 7, \"coins\": 200}, {\"days\": 15, \"coins\": 350}, {\"days\": 30, \"coins\": 500}, {\"days\": 90, \"coins\": 1200}]', 'Dynamic pricing tiers (days vs coins) for user-uploaded custom room background thumbnails'),
         ('livekit_url', 'wss://snlive-y3r75itj.livekit.cloud', 'LiveKit Cloud or Self-hosted WebSocket URL for WebRTC room media'),
         ('livekit_api_key', 'APInTHjZ4pwntq4', 'LiveKit Project API Key for generating access tokens'),
-        ('livekit_api_secret', 'euPgL1zVA1nD0GeorSxn9amK7PayQg0nnoliE4e9xWlB', 'LiveKit Project API Secret for token signing')
+        ('livekit_api_secret', 'euPgL1zVA1nD0GeorSxn9amK7PayQg0nnoliE4e9xWlB', 'LiveKit Project API Secret for token signing'),
+        ('call_audio_rate_per_minute', '20', 'Default coin cost per minute for 1-on-1 audio call in direct messages'),
+        ('call_video_rate_per_minute', '50', 'Default coin cost per minute for 1-on-1 video call in direct messages'),
+        ('call_video_live_rate_per_minute', '30', 'Coin cost per minute for Video Live seat interaction or private call'),
+        ('call_min_balance_to_start', '20', 'Minimum coin balance required for a caller to initiate a 1-on-1 call'),
+        ('call_receiver_earnings_percent', '70', 'Percentage of call coins awarded to call receiver as diamonds'),
+        ('call_is_enabled', 'true', 'Master switch to enable or disable 1-on-1 direct audio and video calls')
         ON DUPLICATE KEY UPDATE key_value = VALUES(key_value);
       `);
 

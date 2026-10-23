@@ -1085,18 +1085,6 @@
       "source_location": "L1"
     },
     {
-      "id": "admin_panel_src_api_client_getcurrentuser",
-      "label": "getCurrentUser()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "client.js",
-      "file_type": "code",
-      "norm_label": "getcurrentuser()",
-      "source_file": "admin-panel/src/api/client.js",
-      "source_location": "L41"
-    },
-    {
       "id": "admin_panel_src_api_client_patch",
       "label": "patch()",
       "_callable": true,
@@ -1145,18 +1133,6 @@
       "source_location": "L61"
     },
     {
-      "id": "admin_panel_src_api_client_uploadfile",
-      "label": "uploadFile()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "client.js",
-      "file_type": "code",
-      "norm_label": "uploadfile()",
-      "source_file": "admin-panel/src/api/client.js",
-      "source_location": "L170"
-    },
-    {
       "id": "admin_panel_src_api_client_wrapresponse",
       "label": "wrapResponse()",
       "_callable": true,
@@ -1167,18 +1143,6 @@
       "norm_label": "wrapresponse()",
       "source_file": "admin-panel/src/api/client.js",
       "source_location": "L54"
-    },
-    {
-      "id": "admin_panel_src_pages_hostmanagement_hostmanagement",
-      "label": "HostManagement()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "client.js",
-      "file_type": "code",
-      "norm_label": "hostmanagement()",
-      "source_file": "admin-panel/src/pages/HostManagement.jsx",
-      "source_location": "L45"
     },
     {
       "id": "admin_panel_src_pages_realtimechattester_realtimechattester",
@@ -2174,7 +2138,7 @@
       "file_type": "code",
       "norm_label": "startserver()",
       "source_file": "backend/src/server.js",
-      "source_location": "L187"
+      "source_location": "L277"
     },
     {
       "id": "backend_src_server_waitfordatabase",
@@ -2186,7 +2150,7 @@
       "file_type": "code",
       "norm_label": "waitfordatabase()",
       "source_file": "backend/src/server.js",
-      "source_location": "L172"
+      "source_location": "L262"
     },
     {
       "id": "backend_src_config_livekit_generatelivekittoken",
@@ -3665,6 +3629,18 @@
       "source_location": "L194"
     },
     {
+      "id": "admin_panel_src_api_client_getcurrentuser",
+      "label": "getCurrentUser()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 38,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": "getcurrentuser()",
+      "source_file": "admin-panel/src/api/client.js",
+      "source_location": "L41"
+    },
+    {
       "id": "admin_panel_src_api_client_setcurrentuser",
       "label": "setCurrentUser()",
       "_callable": true,
@@ -3761,6 +3737,42 @@
       "source_location": "L3"
     },
     {
+      "id": "admin_panel_src_context_economycontext_useeconomy",
+      "label": "useEconomy()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 38,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": "useeconomy()",
+      "source_file": "admin-panel/src/context/EconomyContext.jsx",
+      "source_location": "L40"
+    },
+    {
+      "id": "admin_panel_src_pages_agencies_agencies",
+      "label": "Agencies()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 38,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": "agencies()",
+      "source_file": "admin-panel/src/pages/Agencies.jsx",
+      "source_location": "L35"
+    },
+    {
+      "id": "admin_panel_src_pages_coinrecharge_coinrecharge",
+      "label": "CoinRecharge()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 38,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": "coinrecharge()",
+      "source_file": "admin-panel/src/pages/CoinRecharge.jsx",
+      "source_location": "L41"
+    },
+    {
       "id": "admin_panel_src_pages_dashboard_dashboard",
       "label": "Dashboard()",
       "_callable": true,
@@ -3773,16 +3785,28 @@
       "source_location": "L23"
     },
     {
-      "id": "admin_panel_src_pages_liverewards_liverewards",
-      "label": "LiveRewards()",
+      "id": "admin_panel_src_pages_hostmanagement_hostmanagement",
+      "label": "HostManagement()",
       "_callable": true,
       "_origin": "ast",
       "community": 38,
       "community_name": "App.jsx",
       "file_type": "code",
-      "norm_label": "liverewards()",
-      "source_file": "admin-panel/src/pages/LiveRewards.jsx",
-      "source_location": "L26"
+      "norm_label": "hostmanagement()",
+      "source_file": "admin-panel/src/pages/HostManagement.jsx",
+      "source_location": "L45"
+    },
+    {
+      "id": "admin_panel_src_pages_livestreams_livestreams",
+      "label": "LiveStreams()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 38,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": "livestreams()",
+      "source_file": "admin-panel/src/pages/LiveStreams.jsx",
+      "source_location": "L7"
     },
     {
       "id": "admin_panel_src_pages_login_login",
@@ -3809,16 +3833,28 @@
       "source_location": "L34"
     },
     {
-      "id": "admin_panel_src_pages_specialitems_specialitems",
-      "label": "SpecialItems()",
+      "id": "admin_panel_src_pages_users_users",
+      "label": "Users()",
       "_callable": true,
       "_origin": "ast",
       "community": 38,
       "community_name": "App.jsx",
       "file_type": "code",
-      "norm_label": "specialitems()",
-      "source_file": "admin-panel/src/pages/SpecialItems.jsx",
-      "source_location": "L10"
+      "norm_label": "users()",
+      "source_file": "admin-panel/src/pages/Users.jsx",
+      "source_location": "L32"
+    },
+    {
+      "id": "admin_panel_src_pages_withdrawals_withdrawals",
+      "label": "Withdrawals()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 38,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": "withdrawals()",
+      "source_file": "admin-panel/src/pages/Withdrawals.jsx",
+      "source_location": "L29"
     },
     {
       "id": "scratch_test_device_and_google_auth_runtests",
@@ -4385,54 +4421,6 @@
       "source_location": "L57"
     },
     {
-      "id": "admin_panel_src_context_economycontext_useeconomy",
-      "label": "useEconomy()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 47,
-      "community_name": "Loader.jsx",
-      "file_type": "code",
-      "norm_label": "useeconomy()",
-      "source_file": "admin-panel/src/context/EconomyContext.jsx",
-      "source_location": "L40"
-    },
-    {
-      "id": "admin_panel_src_pages_accountmerge_accountmerge",
-      "label": "AccountMerge()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 47,
-      "community_name": "Loader.jsx",
-      "file_type": "code",
-      "norm_label": "accountmerge()",
-      "source_file": "admin-panel/src/pages/AccountMerge.jsx",
-      "source_location": "L26"
-    },
-    {
-      "id": "admin_panel_src_pages_agencies_agencies",
-      "label": "Agencies()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 47,
-      "community_name": "Loader.jsx",
-      "file_type": "code",
-      "norm_label": "agencies()",
-      "source_file": "admin-panel/src/pages/Agencies.jsx",
-      "source_location": "L35"
-    },
-    {
-      "id": "admin_panel_src_pages_coinrecharge_coinrecharge",
-      "label": "CoinRecharge()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 47,
-      "community_name": "Loader.jsx",
-      "file_type": "code",
-      "norm_label": "coinrecharge()",
-      "source_file": "admin-panel/src/pages/CoinRecharge.jsx",
-      "source_location": "L41"
-    },
-    {
       "id": "admin_panel_src_pages_moderators_getdefaultpermissions",
       "label": "getDefaultPermissions()",
       "_callable": true,
@@ -4457,28 +4445,28 @@
       "source_location": "L142"
     },
     {
-      "id": "admin_panel_src_pages_users_users",
-      "label": "Users()",
+      "id": "admin_panel_src_pages_posts_posts",
+      "label": "Posts()",
       "_callable": true,
       "_origin": "ast",
       "community": 47,
       "community_name": "Loader.jsx",
       "file_type": "code",
-      "norm_label": "users()",
-      "source_file": "admin-panel/src/pages/Users.jsx",
-      "source_location": "L32"
+      "norm_label": "posts()",
+      "source_file": "admin-panel/src/pages/Posts.jsx",
+      "source_location": "L39"
     },
     {
-      "id": "admin_panel_src_pages_withdrawals_withdrawals",
-      "label": "Withdrawals()",
+      "id": "admin_panel_src_pages_posts_resolvemediaurl",
+      "label": "resolveMediaUrl()",
       "_callable": true,
       "_origin": "ast",
       "community": 47,
       "community_name": "Loader.jsx",
       "file_type": "code",
-      "norm_label": "withdrawals()",
-      "source_file": "admin-panel/src/pages/Withdrawals.jsx",
-      "source_location": "L29"
+      "norm_label": "resolvemediaurl()",
+      "source_file": "admin-panel/src/pages/Posts.jsx",
+      "source_location": "L30"
     },
     {
       "id": "backend_src_controllers_adminthemecontroller_createthemeitem",
@@ -5201,6 +5189,18 @@
       "source_location": "L135"
     },
     {
+      "id": "admin_panel_src_api_client_uploadfile",
+      "label": "uploadFile()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 57,
+      "community_name": "Thumbnails.jsx",
+      "file_type": "code",
+      "norm_label": "uploadfile()",
+      "source_file": "admin-panel/src/api/client.js",
+      "source_location": "L170"
+    },
+    {
       "id": "admin_panel_src_components_fileuploadinput_fileuploadinput",
       "label": "FileUploadInput()",
       "_callable": true,
@@ -5259,6 +5259,18 @@
       "norm_label": "rendermodals()",
       "source_file": "admin-panel/src/pages/PackageManagement.jsx",
       "source_location": "L1665"
+    },
+    {
+      "id": "admin_panel_src_pages_specialitems_specialitems",
+      "label": "SpecialItems()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 57,
+      "community_name": "Thumbnails.jsx",
+      "file_type": "code",
+      "norm_label": "specialitems()",
+      "source_file": "admin-panel/src/pages/SpecialItems.jsx",
+      "source_location": "L10"
     },
     {
       "id": "admin_panel_src_pages_thumbnails_thumbnails",
@@ -5381,16 +5393,16 @@
       "source_location": "L10"
     },
     {
-      "id": "admin_panel_src_pages_livestreams_livestreams",
-      "label": "LiveStreams()",
+      "id": "admin_panel_src_pages_accountmerge_accountmerge",
+      "label": "AccountMerge()",
       "_callable": true,
       "_origin": "ast",
       "community": 60,
       "community_name": "EconomyContext.jsx",
       "file_type": "code",
-      "norm_label": "livestreams()",
-      "source_file": "admin-panel/src/pages/LiveStreams.jsx",
-      "source_location": "L7"
+      "norm_label": "accountmerge()",
+      "source_file": "admin-panel/src/pages/AccountMerge.jsx",
+      "source_location": "L26"
     },
     {
       "id": "admin_panel_src_pages_settings_settings",
@@ -5585,7 +5597,19 @@
       "source_location": "L18"
     },
     {
-      "id": "scratch_test_video_live_seat_guard_maketoken",
+      "id": "scratch_test_socket_realtime_emission_main",
+      "label": "main()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 63,
+      "community_name": "db.js",
+      "file_type": "code",
+      "norm_label": "main()",
+      "source_file": "scratch/test_socket_realtime_emission.mjs",
+      "source_location": "L19"
+    },
+    {
+      "id": "scratch_test_socket_realtime_emission_maketoken",
       "label": "makeToken()",
       "_callable": true,
       "_origin": "ast",
@@ -5593,20 +5617,8 @@
       "community_name": "db.js",
       "file_type": "code",
       "norm_label": "maketoken()",
-      "source_file": "scratch/test_video_live_seat_guard.mjs",
-      "source_location": "L10"
-    },
-    {
-      "id": "scratch_test_video_live_seat_guard_runtest",
-      "label": "runTest()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 63,
-      "community_name": "db.js",
-      "file_type": "code",
-      "norm_label": "runtest()",
-      "source_file": "scratch/test_video_live_seat_guard.mjs",
-      "source_location": "L18"
+      "source_file": "scratch/test_socket_realtime_emission.mjs",
+      "source_location": "L11"
     },
     {
       "id": "backend_src_controllers_livecontroller_createroom",
@@ -5657,28 +5669,16 @@
       "source_location": "L67"
     },
     {
-      "id": "scratch_test_socket_realtime_emission_main",
-      "label": "main()",
+      "id": "admin_panel_src_pages_liverewards_liverewards",
+      "label": "LiveRewards()",
       "_callable": true,
       "_origin": "ast",
       "community": 66,
-      "community_name": "test_socket_realtime_emission.mjs",
+      "community_name": "LiveRewards.jsx",
       "file_type": "code",
-      "norm_label": "main()",
-      "source_file": "scratch/test_socket_realtime_emission.mjs",
-      "source_location": "L19"
-    },
-    {
-      "id": "scratch_test_socket_realtime_emission_maketoken",
-      "label": "makeToken()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 66,
-      "community_name": "test_socket_realtime_emission.mjs",
-      "file_type": "code",
-      "norm_label": "maketoken()",
-      "source_file": "scratch/test_socket_realtime_emission.mjs",
-      "source_location": "L11"
+      "norm_label": "liverewards()",
+      "source_file": "admin-panel/src/pages/LiveRewards.jsx",
+      "source_location": "L26"
     },
     {
       "id": "backend_src_config_livekit_getlivekitconfig",
@@ -5717,28 +5717,28 @@
       "source_location": "L174"
     },
     {
-      "id": "admin_panel_src_pages_posts_posts",
-      "label": "Posts()",
+      "id": "scratch_test_video_live_seat_guard_maketoken",
+      "label": "makeToken()",
       "_callable": true,
       "_origin": "ast",
       "community": 69,
-      "community_name": "Posts.jsx",
+      "community_name": "test_video_live_seat_guard.mjs",
       "file_type": "code",
-      "norm_label": "posts()",
-      "source_file": "admin-panel/src/pages/Posts.jsx",
-      "source_location": "L39"
+      "norm_label": "maketoken()",
+      "source_file": "scratch/test_video_live_seat_guard.mjs",
+      "source_location": "L10"
     },
     {
-      "id": "admin_panel_src_pages_posts_resolvemediaurl",
-      "label": "resolveMediaUrl()",
+      "id": "scratch_test_video_live_seat_guard_runtest",
+      "label": "runTest()",
       "_callable": true,
       "_origin": "ast",
       "community": 69,
-      "community_name": "Posts.jsx",
+      "community_name": "test_video_live_seat_guard.mjs",
       "file_type": "code",
-      "norm_label": "resolvemediaurl()",
-      "source_file": "admin-panel/src/pages/Posts.jsx",
-      "source_location": "L30"
+      "norm_label": "runtest()",
+      "source_file": "scratch/test_video_live_seat_guard.mjs",
+      "source_location": "L18"
     },
     {
       "id": "backend_src_controllers_packagecontroller",
@@ -5840,28 +5840,6 @@
       "source_location": "L1"
     },
     {
-      "id": "admin_panel_src_api_accountmergeapi",
-      "label": "accountMergeApi.js",
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "client.js",
-      "file_type": "code",
-      "norm_label": "accountmergeapi.js",
-      "source_file": "admin-panel/src/api/accountMergeApi.js",
-      "source_location": "L1"
-    },
-    {
-      "id": "admin_panel_src_api_accountmergeapi_accountmergeapi",
-      "label": "accountMergeApi",
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "client.js",
-      "file_type": "code",
-      "norm_label": "accountmergeapi",
-      "source_file": "admin-panel/src/api/accountMergeApi.js",
-      "source_location": "L3"
-    },
-    {
       "id": "admin_panel_src_api_agencyapi",
       "label": "agencyApi.js",
       "_origin": "ast",
@@ -5871,39 +5849,6 @@
       "norm_label": "agencyapi.js",
       "source_file": "admin-panel/src/api/agencyApi.js",
       "source_location": "L1"
-    },
-    {
-      "id": "admin_panel_src_api_agencyapi_agencyapi",
-      "label": "agencyApi",
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "client.js",
-      "file_type": "code",
-      "norm_label": "agencyapi",
-      "source_file": "admin-panel/src/api/agencyApi.js",
-      "source_location": "L3"
-    },
-    {
-      "id": "admin_panel_src_api_bannerapi",
-      "label": "bannerApi.js",
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "client.js",
-      "file_type": "code",
-      "norm_label": "bannerapi.js",
-      "source_file": "admin-panel/src/api/bannerApi.js",
-      "source_location": "L1"
-    },
-    {
-      "id": "admin_panel_src_api_bannerapi_bannerapi",
-      "label": "bannerApi",
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "client.js",
-      "file_type": "code",
-      "norm_label": "bannerapi",
-      "source_file": "admin-panel/src/api/bannerApi.js",
-      "source_location": "L3"
     },
     {
       "id": "admin_panel_src_api_client",
@@ -6027,6 +5972,28 @@
       "source_location": "L3"
     },
     {
+      "id": "admin_panel_src_api_postapi",
+      "label": "postApi.js",
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "client.js",
+      "file_type": "code",
+      "norm_label": "postapi.js",
+      "source_file": "admin-panel/src/api/postApi.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "admin_panel_src_api_postapi_postapi",
+      "label": "postApi",
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "client.js",
+      "file_type": "code",
+      "norm_label": "postapi",
+      "source_file": "admin-panel/src/api/postApi.js",
+      "source_location": "L3"
+    },
+    {
       "id": "admin_panel_src_api_reportapi",
       "label": "reportApi.js",
       "_origin": "ast",
@@ -6071,28 +6038,6 @@
       "source_location": "L3"
     },
     {
-      "id": "admin_panel_src_api_streamapi",
-      "label": "streamApi.js",
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "client.js",
-      "file_type": "code",
-      "norm_label": "streamapi.js",
-      "source_file": "admin-panel/src/api/streamApi.js",
-      "source_location": "L1"
-    },
-    {
-      "id": "admin_panel_src_api_streamapi_streamapi",
-      "label": "streamApi",
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "client.js",
-      "file_type": "code",
-      "norm_label": "streamapi",
-      "source_file": "admin-panel/src/api/streamApi.js",
-      "source_location": "L3"
-    },
-    {
       "id": "admin_panel_src_api_withdrawalapi",
       "label": "withdrawalApi.js",
       "_origin": "ast",
@@ -6101,28 +6046,6 @@
       "file_type": "code",
       "norm_label": "withdrawalapi.js",
       "source_file": "admin-panel/src/api/withdrawalApi.js",
-      "source_location": "L1"
-    },
-    {
-      "id": "admin_panel_src_api_withdrawalapi_withdrawalapi",
-      "label": "withdrawalApi",
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "client.js",
-      "file_type": "code",
-      "norm_label": "withdrawalapi",
-      "source_file": "admin-panel/src/api/withdrawalApi.js",
-      "source_location": "L3"
-    },
-    {
-      "id": "admin_panel_src_pages_hostmanagement",
-      "label": "HostManagement.jsx",
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "client.js",
-      "file_type": "code",
-      "norm_label": "hostmanagement.jsx",
-      "source_file": "admin-panel/src/pages/HostManagement.jsx",
       "source_location": "L1"
     },
     {
@@ -8324,25 +8247,25 @@
       "source_location": "L3"
     },
     {
-      "id": "admin_panel_src_api_liverewardapi",
-      "label": "liveRewardApi.js",
+      "id": "admin_panel_src_api_streamapi",
+      "label": "streamApi.js",
       "_origin": "ast",
       "community": 38,
       "community_name": "App.jsx",
       "file_type": "code",
-      "norm_label": "liverewardapi.js",
-      "source_file": "admin-panel/src/api/liveRewardApi.js",
+      "norm_label": "streamapi.js",
+      "source_file": "admin-panel/src/api/streamApi.js",
       "source_location": "L1"
     },
     {
-      "id": "admin_panel_src_api_liverewardapi_liverewardapi",
-      "label": "liveRewardApi",
+      "id": "admin_panel_src_api_streamapi_streamapi",
+      "label": "streamApi",
       "_origin": "ast",
       "community": 38,
       "community_name": "App.jsx",
       "file_type": "code",
-      "norm_label": "liverewardapi",
-      "source_file": "admin-panel/src/api/liveRewardApi.js",
+      "norm_label": "streamapi",
+      "source_file": "admin-panel/src/api/streamApi.js",
       "source_location": "L3"
     },
     {
@@ -8401,14 +8324,14 @@
       "source_location": "L1"
     },
     {
-      "id": "admin_panel_src_pages_liverewards",
-      "label": "LiveRewards.jsx",
+      "id": "admin_panel_src_pages_livestreams",
+      "label": "LiveStreams.jsx",
       "_origin": "ast",
       "community": 38,
       "community_name": "App.jsx",
       "file_type": "code",
-      "norm_label": "liverewards.jsx",
-      "source_file": "admin-panel/src/pages/LiveRewards.jsx",
+      "norm_label": "livestreams.jsx",
+      "source_file": "admin-panel/src/pages/LiveStreams.jsx",
       "source_location": "L1"
     },
     {
@@ -9237,6 +9160,39 @@
       "source_location": "L1"
     },
     {
+      "id": "admin_panel_src_api_adminapi",
+      "label": "adminApi.js",
+      "_origin": "ast",
+      "community": 47,
+      "community_name": "Loader.jsx",
+      "file_type": "code",
+      "norm_label": "adminapi.js",
+      "source_file": "admin-panel/src/api/adminApi.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "admin_panel_src_api_adminapi_adminapi",
+      "label": "adminApi",
+      "_origin": "ast",
+      "community": 47,
+      "community_name": "Loader.jsx",
+      "file_type": "code",
+      "norm_label": "adminapi",
+      "source_file": "admin-panel/src/api/adminApi.js",
+      "source_location": "L3"
+    },
+    {
+      "id": "admin_panel_src_api_agencyapi_agencyapi",
+      "label": "agencyApi",
+      "_origin": "ast",
+      "community": 47,
+      "community_name": "Loader.jsx",
+      "file_type": "code",
+      "norm_label": "agencyapi",
+      "source_file": "admin-panel/src/api/agencyApi.js",
+      "source_location": "L3"
+    },
+    {
       "id": "admin_panel_src_api_userapi",
       "label": "userApi.js",
       "_origin": "ast",
@@ -9256,6 +9212,17 @@
       "file_type": "code",
       "norm_label": "userapi",
       "source_file": "admin-panel/src/api/userApi.js",
+      "source_location": "L3"
+    },
+    {
+      "id": "admin_panel_src_api_withdrawalapi_withdrawalapi",
+      "label": "withdrawalApi",
+      "_origin": "ast",
+      "community": 47,
+      "community_name": "Loader.jsx",
+      "file_type": "code",
+      "norm_label": "withdrawalapi",
+      "source_file": "admin-panel/src/api/withdrawalApi.js",
       "source_location": "L3"
     },
     {
@@ -9314,17 +9281,6 @@
       "source_location": "L44"
     },
     {
-      "id": "admin_panel_src_pages_accountmerge",
-      "label": "AccountMerge.jsx",
-      "_origin": "ast",
-      "community": 47,
-      "community_name": "Loader.jsx",
-      "file_type": "code",
-      "norm_label": "accountmerge.jsx",
-      "source_file": "admin-panel/src/pages/AccountMerge.jsx",
-      "source_location": "L1"
-    },
-    {
       "id": "admin_panel_src_pages_agencies",
       "label": "Agencies.jsx",
       "_origin": "ast",
@@ -9344,6 +9300,17 @@
       "file_type": "code",
       "norm_label": "coinrecharge.jsx",
       "source_file": "admin-panel/src/pages/CoinRecharge.jsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "admin_panel_src_pages_hostmanagement",
+      "label": "HostManagement.jsx",
+      "_origin": "ast",
+      "community": 47,
+      "community_name": "Loader.jsx",
+      "file_type": "code",
+      "norm_label": "hostmanagement.jsx",
+      "source_file": "admin-panel/src/pages/HostManagement.jsx",
       "source_location": "L1"
     },
     {
@@ -9389,6 +9356,17 @@
       "norm_label": "package_color_presets",
       "source_file": "admin-panel/src/pages/PackageManagement.jsx",
       "source_location": "L37"
+    },
+    {
+      "id": "admin_panel_src_pages_posts",
+      "label": "Posts.jsx",
+      "_origin": "ast",
+      "community": 47,
+      "community_name": "Loader.jsx",
+      "file_type": "code",
+      "norm_label": "posts.jsx",
+      "source_file": "admin-panel/src/pages/Posts.jsx",
+      "source_location": "L1"
     },
     {
       "id": "admin_panel_src_pages_resellers",
@@ -9762,25 +9740,25 @@
       "source_location": "L1"
     },
     {
-      "id": "admin_panel_src_api_adminapi",
-      "label": "adminApi.js",
+      "id": "admin_panel_src_api_bannerapi",
+      "label": "bannerApi.js",
       "_origin": "ast",
       "community": 57,
       "community_name": "Thumbnails.jsx",
       "file_type": "code",
-      "norm_label": "adminapi.js",
-      "source_file": "admin-panel/src/api/adminApi.js",
+      "norm_label": "bannerapi.js",
+      "source_file": "admin-panel/src/api/bannerApi.js",
       "source_location": "L1"
     },
     {
-      "id": "admin_panel_src_api_adminapi_adminapi",
-      "label": "adminApi",
+      "id": "admin_panel_src_api_bannerapi_bannerapi",
+      "label": "bannerApi",
       "_origin": "ast",
       "community": 57,
       "community_name": "Thumbnails.jsx",
       "file_type": "code",
-      "norm_label": "adminapi",
-      "source_file": "admin-panel/src/api/adminApi.js",
+      "norm_label": "bannerapi",
+      "source_file": "admin-panel/src/api/bannerApi.js",
       "source_location": "L3"
     },
     {
@@ -10075,6 +10053,28 @@
       "source_location": "L1"
     },
     {
+      "id": "admin_panel_src_api_accountmergeapi",
+      "label": "accountMergeApi.js",
+      "_origin": "ast",
+      "community": 60,
+      "community_name": "EconomyContext.jsx",
+      "file_type": "code",
+      "norm_label": "accountmergeapi.js",
+      "source_file": "admin-panel/src/api/accountMergeApi.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "admin_panel_src_api_accountmergeapi_accountmergeapi",
+      "label": "accountMergeApi",
+      "_origin": "ast",
+      "community": 60,
+      "community_name": "EconomyContext.jsx",
+      "file_type": "code",
+      "norm_label": "accountmergeapi",
+      "source_file": "admin-panel/src/api/accountMergeApi.js",
+      "source_location": "L3"
+    },
+    {
       "id": "admin_panel_src_api_settingsapi",
       "label": "settingsApi.js",
       "_origin": "ast",
@@ -10130,14 +10130,14 @@
       "source_location": "L1"
     },
     {
-      "id": "admin_panel_src_pages_livestreams",
-      "label": "LiveStreams.jsx",
+      "id": "admin_panel_src_pages_accountmerge",
+      "label": "AccountMerge.jsx",
       "_origin": "ast",
       "community": 60,
       "community_name": "EconomyContext.jsx",
       "file_type": "code",
-      "norm_label": "livestreams.jsx",
-      "source_file": "admin-panel/src/pages/LiveStreams.jsx",
+      "norm_label": "accountmerge.jsx",
+      "source_file": "admin-panel/src/pages/AccountMerge.jsx",
       "source_location": "L1"
     },
     {
@@ -10273,14 +10273,14 @@
       "source_location": "L1"
     },
     {
-      "id": "scratch_test_video_live_seat_guard",
-      "label": "test_video_live_seat_guard.mjs",
+      "id": "scratch_test_socket_realtime_emission",
+      "label": "test_socket_realtime_emission.mjs",
       "_origin": "ast",
       "community": 63,
       "community_name": "db.js",
       "file_type": "code",
-      "norm_label": "test_video_live_seat_guard.mjs",
-      "source_file": "scratch/test_video_live_seat_guard.mjs",
+      "norm_label": "test_socket_realtime_emission.mjs",
+      "source_file": "scratch/test_socket_realtime_emission.mjs",
       "source_location": "L1"
     },
     {
@@ -10416,14 +10416,36 @@
       "source_location": "L5"
     },
     {
-      "id": "scratch_test_socket_realtime_emission",
-      "label": "test_socket_realtime_emission.mjs",
+      "id": "admin_panel_src_api_liverewardapi",
+      "label": "liveRewardApi.js",
       "_origin": "ast",
       "community": 66,
-      "community_name": "test_socket_realtime_emission.mjs",
+      "community_name": "LiveRewards.jsx",
       "file_type": "code",
-      "norm_label": "test_socket_realtime_emission.mjs",
-      "source_file": "scratch/test_socket_realtime_emission.mjs",
+      "norm_label": "liverewardapi.js",
+      "source_file": "admin-panel/src/api/liveRewardApi.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "admin_panel_src_api_liverewardapi_liverewardapi",
+      "label": "liveRewardApi",
+      "_origin": "ast",
+      "community": 66,
+      "community_name": "LiveRewards.jsx",
+      "file_type": "code",
+      "norm_label": "liverewardapi",
+      "source_file": "admin-panel/src/api/liveRewardApi.js",
+      "source_location": "L3"
+    },
+    {
+      "id": "admin_panel_src_pages_liverewards",
+      "label": "LiveRewards.jsx",
+      "_origin": "ast",
+      "community": 66,
+      "community_name": "LiveRewards.jsx",
+      "file_type": "code",
+      "norm_label": "liverewards.jsx",
+      "source_file": "admin-panel/src/pages/LiveRewards.jsx",
       "source_location": "L1"
     },
     {
@@ -10471,36 +10493,14 @@
       "source_location": "L1"
     },
     {
-      "id": "admin_panel_src_api_postapi",
-      "label": "postApi.js",
+      "id": "scratch_test_video_live_seat_guard",
+      "label": "test_video_live_seat_guard.mjs",
       "_origin": "ast",
       "community": 69,
-      "community_name": "Posts.jsx",
+      "community_name": "test_video_live_seat_guard.mjs",
       "file_type": "code",
-      "norm_label": "postapi.js",
-      "source_file": "admin-panel/src/api/postApi.js",
-      "source_location": "L1"
-    },
-    {
-      "id": "admin_panel_src_api_postapi_postapi",
-      "label": "postApi",
-      "_origin": "ast",
-      "community": 69,
-      "community_name": "Posts.jsx",
-      "file_type": "code",
-      "norm_label": "postapi",
-      "source_file": "admin-panel/src/api/postApi.js",
-      "source_location": "L3"
-    },
-    {
-      "id": "admin_panel_src_pages_posts",
-      "label": "Posts.jsx",
-      "_origin": "ast",
-      "community": 69,
-      "community_name": "Posts.jsx",
-      "file_type": "code",
-      "norm_label": "posts.jsx",
-      "source_file": "admin-panel/src/pages/Posts.jsx",
+      "norm_label": "test_video_live_seat_guard.mjs",
+      "source_file": "scratch/test_video_live_seat_guard.mjs",
       "source_location": "L1"
     },
     {
@@ -17058,7 +17058,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/server.js",
-      "source_location": "L188",
+      "source_location": "L278",
       "weight": 1.0
     },
     {
@@ -17070,7 +17070,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/server.js",
-      "source_location": "L175",
+      "source_location": "L265",
       "weight": 1.0
     },
     {
@@ -34283,7 +34283,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/server.js",
-      "source_location": "L172",
+      "source_location": "L262",
       "weight": 1.0
     },
     {
@@ -34294,7 +34294,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/server.js",
-      "source_location": "L187",
+      "source_location": "L277",
       "weight": 1.0
     },
     {
@@ -39895,7 +39895,7 @@
       "confidence_score": 0.85,
       "context": "argument",
       "source_file": "backend/src/server.js",
-      "source_location": "L155",
+      "source_location": "L245",
       "weight": 1.0
     },
     {
@@ -40212,5 +40212,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "27f499432ac77e1b25f9cefaa4efad9aa94dbf0a"
+  "built_at_commit": "a64a962298d18de47877c51532af1adc1c87f942"
 }

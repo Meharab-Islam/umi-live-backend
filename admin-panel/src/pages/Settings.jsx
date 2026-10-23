@@ -33,6 +33,10 @@ import {
   TrendingUp,
   Activity,
   Zap,
+  PhoneCall,
+  PhoneIncoming,
+  PhoneOutgoing,
+  Clock,
 } from 'lucide-react';
 import settingsApi from '../api/settingsApi';
 import Loader from '../components/Loader';
@@ -50,6 +54,56 @@ export default function Settings({ onToast }) {
   const [savingSystem, setSavingSystem] = useState(false);
   const [savingGracePeriod, setSavingGracePeriod] = useState(false);
   const [copiedEndpoint, setCopiedEndpoint] = useState(false);
+  const [savingCalls, setSavingCalls] = useState(false);
+  const [callLogs, setCallLogs] = useState([]);
+  const [loadingCallLogs, setLoadingCallLogs] = useState(false);
+  const [simCallType, setSimCallType] = useState('video');
+  const [simCallMinutes, setSimCallMinutes] = useState(5);
+
+  const handleSaveCalls = async () => {
+    try {
+      setSavingCalls(true);
+      await Promise.all([
+        settingsApi.updateSetting('call_audio_rate_per_minute', settings.call_audio_rate_per_minute || '20', 'Default coin cost per minute for 1-on-1 audio call in direct messages'),
+        settingsApi.updateSetting('call_video_rate_per_minute', settings.call_video_rate_per_minute || '50', 'Default coin cost per minute for 1-on-1 video call in direct messages'),
+        settingsApi.updateSetting('call_video_live_rate_per_minute', settings.call_video_live_rate_per_minute || '30', 'Coin cost per minute for Video Live seat interaction or private call'),
+        settingsApi.updateSetting('call_min_balance_to_start', settings.call_min_balance_to_start || '20', 'Minimum coin balance required for caller to initiate call'),
+        settingsApi.updateSetting('call_receiver_earnings_percent', settings.call_receiver_earnings_percent || '70', 'Percentage of call coins awarded to call receiver as diamonds'),
+        settingsApi.updateSetting('call_is_enabled', settings.call_is_enabled || 'true', 'Master switch to enable or disable 1-on-1 calls'),
+      ]);
+      onToast('1-to-1 Audio & Video Call rates & settings updated successfully!', 'success');
+    } catch (err) {
+      onToast(err.message, 'error');
+    } finally {
+      setSavingCalls(false);
+    }
+  };
+
+  const fetchCallLogs = async () => {
+    try {
+      setLoadingCallLogs(true);
+      const token = localStorage.getItem('token');
+      const res = await fetch('/api/admin/call-logs?limit=15', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = await res.json();
+      if (data.success && data.calls) {
+        setCallLogs(data.calls);
+      }
+    } catch (err) {
+      console.warn('fetchCallLogs warning:', err);
+    } finally {
+      setLoadingCallLogs(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'calls') {
+      fetchCallLogs();
+    }
+  }, [activeTab]);
 
   const handleSaveGracePeriod = async () => {
     try {
@@ -351,6 +405,15 @@ export default function Settings({ onToast }) {
       badgeColor: '#7c3aed',
       accent: '#7c3aed',
       description: 'Authorization passwords for coin recharges and administrative balance adjustments.',
+    },
+    {
+      id: 'calls',
+      name: '1-to-1 Calls & Rates',
+      icon: PhoneCall,
+      badge: settings.call_is_enabled === 'false' ? 'Disabled' : `${settings.call_video_rate_per_minute || '50'}c / ${settings.call_audio_rate_per_minute || '20'}c`,
+      badgeColor: settings.call_is_enabled === 'false' ? '#ef4444' : '#10b981',
+      accent: '#10b981',
+      description: 'P2P Audio & Video Call per-minute coin costs, receiver revenue share, and live call logs.',
     },
     {
       id: 'system',
@@ -1749,6 +1812,415 @@ export default function Settings({ onToast }) {
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* 1-to-1 P2P Video & Audio Calling & Direct Message Rates Tab */}
+      {activeTab === 'calls' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          {/* Main Pricing & Configuration Card */}
+          <div className="panel-card" style={{ border: '1px solid rgba(16, 185, 129, 0.35)' }}>
+            <div className="panel-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div className="panel-title">
+                <PhoneCall size={22} color="#10b981" />
+                <span>1-to-1 P2P Video & Audio Call Rates & Settings</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span className={`badge ${settings.call_is_enabled === 'false' ? 'badge-danger' : 'badge-success'}`} style={{ fontSize: '0.75rem', padding: '4px 10px' }}>
+                  {settings.call_is_enabled === 'false' ? 'Calling Disabled' : 'Calling Active'}
+                </span>
+              </div>
+            </div>
+
+            <p style={{ fontSize: '0.84rem', color: 'var(--text-dim)', marginBottom: '1.25rem', lineHeight: 1.5 }}>
+              Configure per-minute coin costs for 1-to-1 direct message Audio Calls, Video Calls, and Video Live interactions.
+              When a user calls another user in Direct Message, their coin balance is charged per minute and the receiver earns diamonds based on the revenue share percentage.
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              {/* Master Feature Enable Switch */}
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '1rem',
+                  borderRadius: '12px',
+                  background: 'rgba(16, 185, 129, 0.05)',
+                  border: '1px solid rgba(16, 185, 129, 0.25)',
+                }}
+              >
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: '0.94rem', color: '#059669', marginBottom: '2px' }}>
+                    1-to-1 Calling Service Master Switch
+                  </div>
+                  <div style={{ fontSize: '0.78rem', color: 'var(--text-dim)' }}>
+                    Allow users to initiate Audio & Video calls inside Direct Message chats
+                  </div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <button
+                    type="button"
+                    onClick={() => handleChange('call_is_enabled', settings.call_is_enabled === 'false' ? 'true' : 'false')}
+                    style={{
+                      padding: '0.45rem 1rem',
+                      borderRadius: '8px',
+                      fontSize: '0.82rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      border: 'none',
+                      background: settings.call_is_enabled === 'false' ? '#ef4444' : '#10b981',
+                      color: '#fff',
+                      transition: 'all 0.2s ease',
+                    }}
+                  >
+                    {settings.call_is_enabled === 'false' ? 'Turn On Calling' : 'Calling Enabled (Active)'}
+                  </button>
+                </div>
+              </div>
+
+              {/* Rate Inputs Grid */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem' }}>
+                {/* Audio Call Rate */}
+                <div style={{ background: 'var(--bg-surface-secondary, rgba(255,255,255,0.02))', padding: '1.1rem', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.4rem' }}>
+                    <Mic size={18} color="#3b82f6" />
+                    <label style={{ fontSize: '0.88rem', fontWeight: 700, color: 'var(--text-main)', margin: 0 }}>
+                      Audio Call Rate (প্রতি মিনিট অডিও কল কয়েন)
+                    </label>
+                  </div>
+                  <p style={{ fontSize: '0.76rem', color: 'var(--text-dim)', marginBottom: '0.65rem' }}>
+                    Coins deducted per minute from caller for 1-to-1 Audio calls in Direct Message
+                  </p>
+                  <div style={{ position: 'relative' }}>
+                    <input
+                      type="number"
+                      min="1"
+                      className="input-field"
+                      style={{ paddingRight: '55px', fontWeight: 700, fontSize: '1rem', color: '#3b82f6' }}
+                      value={settings.call_audio_rate_per_minute || '20'}
+                      onChange={(e) => handleChange('call_audio_rate_per_minute', e.target.value)}
+                    />
+                    <span style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: '0.8rem', color: 'var(--text-dim)', fontWeight: 600 }}>
+                      coins/min
+                    </span>
+                  </div>
+                </div>
+
+                {/* Video Call Rate */}
+                <div style={{ background: 'var(--bg-surface-secondary, rgba(255,255,255,0.02))', padding: '1.1rem', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.4rem' }}>
+                    <Video size={18} color="#10b981" />
+                    <label style={{ fontSize: '0.88rem', fontWeight: 700, color: 'var(--text-main)', margin: 0 }}>
+                      Video Call Rate (প্রতি মিনিট ভিডিও কল কয়েন)
+                    </label>
+                  </div>
+                  <p style={{ fontSize: '0.76rem', color: 'var(--text-dim)', marginBottom: '0.65rem' }}>
+                    Coins deducted per minute from caller for 1-to-1 Video calls in Direct Message
+                  </p>
+                  <div style={{ position: 'relative' }}>
+                    <input
+                      type="number"
+                      min="1"
+                      className="input-field"
+                      style={{ paddingRight: '55px', fontWeight: 700, fontSize: '1rem', color: '#10b981' }}
+                      value={settings.call_video_rate_per_minute || '50'}
+                      onChange={(e) => handleChange('call_video_rate_per_minute', e.target.value)}
+                    />
+                    <span style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: '0.8rem', color: 'var(--text-dim)', fontWeight: 600 }}>
+                      coins/min
+                    </span>
+                  </div>
+                </div>
+
+                {/* Video Live Rate */}
+                <div style={{ background: 'var(--bg-surface-secondary, rgba(255,255,255,0.02))', padding: '1.1rem', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.4rem' }}>
+                    <Activity size={18} color="#f59e0b" />
+                    <label style={{ fontSize: '0.88rem', fontWeight: 700, color: 'var(--text-main)', margin: 0 }}>
+                      Video Live Rate (ভিডিও লাইভ ইন্টারঅ্যাকশন কয়েন)
+                    </label>
+                  </div>
+                  <p style={{ fontSize: '0.76rem', color: 'var(--text-dim)', marginBottom: '0.65rem' }}>
+                    Coins deducted per minute for Video Live seat interaction or private session
+                  </p>
+                  <div style={{ position: 'relative' }}>
+                    <input
+                      type="number"
+                      min="1"
+                      className="input-field"
+                      style={{ paddingRight: '55px', fontWeight: 700, fontSize: '1rem', color: '#f59e0b' }}
+                      value={settings.call_video_live_rate_per_minute || '30'}
+                      onChange={(e) => handleChange('call_video_live_rate_per_minute', e.target.value)}
+                    />
+                    <span style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: '0.8rem', color: 'var(--text-dim)', fontWeight: 600 }}>
+                      coins/min
+                    </span>
+                  </div>
+                </div>
+
+                {/* Receiver Revenue Share % */}
+                <div style={{ background: 'var(--bg-surface-secondary, rgba(255,255,255,0.02))', padding: '1.1rem', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.4rem' }}>
+                    <Percent size={18} color="#8b5cf6" />
+                    <label style={{ fontSize: '0.88rem', fontWeight: 700, color: 'var(--text-main)', margin: 0 }}>
+                      Receiver Earnings Share (রিসিভার ডায়মন্ড শেয়ার %)
+                    </label>
+                  </div>
+                  <p style={{ fontSize: '0.76rem', color: 'var(--text-dim)', marginBottom: '0.65rem' }}>
+                    Percentage of caller's coins awarded to the receiver as diamonds
+                  </p>
+                  <div style={{ position: 'relative' }}>
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      className="input-field"
+                      style={{ paddingRight: '35px', fontWeight: 700, fontSize: '1rem', color: '#8b5cf6' }}
+                      value={settings.call_receiver_earnings_percent || '70'}
+                      onChange={(e) => handleChange('call_receiver_earnings_percent', e.target.value)}
+                    />
+                    <span style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: '0.85rem', color: 'var(--text-dim)', fontWeight: 600 }}>
+                      %
+                    </span>
+                  </div>
+                </div>
+
+                {/* Min Balance to Initiate */}
+                <div style={{ background: 'var(--bg-surface-secondary, rgba(255,255,255,0.02))', padding: '1.1rem', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.4rem' }}>
+                    <Coins size={18} color="#eab308" />
+                    <label style={{ fontSize: '0.88rem', fontWeight: 700, color: 'var(--text-main)', margin: 0 }}>
+                      Minimum Balance to Call (কল শুরু করতে মিনিমাম কয়েন)
+                    </label>
+                  </div>
+                  <p style={{ fontSize: '0.76rem', color: 'var(--text-dim)', marginBottom: '0.65rem' }}>
+                    Minimum coin balance required in caller wallet to place an outgoing call
+                  </p>
+                  <div style={{ position: 'relative' }}>
+                    <input
+                      type="number"
+                      min="1"
+                      className="input-field"
+                      style={{ paddingRight: '55px', fontWeight: 700, fontSize: '1rem' }}
+                      value={settings.call_min_balance_to_start || '20'}
+                      onChange={(e) => handleChange('call_min_balance_to_start', e.target.value)}
+                    />
+                    <span style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: '0.8rem', color: 'var(--text-dim)', fontWeight: 600 }}>
+                      coins
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Save Button */}
+              <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: '0.75rem', borderTop: '1px solid var(--border-color)' }}>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={handleSaveCalls}
+                  disabled={savingCalls || saving}
+                  style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#10b981', borderColor: '#059669' }}
+                >
+                  <Save size={16} />
+                  <span>{savingCalls ? 'Saving...' : 'Save 1-to-1 Call Rates'}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Live Call Simulator Card */}
+          <div className="panel-card" style={{ border: '1px solid rgba(139, 92, 246, 0.3)' }}>
+            <div className="panel-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div className="panel-title">
+                <Calculator size={22} color="#8b5cf6" />
+                <span>Interactive Call Cost & Earnings Simulator</span>
+              </div>
+              <span className="badge badge-purple" style={{ fontSize: '0.75rem', padding: '4px 10px' }}>
+                Real-Time Preview
+              </span>
+            </div>
+
+            <p style={{ fontSize: '0.84rem', color: 'var(--text-dim)', marginBottom: '1.25rem' }}>
+              Test how much a user will pay and how much the receiver and platform will earn for a specific call duration.
+            </p>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem', marginBottom: '1.25rem' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-dim)', marginBottom: '0.35rem' }}>
+                  Call Type
+                </label>
+                <select
+                  className="input-field"
+                  value={simCallType}
+                  onChange={(e) => setSimCallType(e.target.value)}
+                >
+                  <option value="audio">🎙️ 1-to-1 Audio Call</option>
+                  <option value="video">📹 1-to-1 Video Call</option>
+                  <option value="live">🎥 Video Live Stream Call</option>
+                </select>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-dim)', marginBottom: '0.35rem' }}>
+                  Call Duration (Minutes)
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  max="120"
+                  className="input-field"
+                  value={simCallMinutes}
+                  onChange={(e) => setSimCallMinutes(Math.max(1, parseInt(e.target.value, 10) || 1))}
+                />
+              </div>
+            </div>
+
+            {(() => {
+              const audioRate = parseInt(settings.call_audio_rate_per_minute || '20', 10);
+              const videoRate = parseInt(settings.call_video_rate_per_minute || '50', 10);
+              const liveRate = parseInt(settings.call_video_live_rate_per_minute || '30', 10);
+              const rate = simCallType === 'video' ? videoRate : (simCallType === 'live' ? liveRate : audioRate);
+              const totalCoins = rate * simCallMinutes;
+              const sharePct = parseInt(settings.call_receiver_earnings_percent || '70', 10);
+              const receiverDiamonds = Math.floor((totalCoins * sharePct) / 100);
+              const platformCoins = totalCoins - receiverDiamonds;
+
+              return (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem', padding: '1.25rem', background: 'rgba(139, 92, 246, 0.05)', borderRadius: '12px', border: '1px solid rgba(139, 92, 246, 0.2)' }}>
+                  <div>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)', fontWeight: 600, textTransform: 'uppercase' }}>Caller Pays</span>
+                    <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#f59e0b', marginTop: '4px' }}>
+                      {totalCoins} <span style={{ fontSize: '0.85rem' }}>Coins</span>
+                    </div>
+                    <span style={{ fontSize: '0.72rem', color: 'var(--text-dim)' }}>{rate} coins × {simCallMinutes} min</span>
+                  </div>
+
+                  <div>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)', fontWeight: 600, textTransform: 'uppercase' }}>Receiver Earns</span>
+                    <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#10b981', marginTop: '4px' }}>
+                      {receiverDiamonds} <span style={{ fontSize: '0.85rem' }}>Diamonds</span>
+                    </div>
+                    <span style={{ fontSize: '0.72rem', color: 'var(--text-dim)' }}>{sharePct}% revenue share</span>
+                  </div>
+
+                  <div>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)', fontWeight: 600, textTransform: 'uppercase' }}>Platform Margin</span>
+                    <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#8b5cf6', marginTop: '4px' }}>
+                      {platformCoins} <span style={{ fontSize: '0.85rem' }}>Coins</span>
+                    </div>
+                    <span style={{ fontSize: '0.72rem', color: 'var(--text-dim)' }}>{100 - sharePct}% retained</span>
+                  </div>
+                </div>
+              );
+            })()}
+          </div>
+
+          {/* Recent Call Sessions Table */}
+          <div className="panel-card">
+            <div className="panel-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div className="panel-title">
+                <Clock size={20} color="#3b82f6" />
+                <span>Recent 1-to-1 P2P Call Sessions</span>
+              </div>
+              <button
+                type="button"
+                className="btn btn-secondary btn-sm"
+                onClick={fetchCallLogs}
+                disabled={loadingCallLogs}
+                style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+              >
+                <RefreshCw size={14} className={loadingCallLogs ? 'spin' : ''} />
+                <span>Refresh Logs</span>
+              </button>
+            </div>
+
+            {loadingCallLogs ? (
+              <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-dim)' }}>Loading call logs...</div>
+            ) : callLogs.length === 0 ? (
+              <div style={{ padding: '2.5rem', textAlign: 'center', color: 'var(--text-dim)' }}>
+                <PhoneCall size={36} color="var(--text-dim)" style={{ margin: '0 auto 0.75rem', opacity: 0.5 }} />
+                <p style={{ margin: 0 }}>No 1-to-1 call sessions recorded yet.</p>
+              </div>
+            ) : (
+              <div style={{ overflowX: 'auto' }}>
+                <table className="table" style={{ width: '100%', fontSize: '0.82rem' }}>
+                  <thead>
+                    <tr>
+                      <th>Call ID</th>
+                      <th>Caller</th>
+                      <th>Receiver</th>
+                      <th>Type</th>
+                      <th>Status</th>
+                      <th>Duration</th>
+                      <th>Coins Spent</th>
+                      <th>Diamonds Earned</th>
+                      <th>Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {callLogs.map((c) => {
+                      const durFormatted = `${Math.floor((c.duration_seconds || 0) / 60).toString().padStart(2, '0')}:${((c.duration_seconds || 0) % 60).toString().padStart(2, '0')}`;
+                      return (
+                        <tr key={c.id}>
+                          <td style={{ fontFamily: 'monospace', fontWeight: 600 }}>{c.call_id?.slice(0, 16)}</td>
+                          <td>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              {c.caller_avatar ? (
+                                <img src={c.caller_avatar} alt="" style={{ width: '22px', height: '22px', borderRadius: '50%', objectFit: 'cover' }} />
+                              ) : (
+                                <div style={{ width: '22px', height: '22px', borderRadius: '50%', background: '#3b82f6', color: '#fff', fontSize: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                  {c.caller_name?.[0] || 'C'}
+                                </div>
+                              )}
+                              <span>{c.caller_name || `User #${c.caller_id}`}</span>
+                            </div>
+                          </td>
+                          <td>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              {c.receiver_avatar ? (
+                                <img src={c.receiver_avatar} alt="" style={{ width: '22px', height: '22px', borderRadius: '50%', objectFit: 'cover' }} />
+                              ) : (
+                                <div style={{ width: '22px', height: '22px', borderRadius: '50%', background: '#10b981', color: '#fff', fontSize: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                  {c.receiver_name?.[0] || 'R'}
+                                </div>
+                              )}
+                              <span>{c.receiver_name || `User #${c.receiver_id}`}</span>
+                            </div>
+                          </td>
+                          <td>
+                            <span className={`badge ${c.call_type === 'video' ? 'badge-success' : 'badge-primary'}`} style={{ fontSize: '0.72rem', padding: '3px 8px' }}>
+                              {c.call_type === 'video' ? '📹 Video' : '🎙️ Audio'}
+                            </span>
+                          </td>
+                          <td>
+                            <span
+                              className={`badge ${
+                                c.status === 'accepted' || c.status === 'ended'
+                                  ? 'badge-success'
+                                  : c.status === 'ringing'
+                                  ? 'badge-warning'
+                                  : 'badge-danger'
+                              }`}
+                              style={{ fontSize: '0.72rem', padding: '3px 8px' }}
+                            >
+                              {c.status}
+                            </span>
+                          </td>
+                          <td style={{ fontWeight: 600 }}>{durFormatted}</td>
+                          <td style={{ fontWeight: 700, color: '#f59e0b' }}>{c.total_coins_spent || 0}c</td>
+                          <td style={{ fontWeight: 700, color: '#10b981' }}>{c.receiver_earned_diamonds || 0}💎</td>
+                          <td style={{ color: 'var(--text-dim)', fontSize: '0.75rem' }}>
+                            {c.created_at ? new Date(c.created_at).toLocaleString() : '-'}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         </div>
       )}
