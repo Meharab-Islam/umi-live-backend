@@ -118,6 +118,96 @@ app.get('/', (req, res) => {
   });
 });
 
+// Live Stream Share Landing Route (Web Preview & Deep Link Auto-Redirect)
+app.get(['/room', '/room/:roomId'], (req, res) => {
+  const roomId = req.params.roomId || req.query.id || req.query.roomId || '';
+  const liveType = req.query.type || req.query.liveType || 'video';
+  const hostName = req.query.hostName || req.query.name || 'Host';
+
+  const deepLink = `umilive://room?roomId=${encodeURIComponent(roomId)}&liveType=${encodeURIComponent(liveType)}&hostName=${encodeURIComponent(hostName)}`;
+
+  res.send(`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${hostName} is Live on Umi Live!</title>
+  
+  <!-- WhatsApp, Facebook, Telegram Social Media Card Preview -->
+  <meta property="og:title" content="🔥 Watch ${hostName}'s Live on Umi Live!" />
+  <meta property="og:description" content="Join the live room right now on Umi Live app." />
+  <meta property="og:type" content="video.other" />
+  <meta name="theme-color" content="#1E88E5" />
+
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #0F172A;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+    .card {
+      background: #1E293B;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 24px;
+      padding: 36px 24px;
+      max-width: 380px;
+      width: 100%;
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5);
+    }
+    .badge {
+      display: inline-block;
+      background: #EF4444;
+      color: white;
+      font-weight: 800;
+      font-size: 12px;
+      padding: 4px 12px;
+      border-radius: 12px;
+      margin-bottom: 16px;
+      letter-spacing: 1px;
+    }
+    .btn {
+      display: inline-block;
+      background: #1E88E5;
+      color: white;
+      font-weight: 800;
+      text-decoration: none;
+      padding: 14px 28px;
+      border-radius: 24px;
+      margin-top: 24px;
+      font-size: 15px;
+      box-shadow: 0 4px 16px rgba(30, 136, 229, 0.45);
+      transition: transform 0.15s ease, background 0.15s ease;
+    }
+    .btn:hover {
+      background: #1976D2;
+      transform: scale(1.02);
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="badge">🔴 LIVE NOW</div>
+    <h2 style="margin: 0 0 8px 0;">${hostName}'s Room</h2>
+    <p style="color: #94A3B8; margin: 0; font-size: 14px;">Connecting to Umi Live App...</p>
+    <a href="${deepLink}" class="btn">Open in Umi Live 🚀</a>
+  </div>
+
+  <script>
+    // Automatically trigger app launch
+    window.location.href = "${deepLink}";
+  </script>
+</body>
+</html>`);
+});
+
 // Health check endpoint (including DB & Redis live diagnostics)
 app.get('/api/health', async (req, res) => {
   const dbOk = await testConnection();
