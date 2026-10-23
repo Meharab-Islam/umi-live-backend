@@ -1565,17 +1565,14 @@ export function setupLiveSocket(io) {
             roomViewers.get(targetRoom).delete(socket.id);
           }
           await cleanupUserFromRoom(targetRoom, targetUserId, io, targetUser, 'disconnect');
-        }
-
-        // FAIL-SAFE: If this disconnecting user is the host of ANY active live room, terminate immediately!
-        if (targetUserId) {
+        } else if (targetUserId) {
+          // If room was not tracked directly on socket, check if host has an active room and apply graceful disconnect
           const activeHostRooms = await query(
             "SELECT id, room_id, host_id FROM live_rooms WHERE host_id = ? AND status = 'live'",
             [targetUserId]
           );
           for (const aRoom of activeHostRooms) {
-            console.log(`🔴 [Host Disconnected App Close] Host ${targetUserId} closed app/disconnected while room ${aRoom.room_id} is live. Terminating room now...`);
-            await executeRoomTermination(aRoom.room_id, aRoom.id, targetUserId, io, 'host_disconnected');
+            await cleanupUserFromRoom(aRoom.room_id, targetUserId, io, targetUser, 'disconnect');
           }
         }
       } catch (err) {

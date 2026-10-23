@@ -344,10 +344,14 @@ export async function getRooms(req, res) {
         params
       );
 
-      return {
-        rooms: rooms.map((rm) => {
+      // Deduplicate rooms by host_id to guarantee no duplicate room card is ever displayed
+      const seenHostIds = new Set();
+      const uniqueRooms = [];
+      for (const rm of rooms) {
+        if (!seenHostIds.has(rm.host_id)) {
+          seenHostIds.add(rm.host_id);
           const bg = (rm.background_image && rm.background_image.trim()) ? rm.background_image.trim() : null;
-          return {
+          uniqueRooms.push({
             ...rm,
             is_audio: rm.live_type === 'audio',
             is_comment_disabled: Boolean(rm.is_comment_disabled),
@@ -356,8 +360,12 @@ export async function getRooms(req, res) {
             room_background_url: bg,
             thumbnail_url: bg,
             background_thumbnail: bg,
-          };
-        }),
+          });
+        }
+      }
+
+      return {
+        rooms: uniqueRooms,
         total: countResult ? countResult.total : 0,
         page: parseInt(page, 10),
         limit: parseInt(limit, 10),
@@ -520,9 +528,9 @@ export async function createRoom(req, res) {
     let seatCount;
 
     if (liveType === 'video') {
-      // Video Live: Max 9 seats!
+      // Video Live: Max 12 seats!
       const requested = parseInt(rawSeats, 10);
-      seatCount = requested ? Math.min(9, Math.max(2, requested)) : 6;
+      seatCount = requested ? Math.min(12, Math.max(2, requested)) : 12;
     } else {
       // Audio Live: Minimum 7 seats! (1 Host + 6 Guest seats). Default is 7.
       const requested = parseInt(rawSeats, 10);
@@ -531,6 +539,26 @@ export async function createRoom(req, res) {
 
     const isCommentDisabled = req.body.is_comment_disabled === true || req.body.is_comment_disabled === 'true' || req.body.is_comment_disabled === 1 ? 1 : 0;
     const isReactionDisabled = req.body.is_reaction_disabled === true || req.body.is_reaction_disabled === 'true' || req.body.is_reaction_disabled === 1 ? 1 : 0;
+
+    // Terminate any previous dangling live rooms for this host to prevent duplicate room cards
+    const priorActiveRooms = await query(
+      "SELECT room_id, id FROM live_rooms WHERE host_id = ? AND status = 'live'",
+      [hostId]
+    );
+    if (priorActiveRooms.length > 0) {
+      await query(
+        "UPDATE live_rooms SET status = 'ended', ended_at = NOW() WHERE host_id = ? AND status = 'live'",
+        [hostId]
+      );
+      for (const par of priorActiveRooms) {
+        cancelHostDisconnectGraceTimer(par.room_id);
+        if (par.id) cancelHostDisconnectGraceTimer(String(par.id));
+        await Promise.allSettled([
+          cache.del(`mobile:room_details:${par.room_id}`),
+          cache.del(`mobile:room_details:${par.id}`),
+        ]);
+      }
+    }
 
     await query(
       `INSERT INTO live_rooms (room_id, host_id, title, category, live_type, total_seats, cover_image, background_image, is_comment_disabled, is_reaction_disabled, status, stream_key)
@@ -744,7 +772,7 @@ export async function handleUserSeatDeparture(roomId, leavingUserId, io = null) 
 
       // Remaining co-hosts: all occupied seats except the departing user and except host
       const otherCoHosts = seats.filter(
-        (s) => s.user_id && s.user_id !== leavingUserId && s.user_id !== hostId
+        (s) => s.user_id && Number(s.user_id) !== Number(leavingUserId) && Number(s.user_id) !== Number(hostId)
       );
 
       // 1. Move host to Seat 1 (Main Seat)
@@ -807,6 +835,8 @@ export async function handleUserSeatDeparture(roomId, leavingUserId, io = null) 
         io.to(roomId).emit('seat_updated', {
           roomId,
           seatNumber: 1,
+          seatIndex: 1,
+          seat_index: 1,
           action: 'restore_main',
           hostId,
           departedUserId: leavingUserId,
@@ -836,23 +866,33 @@ export async function handleUserSeatDeparture(roomId, leavingUserId, io = null) 
           io.to(roomId).emit('seat_updated', {
             roomId,
             seatNumber: departingSeat.seat_number,
+            seatIndex: departingSeat.seat_number,
+            seat_index: departingSeat.seat_number,
             action: 'leave',
-            userId: leavingUserId,
+            userId: Number(leavingUserId),
+            seat: {
+              seatIndex: departingSeat.seat_number,
+              seat_index: departingSeat.seat_number,
+              isLocked: false,
+              isMuted: false,
+              isVideoMuted: true,
+              user: null,
+            },
           });
         }
 
         return { success: true, action: 'cleared_audio_seat', departedSeat: departingSeat.seat_number };
       }
 
-      // In Video Live: Rearrange remaining guest seats consecutively without holes
+      // In Video Live: Clear leaving user's seat, then rearrange remaining guest seats consecutively without holes
       await query(
         'UPDATE live_room_seats SET user_id = NULL, is_camera_on = 0, is_muted = 0 WHERE room_id = ? AND seat_number = ?',
         [roomId, departingSeat.seat_number]
       );
 
-      // Collect all remaining occupied guest seats (seat_number > 1, excluding leaving user)
+      // Collect all remaining occupied guest seats (seat_number > 1, strictly excluding leaving user by number comparison)
       const remainingGuestSeats = seats.filter(
-        (s) => s.seat_number > 1 && s.user_id && s.user_id !== leavingUserId
+        (s) => s.seat_number > 1 && s.user_id && Number(s.user_id) !== Number(leavingUserId)
       );
 
       let nextGuestSeat = 2;
@@ -882,17 +922,39 @@ export async function handleUserSeatDeparture(roomId, leavingUserId, io = null) 
         cache.delByPattern(`mobile:room:users:${roomId}*`),
       ]);
 
+      const freshSeats = await query(
+        'SELECT seat_number, user_id FROM live_room_seats WHERE room_id = ? ORDER BY seat_number ASC',
+        [roomId]
+      );
+      const seatOrder = [];
+      for (let s = 1; s <= totalSeats; s++) {
+        const found = freshSeats.find((fs) => fs.seat_number === s);
+        seatOrder.push(found && found.user_id ? Number(found.user_id) : 0);
+      }
+
       if (io) {
         io.to(roomId).emit('seat_updated', {
           roomId,
           seatNumber: departingSeat.seat_number,
+          seatIndex: departingSeat.seat_number,
+          seat_index: departingSeat.seat_number,
           action: 'leave',
-          userId: leavingUserId,
+          userId: Number(leavingUserId),
+          seat: {
+            seatIndex: departingSeat.seat_number,
+            seat_index: departingSeat.seat_number,
+            isLocked: false,
+            isMuted: false,
+            isVideoMuted: true,
+            user: null,
+          },
+          seatOrder,
         });
         io.to(roomId).emit('seats_rearranged', {
           roomId,
           reason: 'guest_seat_departed',
-          departedUserId: leavingUserId,
+          departedUserId: Number(leavingUserId),
+          seatOrder,
         });
       }
 
@@ -1279,7 +1341,7 @@ export async function takeSeat(req, res) {
 
     // Check if target seat is free
     const targetSeat = await query('SELECT user_id, is_locked FROM live_room_seats WHERE room_id = ? AND seat_number = ?', [roomId, num]);
-    if (targetSeat.length > 0 && targetSeat[0].user_id && targetSeat[0].user_id !== userId) {
+    if (targetSeat.length > 0 && targetSeat[0].user_id && Number(targetSeat[0].user_id) !== Number(userId)) {
       return res.status(400).json({ success: false, message: `Seat ${num} is already occupied.` });
     }
     if (targetSeat.length > 0 && targetSeat[0].is_locked) {
@@ -1332,25 +1394,55 @@ export async function takeSeat(req, res) {
     const roomData = await buildRoomResponse(roomId, req.user);
 
     if (req.io) {
+      const userData = {
+        id: Number(req.user.id),
+        fullName: req.user.full_name,
+        full_name: req.user.full_name,
+        name: req.user.full_name,
+        avatarUrl: req.user.avatar_url,
+        avatar_url: req.user.avatar_url,
+        profile: req.user.avatar_url,
+        coin: Number(req.user.coins || 0),
+        coins: Number(req.user.coins || 0),
+        role: req.user.role,
+        vipLevel: Number(req.user.level || 1),
+        vip_level: Number(req.user.level || 1),
+      };
+
       if (isSwitch && oldSeatNumber) {
         req.io.to(roomId).emit('seat_updated', {
           roomId,
           seatNumber: oldSeatNumber,
+          seatIndex: oldSeatNumber,
+          seat_index: oldSeatNumber,
           action: 'leave',
-          userId,
+          userId: Number(userId),
+          seat: {
+            seatIndex: oldSeatNumber,
+            seat_index: oldSeatNumber,
+            isLocked: false,
+            isMuted: false,
+            isVideoMuted: true,
+            user: null,
+          },
         });
       }
       req.io.to(roomId).emit('seat_updated', {
         roomId,
         seatNumber: num,
+        seatIndex: num,
+        seat_index: num,
         action: isSwitch ? 'switch' : 'take',
         fromSeatNumber: oldSeatNumber,
-        user: {
-          id: req.user.id,
-          name: req.user.full_name,
-          profile: req.user.avatar_url,
-          coin: req.user.coins,
-          role: req.user.role,
+        previousSeatIndex: oldSeatNumber,
+        user: userData,
+        seat: {
+          seatIndex: num,
+          seat_index: num,
+          isLocked: false,
+          isMuted: Boolean(muteState),
+          isVideoMuted: !Boolean(cameraState),
+          user: userData,
         },
       });
     }
@@ -1840,16 +1932,36 @@ export async function requestSeat(req, res) {
 
       const roomData = await buildRoomResponse(roomId, req.user);
       if (req.io) {
+        const userData = {
+          id: Number(req.user.id),
+          fullName: req.user.full_name,
+          full_name: req.user.full_name,
+          name: req.user.full_name,
+          avatarUrl: req.user.avatar_url,
+          avatar_url: req.user.avatar_url,
+          profile: req.user.avatar_url,
+          coin: Number(req.user.coins || 0),
+          coins: Number(req.user.coins || 0),
+          role: req.user.role,
+          level: Number(req.user.level || 1),
+          vipLevel: Number(req.user.level || 1),
+          vip_level: Number(req.user.level || 1),
+        };
         req.io.to(roomId).emit('seat_updated', {
           roomId,
           seatNumber: targetSeatNum,
+          seatIndex: targetSeatNum,
+          seat_index: targetSeatNum,
           action: 'take',
-          user: {
-            id: req.user.id,
-            name: req.user.full_name,
-            profile: req.user.avatar_url,
-            coin: req.user.coins,
-            role: req.user.role,
+          userId: Number(userId),
+          user: userData,
+          seat: {
+            seatIndex: targetSeatNum,
+            seat_index: targetSeatNum,
+            isLocked: false,
+            isMuted: false,
+            isVideoMuted: false,
+            user: userData,
           },
         });
       }
@@ -2079,27 +2191,54 @@ export async function approveSeatRequest(req, res) {
 
     if (req.io) {
       const userPayload = targetUser ? {
-        id: targetUser.id,
+        id: Number(targetUser.id),
+        fullName: targetUser.full_name,
+        full_name: targetUser.full_name,
         name: targetUser.full_name,
+        avatarUrl: targetUser.avatar_url,
+        avatar_url: targetUser.avatar_url,
         profile: targetUser.avatar_url,
-        coin: targetUser.coins,
+        coin: Number(targetUser.coins || 0),
+        coins: Number(targetUser.coins || 0),
         role: targetUser.role,
-        level: targetUser.level,
+        level: Number(targetUser.level || 1),
+        vipLevel: Number(targetUser.level || 1),
+        vip_level: Number(targetUser.level || 1),
       } : null;
 
       req.io.to(roomId).emit('seat_request_approved', {
         roomId,
         requestId,
-        userId: targetUserId,
+        userId: Number(targetUserId),
         seatNumber: assignSeatNum,
+        seatIndex: assignSeatNum,
+        seat_index: assignSeatNum,
         user: userPayload,
+        seat: {
+          seatIndex: assignSeatNum,
+          seat_index: assignSeatNum,
+          isLocked: false,
+          isMuted: false,
+          isVideoMuted: false,
+          user: userPayload,
+        },
       });
       req.io.to(roomId).emit('seat_updated', {
         roomId,
         seatNumber: assignSeatNum,
+        seatIndex: assignSeatNum,
+        seat_index: assignSeatNum,
         action: 'take',
-        userId: targetUserId,
+        userId: Number(targetUserId),
         user: userPayload,
+        seat: {
+          seatIndex: assignSeatNum,
+          seat_index: assignSeatNum,
+          isLocked: false,
+          isMuted: false,
+          isVideoMuted: false,
+          user: userPayload,
+        },
       });
     }
 
@@ -2439,15 +2578,8 @@ export async function updateRoomSeatsCount(req, res) {
       if (adminRows.length === 0) return res.status(403).json({ success: false, message: 'Only host or room admin can update seat count.' });
     }
 
-    // Only Audio Live allows dynamic scaling!
-    if (room.live_type !== 'audio') {
-      return res.status(400).json({
-        success: false,
-        message: 'Dynamic seat scaling is only supported for Audio Live rooms. Video Live rooms have a fixed maximum of 9 seats.',
-      });
-    }
-
-    const currentSeats = parseInt(room.total_seats, 10) || 7;
+    const isVideo = room.live_type === 'video';
+    const currentSeats = parseInt(room.total_seats, 10) || (isVideo ? 12 : 7);
     const action = String(req.body.action || '').toLowerCase().trim();
     const stepVal = parseInt(req.body.step !== undefined ? req.body.step : (req.body.delta !== undefined ? req.body.delta : 1), 10) || 1;
 
@@ -2461,11 +2593,20 @@ export async function updateRoomSeatsCount(req, res) {
       newSeats = parseInt(rawSeats, 10);
     }
 
-    if (!newSeats || newSeats < 7) {
-      return res.status(400).json({
-        success: false,
-        message: 'Audio Live rooms must have at least 7 seats (minimum seat count is 7). Cannot decrease below 7.',
-      });
+    if (isVideo) {
+      if (!newSeats || newSeats < 2 || newSeats > 12) {
+        return res.status(400).json({
+          success: false,
+          message: 'Video Live rooms can have between 2 and 12 seats (maximum is 12 seats).',
+        });
+      }
+    } else {
+      if (!newSeats || newSeats < 7) {
+        return res.status(400).json({
+          success: false,
+          message: 'Audio Live rooms must have at least 7 seats (minimum seat count is 7). Cannot decrease below 7.',
+        });
+      }
     }
 
     if (newSeats > currentSeats) {
@@ -2515,7 +2656,7 @@ export async function updateRoomSeatsCount(req, res) {
 
     return res.json({
       success: true,
-      message: `Audio live seat count updated to ${newSeats} seats successfully.`,
+      message: `Live room seat count updated to ${newSeats} seats successfully.`,
       total_seats: newSeats,
       previous_seats: currentSeats,
       room: roomData,
