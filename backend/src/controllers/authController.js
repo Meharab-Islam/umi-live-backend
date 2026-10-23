@@ -2,6 +2,13 @@ import bcrypt from 'bcryptjs';
 import { query } from '../config/db.js';
 import { signToken } from '../config/jwt.js';
 import { cache } from '../config/redis.js';
+import {
+  getClientIp,
+  recordFailedLogin,
+  recordSuccessfulLogin,
+  executeDummyTimingCheck,
+  isWeakDictionaryPassword,
+} from '../middlewares/securityMiddleware.js';
 
 export async function register(req, res) {
   try {
@@ -17,8 +24,16 @@ export async function register(req, res) {
       return res.status(400).json({ success: false, message: 'Please provide a valid email address.' });
     }
 
-    if (String(password).length < 6) {
+    if (typeof password !== 'string' || password.length < 6) {
       return res.status(400).json({ success: false, message: 'Password must be at least 6 characters long.' });
+    }
+
+    // Dictionary attack defense: Reject known weak/dictionary passwords
+    if (isWeakDictionaryPassword(password)) {
+      return res.status(400).json({
+        success: false,
+        message: 'This password is too common or easily guessed (dictionary defense). Please choose a stronger password.',
+      });
     }
 
     // Check existing
@@ -90,7 +105,9 @@ export async function login(req, res) {
     let deviceName = req.body.device_name || req.body.deviceName || req.body.device_model || req.body.deviceModel || req.headers['x-device-name'] || req.headers['x-device-model'];
 
     const cleanId = String(loginTarget).trim().replace(/^#/, '');
+    const clientIp = getClientIp(req);
     const isNumericId = /^\d+$/.test(cleanId);
+
     const users = await query(
       isNumericId
         ? 'SELECT * FROM users WHERE id = ? LIMIT 1'
@@ -99,7 +116,13 @@ export async function login(req, res) {
     );
 
     if (users.length === 0) {
-      return res.status(401).json({ success: false, message: 'Invalid credentials. Please check your email/ID and password.' });
+      // Timing attack immunity: dummy bcrypt comparison prevents user enumeration
+      await executeDummyTimingCheck(password);
+      const failInfo = await recordFailedLogin(clientIp, cleanId);
+      const msg = failInfo.isNowLocked
+        ? 'Too many failed login attempts. Account temporarily locked for 15 minutes.'
+        : `Invalid credentials. Please check your email/ID and password. (${failInfo.remainingAttempts} attempts remaining before temporary lockout)`;
+      return res.status(401).json({ success: false, message: msg });
     }
 
     const user = users[0];
@@ -127,8 +150,15 @@ export async function login(req, res) {
 
     const match = await bcrypt.compare(password, user.password_hash);
     if (!match) {
-      return res.status(401).json({ success: false, message: 'Invalid credentials. Please check your email/ID and password.' });
+      const failInfo = await recordFailedLogin(clientIp, cleanId);
+      const msg = failInfo.isNowLocked
+        ? 'Too many failed login attempts. Account temporarily locked for 15 minutes.'
+        : `Invalid credentials. Please check your email/ID and password. (${failInfo.remainingAttempts} attempts remaining before temporary lockout)`;
+      return res.status(401).json({ success: false, message: msg });
     }
+
+    // Success! Reset failed login attempt counters for this account and IP
+    await recordSuccessfulLogin(clientIp, cleanId);
 
     // Hardware Device Ban Verification
     const isDeviceBanned = await cache.getOrSet(`device:banned:${cleanDeviceId}`, 300, async () => {

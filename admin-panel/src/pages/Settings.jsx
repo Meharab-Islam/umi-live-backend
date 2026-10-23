@@ -1532,7 +1532,7 @@ export default function Settings({ onToast }) {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <Calendar size={18} color="#ec4899" />
                   <span style={{ fontWeight: 700, fontSize: '0.94rem', color: '#db2777' }}>
-                    Duration Plans & Coin Pricing Tiers (কত দিনের জন্য কত কয়েন)
+                    Duration Plans & Coin Pricing Tiers
                   </span>
                 </div>
                 <button
@@ -1887,7 +1887,7 @@ export default function Settings({ onToast }) {
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.4rem' }}>
                     <Mic size={18} color="#3b82f6" />
                     <label style={{ fontSize: '0.88rem', fontWeight: 700, color: 'var(--text-main)', margin: 0 }}>
-                      Audio Call Rate (প্রতি মিনিট অডিও কল কয়েন)
+                      Audio Call Rate (Coins / Minute)
                     </label>
                   </div>
                   <p style={{ fontSize: '0.76rem', color: 'var(--text-dim)', marginBottom: '0.65rem' }}>
@@ -1913,7 +1913,7 @@ export default function Settings({ onToast }) {
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.4rem' }}>
                     <Video size={18} color="#10b981" />
                     <label style={{ fontSize: '0.88rem', fontWeight: 700, color: 'var(--text-main)', margin: 0 }}>
-                      Video Call Rate (প্রতি মিনিট ভিডিও কল কয়েন)
+                      Video Call Rate (Coins / Minute)
                     </label>
                   </div>
                   <p style={{ fontSize: '0.76rem', color: 'var(--text-dim)', marginBottom: '0.65rem' }}>
@@ -1939,7 +1939,7 @@ export default function Settings({ onToast }) {
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.4rem' }}>
                     <Activity size={18} color="#f59e0b" />
                     <label style={{ fontSize: '0.88rem', fontWeight: 700, color: 'var(--text-main)', margin: 0 }}>
-                      Video Live Rate (ভিডিও লাইভ ইন্টারঅ্যাকশন কয়েন)
+                      Video Live Rate (Live Interaction Coins / Min)
                     </label>
                   </div>
                   <p style={{ fontSize: '0.76rem', color: 'var(--text-dim)', marginBottom: '0.65rem' }}>
@@ -1965,7 +1965,7 @@ export default function Settings({ onToast }) {
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.4rem' }}>
                     <Percent size={18} color="#8b5cf6" />
                     <label style={{ fontSize: '0.88rem', fontWeight: 700, color: 'var(--text-main)', margin: 0 }}>
-                      Receiver Earnings Share (রিসিভার ডায়মন্ড শেয়ার %)
+                      Receiver Earnings Share (%)
                     </label>
                   </div>
                   <p style={{ fontSize: '0.76rem', color: 'var(--text-dim)', marginBottom: '0.65rem' }}>
@@ -1992,7 +1992,7 @@ export default function Settings({ onToast }) {
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.4rem' }}>
                     <Coins size={18} color="#eab308" />
                     <label style={{ fontSize: '0.88rem', fontWeight: 700, color: 'var(--text-main)', margin: 0 }}>
-                      Minimum Balance to Call (কল শুরু করতে মিনিমাম কয়েন)
+                      Minimum Balance to Start Call (Coins)
                     </label>
                   </div>
                   <p style={{ fontSize: '0.76rem', color: 'var(--text-dim)', marginBottom: '0.65rem' }}>

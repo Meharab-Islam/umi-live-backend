@@ -66,15 +66,15 @@
     "semantic_hash": ""
   },
   "admin-panel/src/pages/Login.jsx": {
-    "mtime": 1792719816.1809738,
-    "seen": 1792719981.932993,
-    "ast_hash": "7b159902baf928c0a6d9751d5769afd1",
+    "mtime": 1792775801.4544358,
+    "seen": 1792775956.8919702,
+    "ast_hash": "f07bf7c5121b6887e1c671648a109753",
     "semantic_hash": ""
   },
   "admin-panel/src/pages/Settings.jsx": {
-    "mtime": 1792770298.9651554,
-    "seen": 1792770395.781395,
-    "ast_hash": "7913c7f4186ccfbaf7afd08c63230346",
+    "mtime": 1792775509.2707882,
+    "seen": 1792775956.892085,
+    "ast_hash": "529251d2ff41ac83fba02c6fbce16ba7",
     "semantic_hash": ""
   },
   "admin-panel/src/pages/Users.jsx": {
@@ -120,9 +120,9 @@
     "semantic_hash": ""
   },
   "backend/src/controllers/authController.js": {
-    "mtime": 1791800752.044857,
-    "seen": 1791800831.380925,
-    "ast_hash": "1bc184aa2c6aebf415b59eec51db905c",
+    "mtime": 1792775618.841875,
+    "seen": 1792775956.89241,
+    "ast_hash": "b693d990d451c85f2e706beb82a4d174",
     "semantic_hash": ""
   },
   "backend/src/controllers/giftController.js": {
@@ -162,9 +162,9 @@
     "semantic_hash": ""
   },
   "backend/src/routes/authRoutes.js": {
-    "mtime": 1791795543.8535678,
-    "seen": 1791795683.065196,
-    "ast_hash": "85bc7a082fe814e90141353a9b251c8a",
+    "mtime": 1792775753.1373296,
+    "seen": 1792775956.8929799,
+    "ast_hash": "43b8d6e7bc49336f049e869204b0dbab",
     "semantic_hash": ""
   },
   "backend/src/routes/giftRoutes.js": {
@@ -186,9 +186,9 @@
     "semantic_hash": ""
   },
   "backend/src/server.js": {
-    "mtime": 1792769320.0281892,
-    "seen": 1792769344.670732,
-    "ast_hash": "b0129301957b12e5a9c076a93574d3be",
+    "mtime": 1792775785.7487679,
+    "seen": 1792775956.8934631,
+    "ast_hash": "8475114300ce8b366a40dfe335c0a417",
     "semantic_hash": ""
   },
   "backend/src/sockets/liveSocket.js": {
@@ -546,9 +546,9 @@
     "semantic_hash": ""
   },
   "backend/src/controllers/mobile/authController.js": {
-    "mtime": 1792521411.0729332,
-    "seen": 1792521465.73941,
-    "ast_hash": "5157b53f0dd1b05418b050f4d614c0c0",
+    "mtime": 1792775684.634611,
+    "seen": 1792775956.892489,
+    "ast_hash": "c7ecbfdd53dec2b0c5105f67fc4755d0",
     "semantic_hash": ""
   },
   "backend/src/controllers/mobile/giftController.js": {
@@ -576,9 +576,9 @@
     "semantic_hash": ""
   },
   "backend/src/routes/mobile/authRoutes.js": {
-    "mtime": 1792255815.8655539,
-    "seen": 1792255859.571253,
-    "ast_hash": "7c27e76f40629e1cdfd7f4489f14b100",
+    "mtime": 1792775765.7805736,
+    "seen": 1792775956.893055,
+    "ast_hash": "65fa4d262125b29b6161cb84b82b9ae2",
     "semantic_hash": ""
   },
   "backend/src/routes/mobile/giftRoutes.js": {
@@ -1359,6 +1359,12 @@
     "mtime": 1792769915.0921106,
     "seen": 1792770395.782401,
     "ast_hash": "487fb21f63d2c0d1f09c3e358641a674",
+    "semantic_hash": ""
+  },
+  "backend/src/middlewares/securityMiddleware.js": {
+    "mtime": 1792775578.3177454,
+    "seen": 1792775956.89296,
+    "ast_hash": "fed6bd16ec6e7aca5596469c379c728b",
     "semantic_hash": ""
   }
 }

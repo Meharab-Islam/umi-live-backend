@@ -31,6 +31,7 @@ import docsRoutes from './routes/docsRoutes.js';
 import mobileRoutes from './routes/mobile/index.js';
 import configRoutes from './routes/mobile/configRoutes.js';
 import { getPublicBanners } from './controllers/bannerController.js';
+import { sqlInjectionGuard } from './middlewares/securityMiddleware.js';
 
 const uploadsDir = path.join(__dirname, '../uploads');
 
@@ -64,6 +65,7 @@ setupLiveSocket(io);
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+app.use(sqlInjectionGuard);
 app.use(morgan('dev'));
 
 // Serve uploaded files statically with cross-category fallback

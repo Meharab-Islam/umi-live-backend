@@ -80,18 +80,20 @@ export default function Login({ onLoginSuccess }) {
 
         {error && (
           <div style={{
-            background: 'rgba(244, 63, 94, 0.15)',
-            border: '1px solid rgba(244, 63, 94, 0.3)',
+            background: '#fff1f2',
+            border: '1px solid #fecdd3',
             borderRadius: '12px',
-            padding: '0.75rem 1rem',
-            color: '#fda4af',
-            fontSize: '0.85rem',
+            padding: '0.85rem 1rem',
+            color: '#be123c',
+            fontSize: '0.86rem',
+            lineHeight: 1.4,
+            fontWeight: 500,
             marginBottom: '1.25rem',
             display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
+            alignItems: 'flex-start',
+            gap: '10px',
           }}>
-            <span>⚠️</span>
+            <span style={{ fontSize: '1.1rem', lineHeight: 1 }}>⚠️</span>
             <span>{error}</span>
           </div>
         )}

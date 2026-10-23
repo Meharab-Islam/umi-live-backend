@@ -15,12 +15,13 @@ import {
 import { requireAuth } from '../../middlewares/authMiddleware.js';
 import { optionalAvatarUpload } from '../../middleware/upload.js';
 import { getBlockedUsers } from '../../controllers/mobile/userController.js';
+import { loginSecurityGuard } from '../../middlewares/securityMiddleware.js';
 
 const router = express.Router();
 
 // Public Mobile Auth Endpoints
 router.post('/register', optionalAvatarUpload, register);
-router.post('/login', login);
+router.post('/login', loginSecurityGuard, login);
 router.post('/send-otp', sendOtp);
 router.post('/verify-otp', verifyOtp);
 router.post('/google', googleLogin);
