@@ -22,6 +22,11 @@ export const API_SPEC = {
   ],
   "categories": [
     {
+      "id": "themes",
+      "name": "🎨 App Themes & Styling",
+      "description": "Customizable mobile app visual themes: full-screen page background wallpapers, modal bottom sheet images, and vibrant accent color palettes with coin store purchases, auto-equip, and system defaults."
+    },
+    {
       "id": "leaderboard",
       "name": "🏆 Leaderboard & Top Rankings",
       "description": "Global mobile rankings for top virtual gifters (daily, weekly, monthly, all-time) and top agencies sorted by coin revenue and host count."
@@ -10491,6 +10496,303 @@ export const API_SPEC = {
       "codeSnippets": {
         "curl": "curl -X GET \"https://yourdomain.com/api/admin/reports/offender/2\" \\\n  -H \"Authorization: Bearer <TOKEN>\"",
         "flutter": "import 'package:http/http.dart' as http;\nimport 'dart:convert';\n\nFuture<Map<String, dynamic>> fetchOffenderReports(int userId, String token) async {\n  final res = await http.get(\n    Uri.parse('https://yourdomain.com/api/admin/reports/offender/$userId'),\n    headers: {'Authorization': 'Bearer $token'},\n  );\n  return jsonDecode(res.body);\n}"
+      }
+    },
+    {
+      "id": "themes-default",
+      "category": "themes",
+      "method": "GET",
+      "path": "/api/mobile/themes/default",
+      "summary": "100% Public Default Theme (App Launch / Splash Screen)",
+      "description": "Completely public, zero-auth endpoint. Returns the system default page background wallpaper, bottom sheet image, and primary accent color palette. Call this immediately on Flutter app startup or Splash Screen before the user logs in.",
+      "requiresAuth": false,
+      "requestHeaders": [],
+      "parameters": [],
+      "responses": [
+        {
+          "status": 200,
+          "description": "Default theme fetched successfully.",
+          "example": {
+            "success": true,
+            "message": "System default theme loaded successfully.",
+            "theme": {
+              "page_image": {
+                "id": 1,
+                "type": "page_image",
+                "name": "Cyber Neon Glow",
+                "value": "/uploads/themes/cyber_neon.jpg",
+                "price": 0
+              },
+              "bottom_sheet_image": {
+                "id": 3,
+                "type": "bottom_sheet_image",
+                "name": "Dark Velvet Glass",
+                "value": "/uploads/themes/dark_velvet.png",
+                "price": 0
+              },
+              "color": {
+                "id": 5,
+                "type": "color",
+                "name": "Electric Violet",
+                "value": "#7C3AED",
+                "secondary_value": "#A78BFA",
+                "price": 0
+              }
+            }
+          }
+        }
+      ],
+      "codeSnippets": {
+        "curl": "curl -X GET \"https://yourdomain.com/api/mobile/themes/default\"",
+        "flutter": "import 'package:http/http.dart' as http;\nimport 'dart:convert';\n\n// Call on app startup / SplashScreen\nFuture<Map<String, dynamic>> fetchDefaultTheme() async {\n  final res = await http.get(\n    Uri.parse('https://yourdomain.com/api/mobile/themes/default'),\n  );\n  if (res.statusCode == 200) {\n    final data = jsonDecode(res.body);\n    return data['theme'];\n  }\n  return {};\n}"
+      }
+    },
+    {
+      "id": "themes-catalog",
+      "category": "themes",
+      "method": "GET",
+      "path": "/api/mobile/themes",
+      "summary": "Themes & Customization Catalog",
+      "description": "Returns the complete themes catalog grouped into page_images (wallpapers), bottom_sheet_images (drawer/modal backgrounds), and colors (accent palettes), together with the active system defaults. When authenticated, automatically enriches each item with user purchase status (`is_purchased`) and active equipped status (`is_equipped`).",
+      "requiresAuth": false,
+      "requestHeaders": [
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>",
+          "required": false,
+          "description": "Optional Bearer JWT to check user's purchased & equipped themes."
+        }
+      ],
+      "parameters": [],
+      "responses": [
+        {
+          "status": 200,
+          "description": "Catalog fetched successfully.",
+          "example": {
+            "success": true,
+            "catalog": {
+              "page_images": [
+                {
+                  "id": 1,
+                  "type": "page_image",
+                  "name": "Cyber Neon Glow",
+                  "value": "/uploads/themes/cyber_neon.jpg",
+                  "price": 0,
+                  "validity_days": 0,
+                  "is_default": 1,
+                  "is_free": true,
+                  "is_purchased": true,
+                  "is_equipped": true
+                }
+              ],
+              "bottom_sheet_images": [
+                {
+                  "id": 3,
+                  "type": "bottom_sheet_image",
+                  "name": "Dark Velvet Glass",
+                  "value": "/uploads/themes/dark_velvet.png",
+                  "price": 0,
+                  "validity_days": 0,
+                  "is_default": 1,
+                  "is_free": true,
+                  "is_purchased": true,
+                  "is_equipped": true
+                }
+              ],
+              "colors": [
+                {
+                  "id": 5,
+                  "type": "color",
+                  "name": "Electric Violet",
+                  "value": "#7C3AED",
+                  "secondary_value": "#A78BFA",
+                  "price": 0,
+                  "validity_days": 0,
+                  "is_default": 1,
+                  "is_free": true,
+                  "is_purchased": true,
+                  "is_equipped": true
+                }
+              ],
+              "active_defaults": {
+                "page_image": { "id": 1, "name": "Cyber Neon Glow", "value": "/uploads/themes/cyber_neon.jpg" },
+                "bottom_sheet_image": { "id": 3, "name": "Dark Velvet Glass", "value": "/uploads/themes/dark_velvet.png" },
+                "color": { "id": 5, "name": "Electric Violet", "value": "#7C3AED", "secondary_value": "#A78BFA" }
+              }
+            }
+          }
+        }
+      ],
+      "codeSnippets": {
+        "curl": "curl -X GET \"https://yourdomain.com/api/mobile/themes\" \\\n  -H \"Authorization: Bearer <TOKEN>\"",
+        "flutter": "import 'package:http/http.dart' as http;\nimport 'dart:convert';\n\nFuture<Map<String, dynamic>> fetchThemesCatalog([String? token]) async {\n  final res = await http.get(\n    Uri.parse('https://yourdomain.com/api/mobile/themes'),\n    headers: token != null ? {'Authorization': 'Bearer $token'} : {},\n  );\n  return jsonDecode(res.body);\n}"
+      }
+    },
+    {
+      "id": "themes-active",
+      "category": "themes",
+      "method": "GET",
+      "path": "/api/mobile/themes/active",
+      "summary": "Active Theme Configuration",
+      "description": "Returns the active theme for the app: if the user is authenticated and has equipped custom theme items, returns the user's equipped items; otherwise returns system default settings.",
+      "requiresAuth": false,
+      "requestHeaders": [
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>",
+          "required": false,
+          "description": "Optional Bearer JWT token."
+        }
+      ],
+      "parameters": [],
+      "responses": [
+        {
+          "status": 200,
+          "description": "Active theme fetched successfully.",
+          "example": {
+            "success": true,
+            "theme": {
+              "page_image": { "id": 1, "type": "page_image", "name": "Cyber Neon Glow", "value": "/uploads/themes/cyber_neon.jpg" },
+              "bottom_sheet_image": { "id": 3, "type": "bottom_sheet_image", "name": "Dark Velvet Glass", "value": "/uploads/themes/dark_velvet.png" },
+              "color": { "id": 5, "type": "color", "name": "Electric Violet", "value": "#7C3AED", "secondary_value": "#A78BFA" }
+            }
+          }
+        }
+      ],
+      "codeSnippets": {
+        "curl": "curl -X GET \"https://yourdomain.com/api/mobile/themes/active\" \\\n  -H \"Authorization: Bearer <TOKEN>\"",
+        "flutter": "import 'package:http/http.dart' as http;\nimport 'dart:convert';\n\nFuture<Map<String, dynamic>> fetchActiveTheme([String? token]) async {\n  final res = await http.get(\n    Uri.parse('https://yourdomain.com/api/mobile/themes/active'),\n    headers: token != null ? {'Authorization': 'Bearer $token'} : {},\n  );\n  return jsonDecode(res.body);\n}"
+      }
+    },
+    {
+      "id": "themes-buy",
+      "category": "themes",
+      "method": "POST",
+      "path": "/api/mobile/themes/buy/:id",
+      "summary": "Buy Theme Item with Coins",
+      "description": "Purchases a theme item (page background wallpaper, bottom sheet image, or color scheme) using user's wallet coins. Deducts coins, records an audit transaction, grants ownership to user, and automatically equips the item.",
+      "requiresAuth": true,
+      "requestHeaders": [
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>",
+          "required": true,
+          "description": "Bearer JWT token of logged-in user."
+        }
+      ],
+      "parameters": [
+        {
+          "name": "id",
+          "type": "integer",
+          "required": true,
+          "in": "path",
+          "description": "ID of the theme item to buy."
+        }
+      ],
+      "responses": [
+        {
+          "status": 200,
+          "description": "Item purchased and equipped successfully.",
+          "example": {
+            "success": true,
+            "message": "🎉 Successfully purchased and equipped \"Royal Purple Glow\"!",
+            "remaining_coins": 2500
+          }
+        },
+        {
+          "status": 400,
+          "description": "Insufficient coins or already owned.",
+          "example": {
+            "success": false,
+            "message": "Insufficient coins. This theme item costs 500 coins, but your balance is 120 coins."
+          }
+        }
+      ],
+      "codeSnippets": {
+        "curl": "curl -X POST \"https://yourdomain.com/api/mobile/themes/buy/2\" \\\n  -H \"Authorization: Bearer <TOKEN>\"",
+        "flutter": "import 'package:http/http.dart' as http;\nimport 'dart:convert';\n\nFuture<Map<String, dynamic>> buyThemeItem(int itemId, String token) async {\n  final res = await http.post(\n    Uri.parse('https://yourdomain.com/api/mobile/themes/buy/$itemId'),\n    headers: {'Authorization': 'Bearer $token'},\n  );\n  return jsonDecode(res.body);\n}"
+      }
+    },
+    {
+      "id": "themes-equip",
+      "category": "themes",
+      "method": "POST",
+      "path": "/api/mobile/themes/equip/:id",
+      "summary": "Equip Theme Item",
+      "description": "Equips an owned (or free) theme item as the user's active wallpaper, bottom sheet, or accent color. Deactivates other items of the same type for this user.",
+      "requiresAuth": true,
+      "requestHeaders": [
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>",
+          "required": true,
+          "description": "Bearer JWT token."
+        }
+      ],
+      "parameters": [
+        {
+          "name": "id",
+          "type": "integer",
+          "required": true,
+          "in": "path",
+          "description": "ID of the theme item to equip."
+        }
+      ],
+      "responses": [
+        {
+          "status": 200,
+          "description": "Item equipped successfully.",
+          "example": {
+            "success": true,
+            "message": "\"Cyber Neon Glow\" has been equipped as your active page image."
+          }
+        }
+      ],
+      "codeSnippets": {
+        "curl": "curl -X POST \"https://yourdomain.com/api/mobile/themes/equip/1\" \\\n  -H \"Authorization: Bearer <TOKEN>\"",
+        "flutter": "import 'package:http/http.dart' as http;\nimport 'dart:convert';\n\nFuture<Map<String, dynamic>> equipThemeItem(int itemId, String token) async {\n  final res = await http.post(\n    Uri.parse('https://yourdomain.com/api/mobile/themes/equip/$itemId'),\n    headers: {'Authorization': 'Bearer $token'},\n  );\n  return jsonDecode(res.body);\n}"
+      }
+    },
+    {
+      "id": "themes-my",
+      "category": "themes",
+      "method": "GET",
+      "path": "/api/mobile/themes/my",
+      "summary": "My Acquired Theme Items",
+      "description": "Returns all theme items (wallpapers, bottom sheets, colors) owned or purchased by the authenticated user, along with expiration and equipped state.",
+      "requiresAuth": true,
+      "requestHeaders": [
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>",
+          "required": true,
+          "description": "Bearer JWT token."
+        }
+      ],
+      "parameters": [],
+      "responses": [
+        {
+          "status": 200,
+          "description": "User theme items fetched.",
+          "example": {
+            "success": true,
+            "items": [
+              {
+                "id": 1,
+                "type": "page_image",
+                "name": "Cyber Neon Glow",
+                "value": "/uploads/themes/cyber_neon.jpg",
+                "is_equipped": 1,
+                "expires_at": null,
+                "acquired_at": "2026-10-23T08:00:00.000Z"
+              }
+            ]
+          }
+        }
+      ],
+      "codeSnippets": {
+        "curl": "curl -X GET \"https://yourdomain.com/api/mobile/themes/my\" \\\n  -H \"Authorization: Bearer <TOKEN>\"",
+        "flutter": "import 'package:http/http.dart' as http;\nimport 'dart:convert';\n\nFuture<Map<String, dynamic>> fetchMyThemes(String token) async {\n  final res = await http.get(\n    Uri.parse('https://yourdomain.com/api/mobile/themes/my'),\n    headers: {'Authorization': 'Bearer $token'},\n  );\n  return jsonDecode(res.body);\n}"
       }
     }
   ]

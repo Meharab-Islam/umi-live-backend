@@ -78,9 +78,33 @@ function extractMediaItems(data, baseUrl = '') {
   return items;
 }
 
+// Error Boundary to prevent any endpoint render error from breaking or hiding the UI
+class EndpointErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+  componentDidCatch(error, info) {
+    console.error('Endpoint Render Error:', error, info);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ padding: '1rem', background: 'rgba(239,68,68,0.1)', color: '#ef4444', borderRadius: '8px', fontSize: '0.82rem' }}>
+          ⚠️ Could not display endpoint details: {this.state.error?.message || 'Rendering error'}
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 // Media gallery component for visual previews in API Docs
 function MediaGallery({ items, onCopy, copiedKey }) {
-  if (!items || items.length === 0) return null;
+  if (!items || !Array.isArray(items) || items.length === 0) return null;
 
   return (
     <div style={{ padding: '0.85rem 1rem', background: 'rgba(15,23,42,0.7)', borderTop: '1px solid var(--border-color)' }}>
@@ -130,10 +154,12 @@ function MediaGallery({ items, onCopy, copiedKey }) {
                     objectFit: 'contain',
                   }}
                   onError={(e) => {
-                    e.currentTarget.style.display = 'none';
-                    if (e.currentTarget.nextSibling) {
-                      e.currentTarget.nextSibling.style.display = 'flex';
-                    }
+                    try {
+                      e.currentTarget.style.display = 'none';
+                      if (e.currentTarget.nextSibling) {
+                        e.currentTarget.nextSibling.style.display = 'flex';
+                      }
+                    } catch (_) {}
                   }}
                 />
                 <div
@@ -256,14 +282,31 @@ export default function ApiDocs({ onToast }) {
   // Copied indicator
   const [copiedKey, setCopiedKey] = useState(null);
 
-  // Fetch live spec from backend
+  // Fetch live spec from backend and merge with FALLBACK_SPEC to guarantee zero missing sections
   const fetchSpec = async () => {
     try {
       setLoading(true);
       const res = await fetch(`${baseUrl}/api/docs/spec`);
       if (res.ok) {
         const data = await res.json();
-        setSpec(data);
+        if (data && typeof data === 'object') {
+          // Merge categories so local/new categories are never wiped out
+          const remoteCatIds = new Set((data.categories || []).map((c) => c.id));
+          const fallbackCats = (FALLBACK_SPEC.categories || []).filter((c) => !remoteCatIds.has(c.id));
+          const mergedCategories = [...(data.categories || []), ...fallbackCats];
+
+          // Merge endpoints so local/new endpoints are never wiped out
+          const remoteEpIds = new Set((data.endpoints || []).map((e) => e.id));
+          const fallbackEps = (FALLBACK_SPEC.endpoints || []).filter((e) => !remoteEpIds.has(e.id));
+          const mergedEndpoints = [...(data.endpoints || []), ...fallbackEps];
+
+          setSpec({
+            ...FALLBACK_SPEC,
+            ...data,
+            categories: mergedCategories,
+            endpoints: mergedEndpoints,
+          });
+        }
       }
     } catch (err) {
       // Fallback already pre-set
@@ -1307,7 +1350,8 @@ ${ep.requiresAuth ? '4. Include the Bearer token in the `Authorization` header.'
 
                             {/* Expanded Endpoint Body */}
                             {isExpanded && (
-                              <div style={{ padding: '1.25rem', borderTop: '1px solid var(--border-color)', background: 'var(--bg-primary)' }}>
+                              <EndpointErrorBoundary>
+                                <div style={{ padding: '1.25rem', borderTop: '1px solid var(--border-color)', background: 'var(--bg-primary)' }}>
                                 {/* Description */}
                                 <p style={{ fontSize: '0.86rem', color: 'var(--text-muted)', margin: '0 0 1rem' }}>
                                   {ep.description}
@@ -1618,6 +1662,7 @@ ${ep.requiresAuth ? '4. Include the Bearer token in the `Authorization` header.'
                                   </div>
                                 )}
                               </div>
+                              </EndpointErrorBoundary>
                             )}
                           </div>
                         );
