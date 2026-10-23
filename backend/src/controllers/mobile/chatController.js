@@ -189,10 +189,17 @@ export const getConversations = async (req, res) => {
           blocked_by_them: blockedByOther,
           background: {
             image_url: r.background_image || null,
+            imageUrl: r.background_image || null,
+            background_image: r.background_image || null,
+            backgroundImage: r.background_image || null,
             color: r.background_color || null,
+            background_color: r.background_color || null,
+            backgroundColor: r.background_color || null,
             updated_by: r.background_updated_by || null,
             updated_at: r.background_updated_at || null,
           },
+          background_image: r.background_image || null,
+          background_color: r.background_color || null,
           other_user: {
             id: r.other_user_id,
             name: r.other_name || 'Anonymous',
@@ -495,10 +502,17 @@ export const getMessages = async (req, res) => {
       blocked_by_them: blockedByOther,
       background: {
         image_url: conversation.background_image || null,
+        imageUrl: conversation.background_image || null,
+        background_image: conversation.background_image || null,
+        backgroundImage: conversation.background_image || null,
         color: conversation.background_color || null,
+        background_color: conversation.background_color || null,
+        backgroundColor: conversation.background_color || null,
         updated_by: conversation.background_updated_by || null,
         updated_at: conversation.background_updated_at || null,
       },
+      background_image: conversation.background_image || null,
+      background_color: conversation.background_color || null,
       total: result.total,
       page,
       limit,
@@ -1209,8 +1223,13 @@ export const updateConversationBackground = async (req, res) => {
 
     const backgroundData = {
       conversation_id: conversationId,
+      image_url: bgImage,
+      imageUrl: bgImage,
       background_image: bgImage,
+      backgroundImage: bgImage,
+      color: bgColor,
       background_color: bgColor,
+      backgroundColor: bgColor,
       updated_by: userId,
       updated_at: new Date().toISOString(),
     };
@@ -1294,8 +1313,13 @@ export const removeConversationBackground = async (req, res) => {
 
     const backgroundData = {
       conversation_id: conversationId,
+      image_url: null,
+      imageUrl: null,
       background_image: null,
+      backgroundImage: null,
+      color: null,
       background_color: null,
+      backgroundColor: null,
       updated_by: userId,
       updated_at: new Date().toISOString(),
     };
