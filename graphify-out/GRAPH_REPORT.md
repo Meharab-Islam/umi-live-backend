@@ -1,16 +1,16 @@
 # Graph Report - umi_backend  (2026-10-25)
 
 ## Corpus Check
-- 185 files · ~1,097,742 words
+- 185 files · ~1,097,783 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1006 nodes · 2782 edges · 65 communities (46 shown, 19 thin omitted)
+- 1006 nodes · 2782 edges · 63 communities (45 shown, 18 thin omitted)
 - Extraction: 86% EXTRACTED · 14% INFERRED · 0% AMBIGUOUS · INFERRED: 401 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `5a8112d6`
+- Built from commit: `f0e2d73e`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -62,7 +62,6 @@
 - react
 - query
 - add_audio_live_api_docs.mjs
-- AppThemes.jsx
 - entryEffectController.js
 - mobile/index.js
 - Thumbnails.jsx
@@ -70,7 +69,6 @@
 - ErrorBoundary
 - liveRewardService.js
 - callController.js
-- Levels.jsx
 - EndpointErrorBoundary
 - LiveRewards.jsx
 - mobile/giftController.js
@@ -102,7 +100,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (65 total, 19 thin omitted)
+## Communities (63 total, 18 thin omitted)
 
 ### Community 0 - "controllers/packageController.js"
 Cohesion: 0.14
@@ -205,8 +203,8 @@ Cohesion: 0.30
 Nodes (6): API_SPEC, getToken(), SocketDocsView(), ApiDocs(), extractMediaItems(), copyToClipboard()
 
 ### Community 38 - "App.jsx"
-Cohesion: 0.12
-Nodes (23): checkHealth(), dashboardApi, streamApi, App(), getInitialTab(), isTabValid(), normalizeTab(), VALID_TABS (+15 more)
+Cohesion: 0.10
+Nodes (25): checkHealth(), dashboardApi, levelApi, streamApi, App(), getInitialTab(), isTabValid(), normalizeTab() (+17 more)
 
 ### Community 41 - "dev.js"
 Cohesion: 0.33
@@ -232,10 +230,6 @@ Nodes (15): adminApi, userApi, BulkActionBar(), Loader(), Pagination(), MODERATO
 Cohesion: 0.07
 Nodes (43): query(), bulkDelete(), clearResellerSales(), deleteReseller(), getAgencies(), getAgencyHosts(), getChatTesterConversation(), getChatTesterUsers() (+35 more)
 
-### Community 51 - "AppThemes.jsx"
-Cohesion: 0.50
-Nodes (3): themeApi, AppThemes(), TAB_TYPES
-
 ### Community 53 - "entryEffectController.js"
 Cohesion: 0.43
 Nodes (6): getEntryEffectCatalog(), getMyEntryEffects(), getUserActiveEntryEffectsMap(), purchaseEntryEffect(), toggleEntryEffect(), router
@@ -245,8 +239,8 @@ Cohesion: 0.06
 Nodes (44): getMobileBanners(), formatDuration(), getHostAgencySummary(), getHostDashboardOverview(), getHostMonthlyBreakdown(), getHostStreamHistory(), resolveHostId(), checkRoomActionPrivilege (+36 more)
 
 ### Community 57 - "Thumbnails.jsx"
-Cohesion: 0.22
-Nodes (11): resolveAssetUrl(), uploadFile(), settingsApi, specialItemApi, FileUploadInput(), Banners(), EntryEffects(), PackageManagement() (+3 more)
+Cohesion: 0.16
+Nodes (14): resolveAssetUrl(), uploadFile(), settingsApi, specialItemApi, themeApi, FileUploadInput(), AppThemes(), TAB_TYPES (+6 more)
 
 ### Community 58 - "UserLivePortal.jsx"
 Cohesion: 0.14
@@ -267,7 +261,7 @@ Nodes (5): getGifts(), getUserGiftContributions(), sendGift(), router, router
 ## Knowledge Gaps
 - **171 isolated node(s):** `$schema`, `oxc`, `react/rules-of-hooks`, `warn`, `name` (+166 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **19 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **18 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_

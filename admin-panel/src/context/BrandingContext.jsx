@@ -98,5 +98,18 @@ export const BrandingProvider = ({ children }) => {
   );
 };
 
-export const useBranding = () => useContext(BrandingContext);
+export const useBranding = () => {
+  const ctx = useContext(BrandingContext);
+  if (!ctx) {
+    return {
+      brandName: 'Umi Live',
+      brandLogo: '',
+      resolvedLogoUrl: '',
+      brandTagline: 'Broadcasting & Live Streaming Admin Console',
+      updateBranding: () => {},
+      refreshBranding: () => {},
+    };
+  }
+  return ctx;
+};
 export default BrandingContext;

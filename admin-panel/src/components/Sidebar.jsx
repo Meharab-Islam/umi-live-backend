@@ -44,6 +44,7 @@ export default function Sidebar({
   onClose,
 }) {
   const [categories, setCategories] = useState([]);
+  const [vipExpanded, setVipExpanded] = useState(false);
   const { brandName, resolvedLogoUrl } = useBranding();
 
   // Load VIP categories for sidebar navigation

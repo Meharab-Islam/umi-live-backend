@@ -30,9 +30,9 @@
     "semantic_hash": ""
   },
   "admin-panel/src/components/Sidebar.jsx": {
-    "mtime": 1792866375.3667512,
-    "seen": 1792866768.2380302,
-    "ast_hash": "4e542e3f0e2450d8019275a780553915",
+    "mtime": 1792867179.156974,
+    "seen": 1792867213.4595468,
+    "ast_hash": "e327b7367879b6d024ba4cc51a3eab14",
     "semantic_hash": ""
   },
   "admin-panel/src/components/StatCard.jsx": {
@@ -1410,9 +1410,9 @@
     "semantic_hash": ""
   },
   "admin-panel/src/context/BrandingContext.jsx": {
-    "mtime": 1792866315.5726867,
-    "seen": 1792866768.2382169,
-    "ast_hash": "29698b8deca2abd62f721c708225a6f4",
+    "mtime": 1792867196.158686,
+    "seen": 1792867213.459691,
+    "ast_hash": "c865350a5d8217111c4948a27e5050aa",
     "semantic_hash": ""
   }
 }
