@@ -541,6 +541,7 @@ async function executeGuestSeatAndRoomCleanup(canonicalRoomId, numericRoomId, ho
         io.to(ch).emit('viewer-count-update', { roomId: canonicalRoomId, count: currentViewerCount, viewer_count: currentViewerCount });
         io.to(ch).emit('room_viewers_updated', { roomId: canonicalRoomId, count: currentViewerCount, viewer_count: currentViewerCount });
       }
+      io.emit('room_stats_update', { roomId: canonicalRoomId, numericRoomId, viewer_count: currentViewerCount, count: currentViewerCount });
     }
 
     roomUserJoinAnnounced.delete(`${canonicalRoomId}_${userId}`);
@@ -763,6 +764,7 @@ export function setupLiveSocket(io) {
         if (lastCount !== activeCount) {
           roomLastViewerCount.set(canonicalRoomId, activeCount);
           io.to(canonicalRoomId).emit('viewer-count-update', { roomId: canonicalRoomId, count: activeCount, viewer_count: activeCount });
+          io.emit('room_stats_update', { roomId: canonicalRoomId, numericRoomId, viewer_count: activeCount, count: activeCount });
         }
 
         // Sync room settings (comments & reactions disabled flags) directly to the joining socket (supports late joiners)
