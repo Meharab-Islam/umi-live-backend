@@ -3,7 +3,7 @@ import { cache } from '../../config/redis.js';
 import { query } from '../../config/db.js';
 import { generateLiveKitToken, LIVEKIT_URL } from '../../config/livekit.js';
 import { sendLiveRoomStartedPushNotification } from '../../config/firebase.js';
-import { cancelHostDisconnectGraceTimer, hostDisconnectGraceTimers } from '../../sockets/liveSocket.js';
+import { cancelHostDisconnectGraceTimer, hostDisconnectGraceTimers, clearRoomMemoryState } from '../../sockets/liveSocket.js';
 import { checkStreamRewardStatus, claimAndAwardLiveReward } from '../../services/liveRewardService.js';
 
 /**
@@ -1892,6 +1892,9 @@ export async function endRoom(req, res) {
 
     const closedByRole = isHost ? 'host' : (isRoomAdmin ? 'room_moderator' : req.user.role);
 
+    // 0. Wipe all in-memory runtime trackers and timers
+    clearRoomMemoryState(canonicalRoomId, numericRoomId);
+
     // 1. Mark room as ended with 0 viewers in MySQL SSOT
     await query(
       "UPDATE live_rooms SET status = 'ended', viewer_count = 0, ended_at = CURRENT_TIMESTAMP WHERE id = ?",
@@ -1899,27 +1902,28 @@ export async function endRoom(req, res) {
     );
 
     // 2. Clean up ALL runtime room data from database:
-    await query('DELETE FROM live_room_seats WHERE room_id = ? OR room_id = ?', [canonicalRoomId, String(numericRoomId)]);
-    await query('DELETE FROM live_room_viewers WHERE room_id = ? OR room_id = ?', [canonicalRoomId, String(numericRoomId)]);
-    await query('DELETE FROM live_room_seat_requests WHERE room_id = ? OR room_id = ?', [canonicalRoomId, String(numericRoomId)]);
-    await query('DELETE FROM live_room_admins WHERE room_id = ? OR room_id = ?', [canonicalRoomId, String(numericRoomId)]);
-
-    // 3. Instant Redis Invalidation - Delete all room-related keys from Redis
     await Promise.allSettled([
-      cache.delByPattern('mobile:rooms:*'),
-      cache.del(`mobile:room_details:${roomId}`),
-      cache.del(`mobile:room_details:${canonicalRoomId}`),
-      cache.del(`mobile:room_details:${numericRoomId}`),
-      cache.delByPattern(`mobile:room:users:${roomId}*`),
-      cache.delByPattern(`mobile:room:users:${canonicalRoomId}*`),
-      cache.delByPattern(`mobile:room:users:${numericRoomId}*`),
-      cache.del(`mobile:live:seat_requests:${canonicalRoomId}`),
-      cache.del(`mobile:live:room_admins:${canonicalRoomId}`),
-      cache.del(`room:${canonicalRoomId}`),
-      cache.del(`room:${numericRoomId}`),
+      query('DELETE FROM live_room_seats WHERE room_id = ? OR room_id = ?', [canonicalRoomId, String(numericRoomId)]),
+      query('DELETE FROM live_room_viewers WHERE room_id = ? OR room_id = ?', [canonicalRoomId, String(numericRoomId)]),
+      query('DELETE FROM live_room_seat_requests WHERE room_id = ? OR room_id = ?', [canonicalRoomId, String(numericRoomId)]),
+      query('DELETE FROM live_room_admins WHERE room_id = ? OR room_id = ?', [canonicalRoomId, String(numericRoomId)]),
+    ]);
+
+    // 3. Complete Redis Cache Annihilation: Wipe all cached feeds, room details, viewer lists, chat, and host keys
+    const patternsToDelete = [
+      'mobile:rooms:*',
+      `*${canonicalRoomId}*`,
+      numericRoomId ? `*${numericRoomId}*` : null,
+      `host:${room.host_id}*`,
+      `host:${userId}*`,
+      `mobile:live:rewards:${room.host_id}*`,
+      'host:*',
+    ].filter(Boolean);
+
+    await Promise.allSettled([
+      ...patternsToDelete.map((p) => cache.delByPattern(p)),
       cache.del(`mobile:live:my_active:${room.host_id}`),
       cache.del(`mobile:live:my_active:${userId}`),
-      cache.delByPattern('host:*'),
     ]);
 
     // 4. Socket notifications to all participants in this room channel
