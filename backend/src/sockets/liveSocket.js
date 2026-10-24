@@ -598,6 +598,14 @@ export async function sweepOrphanedLiveRooms(io) {
       console.warn(`🧹 [Ghost Room Sweeper] Room ${canonicalRoomId} (ID: ${numericRoomId}) host ${hostId} is offline with no active grace timer. Terminating ghost room...`);
       await executeRoomTermination(canonicalRoomId, numericRoomId, hostId, io, 'host_disconnected_timeout');
     }
+
+    // Clean up any orphan seats, viewers, seat requests, or room admins belonging to ended rooms
+    await Promise.allSettled([
+      query("DELETE FROM live_room_seats WHERE room_id NOT IN (SELECT room_id FROM live_rooms WHERE status = 'live')"),
+      query("DELETE FROM live_room_viewers WHERE room_id NOT IN (SELECT room_id FROM live_rooms WHERE status = 'live')"),
+      query("DELETE FROM live_room_seat_requests WHERE room_id NOT IN (SELECT room_id FROM live_rooms WHERE status = 'live')"),
+      query("DELETE FROM live_room_admins WHERE room_id NOT IN (SELECT room_id FROM live_rooms WHERE status = 'live')"),
+    ]);
   } catch (err) {
     console.error('sweepOrphanedLiveRooms error:', err.message);
   }

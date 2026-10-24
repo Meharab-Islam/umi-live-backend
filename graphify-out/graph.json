@@ -3014,7 +3014,7 @@
       "file_type": "code",
       "norm_label": "setuplivesocket()",
       "source_file": "backend/src/sockets/liveSocket.js",
-      "source_location": "L606"
+      "source_location": "L614"
     },
     {
       "id": "backend_src_sockets_livesocket_sweeporphanedliverooms",
@@ -3483,18 +3483,6 @@
       "norm_label": "getmylevelrewards()",
       "source_file": "backend/src/controllers/mobile/levelController.js",
       "source_location": "L49"
-    },
-    {
-      "id": "backend_src_middlewares_authmiddleware_optionalauth",
-      "label": "optionalAuth()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 36,
-      "community_name": "cache",
-      "file_type": "code",
-      "norm_label": "optionalauth()",
-      "source_file": "backend/src/middlewares/authMiddleware.js",
-      "source_location": "L118"
     },
     {
       "id": "backend_src_services_levelservice_getuserlevelprogression",
@@ -5230,7 +5218,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 53,
-      "community_name": "entryEffectController.js",
+      "community_name": "authMiddleware.js",
       "file_type": "code",
       "norm_label": "getentryeffectcatalog()",
       "source_file": "backend/src/controllers/mobile/entryEffectController.js",
@@ -5242,7 +5230,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 53,
-      "community_name": "entryEffectController.js",
+      "community_name": "authMiddleware.js",
       "file_type": "code",
       "norm_label": "getmyentryeffects()",
       "source_file": "backend/src/controllers/mobile/entryEffectController.js",
@@ -5254,7 +5242,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 53,
-      "community_name": "entryEffectController.js",
+      "community_name": "authMiddleware.js",
       "file_type": "code",
       "norm_label": "getuseractiveentryeffectsmap()",
       "source_file": "backend/src/controllers/mobile/entryEffectController.js",
@@ -5266,7 +5254,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 53,
-      "community_name": "entryEffectController.js",
+      "community_name": "authMiddleware.js",
       "file_type": "code",
       "norm_label": "purchaseentryeffect()",
       "source_file": "backend/src/controllers/mobile/entryEffectController.js",
@@ -5278,11 +5266,83 @@
       "_callable": true,
       "_origin": "ast",
       "community": 53,
-      "community_name": "entryEffectController.js",
+      "community_name": "authMiddleware.js",
       "file_type": "code",
       "norm_label": "toggleentryeffect()",
       "source_file": "backend/src/controllers/mobile/entryEffectController.js",
       "source_location": "L303"
+    },
+    {
+      "id": "backend_src_middlewares_authmiddleware_optionalauth",
+      "label": "optionalAuth()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 53,
+      "community_name": "authMiddleware.js",
+      "file_type": "code",
+      "norm_label": "optionalauth()",
+      "source_file": "backend/src/middlewares/authMiddleware.js",
+      "source_location": "L118"
+    },
+    {
+      "id": "backend_src_middlewares_authmiddleware_requireadmin",
+      "label": "requireAdmin()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 53,
+      "community_name": "authMiddleware.js",
+      "file_type": "code",
+      "norm_label": "requireadmin()",
+      "source_file": "backend/src/middlewares/authMiddleware.js",
+      "source_location": "L53"
+    },
+    {
+      "id": "backend_src_middlewares_authmiddleware_requireagency",
+      "label": "requireAgency()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 53,
+      "community_name": "authMiddleware.js",
+      "file_type": "code",
+      "norm_label": "requireagency()",
+      "source_file": "backend/src/middlewares/authMiddleware.js",
+      "source_location": "L89"
+    },
+    {
+      "id": "backend_src_middlewares_authmiddleware_requirehost",
+      "label": "requireHost()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 53,
+      "community_name": "authMiddleware.js",
+      "file_type": "code",
+      "norm_label": "requirehost()",
+      "source_file": "backend/src/middlewares/authMiddleware.js",
+      "source_location": "L106"
+    },
+    {
+      "id": "backend_src_middlewares_authmiddleware_requiremoderator",
+      "label": "requireModerator()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 53,
+      "community_name": "authMiddleware.js",
+      "file_type": "code",
+      "norm_label": "requiremoderator()",
+      "source_file": "backend/src/middlewares/authMiddleware.js",
+      "source_location": "L65"
+    },
+    {
+      "id": "backend_src_middlewares_authmiddleware_requirereseller",
+      "label": "requireReseller()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 53,
+      "community_name": "authMiddleware.js",
+      "file_type": "code",
+      "norm_label": "requirereseller()",
+      "source_file": "backend/src/middlewares/authMiddleware.js",
+      "source_location": "L77"
     },
     {
       "id": "backend_src_controllers_mobile_bannercontroller_getmobilebanners",
@@ -5295,30 +5355,6 @@
       "norm_label": "getmobilebanners()",
       "source_file": "backend/src/controllers/mobile/bannerController.js",
       "source_location": "L10"
-    },
-    {
-      "id": "backend_src_controllers_mobile_leaderboardcontroller_gettopagencies",
-      "label": "getTopAgencies()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 54,
-      "community_name": "mobile/index.js",
-      "file_type": "code",
-      "norm_label": "gettopagencies()",
-      "source_file": "backend/src/controllers/mobile/leaderboardController.js",
-      "source_location": "L132"
-    },
-    {
-      "id": "backend_src_controllers_mobile_leaderboardcontroller_gettopgifters",
-      "label": "getTopGifters()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 54,
-      "community_name": "mobile/index.js",
-      "file_type": "code",
-      "norm_label": "gettopgifters()",
-      "source_file": "backend/src/controllers/mobile/leaderboardController.js",
-      "source_location": "L12"
     },
     {
       "id": "backend_src_controllers_mobile_hostcontroller_formatduration",
@@ -6130,7 +6166,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 70,
-      "community_name": "authMiddleware.js",
+      "community_name": "requireAuth",
       "file_type": "code",
       "norm_label": "getgifts()",
       "source_file": "backend/src/controllers/mobile/giftController.js",
@@ -6142,7 +6178,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 70,
-      "community_name": "authMiddleware.js",
+      "community_name": "requireAuth",
       "file_type": "code",
       "norm_label": "getusergiftcontributions()",
       "source_file": "backend/src/controllers/mobile/giftController.js",
@@ -6154,35 +6190,35 @@
       "_callable": true,
       "_origin": "ast",
       "community": 70,
-      "community_name": "authMiddleware.js",
+      "community_name": "requireAuth",
       "file_type": "code",
       "norm_label": "sendgift()",
       "source_file": "backend/src/controllers/mobile/giftController.js",
       "source_location": "L41"
     },
     {
-      "id": "backend_src_middlewares_authmiddleware_requireadmin",
-      "label": "requireAdmin()",
+      "id": "backend_src_controllers_mobile_leaderboardcontroller_gettopagencies",
+      "label": "getTopAgencies()",
       "_callable": true,
       "_origin": "ast",
       "community": 70,
-      "community_name": "authMiddleware.js",
+      "community_name": "requireAuth",
       "file_type": "code",
-      "norm_label": "requireadmin()",
-      "source_file": "backend/src/middlewares/authMiddleware.js",
-      "source_location": "L53"
+      "norm_label": "gettopagencies()",
+      "source_file": "backend/src/controllers/mobile/leaderboardController.js",
+      "source_location": "L132"
     },
     {
-      "id": "backend_src_middlewares_authmiddleware_requireagency",
-      "label": "requireAgency()",
+      "id": "backend_src_controllers_mobile_leaderboardcontroller_gettopgifters",
+      "label": "getTopGifters()",
       "_callable": true,
       "_origin": "ast",
       "community": 70,
-      "community_name": "authMiddleware.js",
+      "community_name": "requireAuth",
       "file_type": "code",
-      "norm_label": "requireagency()",
-      "source_file": "backend/src/middlewares/authMiddleware.js",
-      "source_location": "L89"
+      "norm_label": "gettopgifters()",
+      "source_file": "backend/src/controllers/mobile/leaderboardController.js",
+      "source_location": "L12"
     },
     {
       "id": "backend_src_middlewares_authmiddleware_requireauth",
@@ -6190,47 +6226,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 70,
-      "community_name": "authMiddleware.js",
+      "community_name": "requireAuth",
       "file_type": "code",
       "norm_label": "requireauth()",
       "source_file": "backend/src/middlewares/authMiddleware.js",
       "source_location": "L5"
-    },
-    {
-      "id": "backend_src_middlewares_authmiddleware_requirehost",
-      "label": "requireHost()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 70,
-      "community_name": "authMiddleware.js",
-      "file_type": "code",
-      "norm_label": "requirehost()",
-      "source_file": "backend/src/middlewares/authMiddleware.js",
-      "source_location": "L106"
-    },
-    {
-      "id": "backend_src_middlewares_authmiddleware_requiremoderator",
-      "label": "requireModerator()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 70,
-      "community_name": "authMiddleware.js",
-      "file_type": "code",
-      "norm_label": "requiremoderator()",
-      "source_file": "backend/src/middlewares/authMiddleware.js",
-      "source_location": "L65"
-    },
-    {
-      "id": "backend_src_middlewares_authmiddleware_requirereseller",
-      "label": "requireReseller()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 70,
-      "community_name": "authMiddleware.js",
-      "file_type": "code",
-      "norm_label": "requirereseller()",
-      "source_file": "backend/src/middlewares/authMiddleware.js",
-      "source_location": "L77"
     },
     {
       "id": "scratch_test_socket_realtime_emission_main",
@@ -10108,10 +10108,21 @@
       "label": "entryEffectController.js",
       "_origin": "ast",
       "community": 53,
-      "community_name": "entryEffectController.js",
+      "community_name": "authMiddleware.js",
       "file_type": "code",
       "norm_label": "entryeffectcontroller.js",
       "source_file": "backend/src/controllers/mobile/entryEffectController.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "backend_src_middlewares_authmiddleware",
+      "label": "authMiddleware.js",
+      "_origin": "ast",
+      "community": 53,
+      "community_name": "authMiddleware.js",
+      "file_type": "code",
+      "norm_label": "authmiddleware.js",
+      "source_file": "backend/src/middlewares/authMiddleware.js",
       "source_location": "L1"
     },
     {
@@ -10119,7 +10130,7 @@
       "label": "entryEffectRoutes.js",
       "_origin": "ast",
       "community": 53,
-      "community_name": "entryEffectController.js",
+      "community_name": "authMiddleware.js",
       "file_type": "code",
       "norm_label": "entryeffectroutes.js",
       "source_file": "backend/src/routes/mobile/entryEffectRoutes.js",
@@ -10130,7 +10141,7 @@
       "label": "router",
       "_origin": "ast",
       "community": 53,
-      "community_name": "entryEffectController.js",
+      "community_name": "authMiddleware.js",
       "file_type": "code",
       "norm_label": "router",
       "source_file": "backend/src/routes/mobile/entryEffectRoutes.js",
@@ -10145,17 +10156,6 @@
       "file_type": "code",
       "norm_label": "mobile/bannercontroller.js",
       "source_file": "backend/src/controllers/mobile/bannerController.js",
-      "source_location": "L1"
-    },
-    {
-      "id": "backend_src_controllers_mobile_leaderboardcontroller",
-      "label": "leaderboardController.js",
-      "_origin": "ast",
-      "community": 54,
-      "community_name": "mobile/index.js",
-      "file_type": "code",
-      "norm_label": "leaderboardcontroller.js",
-      "source_file": "backend/src/controllers/mobile/leaderboardController.js",
       "source_location": "L1"
     },
     {
@@ -10267,28 +10267,6 @@
       "norm_label": "mobile/index.js",
       "source_file": "backend/src/routes/mobile/index.js",
       "source_location": "L1"
-    },
-    {
-      "id": "backend_src_routes_mobile_leaderboardroutes",
-      "label": "leaderboardRoutes.js",
-      "_origin": "ast",
-      "community": 54,
-      "community_name": "mobile/index.js",
-      "file_type": "code",
-      "norm_label": "leaderboardroutes.js",
-      "source_file": "backend/src/routes/mobile/leaderboardRoutes.js",
-      "source_location": "L1"
-    },
-    {
-      "id": "backend_src_routes_mobile_leaderboardroutes_router",
-      "label": "router",
-      "_origin": "ast",
-      "community": 54,
-      "community_name": "mobile/index.js",
-      "file_type": "code",
-      "norm_label": "router",
-      "source_file": "backend/src/routes/mobile/leaderboardRoutes.js",
-      "source_location": "L4"
     },
     {
       "id": "backend_src_routes_mobile_liveroutes_router",
@@ -11339,7 +11317,7 @@
       "label": "controllers/giftController.js",
       "_origin": "ast",
       "community": 70,
-      "community_name": "authMiddleware.js",
+      "community_name": "requireAuth",
       "file_type": "code",
       "norm_label": "controllers/giftcontroller.js",
       "source_file": "backend/src/controllers/giftController.js",
@@ -11350,21 +11328,21 @@
       "label": "mobile/giftController.js",
       "_origin": "ast",
       "community": 70,
-      "community_name": "authMiddleware.js",
+      "community_name": "requireAuth",
       "file_type": "code",
       "norm_label": "mobile/giftcontroller.js",
       "source_file": "backend/src/controllers/mobile/giftController.js",
       "source_location": "L1"
     },
     {
-      "id": "backend_src_middlewares_authmiddleware",
-      "label": "authMiddleware.js",
+      "id": "backend_src_controllers_mobile_leaderboardcontroller",
+      "label": "leaderboardController.js",
       "_origin": "ast",
       "community": 70,
-      "community_name": "authMiddleware.js",
+      "community_name": "requireAuth",
       "file_type": "code",
-      "norm_label": "authmiddleware.js",
-      "source_file": "backend/src/middlewares/authMiddleware.js",
+      "norm_label": "leaderboardcontroller.js",
+      "source_file": "backend/src/controllers/mobile/leaderboardController.js",
       "source_location": "L1"
     },
     {
@@ -11372,7 +11350,7 @@
       "label": "routes/giftRoutes.js",
       "_origin": "ast",
       "community": 70,
-      "community_name": "authMiddleware.js",
+      "community_name": "requireAuth",
       "file_type": "code",
       "norm_label": "routes/giftroutes.js",
       "source_file": "backend/src/routes/giftRoutes.js",
@@ -11383,11 +11361,33 @@
       "label": "mobile/giftRoutes.js",
       "_origin": "ast",
       "community": 70,
-      "community_name": "authMiddleware.js",
+      "community_name": "requireAuth",
       "file_type": "code",
       "norm_label": "mobile/giftroutes.js",
       "source_file": "backend/src/routes/mobile/giftRoutes.js",
       "source_location": "L1"
+    },
+    {
+      "id": "backend_src_routes_mobile_leaderboardroutes",
+      "label": "leaderboardRoutes.js",
+      "_origin": "ast",
+      "community": 70,
+      "community_name": "requireAuth",
+      "file_type": "code",
+      "norm_label": "leaderboardroutes.js",
+      "source_file": "backend/src/routes/mobile/leaderboardRoutes.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "backend_src_routes_mobile_leaderboardroutes_router",
+      "label": "router",
+      "_origin": "ast",
+      "community": 70,
+      "community_name": "requireAuth",
+      "file_type": "code",
+      "norm_label": "router",
+      "source_file": "backend/src/routes/mobile/leaderboardRoutes.js",
+      "source_location": "L4"
     },
     {
       "id": "scratch_test_socket_realtime_emission",
@@ -18854,7 +18854,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/sockets/liveSocket.js",
-      "source_location": "L1452",
+      "source_location": "L1460",
       "weight": 1.0
     },
     {
@@ -18866,7 +18866,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/sockets/liveSocket.js",
-      "source_location": "L609",
+      "source_location": "L617",
       "weight": 1.0
     },
     {
@@ -18878,7 +18878,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/sockets/liveSocket.js",
-      "source_location": "L629",
+      "source_location": "L637",
       "weight": 1.0
     },
     {
@@ -18890,7 +18890,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/sockets/liveSocket.js",
-      "source_location": "L652",
+      "source_location": "L660",
       "weight": 1.0
     },
     {
@@ -18902,7 +18902,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/sockets/liveSocket.js",
-      "source_location": "L669",
+      "source_location": "L677",
       "weight": 1.0
     },
     {
@@ -18914,7 +18914,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/sockets/liveSocket.js",
-      "source_location": "L696",
+      "source_location": "L704",
       "weight": 1.0
     },
     {
@@ -37554,7 +37554,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/sockets/liveSocket.js",
-      "source_location": "L606",
+      "source_location": "L614",
       "weight": 1.0
     },
     {
@@ -43625,5 +43625,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "1508c2629174b2f1addc52efe35a290efb1b6a88"
+  "built_at_commit": "b1337a6b3874351dab34a2a7ed05ccd6c9cebf0d"
 }

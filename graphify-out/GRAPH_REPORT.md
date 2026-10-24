@@ -1,7 +1,7 @@
 # Graph Report - umi_backend  (2026-10-24)
 
 ## Corpus Check
-- 183 files · ~1,095,494 words
+- 183 files · ~1,095,573 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `1508c262`
+- Built from commit: `b1337a6b`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -64,7 +64,7 @@
 - add_audio_live_api_docs.mjs
 - themeRoutes.js
 - chatController.js
-- entryEffectController.js
+- authMiddleware.js
 - mobile/index.js
 - hostController.js
 - Banners.jsx
@@ -79,7 +79,7 @@
 - adminThemeController.js
 - routes/liveRoutes.js
 - init.js
-- authMiddleware.js
+- requireAuth
 - test_socket_realtime_emission.mjs
 - test_video_live_seat_guard.mjs
 
@@ -205,8 +205,8 @@ Cohesion: 0.83
 Nodes (3): getRedisRaw(), makeRequest(), run()
 
 ### Community 36 - "cache"
-Cohesion: 0.28
-Nodes (9): cache, getLevelsProgression(), getMyLevelRewards(), optionalAuth(), router, getUserLevelProgression(), recordCoinsSpentAndCheckLevelUp(), calculateUserStars() (+1 more)
+Cohesion: 0.32
+Nodes (8): cache, getLevelsProgression(), getMyLevelRewards(), router, getUserLevelProgression(), recordCoinsSpentAndCheckLevelUp(), calculateUserStars(), getStarProgressionConfig()
 
 ### Community 37 - "ApiDocs.jsx"
 Cohesion: 0.18
@@ -248,13 +248,13 @@ Nodes (7): buyThemeItem(), equipThemeItem(), getActiveTheme(), getDefaultTheme()
 Cohesion: 0.11
 Nodes (30): clearChatMessages(), deleteConversation(), extractPackageCategory(), getConversations(), getMessages(), getOrCreateConversation(), invalidateChatCache(), markConversationRead() (+22 more)
 
-### Community 53 - "entryEffectController.js"
-Cohesion: 0.43
-Nodes (6): getEntryEffectCatalog(), getMyEntryEffects(), getUserActiveEntryEffectsMap(), purchaseEntryEffect(), toggleEntryEffect(), router
+### Community 53 - "authMiddleware.js"
+Cohesion: 0.19
+Nodes (12): getEntryEffectCatalog(), getMyEntryEffects(), getUserActiveEntryEffectsMap(), purchaseEntryEffect(), toggleEntryEffect(), optionalAuth(), requireAdmin(), requireAgency() (+4 more)
 
 ### Community 54 - "mobile/index.js"
-Cohesion: 0.12
-Nodes (16): getMobileBanners(), getTopAgencies(), getTopGifters(), router, router, router, router, router (+8 more)
+Cohesion: 0.14
+Nodes (13): getMobileBanners(), router, router, router, router, router, router, router (+5 more)
 
 ### Community 55 - "hostController.js"
 Cohesion: 0.68
@@ -304,9 +304,9 @@ Nodes (5): createRoom(), endRoom(), getRoomDetails(), getRooms(), router
 Cohesion: 0.33
 Nodes (5): __dirname, __filename, initializeDatabase(), startServer(), waitForDatabase()
 
-### Community 70 - "authMiddleware.js"
-Cohesion: 0.25
-Nodes (9): getGifts(), getUserGiftContributions(), sendGift(), requireAdmin(), requireAgency(), requireAuth(), requireHost(), requireModerator() (+1 more)
+### Community 70 - "requireAuth"
+Cohesion: 0.29
+Nodes (7): getGifts(), getUserGiftContributions(), sendGift(), getTopAgencies(), getTopGifters(), requireAuth(), router
 
 ## Knowledge Gaps
 - **170 isolated node(s):** `$schema`, `oxc`, `react/rules-of-hooks`, `warn`, `name` (+165 more)
@@ -316,11 +316,11 @@ Nodes (9): getGifts(), getUserGiftContributions(), sendGift(), requireAdmin(), r
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `query()` connect `query` to `controllers/packageController.js`, `moderatorRoutes.js`, `getPool`, `firebase.js`, `mobile/liveController.js`, `mobile/walletRoutes.js`, `cache`, `callController.js`, `resellerController.js`, `mobile/authController.js`, `specialItemController.js`, `themeRoutes.js`, `chatController.js`, `entryEffectController.js`, `mobile/index.js`, `hostController.js`, `controllers/walletController.js`, `liveRewardService.js`, `db.js`, `livekit.js`, `adminThemeController.js`, `routes/liveRoutes.js`, `authMiddleware.js`, `test_socket_realtime_emission.mjs`, `test_video_live_seat_guard.mjs`?**
+- **Why does `query()` connect `query` to `controllers/packageController.js`, `moderatorRoutes.js`, `getPool`, `firebase.js`, `mobile/liveController.js`, `mobile/walletRoutes.js`, `cache`, `callController.js`, `resellerController.js`, `mobile/authController.js`, `specialItemController.js`, `themeRoutes.js`, `chatController.js`, `authMiddleware.js`, `mobile/index.js`, `hostController.js`, `controllers/walletController.js`, `liveRewardService.js`, `db.js`, `livekit.js`, `adminThemeController.js`, `routes/liveRoutes.js`, `requireAuth`, `test_socket_realtime_emission.mjs`, `test_video_live_seat_guard.mjs`?**
   _High betweenness centrality (0.205) - this node is a cross-community bridge._
-- **Why does `getPool()` connect `getPool` to `query`, `authMiddleware.js`, `callController.js`, `resellerController.js`, `mobile/authController.js`, `firebase.js`, `chatController.js`, `mobile/walletRoutes.js`, `controllers/walletController.js`, `db.js`?**
+- **Why does `getPool()` connect `getPool` to `query`, `requireAuth`, `callController.js`, `resellerController.js`, `mobile/authController.js`, `firebase.js`, `chatController.js`, `mobile/walletRoutes.js`, `controllers/walletController.js`, `db.js`?**
   _High betweenness centrality (0.012) - this node is a cross-community bridge._
-- **Why does `requireAuth()` connect `authMiddleware.js` to `controllers/packageController.js`, `query`, `routes/liveRoutes.js`, `cache`, `callController.js`, `resellerController.js`, `mobile/authController.js`, `moderatorRoutes.js`, `firebase.js`, `themeRoutes.js`, `chatController.js`, `entryEffectController.js`, `mobile/liveController.js`, `hostController.js`, `mobile/packageRoutes.js`, `mobile/walletRoutes.js`, `controllers/walletController.js`?**
+- **Why does `requireAuth()` connect `requireAuth` to `controllers/packageController.js`, `query`, `routes/liveRoutes.js`, `cache`, `callController.js`, `resellerController.js`, `mobile/authController.js`, `moderatorRoutes.js`, `firebase.js`, `themeRoutes.js`, `chatController.js`, `authMiddleware.js`, `mobile/liveController.js`, `hostController.js`, `mobile/packageRoutes.js`, `mobile/walletRoutes.js`, `controllers/walletController.js`?**
   _High betweenness centrality (0.008) - this node is a cross-community bridge._
 - **What connects `$schema`, `oxc`, `react/rules-of-hooks` to the rest of the system?**
   _170 weakly-connected nodes found - possible documentation gaps or missing edges._
