@@ -46,6 +46,8 @@ import {
   Users,
   Fingerprint,
   VideoOff,
+  X,
+  Gift,
 } from 'lucide-react';
 import settingsApi from '../api/settingsApi';
 import Loader from '../components/Loader';
@@ -69,6 +71,68 @@ export default function Settings({ onToast }) {
   const [simCallType, setSimCallType] = useState('video');
   const [simCallMinutes, setSimCallMinutes] = useState(5);
   const [savingScreenGuard, setSavingScreenGuard] = useState(false);
+  const [newWithdrawalPreset, setNewWithdrawalPreset] = useState('');
+  const [newRechargePreset, setNewRechargePreset] = useState('');
+
+  const parsePresetsList = (raw, fallback = []) => {
+    if (Array.isArray(raw)) return raw;
+    if (!raw) return fallback;
+    try {
+      if (typeof raw === 'string') {
+        const trimmed = raw.trim();
+        if (trimmed.startsWith('[')) {
+          const parsed = JSON.parse(trimmed);
+          if (Array.isArray(parsed)) return parsed.map(Number).filter((n) => !isNaN(n));
+        }
+        return trimmed.split(',').map((s) => parseInt(s.trim(), 10)).filter((n) => !isNaN(n));
+      }
+      return fallback;
+    } catch (e) {
+      return fallback;
+    }
+  };
+
+  const handleAddWithdrawalPreset = () => {
+    const num = parseInt(newWithdrawalPreset, 10);
+    if (isNaN(num) || num <= 0) return;
+    const current = parsePresetsList(settings.withdrawal_presets, [1000, 2000, 5000, 10000, 25000, 50000]);
+    if (!current.includes(num)) {
+      const updated = [...current, num].sort((a, b) => a - b);
+      handleChange('withdrawal_presets', JSON.stringify(updated));
+    }
+    setNewWithdrawalPreset('');
+  };
+
+  const handleRemoveWithdrawalPreset = (numToRemove) => {
+    const current = parsePresetsList(settings.withdrawal_presets, [1000, 2000, 5000, 10000, 25000, 50000]);
+    const updated = current.filter((n) => n !== numToRemove);
+    handleChange('withdrawal_presets', JSON.stringify(updated));
+  };
+
+  const handleResetWithdrawalPresets = () => {
+    handleChange('withdrawal_presets', JSON.stringify([1000, 2000, 5000, 10000, 25000, 50000]));
+  };
+
+  const handleAddRechargePreset = () => {
+    const num = parseInt(newRechargePreset, 10);
+    if (isNaN(num) || num <= 0) return;
+    const current = parsePresetsList(settings.recharge_presets, [500, 1000, 2500, 5000, 10000, 50000, 100000]);
+    if (!current.includes(num)) {
+      const updated = [...current, num].sort((a, b) => a - b);
+      handleChange('recharge_presets', JSON.stringify(updated));
+    }
+    setNewRechargePreset('');
+  };
+
+  const handleRemoveRechargePreset = (numToRemove) => {
+    const current = parsePresetsList(settings.recharge_presets, [500, 1000, 2500, 5000, 10000, 50000, 100000]);
+    const updated = current.filter((n) => n !== numToRemove);
+    handleChange('recharge_presets', JSON.stringify(updated));
+  };
+
+  const handleResetRechargePresets = () => {
+    handleChange('recharge_presets', JSON.stringify([500, 1000, 2500, 5000, 10000, 50000, 100000]));
+  };
   const [resetModal, setResetModal] = useState({
     isOpen: false,
     type: null,
@@ -1078,20 +1142,81 @@ export default function Settings({ onToast }) {
                 </div>
               </div>
 
-              {/* Commission Sharing Rules */}
-              <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '1.25rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.75rem' }}>
-                  <Percent size={18} color="#d97706" />
-                  <span style={{ fontWeight: 700, fontSize: '0.92rem', color: 'var(--text-main)' }}>
-                    Revenue Sharing & Commissions Breakdown
+              {/* SECTION: REVENUE SHARING & COMMISSIONS BREAKDOWN */}
+              <div
+                style={{
+                  borderTop: '1px solid var(--border-color)',
+                  paddingTop: '1.5rem',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '1.25rem',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div
+                      style={{
+                        width: '32px',
+                        height: '32px',
+                        borderRadius: '8px',
+                        background: 'rgba(217, 119, 6, 0.15)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <Percent size={18} color="#d97706" />
+                    </div>
+                    <div>
+                      <h4 style={{ margin: 0, fontSize: '0.98rem', fontWeight: 700, color: 'var(--text-main)' }}>
+                        Revenue Sharing & Commissions Breakdown
+                      </h4>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>
+                        Split ratio for coin gifting and peer-to-peer coin transfers
+                      </span>
+                    </div>
+                  </div>
+                  <span
+                    style={{
+                      fontSize: '0.75rem',
+                      fontWeight: 700,
+                      padding: '4px 10px',
+                      borderRadius: '16px',
+                      background: hostCoinSharePct >= 0 ? 'rgba(16, 185, 129, 0.12)' : 'rgba(239, 68, 68, 0.12)',
+                      color: hostCoinSharePct >= 0 ? '#10b981' : '#ef4444',
+                      border: `1px solid ${hostCoinSharePct >= 0 ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`,
+                    }}
+                  >
+                    Total Split: {adminGiftPct + agencyGiftPct + hostCoinSharePct}%
                   </span>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.25rem', marginBottom: '1rem' }}>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '0.35rem' }}>
-                      Admin Platform Commission (%)
-                    </label>
+                {/* 4 Cards Grid */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
+                  {/* Card 1: Admin Platform Commission */}
+                  <div
+                    style={{
+                      padding: '1.1rem',
+                      borderRadius: '12px',
+                      background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(20, 10, 15, 0.4) 100%)',
+                      border: '1px solid rgba(239, 68, 68, 0.25)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
+                      gap: '0.75rem',
+                    }}
+                  >
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                        <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-main)' }}>
+                          Admin Platform Commission
+                        </span>
+                        <Shield size={16} color="#ef4444" />
+                      </div>
+                      <span style={{ fontSize: '0.74rem', color: 'var(--text-dim)', display: 'block', lineHeight: 1.4 }}>
+                        Retained by platform from coin gifts.
+                      </span>
+                    </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                       <input
                         type="number"
@@ -1099,21 +1224,38 @@ export default function Settings({ onToast }) {
                         min="0"
                         max="100"
                         className="input-field"
-                        style={{ maxWidth: '140px' }}
+                        style={{ maxWidth: '130px', fontWeight: 700, fontSize: '1rem', color: '#ef4444' }}
                         value={settings.admin_gift_commission_percent || '15.0'}
                         onChange={(e) => handleChange('admin_gift_commission_percent', e.target.value)}
                       />
-                      <span style={{ fontSize: '0.85rem', color: 'var(--text-dim)' }}>%</span>
+                      <span style={{ fontSize: '0.9rem', fontWeight: 700, color: '#ef4444' }}>%</span>
                     </div>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: '4px', display: 'block' }}>
-                      Retained by platform from coin gifts.
-                    </span>
                   </div>
 
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '0.35rem' }}>
-                      Default Agency Commission (%)
-                    </label>
+                  {/* Card 2: Default Agency Commission */}
+                  <div
+                    style={{
+                      padding: '1.1rem',
+                      borderRadius: '12px',
+                      background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(10, 15, 25, 0.4) 100%)',
+                      border: '1px solid rgba(59, 130, 246, 0.25)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
+                      gap: '0.75rem',
+                    }}
+                  >
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                        <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-main)' }}>
+                          Default Agency Commission
+                        </span>
+                        <Users size={16} color="#3b82f6" />
+                      </div>
+                      <span style={{ fontSize: '0.74rem', color: 'var(--text-dim)', display: 'block', lineHeight: 1.4 }}>
+                        Credited to host agency (if assigned).
+                      </span>
+                    </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                       <input
                         type="number"
@@ -1121,33 +1263,70 @@ export default function Settings({ onToast }) {
                         min="0"
                         max="100"
                         className="input-field"
-                        style={{ maxWidth: '140px' }}
+                        style={{ maxWidth: '130px', fontWeight: 700, fontSize: '1rem', color: '#3b82f6' }}
                         value={settings.agency_gift_commission_percent || '10.0'}
                         onChange={(e) => handleChange('agency_gift_commission_percent', e.target.value)}
                       />
-                      <span style={{ fontSize: '0.85rem', color: 'var(--text-dim)' }}>%</span>
+                      <span style={{ fontSize: '0.9rem', fontWeight: 700, color: '#3b82f6' }}>%</span>
                     </div>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: '4px', display: 'block' }}>
-                      Credited to host agency (if assigned).
-                    </span>
                   </div>
 
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '0.35rem' }}>
-                      Host Remaining Share
-                    </label>
-                    <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#10b981', paddingTop: '2px' }}>
-                      {hostCoinSharePct.toFixed(1)}%
+                  {/* Card 3: Host Remaining Share (Auto Calculated) */}
+                  <div
+                    style={{
+                      padding: '1.1rem',
+                      borderRadius: '12px',
+                      background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(10, 25, 20, 0.4) 100%)',
+                      border: '1px solid rgba(16, 185, 129, 0.25)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
+                      gap: '0.75rem',
+                    }}
+                  >
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                        <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-main)' }}>
+                          Host Remaining Share
+                        </span>
+                        <Sparkles size={16} color="#10b981" />
+                      </div>
+                      <span style={{ fontSize: '0.74rem', color: 'var(--text-dim)', display: 'block', lineHeight: 1.4 }}>
+                        Credited directly to host wallet.
+                      </span>
                     </div>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: '2px', display: 'block' }}>
-                      Credited directly to host wallet.
-                    </span>
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
+                      <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#10b981', lineHeight: 1 }}>
+                        {hostCoinSharePct.toFixed(1)}%
+                      </div>
+                      <span style={{ fontSize: '0.7rem', color: 'var(--text-dim)' }}>auto-calculated</span>
+                    </div>
                   </div>
 
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '0.35rem' }}>
-                      User P2P Transfer Fee (%)
-                    </label>
+                  {/* Card 4: User P2P Transfer Fee */}
+                  <div
+                    style={{
+                      padding: '1.1rem',
+                      borderRadius: '12px',
+                      background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, rgba(25, 20, 10, 0.4) 100%)',
+                      border: '1px solid rgba(245, 158, 11, 0.25)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
+                      gap: '0.75rem',
+                    }}
+                  >
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                        <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-main)' }}>
+                          User P2P Transfer Fee
+                        </span>
+                        <ArrowRightLeft size={16} color="#f59e0b" />
+                      </div>
+                      <span style={{ fontSize: '0.74rem', color: 'var(--text-dim)', display: 'block', lineHeight: 1.4 }}>
+                        Fee on peer-to-peer coin transfers.
+                      </span>
+                    </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                       <input
                         type="number"
@@ -1155,129 +1334,503 @@ export default function Settings({ onToast }) {
                         min="0"
                         max="100"
                         className="input-field"
-                        style={{ maxWidth: '140px' }}
+                        style={{ maxWidth: '130px', fontWeight: 700, fontSize: '1rem', color: '#f59e0b' }}
                         value={settings.user_transfer_commission_percent || '5.0'}
                         onChange={(e) => handleChange('user_transfer_commission_percent', e.target.value)}
                       />
-                      <span style={{ fontSize: '0.85rem', color: 'var(--text-dim)' }}>%</span>
+                      <span style={{ fontSize: '0.9rem', fontWeight: 700, color: '#f59e0b' }}>%</span>
                     </div>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: '4px', display: 'block' }}>
-                      Fee on peer-to-peer coin transfers.
-                    </span>
                   </div>
                 </div>
 
                 {/* Visual Progress Bar */}
-                <div style={{ padding: '0.85rem', borderRadius: '10px', background: 'var(--bg-primary)', border: '1px solid var(--border-color)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: 700, marginBottom: '6px' }}>
-                    <span style={{ color: '#ef4444' }}>Admin: {adminGiftPct}%</span>
-                    <span style={{ color: '#3b82f6' }}>Agency: {agencyGiftPct}%</span>
-                    <span style={{ color: '#10b981' }}>Host Share: {hostCoinSharePct.toFixed(1)}%</span>
+                <div style={{ padding: '0.9rem 1.1rem', borderRadius: '12px', background: 'var(--bg-primary)', border: '1px solid var(--border-color)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', fontWeight: 700, marginBottom: '8px' }}>
+                    <span style={{ color: '#ef4444', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                      <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#ef4444', display: 'inline-block' }} />
+                      Admin: {adminGiftPct}%
+                    </span>
+                    <span style={{ color: '#3b82f6', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                      <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#3b82f6', display: 'inline-block' }} />
+                      Agency: {agencyGiftPct}%
+                    </span>
+                    <span style={{ color: '#10b981', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                      <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10b981', display: 'inline-block' }} />
+                      Host Share: {hostCoinSharePct.toFixed(1)}%
+                    </span>
                   </div>
-                  <div style={{ height: '12px', borderRadius: '6px', overflow: 'hidden', display: 'flex', background: 'rgba(0,0,0,0.1)' }}>
-                    <div style={{ width: `${Math.min(100, adminGiftPct)}%`, background: '#ef4444' }} title={`Admin ${adminGiftPct}%`} />
-                    <div style={{ width: `${Math.min(100 - adminGiftPct, agencyGiftPct)}%`, background: '#3b82f6' }} title={`Agency ${agencyGiftPct}%`} />
-                    <div style={{ width: `${Math.max(0, hostCoinSharePct)}%`, background: '#10b981' }} title={`Host ${hostCoinSharePct}%`} />
+                  <div style={{ height: '14px', borderRadius: '7px', overflow: 'hidden', display: 'flex', background: 'rgba(255,255,255,0.06)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.4)' }}>
+                    <div style={{ width: `${Math.min(100, adminGiftPct)}%`, background: '#ef4444', transition: 'width 0.3s ease' }} title={`Admin ${adminGiftPct}%`} />
+                    <div style={{ width: `${Math.min(100 - adminGiftPct, agencyGiftPct)}%`, background: '#3b82f6', transition: 'width 0.3s ease' }} title={`Agency ${agencyGiftPct}%`} />
+                    <div style={{ width: `${Math.max(0, hostCoinSharePct)}%`, background: '#10b981', transition: 'width 0.3s ease' }} title={`Host ${hostCoinSharePct}%`} />
                   </div>
                 </div>
               </div>
 
-              {/* Cashout Threshold & Presets */}
-              <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '1.25rem' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem' }}>
+              {/* SECTION: CASHOUT & HOST WITHDRAWAL ENGINE */}
+              <div
+                style={{
+                  borderTop: '1px solid var(--border-color)',
+                  paddingTop: '1.5rem',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '1.25rem',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div
+                    style={{
+                      width: '32px',
+                      height: '32px',
+                      borderRadius: '8px',
+                      background: 'rgba(139, 92, 246, 0.15)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <DollarSign size={18} color="#8b5cf6" />
+                  </div>
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '0.35rem' }}>
-                      Minimum {isDiamondMode ? 'Diamonds' : 'Coins'} for Cashout
-                    </label>
-                    <input
-                      type="number"
-                      className="input-field"
-                      style={{ maxWidth: '200px' }}
-                      value={settings.min_withdrawal_diamonds || '1000'}
-                      onChange={(e) => handleChange('min_withdrawal_diamonds', e.target.value)}
-                    />
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: '4px', display: 'block' }}>
-                      Threshold required before host can submit cashout.
+                    <h4 style={{ margin: 0, fontSize: '0.98rem', fontWeight: 700, color: 'var(--text-main)' }}>
+                      Cashout & Host Withdrawal Engine
+                    </h4>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>
+                      Host withdrawal threshold, custom amount input permission, and mobile quick preset buttons
                     </span>
                   </div>
+                </div>
 
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '0.35rem' }}>
-                      Cashout Presets List
-                    </label>
-                    <input
-                      type="text"
-                      className="input-field"
-                      value={settings.withdrawal_presets || '[1000, 2000, 5000, 10000, 25000, 50000]'}
-                      onChange={(e) => handleChange('withdrawal_presets', e.target.value)}
-                      placeholder="1000, 2000, 5000, 10000, 25000, 50000"
-                    />
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: '4px', display: 'block' }}>
-                      Quick buttons shown on mobile cashout screen.
-                    </span>
-                  </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.25rem' }}>
+                  {/* Left: Threshold & Custom Input */}
+                  <div
+                    style={{
+                      background: 'var(--bg-primary)',
+                      border: '1px solid var(--border-color)',
+                      borderRadius: '12px',
+                      padding: '1.25rem',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '1.25rem',
+                    }}
+                  >
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '0.35rem' }}>
+                        Minimum {isDiamondMode ? 'Diamonds' : 'Coins'} for Cashout
+                      </label>
+                      <div style={{ position: 'relative', maxWidth: '240px' }}>
+                        <input
+                          type="number"
+                          min="1"
+                          className="input-field"
+                          style={{ paddingLeft: '2.4rem', fontWeight: 700 }}
+                          value={settings.min_withdrawal_diamonds || '1000'}
+                          onChange={(e) => handleChange('min_withdrawal_diamonds', e.target.value)}
+                        />
+                        <div style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', display: 'flex' }}>
+                          {isDiamondMode ? <Gem size={16} color="#8b5cf6" /> : <Coins size={16} color="#f59e0b" />}
+                        </div>
+                      </div>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: '4px', display: 'block' }}>
+                        Minimum balance required before a host can submit a withdrawal request.
+                      </span>
+                    </div>
 
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '0.35rem' }}>
-                      Allow Custom Manual Input for Withdrawal
-                    </label>
-                    <div style={{ display: 'flex', gap: '1.25rem', alignItems: 'center', marginTop: '0.5rem' }}>
-                      <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontSize: '0.85rem' }}>
-                        <input
-                          type="radio"
-                          name="allow_manual_withdrawal_input"
-                          checked={settings.allow_manual_withdrawal_input !== 'false'}
-                          onChange={() => handleChange('allow_manual_withdrawal_input', 'true')}
-                        />
-                        <span style={{ color: '#10b981', fontWeight: 600 }}>Enabled (Custom Input)</span>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '0.5rem' }}>
+                        Allow Custom Manual Input for Withdrawal
                       </label>
-                      <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontSize: '0.85rem' }}>
-                        <input
-                          type="radio"
-                          name="allow_manual_withdrawal_input"
-                          checked={settings.allow_manual_withdrawal_input === 'false'}
-                          onChange={() => handleChange('allow_manual_withdrawal_input', 'false')}
-                        />
-                        <span style={{ color: '#ef4444', fontWeight: 600 }}>Disabled (Presets Only)</span>
-                      </label>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                        <div
+                          onClick={() => handleChange('allow_manual_withdrawal_input', 'true')}
+                          style={{
+                            padding: '10px 12px',
+                            borderRadius: '10px',
+                            cursor: 'pointer',
+                            border: settings.allow_manual_withdrawal_input !== 'false' ? '2px solid #10b981' : '1px solid var(--border-color)',
+                            background: settings.allow_manual_withdrawal_input !== 'false' ? 'rgba(16, 185, 129, 0.1)' : 'transparent',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            transition: 'all 0.2s ease',
+                          }}
+                        >
+                          <CheckCircle2 size={16} color={settings.allow_manual_withdrawal_input !== 'false' ? '#10b981' : 'var(--text-dim)'} />
+                          <div>
+                            <span style={{ fontSize: '0.82rem', fontWeight: 700, color: settings.allow_manual_withdrawal_input !== 'false' ? '#10b981' : 'var(--text-main)', display: 'block' }}>
+                              Enabled
+                            </span>
+                            <span style={{ fontSize: '0.7rem', color: 'var(--text-dim)' }}>Custom input</span>
+                          </div>
+                        </div>
+
+                        <div
+                          onClick={() => handleChange('allow_manual_withdrawal_input', 'false')}
+                          style={{
+                            padding: '10px 12px',
+                            borderRadius: '10px',
+                            cursor: 'pointer',
+                            border: settings.allow_manual_withdrawal_input === 'false' ? '2px solid #ef4444' : '1px solid var(--border-color)',
+                            background: settings.allow_manual_withdrawal_input === 'false' ? 'rgba(239, 68, 68, 0.1)' : 'transparent',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            transition: 'all 0.2s ease',
+                          }}
+                        >
+                          <AlertTriangle size={16} color={settings.allow_manual_withdrawal_input === 'false' ? '#ef4444' : 'var(--text-dim)'} />
+                          <div>
+                            <span style={{ fontSize: '0.82rem', fontWeight: 700, color: settings.allow_manual_withdrawal_input === 'false' ? '#ef4444' : 'var(--text-main)', display: 'block' }}>
+                              Disabled
+                            </span>
+                            <span style={{ fontSize: '0.7rem', color: 'var(--text-dim)' }}>Presets only</span>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '0.35rem' }}>
-                      Recharge Coin Presets
-                    </label>
-                    <input
-                      type="text"
-                      className="input-field"
-                      value={settings.recharge_presets || '[500, 1000, 2500, 5000, 10000, 50000, 100000]'}
-                      onChange={(e) => handleChange('recharge_presets', e.target.value)}
-                      placeholder="[500, 1000, 2500, 5000, 10000, 50000, 100000]"
-                    />
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: '4px', display: 'block' }}>
-                      Quick buy options shown on user wallet recharge screen.
-                    </span>
-                  </div>
+                  {/* Right: Cashout Presets - Alada Alada Chips */}
+                  <div
+                    style={{
+                      background: 'var(--bg-primary)',
+                      border: '1px solid var(--border-color)',
+                      borderRadius: '12px',
+                      padding: '1.25rem',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
+                      gap: '1rem',
+                    }}
+                  >
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                        <div>
+                          <label style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-main)', margin: 0 }}>
+                            Cashout Quick Presets ({isDiamondMode ? '💎 Diamonds' : '🪙 Coins'})
+                          </label>
+                          <span style={{ fontSize: '0.74rem', color: 'var(--text-dim)', display: 'block', marginTop: '2px' }}>
+                            Interactive buttons shown on the mobile host cashout screen.
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handleResetWithdrawalPresets}
+                          style={{
+                            background: 'transparent',
+                            border: 'none',
+                            color: 'var(--text-dim)',
+                            fontSize: '0.72rem',
+                            cursor: 'pointer',
+                            textDecoration: 'underline',
+                          }}
+                        >
+                          Reset Defaults
+                        </button>
+                      </div>
 
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '0.35rem' }}>
-                      New User Registration Welcome Coins
-                    </label>
-                    <div style={{ position: 'relative' }}>
+                      {/* Chips Container */}
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', margin: '0.75rem 0' }}>
+                        {parsePresetsList(settings.withdrawal_presets, [1000, 2000, 5000, 10000, 25000, 50000]).map((num) => (
+                          <div
+                            key={num}
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '6px',
+                              padding: '5px 12px',
+                              borderRadius: '20px',
+                              background: 'rgba(139, 92, 246, 0.12)',
+                              border: '1px solid rgba(139, 92, 246, 0.35)',
+                              color: '#c4b5fd',
+                              fontWeight: 700,
+                              fontSize: '0.84rem',
+                            }}
+                          >
+                            <span>{isDiamondMode ? '💎' : '🪙'} {Number(num).toLocaleString()}</span>
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveWithdrawalPreset(num)}
+                              style={{
+                                background: 'transparent',
+                                border: 'none',
+                                cursor: 'pointer',
+                                color: 'rgba(255, 255, 255, 0.6)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                padding: '2px',
+                                borderRadius: '50%',
+                              }}
+                              title="Remove this preset"
+                            >
+                              <X size={12} />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Add New Preset Input */}
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center', paddingTop: '0.75rem', borderTop: '1px solid var(--border-color)' }}>
                       <input
                         type="number"
+                        min="1"
+                        placeholder="e.g. 15000"
                         className="input-field"
-                        min="0"
-                        value={settings.default_registration_coins ?? '100'}
-                        onChange={(e) => handleChange('default_registration_coins', e.target.value)}
-                        placeholder="100"
-                        style={{ paddingLeft: '2.5rem' }}
+                        style={{ maxWidth: '160px' }}
+                        value={newWithdrawalPreset}
+                        onChange={(e) => setNewWithdrawalPreset(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            handleAddWithdrawalPreset();
+                          }
+                        }}
                       />
-                      <Coins size={16} color="#f59e0b" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
+                      <button
+                        type="button"
+                        className="btn btn-secondary"
+                        onClick={handleAddWithdrawalPreset}
+                        style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '8px 14px' }}
+                      >
+                        <Plus size={14} />
+                        <span>Add Preset</span>
+                      </button>
                     </div>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: '4px', display: 'block' }}>
-                      Free coins automatically granted to newly registered users upon account creation (default: 100).
+                  </div>
+                </div>
+              </div>
+
+              {/* SECTION: RECHARGE PRESETS & WELCOME INCENTIVES */}
+              <div
+                style={{
+                  borderTop: '1px solid var(--border-color)',
+                  paddingTop: '1.5rem',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '1.25rem',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div
+                    style={{
+                      width: '32px',
+                      height: '32px',
+                      borderRadius: '8px',
+                      background: 'rgba(245, 158, 11, 0.15)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <Coins size={18} color="#f59e0b" />
+                  </div>
+                  <div>
+                    <h4 style={{ margin: 0, fontSize: '0.98rem', fontWeight: 700, color: 'var(--text-main)' }}>
+                      Wallet Recharge & New User Registration Incentives
+                    </h4>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>
+                      Quick buy coin presets for mobile recharge and free welcome bonus coins for new accounts
                     </span>
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.25rem' }}>
+                  {/* Left: Recharge Coin Presets - Alada Alada Chips */}
+                  <div
+                    style={{
+                      background: 'var(--bg-primary)',
+                      border: '1px solid var(--border-color)',
+                      borderRadius: '12px',
+                      padding: '1.25rem',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
+                      gap: '1rem',
+                    }}
+                  >
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                        <div>
+                          <label style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-main)', margin: 0 }}>
+                            Recharge Coin Presets 🪙
+                          </label>
+                          <span style={{ fontSize: '0.74rem', color: 'var(--text-dim)', display: 'block', marginTop: '2px' }}>
+                            Quick buy options shown on user wallet recharge screen.
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handleResetRechargePresets}
+                          style={{
+                            background: 'transparent',
+                            border: 'none',
+                            color: 'var(--text-dim)',
+                            fontSize: '0.72rem',
+                            cursor: 'pointer',
+                            textDecoration: 'underline',
+                          }}
+                        >
+                          Reset Defaults
+                        </button>
+                      </div>
+
+                      {/* Chips Container */}
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', margin: '0.75rem 0' }}>
+                        {parsePresetsList(settings.recharge_presets, [500, 1000, 2500, 5000, 10000, 50000, 100000]).map((num) => (
+                          <div
+                            key={num}
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '6px',
+                              padding: '5px 12px',
+                              borderRadius: '20px',
+                              background: 'rgba(245, 158, 11, 0.12)',
+                              border: '1px solid rgba(245, 158, 11, 0.35)',
+                              color: '#fbbf24',
+                              fontWeight: 700,
+                              fontSize: '0.84rem',
+                            }}
+                          >
+                            <span>🪙 {Number(num).toLocaleString()}</span>
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveRechargePreset(num)}
+                              style={{
+                                background: 'transparent',
+                                border: 'none',
+                                cursor: 'pointer',
+                                color: 'rgba(255, 255, 255, 0.6)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                padding: '2px',
+                                borderRadius: '50%',
+                              }}
+                              title="Remove this preset"
+                            >
+                              <X size={12} />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Add New Recharge Preset Form */}
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center', paddingTop: '0.75rem', borderTop: '1px solid var(--border-color)' }}>
+                      <input
+                        type="number"
+                        min="1"
+                        placeholder="e.g. 250000"
+                        className="input-field"
+                        style={{ maxWidth: '160px' }}
+                        value={newRechargePreset}
+                        onChange={(e) => setNewRechargePreset(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            handleAddRechargePreset();
+                          }
+                        }}
+                      />
+                      <button
+                        type="button"
+                        className="btn btn-secondary"
+                        onClick={handleAddRechargePreset}
+                        style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '8px 14px' }}
+                      >
+                        <Plus size={14} />
+                        <span>Add Preset</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Right: New User Registration Welcome Bonus Card */}
+                  <div
+                    style={{
+                      background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, rgba(20, 15, 10, 0.45) 100%)',
+                      border: '1px solid rgba(245, 158, 11, 0.35)',
+                      borderRadius: '12px',
+                      padding: '1.25rem',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
+                      gap: '1rem',
+                      position: 'relative',
+                      boxShadow: '0 4px 20px rgba(245, 158, 11, 0.08)',
+                    }}
+                  >
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <Gift size={18} color="#f59e0b" />
+                          <label style={{ fontSize: '0.88rem', fontWeight: 700, color: 'var(--text-main)', margin: 0 }}>
+                            New User Registration Welcome Coins
+                          </label>
+                        </div>
+                        <span
+                          style={{
+                            fontSize: '0.7rem',
+                            fontWeight: 700,
+                            padding: '3px 8px',
+                            borderRadius: '12px',
+                            background: 'rgba(245, 158, 11, 0.15)',
+                            color: '#f59e0b',
+                            border: '1px solid rgba(245, 158, 11, 0.3)',
+                          }}
+                        >
+                          Auto Credited
+                        </span>
+                      </div>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)', display: 'block', lineHeight: 1.4 }}>
+                        Free bonus coins granted to newly created accounts on registration (Email, Google, Guest).
+                      </span>
+
+                      {/* Quick Select Buttons */}
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', margin: '0.85rem 0' }}>
+                        {[0, 50, 100, 200, 500, 1000].map((amount) => {
+                          const isSelected = String(settings.default_registration_coins ?? '100') === String(amount);
+                          return (
+                            <button
+                              key={amount}
+                              type="button"
+                              onClick={() => handleChange('default_registration_coins', String(amount))}
+                              style={{
+                                padding: '4px 10px',
+                                borderRadius: '16px',
+                                fontSize: '0.75rem',
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                                background: isSelected ? '#f59e0b' : 'rgba(255, 255, 255, 0.05)',
+                                color: isSelected ? '#000000' : 'var(--text-main)',
+                                border: isSelected ? '1px solid #f59e0b' : '1px solid var(--border-color)',
+                                transition: 'all 0.15s ease',
+                              }}
+                            >
+                              {amount === 0 ? '0 (None)' : `${amount} Coins`}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-dim)', display: 'block', marginBottom: '4px' }}>
+                        Or Enter Custom Coins Amount:
+                      </label>
+                      <div style={{ position: 'relative', maxWidth: '200px' }}>
+                        <input
+                          type="number"
+                          className="input-field"
+                          min="0"
+                          value={settings.default_registration_coins ?? '100'}
+                          onChange={(e) => handleChange('default_registration_coins', e.target.value)}
+                          placeholder="100"
+                          style={{ paddingLeft: '2.4rem', fontWeight: 700, fontSize: '1rem', color: '#f59e0b' }}
+                        />
+                        <Coins size={16} color="#f59e0b" style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)' }} />
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
