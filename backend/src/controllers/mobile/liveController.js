@@ -318,6 +318,40 @@ export async function getRooms(req, res) {
 
       const whereSql = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
 
+      // 1. Identify Top 2 rooms across the entire platform with highest viewer count
+      const top2ViewerRows = await query(
+        `SELECT r.id 
+         FROM live_rooms r 
+         JOIN users u ON r.host_id = u.id 
+         ${whereSql} 
+         ORDER BY r.viewer_count DESC, r.started_at DESC 
+         LIMIT 2`,
+        params
+      );
+      const top2Ids = (top2ViewerRows || []).map((row) => row.id);
+
+      // 2. Dynamic Hybrid Ordering:
+      // Priority 0: Top 2 highest-viewer rooms on the platform (Position 1 & 2)
+      // Priority 1: Remaining rooms sorted by VIP package display rank, then viewers, then start time
+      let orderClause;
+      let queryParams = [...params];
+
+      if (top2Ids.length > 0) {
+        const top2Placeholders = top2Ids.map(() => '?').join(', ');
+        orderClause = `
+          ORDER BY 
+            CASE WHEN r.id IN (${top2Placeholders}) THEN 0 ELSE 1 END ASC,
+            CASE WHEN r.id IN (${top2Placeholders}) THEN r.viewer_count ELSE 0 END DESC,
+            vip_rank ASC,
+            r.viewer_count DESC,
+            r.started_at DESC
+        `;
+        queryParams = [...params, ...top2Ids, ...top2Ids, parseInt(limit, 10), offset];
+      } else {
+        orderClause = `ORDER BY vip_rank ASC, r.viewer_count DESC, r.started_at DESC`;
+        queryParams = [...params, parseInt(limit, 10), offset];
+      }
+
       const rooms = await query(
         `SELECT r.id, r.room_id, r.host_id, r.title, r.category, r.live_type, r.total_seats,
                 r.background_image, r.status,
@@ -334,9 +368,9 @@ export async function getRooms(req, res) {
          LEFT JOIN package_categories pc 
            ON pc.id = ups.category_id AND pc.is_active = 1
          ${whereSql}
-         ORDER BY vip_rank ASC, r.viewer_count DESC, r.started_at DESC
+         ${orderClause}
          LIMIT ? OFFSET ?`,
-        [...params, parseInt(limit, 10), offset]
+        queryParams
       );
 
       const [countResult] = await query(
@@ -351,8 +385,13 @@ export async function getRooms(req, res) {
         if (!seenHostIds.has(rm.host_id)) {
           seenHostIds.add(rm.host_id);
           const bg = (rm.background_image && rm.background_image.trim()) ? rm.background_image.trim() : null;
+          const isTop2Viewer = top2Ids.includes(rm.id);
+          const topViewerRank = isTop2Viewer ? (top2Ids.indexOf(rm.id) + 1) : null;
+
           uniqueRooms.push({
             ...rm,
+            is_top_viewer_rank: isTop2Viewer,
+            top_viewer_rank: topViewerRank,
             is_audio: rm.live_type === 'audio',
             is_comment_disabled: Boolean(rm.is_comment_disabled),
             is_reaction_disabled: Boolean(rm.is_reaction_disabled),

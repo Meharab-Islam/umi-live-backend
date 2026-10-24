@@ -42347,6 +42347,18 @@
     },
     {
       "source": "backend_src_routes_mobile_liveroutes",
+      "target": "backend_src_middlewares_authmiddleware_optionalauth",
+      "relation": "indirect_call",
+      "_origin": "ast",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "context": "argument",
+      "source_file": "backend/src/routes/mobile/liveRoutes.js",
+      "source_location": "L81",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_src_routes_mobile_liveroutes",
       "target": "backend_src_controllers_mobile_livecontroller_getmyactiveroom",
       "relation": "indirect_call",
       "_origin": "ast",
@@ -42360,18 +42372,6 @@
     {
       "source": "backend_src_routes_mobile_liveroutes",
       "target": "backend_src_controllers_mobile_livecontroller_getroomdetails",
-      "relation": "indirect_call",
-      "_origin": "ast",
-      "confidence": "INFERRED",
-      "confidence_score": 0.85,
-      "context": "argument",
-      "source_file": "backend/src/routes/mobile/liveRoutes.js",
-      "source_location": "L87",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_src_routes_mobile_liveroutes",
-      "target": "backend_src_middlewares_authmiddleware_optionalauth",
       "relation": "indirect_call",
       "_origin": "ast",
       "confidence": "INFERRED",
@@ -43811,5 +43811,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "db8580bdefda5b5361fce50f95683b979f56bab9"
+  "built_at_commit": "5dedf6db42b5fd385303fc732ca7d79672558ff3"
 }
