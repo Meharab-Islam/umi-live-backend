@@ -18,6 +18,11 @@ export const API_SPEC = {
   ],
   "categories": [
     {
+      "id": "levels",
+      "name": "⭐ User Levels & Progression Rewards",
+      "description": "Milestone-based level progression engine: min coins spent requirements, wallet bonuses (coins & diamonds), and unlockable items (Entry Effects, Special Thumbnails, and VIP Packages) with expiration durations."
+    },
+    {
       "id": "live-rewards",
       "name": "🎁 Live Streaming Rewards & Host Incentives",
       "description": "Continuous & Cumulative live duration reward milestones: check real-time stream eligibility, remaining minutes, daily claim limits, coin rewards, and automatic/manual claiming."
@@ -2434,6 +2439,118 @@ export const API_SPEC = {
               "created_at": "2026-10-12T08:00:00.000Z",
               "updated_at": "2026-10-12T08:00:00.000Z"
             }
+          }
+        }
+      ]
+    },
+    {
+      "id": "levels-progression",
+      "category": "levels",
+      "method": "GET",
+      "path": "/api/mobile/levels",
+      "summary": "Get Level Progression Roadmap & User Progress",
+      "description": "Returns the complete progression roadmap from Level 1 upwards with minimum coins spent requirements, wallet bonuses (coins/diamonds), and unlockable items (Entry Effect, Special Thumbnail, VIP Package with validity duration). If authenticated with Bearer token, also calculates current user tier, total coins spent, progress percentage towards next level, and exact coins needed.",
+      "requiresAuth": false,
+      "requestHeaders": [
+        {
+          "name": "Authorization",
+          "value": "Bearer <jwt-token> (optional)",
+          "required": false
+        }
+      ],
+      "parameters": [],
+      "requestBody": null,
+      "responses": [
+        {
+          "status": 200,
+          "description": "Level progression roadmap and user progress retrieved successfully.",
+          "example": {
+            "success": true,
+            "user": {
+              "id": 105,
+              "name": "Alex Hunter",
+              "avatar_url": "https://example.com/avatar.jpg",
+              "current_level": 4,
+              "total_coins_spent": 8500
+            },
+            "current_tier": {
+              "level_number": 4,
+              "level_name": "Emerald Scout",
+              "min_coins_spent": 5000,
+              "badge_color": "#10b981",
+              "reward_coins": 150,
+              "reward_diamonds": 0
+            },
+            "next_tier": {
+              "level_number": 5,
+              "level_name": "Ruby Pioneer",
+              "min_coins_spent": 15000,
+              "badge_color": "#ef4444",
+              "reward_coins": 350,
+              "reward_diamonds": 50,
+              "effect_name": "Phoenix Flame",
+              "reward_validity_days": 7
+            },
+            "progress_percent": 35,
+            "coins_needed_for_next_level": 6500,
+            "all_levels": [
+              {
+                "level_number": 1,
+                "level_name": "Bronze Novice",
+                "min_coins_spent": 0,
+                "badge_color": "#cd7f32"
+              },
+              {
+                "level_number": 2,
+                "level_name": "Silver Explorer",
+                "min_coins_spent": 500,
+                "badge_color": "#94a3b8"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "levels-my-rewards",
+      "category": "levels",
+      "method": "GET",
+      "path": "/api/mobile/levels/my-rewards",
+      "summary": "Get User Claimed Level Rewards History",
+      "description": "Returns audit trail of all level milestone promotions achieved by the authenticated user and the corresponding coins, diamonds, entry effects, thumbnails, and packages awarded.",
+      "requiresAuth": true,
+      "requestHeaders": [
+        {
+          "name": "Authorization",
+          "value": "Bearer <jwt-token>",
+          "required": true
+        }
+      ],
+      "parameters": [],
+      "requestBody": null,
+      "responses": [
+        {
+          "status": 200,
+          "description": "Claimed level rewards history retrieved successfully.",
+          "example": {
+            "success": true,
+            "total_claimed": 3,
+            "rewards": [
+              {
+                "id": 14,
+                "user_id": 105,
+                "level_reached": 4,
+                "coins_awarded": 150,
+                "diamonds_awarded": 0,
+                "entry_effect_id": null,
+                "thumbnail_id": null,
+                "package_id": null,
+                "reward_duration_days": 7,
+                "claimed_at": "2026-10-24T12:00:00.000Z",
+                "level_name": "Emerald Scout",
+                "badge_color": "#10b981"
+              }
+            ]
           }
         }
       ]

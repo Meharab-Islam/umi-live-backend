@@ -26,6 +26,7 @@ import Posts from './pages/Posts';
 import Reports from './pages/Reports';
 import AppThemes from './pages/AppThemes';
 import LiveRewards from './pages/LiveRewards';
+import Levels from './pages/Levels';
 
 import { checkHealth, getToken, setToken, getCurrentUser, setCurrentUser } from './api/client';
 import dashboardApi from './api/dashboardApi';
@@ -37,6 +38,7 @@ const VALID_TABS = [
   'streams',
   'host-management',
   'live-rewards',
+  'levels',
   'agencies',
   'resellers',
   'moderators',
@@ -222,6 +224,8 @@ export default function App() {
     dashboard: 'Dashboard Overview',
     streams: 'Live Video Streams & Rooms',
     'host-management': 'Host Management & Applications',
+    'live-rewards': 'Live Streaming Duration Rewards',
+    levels: 'User Levels & Progression Rewards',
     agencies: 'Agency & Talent Management',
     resellers: 'Official Resellers & Sales Audit',
     moderators: 'Moderator Team & Permissions',
@@ -304,6 +308,10 @@ export default function App() {
 
           {activeTab === 'live-rewards' && (
             <LiveRewards onToast={addToast} />
+          )}
+
+          {activeTab === 'levels' && (
+            <Levels onToast={addToast} />
           )}
 
           {activeTab === 'agencies' && (

@@ -631,6 +631,103 @@ export async function initializeDatabase() {
       console.error('Seed live duration settings error:', e.message);
     }
 
+    // Level Progression Configuration & User Level-Up Rewards Engine
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS level_configs (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        level_number INT NOT NULL UNIQUE,
+        level_name VARCHAR(100) NOT NULL,
+        min_coins_spent BIGINT NOT NULL DEFAULT 0,
+        badge_icon VARCHAR(500) DEFAULT '',
+        badge_color VARCHAR(50) DEFAULT '#f59e0b',
+        reward_coins INT NOT NULL DEFAULT 0,
+        reward_diamonds INT NOT NULL DEFAULT 0,
+        reward_entry_effect_id INT NULL,
+        reward_thumbnail_id INT NULL,
+        reward_package_id INT NULL,
+        reward_validity_days INT NOT NULL DEFAULT 7,
+        is_active BOOLEAN DEFAULT TRUE,
+        description TEXT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        INDEX idx_level_num (level_number),
+        INDEX idx_min_coins (min_coins_spent),
+        FOREIGN KEY (reward_entry_effect_id) REFERENCES entry_effects(id) ON DELETE SET NULL,
+        FOREIGN KEY (reward_thumbnail_id) REFERENCES special_thumbnails(id) ON DELETE SET NULL,
+        FOREIGN KEY (reward_package_id) REFERENCES privilege_packages(id) ON DELETE SET NULL
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `);
+
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS user_level_rewards (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
+        level_reached INT NOT NULL,
+        coins_awarded INT DEFAULT 0,
+        diamonds_awarded INT DEFAULT 0,
+        entry_effect_id INT NULL,
+        thumbnail_id INT NULL,
+        package_id INT NULL,
+        reward_duration_days INT DEFAULT 0,
+        claimed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE KEY uniq_user_level (user_id, level_reached),
+        INDEX idx_user_id (user_id),
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `);
+
+    // Ensure total_coins_spent exists in users table
+    try {
+      const [colCheckCoins] = await connection.query(`
+        SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS 
+        WHERE TABLE_SCHEMA = ? AND TABLE_NAME = 'users' AND COLUMN_NAME = 'total_coins_spent'
+      `, [database]);
+      if (!colCheckCoins || colCheckCoins.length === 0) {
+        await connection.query(`
+          ALTER TABLE \`users\` 
+            ADD COLUMN total_coins_spent BIGINT NOT NULL DEFAULT 0 AFTER level;
+        `);
+        console.log('✅ [DB Migration] Added total_coins_spent to users table.');
+      }
+    } catch (err) {
+      // Ignore if exists
+    }
+
+    // Seed default progression levels (1 - 20) if empty
+    try {
+      const [levelRows] = await connection.query('SELECT COUNT(*) as count FROM level_configs');
+      if (!levelRows || levelRows[0]?.count === 0) {
+        await connection.query(`
+          INSERT INTO level_configs 
+            (level_number, level_name, min_coins_spent, badge_color, reward_coins, reward_diamonds, reward_validity_days, description)
+          VALUES 
+            (1, 'Bronze Novice', 0, '#cd7f32', 0, 0, 7, 'Welcome tier for every new member.'),
+            (2, 'Silver Explorer', 500, '#94a3b8', 25, 0, 7, 'Unlocked after spending 500 coins.'),
+            (3, 'Gold Adventurer', 1500, '#eab308', 50, 0, 7, 'Unlocked after spending 1,500 coins.'),
+            (4, 'Emerald Scout', 5000, '#10b981', 150, 0, 7, 'Unlocked after spending 5,000 coins.'),
+            (5, 'Ruby Pioneer', 15000, '#ef4444', 350, 50, 7, 'Unlocked after spending 15,000 coins.'),
+            (6, 'Sapphire Veteran', 40000, '#3b82f6', 750, 100, 7, 'Unlocked after spending 40,000 coins.'),
+            (7, 'Amethyst Warrior', 100000, '#8b5cf6', 1500, 250, 15, 'Unlocked after spending 100,000 coins.'),
+            (8, 'Diamond Champion', 250000, '#06b6d4', 3500, 500, 15, 'Unlocked after spending 250,000 coins.'),
+            (9, 'Master Guardian', 600000, '#ec4899', 7500, 1000, 15, 'Unlocked after spending 600,000 coins.'),
+            (10, 'Royal Conqueror', 1500000, '#f59e0b', 15000, 2500, 30, 'Unlocked after spending 1,500,000 coins.'),
+            (11, 'Imperial Warlord', 3000000, '#6366f1', 30000, 5000, 30, 'Unlocked after spending 3,000,000 coins.'),
+            (12, 'Grand Monarch', 6000000, '#14b8a6', 60000, 10000, 30, 'Unlocked after spending 6,000,000 coins.'),
+            (13, 'Supreme Overlord', 12000000, '#d946ef', 120000, 20000, 30, 'Unlocked after spending 12,000,000 coins.'),
+            (14, 'Celestial Titan', 25000000, '#84cc16', 250000, 40000, 30, 'Unlocked after spending 25,000,000 coins.'),
+            (15, 'Mythic Sovereign', 50000000, '#f43f5e', 500000, 80000, 30, 'Unlocked after spending 50,000,000 coins.'),
+            (16, 'Divine Immortal', 100000000, '#a855f7', 1000000, 150000, 60, 'Unlocked after spending 100,000,000 coins.'),
+            (17, 'Galactic Emperor', 200000000, '#0ea5e9', 2000000, 300000, 60, 'Unlocked after spending 200,000,000 coins.'),
+            (18, 'Cosmic Ruler', 400000000, '#e11d48', 4000000, 600000, 60, 'Unlocked after spending 400,000,000 coins.'),
+            (19, 'Eternal Legend', 750000000, '#f97316', 7500000, 1200000, 90, 'Unlocked after spending 750,000,000 coins.'),
+            (20, 'Omnipotent Deity', 1500000000, '#fbbf24', 15000000, 2500000, 365, 'The highest honor in Umi Live.');
+        `);
+        console.log('✅ [DB Init] Level Progression default seeds (Levels 1 - 20) created.');
+      }
+    } catch (lvlErr) {
+      console.error('Seed level configs error:', lvlErr.message);
+    }
+
     // Ensure google_id exists in users table
     try {
       const [colCheck] = await connection.query(`

@@ -28,6 +28,7 @@ import {
   ShieldAlert,
   Palette,
   Award,
+  TrendingUp,
 } from 'lucide-react';
 import packageApi from '../api/packageApi';
 
@@ -76,6 +77,7 @@ export default function Sidebar({
     { id: 'streams', label: 'Live Streams', icon: Radio, badge: activeStreamCount > 0 ? `${activeStreamCount} Live` : null },
     { id: 'host-management', label: 'Host Management', icon: Mic },
     { id: 'live-rewards', label: 'Live Rewards', icon: Award },
+    { id: 'levels', label: 'Levels & Rewards', icon: TrendingUp, badge: 'Level Up' },
     { id: 'agencies', label: 'Agencies', icon: Building2 },
     { id: 'resellers', label: 'Resellers', icon: ShoppingBag },
     { id: 'moderators', label: 'Moderators', icon: Shield },

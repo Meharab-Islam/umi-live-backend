@@ -3,6 +3,7 @@ import { query, getPool } from '../../config/db.js';
 import { cache } from '../../config/redis.js';
 import { generateLiveKitToken, getLiveKitConfig } from '../../config/livekit.js';
 import { sendChatPushNotification } from '../../config/firebase.js';
+import { recordCoinsSpentAndCheckLevelUp } from '../../services/levelService.js';
 
 /**
  * Fetch dynamic call settings from Database/Redis
@@ -618,6 +619,11 @@ export async function heartbeatCall(req, res) {
     ]);
 
     const io = req.io || req.app.get('io');
+
+    // Trigger level-up check for caller
+    recordCoinsSpentAndCheckLevelUp(call.caller_id, rate, io).catch((err) => {
+      console.warn('[LevelUp] check failed on call heartbeat:', err.message);
+    });
     if (io) {
       const billedPayload = {
         callId: call.call_id,

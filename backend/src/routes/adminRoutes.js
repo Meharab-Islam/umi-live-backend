@@ -72,6 +72,13 @@ import {
   getLiveRewardHistoryAdmin,
   getLiveRewardStatsAdmin,
   getAdminCallLogs,
+  getLevelConfigs,
+  getLevelRewardOptions,
+  createLevelConfig,
+  updateLevelConfig,
+  deleteLevelConfig,
+  getLevelRewardHistory,
+  seedDefaultLevels,
 } from '../controllers/adminController.js';
 import {
   getPackageCategories,
@@ -319,5 +326,14 @@ router.get('/live-rewards/stats', getLiveRewardStatsAdmin);
 
 // 1-on-1 P2P Call Logs & History
 router.get('/call-logs', getAdminCallLogs);
+
+// User Levels & Progression Rewards
+router.get('/levels', getLevelConfigs);
+router.get('/levels/reward-options', getLevelRewardOptions);
+router.post('/levels', createLevelConfig);
+router.put('/levels/:id', updateLevelConfig);
+router.delete('/levels/:id', deleteLevelConfig);
+router.get('/levels/history', getLevelRewardHistory);
+router.post('/levels/seed', seedDefaultLevels);
 
 export default router;

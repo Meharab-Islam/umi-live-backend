@@ -4600,5 +4600,313 @@ export async function getAdminCallLogs(req, res) {
   }
 }
 
+// ==========================================
+// User Levels & Progression Rewards Controllers
+// ==========================================
+
+export async function getLevelConfigs(req, res) {
+  try {
+    const levels = await cache.getOrSet('levels:all', 60, async () => {
+      const rows = await query(`
+        SELECT lc.*,
+               ee.name as effect_name, ee.preview_image_url as effect_preview,
+               st.name as thumbnail_name, st.image_url as thumbnail_preview,
+               pp.name as package_name, pp.image_url as package_preview
+        FROM level_configs lc
+        LEFT JOIN entry_effects ee ON lc.reward_entry_effect_id = ee.id
+        LEFT JOIN special_thumbnails st ON lc.reward_thumbnail_id = st.id
+        LEFT JOIN privilege_packages pp ON lc.reward_package_id = pp.id
+        ORDER BY lc.level_number ASC
+      `);
+      return rows || [];
+    });
+
+    return res.json({ success: true, levels });
+  } catch (err) {
+    console.error('getLevelConfigs error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to fetch level configurations.' });
+  }
+}
+
+export async function getLevelRewardOptions(req, res) {
+  try {
+    const options = await cache.getOrSet('levels:reward_options', 60, async () => {
+      const [entryEffects, thumbnails, packages] = await Promise.all([
+        query('SELECT id, name, effect_type, preview_image_url, price, validity_days FROM entry_effects WHERE is_active = TRUE ORDER BY name ASC'),
+        query('SELECT id, name, image_url, price, validity_days FROM special_thumbnails WHERE is_active = TRUE ORDER BY name ASC'),
+        query('SELECT id, name, image_url, price, validity_days, color FROM privilege_packages WHERE is_active = TRUE ORDER BY name ASC'),
+      ]);
+      return {
+        entry_effects: entryEffects || [],
+        thumbnails: thumbnails || [],
+        packages: packages || [],
+      };
+    });
+
+    return res.json({ success: true, ...options });
+  } catch (err) {
+    console.error('getLevelRewardOptions error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to fetch level reward options.' });
+  }
+}
+
+export async function createLevelConfig(req, res) {
+  try {
+    const {
+      level_number,
+      level_name,
+      min_coins_spent,
+      badge_icon,
+      badge_color,
+      reward_coins,
+      reward_diamonds,
+      reward_entry_effect_id,
+      reward_thumbnail_id,
+      reward_package_id,
+      reward_validity_days,
+      is_active,
+      description,
+    } = req.body;
+
+    const lvlNum = parseInt(level_number, 10);
+    const minCoins = BigInt(min_coins_spent || 0);
+
+    if (isNaN(lvlNum) || lvlNum < 1) {
+      return res.status(400).json({ success: false, message: 'Valid Level Number is required (e.g. 1, 2, 3).' });
+    }
+    if (!level_name || !level_name.trim()) {
+      return res.status(400).json({ success: false, message: 'Level Title / Name is required.' });
+    }
+
+    // Check for duplicate level_number
+    const existing = await query('SELECT id FROM level_configs WHERE level_number = ?', [lvlNum]);
+    if (existing && existing.length > 0) {
+      return res.status(400).json({ success: false, message: `Level ${lvlNum} already exists. Please edit it instead.` });
+    }
+
+    // Insert to MySQL Database FIRST (SSOT)
+    const result = await query(
+      `INSERT INTO level_configs (
+        level_number, level_name, min_coins_spent, badge_icon, badge_color,
+        reward_coins, reward_diamonds, reward_entry_effect_id, reward_thumbnail_id,
+        reward_package_id, reward_validity_days, is_active, description
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        lvlNum,
+        level_name.trim(),
+        minCoins.toString(),
+        badge_icon || '',
+        badge_color || '#f59e0b',
+        parseInt(reward_coins || 0, 10),
+        parseInt(reward_diamonds || 0, 10),
+        reward_entry_effect_id || null,
+        reward_thumbnail_id || null,
+        reward_package_id || null,
+        Math.max(1, parseInt(reward_validity_days || 7, 10)),
+        is_active === false || is_active === 'false' ? 0 : 1,
+        description || '',
+      ]
+    );
+
+    // Instant Redis Invalidation
+    await cache.del('levels:all');
+    await cache.del('levels:all_active');
+    await cache.delByPattern('levels:*');
+
+    return res.status(201).json({
+      success: true,
+      message: `Level ${lvlNum} (${level_name}) created successfully.`,
+      id: result.insertId,
+    });
+  } catch (err) {
+    console.error('createLevelConfig error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to create level configuration.', error: err.message });
+  }
+}
+
+export async function updateLevelConfig(req, res) {
+  try {
+    const { id } = req.params;
+    const {
+      level_number,
+      level_name,
+      min_coins_spent,
+      badge_icon,
+      badge_color,
+      reward_coins,
+      reward_diamonds,
+      reward_entry_effect_id,
+      reward_thumbnail_id,
+      reward_package_id,
+      reward_validity_days,
+      is_active,
+      description,
+    } = req.body;
+
+    const existing = await query('SELECT * FROM level_configs WHERE id = ?', [id]);
+    if (!existing || existing.length === 0) {
+      return res.status(404).json({ success: false, message: 'Level configuration not found.' });
+    }
+
+    const lvlNum = level_number !== undefined ? parseInt(level_number, 10) : existing[0].level_number;
+    const minCoins = min_coins_spent !== undefined ? BigInt(min_coins_spent) : BigInt(existing[0].min_coins_spent);
+
+    // Database update FIRST (SSOT)
+    await query(
+      `UPDATE level_configs SET
+        level_number = ?,
+        level_name = ?,
+        min_coins_spent = ?,
+        badge_icon = ?,
+        badge_color = ?,
+        reward_coins = ?,
+        reward_diamonds = ?,
+        reward_entry_effect_id = ?,
+        reward_thumbnail_id = ?,
+        reward_package_id = ?,
+        reward_validity_days = ?,
+        is_active = ?,
+        description = ?
+       WHERE id = ?`,
+      [
+        lvlNum,
+        (level_name !== undefined ? level_name : existing[0].level_name).trim(),
+        minCoins.toString(),
+        badge_icon !== undefined ? badge_icon : existing[0].badge_icon,
+        badge_color !== undefined ? badge_color : existing[0].badge_color,
+        reward_coins !== undefined ? parseInt(reward_coins, 10) : existing[0].reward_coins,
+        reward_diamonds !== undefined ? parseInt(reward_diamonds, 10) : existing[0].reward_diamonds,
+        reward_entry_effect_id !== undefined ? (reward_entry_effect_id || null) : existing[0].reward_entry_effect_id,
+        reward_thumbnail_id !== undefined ? (reward_thumbnail_id || null) : existing[0].reward_thumbnail_id,
+        reward_package_id !== undefined ? (reward_package_id || null) : existing[0].reward_package_id,
+        reward_validity_days !== undefined ? Math.max(1, parseInt(reward_validity_days, 10)) : existing[0].reward_validity_days,
+        is_active !== undefined ? (is_active === false || is_active === 'false' ? 0 : 1) : existing[0].is_active,
+        description !== undefined ? description : existing[0].description,
+        id,
+      ]
+    );
+
+    // Instant Redis Invalidation
+    await cache.del('levels:all');
+    await cache.del('levels:all_active');
+    await cache.delByPattern('levels:*');
+
+    return res.json({ success: true, message: `Level ${lvlNum} updated successfully.` });
+  } catch (err) {
+    console.error('updateLevelConfig error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to update level configuration.', error: err.message });
+  }
+}
+
+export async function deleteLevelConfig(req, res) {
+  try {
+    const { id } = req.params;
+    const existing = await query('SELECT * FROM level_configs WHERE id = ?', [id]);
+    if (!existing || existing.length === 0) {
+      return res.status(404).json({ success: false, message: 'Level configuration not found.' });
+    }
+
+    // Database deletion FIRST
+    await query('DELETE FROM level_configs WHERE id = ?', [id]);
+
+    // Instant Redis Invalidation
+    await cache.del('levels:all');
+    await cache.del('levels:all_active');
+    await cache.delByPattern('levels:*');
+
+    return res.json({ success: true, message: `Level ${existing[0].level_number} deleted successfully.` });
+  } catch (err) {
+    console.error('deleteLevelConfig error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to delete level configuration.' });
+  }
+}
+
+export async function getLevelRewardHistory(req, res) {
+  try {
+    const page = Math.max(1, parseInt(req.query.page || '1', 10));
+    const limit = Math.max(1, Math.min(100, parseInt(req.query.limit || '20', 10)));
+    const offset = (page - 1) * limit;
+
+    const countRows = await query('SELECT COUNT(*) as total FROM user_level_rewards');
+    const total = countRows[0]?.total || 0;
+
+    const rows = await query(`
+      SELECT ulr.*,
+             u.full_name as user_name, u.avatar_url as user_avatar, u.role as user_role,
+             lc.level_name, lc.badge_color,
+             ee.name as effect_name, ee.preview_image_url as effect_preview,
+             st.name as thumbnail_name, st.image_url as thumbnail_preview,
+             pp.name as package_name, pp.image_url as package_preview
+      FROM user_level_rewards ulr
+      LEFT JOIN users u ON ulr.user_id = u.id
+      LEFT JOIN level_configs lc ON ulr.level_reached = lc.level_number
+      LEFT JOIN entry_effects ee ON ulr.entry_effect_id = ee.id
+      LEFT JOIN special_thumbnails st ON ulr.thumbnail_id = st.id
+      LEFT JOIN privilege_packages pp ON ulr.package_id = pp.id
+      ORDER BY ulr.id DESC
+      LIMIT ? OFFSET ?
+    `, [limit, offset]);
+
+    return res.json({
+      success: true,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+      history: rows,
+    });
+  } catch (err) {
+    console.error('getLevelRewardHistory error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to fetch level reward audit history.' });
+  }
+}
+
+export async function seedDefaultLevels(req, res) {
+  try {
+    await query(`
+      INSERT INTO level_configs 
+        (level_number, level_name, min_coins_spent, badge_color, reward_coins, reward_diamonds, reward_validity_days, description)
+      VALUES 
+        (1, 'Bronze Novice', 0, '#cd7f32', 0, 0, 7, 'Welcome tier for every new member.'),
+        (2, 'Silver Explorer', 500, '#94a3b8', 25, 0, 7, 'Unlocked after spending 500 coins.'),
+        (3, 'Gold Adventurer', 1500, '#eab308', 50, 0, 7, 'Unlocked after spending 1,500 coins.'),
+        (4, 'Emerald Scout', 5000, '#10b981', 150, 0, 7, 'Unlocked after spending 5,000 coins.'),
+        (5, 'Ruby Pioneer', 15000, '#ef4444', 350, 50, 7, 'Unlocked after spending 15,000 coins.'),
+        (6, 'Sapphire Veteran', 40000, '#3b82f6', 750, 100, 7, 'Unlocked after spending 40,000 coins.'),
+        (7, 'Amethyst Warrior', 100000, '#8b5cf6', 1500, 250, 15, 'Unlocked after spending 100,000 coins.'),
+        (8, 'Diamond Champion', 250000, '#06b6d4', 3500, 500, 15, 'Unlocked after spending 250,000 coins.'),
+        (9, 'Master Guardian', 600000, '#ec4899', 7500, 1000, 15, 'Unlocked after spending 600,000 coins.'),
+        (10, 'Royal Conqueror', 1500000, '#f59e0b', 15000, 2500, 30, 'Unlocked after spending 1,500,000 coins.'),
+        (11, 'Imperial Warlord', 3000000, '#6366f1', 30000, 5000, 30, 'Unlocked after spending 3,000,000 coins.'),
+        (12, 'Grand Monarch', 6000000, '#14b8a6', 60000, 10000, 30, 'Unlocked after spending 6,000,000 coins.'),
+        (13, 'Supreme Overlord', 12000000, '#d946ef', 120000, 20000, 30, 'Unlocked after spending 12,000,000 coins.'),
+        (14, 'Celestial Titan', 25000000, '#84cc16', 250000, 40000, 30, 'Unlocked after spending 25,000,000 coins.'),
+        (15, 'Mythic Sovereign', 50000000, '#f43f5e', 500000, 80000, 30, 'Unlocked after spending 50,000,000 coins.'),
+        (16, 'Divine Immortal', 100000000, '#a855f7', 1000000, 150000, 60, 'Unlocked after spending 100,000,000 coins.'),
+        (17, 'Galactic Emperor', 200000000, '#0ea5e9', 2000000, 300000, 60, 'Unlocked after spending 200,000,000 coins.'),
+        (18, 'Cosmic Ruler', 400000000, '#e11d48', 4000000, 600000, 60, 'Unlocked after spending 400,000,000 coins.'),
+        (19, 'Eternal Legend', 750000000, '#f97316', 7500000, 1200000, 90, 'Unlocked after spending 750,000,000 coins.'),
+        (20, 'Omnipotent Deity', 1500000000, '#fbbf24', 15000000, 2500000, 365, 'The highest honor in Umi Live.')
+      ON DUPLICATE KEY UPDATE 
+        level_name = VALUES(level_name),
+        min_coins_spent = VALUES(min_coins_spent),
+        badge_color = VALUES(badge_color),
+        reward_coins = VALUES(reward_coins),
+        reward_diamonds = VALUES(reward_diamonds),
+        reward_validity_days = VALUES(reward_validity_days);
+    `);
+
+    await cache.del('levels:all');
+    await cache.del('levels:all_active');
+    await cache.delByPattern('levels:*');
+
+    return res.json({ success: true, message: 'Default 20 progression levels seeded successfully.' });
+  } catch (err) {
+    console.error('seedDefaultLevels error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to seed default levels.' });
+  }
+}
+
+
 
 

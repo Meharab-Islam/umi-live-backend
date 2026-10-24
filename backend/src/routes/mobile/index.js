@@ -19,6 +19,7 @@ import leaderboardRoutes from './leaderboardRoutes.js';
 import notificationRoutes from './notificationRoutes.js';
 import themeRoutes from './themeRoutes.js';
 import callRoutes from './callRoutes.js';
+import levelRoutes from './levelRoutes.js';
 
 const router = express.Router();
 
@@ -66,5 +67,6 @@ router.use('/notifications', notificationRoutes);
 router.use('/themes', themeRoutes);
 router.use('/call', callRoutes);
 router.use('/calls', callRoutes);
+router.use('/levels', levelRoutes);
 
 export default router;

@@ -1,23 +1,23 @@
-# Graph Report - umi_backend  (2026-10-23)
+# Graph Report - umi_backend  (2026-10-24)
 
 ## Corpus Check
-- 177 files · ~1,076,098 words
+- 177 files · ~1,078,183 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 962 nodes · 2607 edges · 58 communities (42 shown, 16 thin omitted)
-- Extraction: 85% EXTRACTED · 15% INFERRED · 0% AMBIGUOUS · INFERRED: 383 edges (avg confidence: 0.85)
+- 963 nodes · 2610 edges · 58 communities (42 shown, 16 thin omitted)
+- Extraction: 85% EXTRACTED · 15% INFERRED · 0% AMBIGUOUS · INFERRED: 384 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `7f5daded`
+- Built from commit: `860d3593`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
 - controllers/packageController.js
 - query
-- db.js
+- server.js
 - admin-panel/package.json
 - dependencies
 - AGENTS.md
@@ -66,10 +66,10 @@
 - EconomyContext.jsx
 - liveRewardService.js
 - Gifts.jsx
-- callController.js
+- db.js
 
 ## God Nodes (most connected - your core abstractions)
-1. `query()` - 314 edges
+1. `query()` - 315 edges
 2. `getPool()` - 44 edges
 3. `react` - 43 edges
 4. `cache` - 34 edges
@@ -105,9 +105,9 @@ Nodes (22): checkRoomActionPrivilege(), createPackage(), createPackageCategory()
 Cohesion: 0.08
 Nodes (64): query(), bulkDelete(), bulkDeleteReports(), clearGiftHistoryAdmin(), clearResellerSales(), createCoinPackageAdmin(), createGift(), createHostRequest() (+56 more)
 
-### Community 2 - "db.js"
-Cohesion: 0.05
-Nodes (45): dbConfig, __dirname, __filename, poolProxy, testConnection(), createRoom(), endRoom(), getRoomDetails() (+37 more)
+### Community 2 - "server.js"
+Cohesion: 0.07
+Nodes (34): createRoom(), endRoom(), getRoomDetails(), getRooms(), getBalances(), getPackages(), getRechargeConfig(), getTransactions() (+26 more)
 
 ### Community 3 - "admin-panel/package.json"
 Cohesion: 0.06
@@ -237,9 +237,9 @@ Nodes (8): getLiveRewardHistoryAdmin(), getLiveRewardSettingsAdmin(), getLiveRew
 Cohesion: 0.39
 Nodes (5): giftApi, Gifts(), isMediaUrl(), resolveMediaUrl(), TopContributors()
 
-### Community 64 - "callController.js"
-Cohesion: 0.14
-Nodes (21): DEFAULT_LIVEKIT_API_KEY, DEFAULT_LIVEKIT_API_SECRET, DEFAULT_LIVEKIT_URL, __dirname, __filename, generateLiveKitToken(), getLiveKitConfig(), LIVEKIT_API_KEY (+13 more)
+### Community 64 - "db.js"
+Cohesion: 0.08
+Nodes (33): dbConfig, __dirname, __filename, poolProxy, testConnection(), DEFAULT_LIVEKIT_API_KEY, DEFAULT_LIVEKIT_API_SECRET, DEFAULT_LIVEKIT_URL (+25 more)
 
 ## Knowledge Gaps
 - **170 isolated node(s):** `$schema`, `oxc`, `react/rules-of-hooks`, `warn`, `name` (+165 more)
@@ -249,9 +249,9 @@ Nodes (21): DEFAULT_LIVEKIT_API_KEY, DEFAULT_LIVEKIT_API_SECRET, DEFAULT_LIVEKIT
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `query()` connect `query` to `callController.js`, `controllers/packageController.js`, `db.js`, `getPool`, `redis.js`, `moderatorRoutes.js`, `specialItemController.js`, `feedController.js`, `chatController.js`, `mobile/index.js`, `mobile/liveController.js`, `resellerController.js`, `mobile/walletRoutes.js`, `liveRewardService.js`?**
-  _High betweenness centrality (0.195) - this node is a cross-community bridge._
-- **Why does `getPool()` connect `getPool` to `callController.js`, `query`, `db.js`, `redis.js`, `chatController.js`, `feedController.js`, `mobile/index.js`, `resellerController.js`, `mobile/walletRoutes.js`?**
+- **Why does `query()` connect `query` to `db.js`, `controllers/packageController.js`, `server.js`, `getPool`, `redis.js`, `moderatorRoutes.js`, `specialItemController.js`, `feedController.js`, `chatController.js`, `mobile/index.js`, `mobile/liveController.js`, `resellerController.js`, `mobile/walletRoutes.js`, `liveRewardService.js`?**
+  _High betweenness centrality (0.196) - this node is a cross-community bridge._
+- **Why does `getPool()` connect `getPool` to `db.js`, `query`, `server.js`, `redis.js`, `chatController.js`, `feedController.js`, `mobile/index.js`, `resellerController.js`, `mobile/walletRoutes.js`?**
   _High betweenness centrality (0.012) - this node is a cross-community bridge._
 - **Why does `react` connect `react` to `ApiDocs.jsx`, `App.jsx`, `.oxlintrc.json`, `client.js`, `Reports.jsx`, `Banners.jsx`, `packageApi.js`, `EconomyContext.jsx`, `Gifts.jsx`?**
   _High betweenness centrality (0.008) - this node is a cross-community bridge._
@@ -261,5 +261,5 @@ _Questions this graph is uniquely positioned to answer:_
   _Cohesion score 0.14492753623188406 - nodes in this community are weakly interconnected._
 - **Should `query` be split into smaller, more focused modules?**
   _Cohesion score 0.08472344161545214 - nodes in this community are weakly interconnected._
-- **Should `db.js` be split into smaller, more focused modules?**
-  _Cohesion score 0.05064935064935065 - nodes in this community are weakly interconnected._
+- **Should `server.js` be split into smaller, more focused modules?**
+  _Cohesion score 0.06951219512195123 - nodes in this community are weakly interconnected._

@@ -1,5 +1,6 @@
 import { query, getPool } from '../../config/db.js';
 import { cache } from '../../config/redis.js';
+import { recordCoinsSpentAndCheckLevelUp } from '../../services/levelService.js';
 
 /**
  * Mobile Get Available Gifts Catalog
@@ -388,6 +389,11 @@ export async function sendGift(req, res) {
     }
 
     await Promise.allSettled(cacheInvalidations);
+
+    // 12b. Check Level Progression & Rewards Engine
+    recordCoinsSpentAndCheckLevelUp(senderId, totalCoinCostAll, req.io).catch((err) => {
+      console.warn('[LevelUp] check failed on sendGift:', err.message);
+    });
 
     // 13. Query fresh updated balances directly from MySQL
     const [freshSender] = await connection.execute('SELECT coins FROM users WHERE id = ?', [senderId]);
