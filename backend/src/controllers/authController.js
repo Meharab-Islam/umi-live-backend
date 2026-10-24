@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs';
 import { query } from '../config/db.js';
 import { signToken } from '../config/jwt.js';
 import { cache } from '../config/redis.js';
+import { getDefaultRegistrationCoins } from '../services/systemService.js';
 import {
   getClientIp,
   recordFailedLogin,
@@ -46,10 +47,11 @@ export async function register(req, res) {
     const displayName = full_name ? String(full_name).trim() : 'Umi User';
 
     // 1. Database-First Write (strictly 'user' role, automated avatar)
+    const startingCoins = await getDefaultRegistrationCoins();
     const insertResult = await query(
       `INSERT INTO users (email, password_hash, full_name, avatar_url, bio, role, coins, diamonds, level)
-       VALUES (?, ?, ?, '', ?, 'user', 100, 0, 1)`,
-      [trimmedEmail, password_hash, displayName, bio || '']
+       VALUES (?, ?, ?, '', ?, 'user', ?, 0, 1)`,
+      [trimmedEmail, password_hash, displayName, bio || '', startingCoins]
     );
 
     const newUserId = insertResult.insertId;
@@ -63,7 +65,7 @@ export async function register(req, res) {
       avatar_url: defaultAvatar,
       bio: bio || '',
       role: 'user',
-      coins: 100,
+      coins: startingCoins,
       diamonds: 0,
       level: 1,
       vip_package: 'Standard',

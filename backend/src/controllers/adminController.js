@@ -4907,6 +4907,136 @@ export async function seedDefaultLevels(req, res) {
   }
 }
 
+// ==========================================
+// System-Wide User Wallet Reset Controllers
+// ==========================================
+
+export async function resetAllUsersCoins(req, res) {
+  try {
+    const { actionPassword, includeAdmins = false } = req.body;
+
+    // 1. Verify security action password
+    const settingsRows = await query(
+      "SELECT key_value FROM system_settings WHERE key_name = 'action_security_password' LIMIT 1"
+    );
+    const configuredPassword = settingsRows[0]?.key_value || 'admin123';
+
+    if (!actionPassword || String(actionPassword).trim() !== String(configuredPassword).trim()) {
+      return res.status(403).json({
+        success: false,
+        message: 'Invalid security action password. Action rejected.',
+      });
+    }
+
+    // 2. Database-First Bulk Reset (SSOT)
+    const sql = includeAdmins
+      ? 'UPDATE users SET coins = 0'
+      : "UPDATE users SET coins = 0 WHERE role NOT IN ('superadmin', 'admin')";
+    const result = await query(sql);
+
+    // 3. Invalidate Redis Caches
+    await cache.delByPattern('user:*');
+    await cache.delByPattern('wallet:*');
+    await cache.delByPattern('mobile:user:profile*');
+    await cache.delByPattern('admin:dashboard*');
+    await cache.delByPattern('admin:users*');
+    await cache.delByPattern('leaderboard:gifters*');
+
+    return res.json({
+      success: true,
+      message: `System-wide coin reset complete. ${result.affectedRows || 0} user wallets set to 0 coins.`,
+      affectedRows: result.affectedRows || 0,
+    });
+  } catch (err) {
+    console.error('resetAllUsersCoins error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to reset all users coins.', error: err.message });
+  }
+}
+
+export async function resetAllUsersDiamonds(req, res) {
+  try {
+    const { actionPassword, includeAdmins = false } = req.body;
+
+    // 1. Verify security action password
+    const settingsRows = await query(
+      "SELECT key_value FROM system_settings WHERE key_name = 'action_security_password' LIMIT 1"
+    );
+    const configuredPassword = settingsRows[0]?.key_value || 'admin123';
+
+    if (!actionPassword || String(actionPassword).trim() !== String(configuredPassword).trim()) {
+      return res.status(403).json({
+        success: false,
+        message: 'Invalid security action password. Action rejected.',
+      });
+    }
+
+    // 2. Database-First Bulk Reset (SSOT)
+    const sql = includeAdmins
+      ? 'UPDATE users SET diamonds = 0'
+      : "UPDATE users SET diamonds = 0 WHERE role NOT IN ('superadmin', 'admin')";
+    const result = await query(sql);
+
+    // 3. Invalidate Redis Caches
+    await cache.delByPattern('user:*');
+    await cache.delByPattern('wallet:*');
+    await cache.delByPattern('mobile:user:profile*');
+    await cache.delByPattern('admin:dashboard*');
+    await cache.delByPattern('admin:users*');
+
+    return res.json({
+      success: true,
+      message: `System-wide diamond reset complete. ${result.affectedRows || 0} user wallets set to 0 diamonds.`,
+      affectedRows: result.affectedRows || 0,
+    });
+  } catch (err) {
+    console.error('resetAllUsersDiamonds error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to reset all users diamonds.', error: err.message });
+  }
+}
+
+export async function resetAllUsersBalances(req, res) {
+  try {
+    const { actionPassword, includeAdmins = false } = req.body;
+
+    // 1. Verify security action password
+    const settingsRows = await query(
+      "SELECT key_value FROM system_settings WHERE key_name = 'action_security_password' LIMIT 1"
+    );
+    const configuredPassword = settingsRows[0]?.key_value || 'admin123';
+
+    if (!actionPassword || String(actionPassword).trim() !== String(configuredPassword).trim()) {
+      return res.status(403).json({
+        success: false,
+        message: 'Invalid security action password. Action rejected.',
+      });
+    }
+
+    // 2. Database-First Bulk Reset (SSOT)
+    const sql = includeAdmins
+      ? 'UPDATE users SET coins = 0, diamonds = 0'
+      : "UPDATE users SET coins = 0, diamonds = 0 WHERE role NOT IN ('superadmin', 'admin')";
+    const result = await query(sql);
+
+    // 3. Invalidate Redis Caches
+    await cache.delByPattern('user:*');
+    await cache.delByPattern('wallet:*');
+    await cache.delByPattern('mobile:user:profile*');
+    await cache.delByPattern('admin:dashboard*');
+    await cache.delByPattern('admin:users*');
+    await cache.delByPattern('leaderboard:gifters*');
+
+    return res.json({
+      success: true,
+      message: `System-wide wallet reset complete. ${result.affectedRows || 0} user wallets set to 0 coins and 0 diamonds.`,
+      affectedRows: result.affectedRows || 0,
+    });
+  } catch (err) {
+    console.error('resetAllUsersBalances error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to reset all users balances.', error: err.message });
+  }
+}
+
+
 
 
 

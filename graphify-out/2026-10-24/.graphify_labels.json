@@ -1,6 +1,6 @@
 {
   "0": "controllers/packageController.js",
-  "1": "adminRoutes.js",
+  "1": "query",
   "2": "server.js",
   "3": "admin-panel/package.json",
   "4": "dependencies",
@@ -15,8 +15,8 @@
   "13": "🚀 UMI LIVE - VPS Deployment & Operations Master Guide",
   "14": "moderatorRoutes.js",
   "15": "test_moderator_agency_oversight.mjs",
-  "16": "chatController.js",
-  "17": "feedController.js",
+  "16": "getPool",
+  "17": "firebase.js",
   "18": "scripts",
   "19": "add_host_api_docs.mjs",
   "20": "mobile/liveController.js",
@@ -47,7 +47,7 @@
   "45": "mobile/authController.js",
   "46": "test_live_type.mjs",
   "47": "Loader.jsx",
-  "48": "query",
+  "48": "specialItemController.js",
   "49": "add_audio_live_api_docs.mjs",
   "50": "tag_live_types_in_docs.mjs",
   "51": "mobile/index.js",
@@ -65,8 +65,9 @@
   "63": "adminThemeController.js",
   "64": "livekit.js",
   "65": "LiveRewards.jsx",
-  "66": "test_audio_live_seats.mjs",
+  "66": "controllers/bannerController.js",
   "67": "test_socket_realtime_emission.mjs",
   "68": "update_flutter_chat.py",
-  "69": "test_video_live_seat_guard.mjs"
+  "69": "test_video_live_seat_guard.mjs",
+  "70": "requireAuth"
 }

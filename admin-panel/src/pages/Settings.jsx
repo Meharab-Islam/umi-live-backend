@@ -69,6 +69,70 @@ export default function Settings({ onToast }) {
   const [simCallType, setSimCallType] = useState('video');
   const [simCallMinutes, setSimCallMinutes] = useState(5);
   const [savingScreenGuard, setSavingScreenGuard] = useState(false);
+  const [resetModal, setResetModal] = useState({
+    isOpen: false,
+    type: null,
+    title: '',
+    description: '',
+    actionPassword: '',
+    includeAdmins: false,
+    loading: false,
+  });
+
+  const handleOpenResetModal = (type) => {
+    let title = '';
+    let description = '';
+    if (type === 'coins') {
+      title = "Reset All Users' Coins to 0";
+      description = "This will immediately set the coin balance to 0 for all regular users across the entire system. User diamond balances will NOT be affected. Redis user and wallet caches will be flushed immediately.";
+    } else if (type === 'diamonds') {
+      title = "Reset All Users' Diamonds to 0";
+      description = "This will immediately set the diamond balance to 0 for all regular users across the entire system. User coin balances will NOT be affected. Redis user and wallet caches will be flushed immediately.";
+    } else if (type === 'all') {
+      title = "Reset ALL Users' Wallets (Coins & Diamonds) to 0";
+      description = "DANGER: This will immediately set BOTH coins and diamonds to 0 for all regular users in the entire system. Redis user, wallet, and leaderboard caches will be flushed immediately.";
+    }
+    setResetModal({
+      isOpen: true,
+      type,
+      title,
+      description,
+      actionPassword: '',
+      includeAdmins: false,
+      loading: false,
+    });
+  };
+
+  const handleExecuteReset = async () => {
+    if (!resetModal.actionPassword) {
+      onToast('Please enter your admin action security password', 'error');
+      return;
+    }
+    try {
+      setResetModal((prev) => ({ ...prev, loading: true }));
+      let res;
+      if (resetModal.type === 'coins') {
+        res = await settingsApi.resetAllCoins(resetModal.actionPassword, resetModal.includeAdmins);
+      } else if (resetModal.type === 'diamonds') {
+        res = await settingsApi.resetAllDiamonds(resetModal.actionPassword, resetModal.includeAdmins);
+      } else if (resetModal.type === 'all') {
+        res = await settingsApi.resetAllBalances(resetModal.actionPassword, resetModal.includeAdmins);
+      }
+      onToast(res.message || 'System wallet reset completed successfully!', 'success');
+      setResetModal({
+        isOpen: false,
+        type: null,
+        title: '',
+        description: '',
+        actionPassword: '',
+        includeAdmins: false,
+        loading: false,
+      });
+    } catch (err) {
+      onToast(err.message || 'Failed to execute system wallet reset', 'error');
+      setResetModal((prev) => ({ ...prev, loading: false }));
+    }
+  };
 
   const handleSaveCalls = async () => {
     try {
@@ -287,6 +351,7 @@ export default function Settings({ onToast }) {
         'agency_gift_commission_percent',
         'user_transfer_commission_percent',
         'recharge_presets',
+        'default_registration_coins',
       ];
       await Promise.all(
         keys.map((k) =>
@@ -1193,6 +1258,27 @@ export default function Settings({ onToast }) {
                       Quick buy options shown on user wallet recharge screen.
                     </span>
                   </div>
+
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '0.35rem' }}>
+                      New User Registration Welcome Coins
+                    </label>
+                    <div style={{ position: 'relative' }}>
+                      <input
+                        type="number"
+                        className="input-field"
+                        min="0"
+                        value={settings.default_registration_coins ?? '100'}
+                        onChange={(e) => handleChange('default_registration_coins', e.target.value)}
+                        placeholder="100"
+                        style={{ paddingLeft: '2.5rem' }}
+                      />
+                      <Coins size={16} color="#f59e0b" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
+                    </div>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: '4px', display: 'block' }}>
+                      Free coins automatically granted to newly registered users upon account creation (default: 100).
+                    </span>
+                  </div>
                 </div>
               </div>
 
@@ -1208,6 +1294,183 @@ export default function Settings({ onToast }) {
                   <Save size={16} />
                   <span>{savingEconomy ? 'Saving Economy Settings...' : 'Save Economy Configuration'}</span>
                 </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Danger Zone: System-Wide Wallet Reset */}
+          <div className="panel-card" style={{ border: '1px solid rgba(239, 68, 68, 0.45)', background: 'linear-gradient(180deg, rgba(239, 68, 68, 0.06) 0%, rgba(20, 10, 15, 0.45) 100%)' }}>
+            <div className="panel-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div className="panel-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <AlertTriangle size={22} color="#ef4444" />
+                <span style={{ color: '#ef4444', fontWeight: 700 }}>System-Wide Wallet Balances Reset (Danger Zone)</span>
+              </div>
+              <span
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  background: 'rgba(239, 68, 68, 0.15)',
+                  color: '#ef4444',
+                  border: '1px solid rgba(239, 68, 68, 0.35)',
+                  padding: '4px 10px',
+                  borderRadius: '20px',
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                }}
+              >
+                <Lock size={12} />
+                Requires Action Security Password
+              </span>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-dim)', margin: 0, lineHeight: 1.5 }}>
+                Reset all users' coin or diamond balances across the entire platform. This is an irreversible bulk operation protected by the platform's Admin Action Security Password. User balances in MySQL and cached states in Redis are instantly updated.
+              </p>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem', marginTop: '0.5rem' }}>
+                {/* Option 1: Reset All Coins */}
+                <div
+                  style={{
+                    background: 'var(--bg-primary)',
+                    border: '1px solid rgba(245, 158, 11, 0.3)',
+                    borderRadius: '12px',
+                    padding: '1.25rem',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    gap: '1rem',
+                  }}
+                >
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.5rem' }}>
+                      <Coins size={20} color="#f59e0b" />
+                      <h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-main)' }}>
+                        Reset All Users' Coins
+                      </h4>
+                    </div>
+                    <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-dim)', lineHeight: 1.4 }}>
+                      Sets <code style={{ color: '#f59e0b' }}>coins = 0</code> for every user in the platform. Diamond balances remain completely untouched.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleOpenResetModal('coins')}
+                    style={{
+                      background: 'rgba(245, 158, 11, 0.15)',
+                      border: '1px solid #f59e0b',
+                      color: '#f59e0b',
+                      borderRadius: '8px',
+                      padding: '8px 14px',
+                      fontWeight: 600,
+                      fontSize: '0.82rem',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '6px',
+                    }}
+                  >
+                    <Coins size={15} />
+                    <span>Reset All Coins to 0</span>
+                  </button>
+                </div>
+
+                {/* Option 2: Reset All Diamonds */}
+                <div
+                  style={{
+                    background: 'var(--bg-primary)',
+                    border: '1px solid rgba(139, 92, 246, 0.3)',
+                    borderRadius: '12px',
+                    padding: '1.25rem',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    gap: '1rem',
+                  }}
+                >
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.5rem' }}>
+                      <Gem size={20} color="#8b5cf6" />
+                      <h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-main)' }}>
+                        Reset All Users' Diamonds
+                      </h4>
+                    </div>
+                    <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-dim)', lineHeight: 1.4 }}>
+                      Sets <code style={{ color: '#8b5cf6' }}>diamonds = 0</code> for every user in the platform. Coin balances remain completely untouched.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleOpenResetModal('diamonds')}
+                    style={{
+                      background: 'rgba(139, 92, 246, 0.15)',
+                      border: '1px solid #8b5cf6',
+                      color: '#a78bfa',
+                      borderRadius: '8px',
+                      padding: '8px 14px',
+                      fontWeight: 600,
+                      fontSize: '0.82rem',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '6px',
+                    }}
+                  >
+                    <Gem size={15} />
+                    <span>Reset All Diamonds to 0</span>
+                  </button>
+                </div>
+
+                {/* Option 3: Reset Both Coins & Diamonds */}
+                <div
+                  style={{
+                    background: 'var(--bg-primary)',
+                    border: '1px solid rgba(239, 68, 68, 0.45)',
+                    borderRadius: '12px',
+                    padding: '1.25rem',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    gap: '1rem',
+                  }}
+                >
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.5rem' }}>
+                      <Trash2 size={20} color="#ef4444" />
+                      <h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 700, color: '#ef4444' }}>
+                        Reset All Wallets (Zero All)
+                      </h4>
+                    </div>
+                    <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-dim)', lineHeight: 1.4 }}>
+                      Sets both <code style={{ color: '#ef4444' }}>coins = 0 AND diamonds = 0</code> for all users in the system simultaneously.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleOpenResetModal('all')}
+                    style={{
+                      background: '#ef4444',
+                      border: 'none',
+                      color: '#ffffff',
+                      borderRadius: '8px',
+                      padding: '8px 14px',
+                      fontWeight: 700,
+                      fontSize: '0.82rem',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '6px',
+                      boxShadow: '0 2px 10px rgba(239, 68, 68, 0.35)',
+                    }}
+                  >
+                    <Trash2 size={15} />
+                    <span>Reset All Wallets to 0</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -2592,6 +2855,124 @@ export default function Settings({ onToast }) {
                   Regular audience members in room.
                 </span>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* SYSTEM-WIDE WALLET RESET CONFIRMATION MODAL */}
+      {resetModal.isOpen && (
+        <div
+          className="modal-overlay"
+          onClick={(e) => {
+            if (e.target === e.currentTarget && !resetModal.loading) {
+              setResetModal((prev) => ({ ...prev, isOpen: false }));
+            }
+          }}
+        >
+          <div className="modal-box" style={{ maxWidth: '480px', border: '1px solid rgba(239, 68, 68, 0.45)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '0.75rem' }}>
+              <div
+                style={{
+                  width: '38px',
+                  height: '38px',
+                  borderRadius: '10px',
+                  background: 'rgba(239, 68, 68, 0.15)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <AlertTriangle size={22} color="#ef4444" />
+              </div>
+              <div>
+                <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-main)' }}>
+                  {resetModal.title}
+                </h3>
+                <span style={{ fontSize: '0.75rem', color: '#ef4444', fontWeight: 600 }}>
+                  High Impact System Action
+                </span>
+              </div>
+            </div>
+
+            <div
+              style={{
+                borderRadius: '8px',
+                padding: '0.85rem 1rem',
+                background: 'rgba(239, 68, 68, 0.08)',
+                border: '1px solid rgba(239, 68, 68, 0.25)',
+                fontSize: '0.82rem',
+                color: 'var(--text-main)',
+                lineHeight: 1.5,
+                marginBottom: '1.25rem',
+              }}
+            >
+              {resetModal.description}
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '1.25rem' }}>
+              <label
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  fontSize: '0.85rem',
+                  color: 'var(--text-main)',
+                  cursor: 'pointer',
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={resetModal.includeAdmins}
+                  onChange={(e) => setResetModal((prev) => ({ ...prev, includeAdmins: e.target.checked }))}
+                />
+                <span>Also reset balances for Admin accounts (default: excluded)</span>
+              </label>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '0.35rem' }}>
+                  Admin Action Security Password <span style={{ color: '#ef4444' }}>*</span>
+                </label>
+                <input
+                  type="password"
+                  className="input-field"
+                  placeholder="Enter action password (default: admin123)"
+                  value={resetModal.actionPassword}
+                  onChange={(e) => setResetModal((prev) => ({ ...prev, actionPassword: e.target.value }))}
+                  autoFocus
+                />
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: '4px', display: 'block' }}>
+                  Configured under System Security settings (default: <code>admin123</code>).
+                </span>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
+              <button
+                type="button"
+                className="btn btn-secondary"
+                disabled={resetModal.loading}
+                onClick={() => setResetModal((prev) => ({ ...prev, isOpen: false }))}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="btn btn-danger"
+                disabled={resetModal.loading || !resetModal.actionPassword}
+                onClick={handleExecuteReset}
+                style={{
+                  background: '#ef4444',
+                  borderColor: '#dc2626',
+                  color: '#ffffff',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                }}
+              >
+                {resetModal.loading ? <RefreshCw size={15} className="spin" /> : <Trash2 size={15} />}
+                <span>{resetModal.loading ? 'Resetting...' : 'Confirm & Execute'}</span>
+              </button>
             </div>
           </div>
         </div>

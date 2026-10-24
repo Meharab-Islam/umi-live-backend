@@ -95,6 +95,7 @@ export async function getAppConfig(req, res) {
           withdrawal_presets: withdrawalPresets,
           allow_manual_withdrawal_input: allowManualWithdrawalInput,
           recharge_presets: rechargePresets,
+          default_registration_coins: parseInt(settingsMap['default_registration_coins'] || '100', 10),
           primary_currency: 'coin',
           secondary_currency: isDiamondMode ? 'diamond' : null,
           currency_symbols: {

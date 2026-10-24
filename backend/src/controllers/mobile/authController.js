@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import { query, getPool } from '../../config/db.js';
 import { signToken, verifyToken } from '../../config/jwt.js';
 import { cache } from '../../config/redis.js';
+import { getDefaultRegistrationCoins } from '../../services/systemService.js';
 import {
   getClientIp,
   recordFailedLogin,
@@ -52,10 +53,11 @@ export async function register(req, res) {
     const finalRole = 'user'; // Strictly 'user' - no role selection in email registration
 
     // 1. Database-First Write (SSOT)
+    const startingCoins = await getDefaultRegistrationCoins();
     const insertResult = await query(
       `INSERT INTO users (email, password_hash, full_name, avatar_url, bio, role, coins, diamonds, level)
-       VALUES (?, ?, ?, '', ?, 'user', 100, 0, 1)`,
-      [trimmedEmail, password_hash, displayName, bio || '']
+       VALUES (?, ?, ?, '', ?, 'user', ?, 0, 1)`,
+      [trimmedEmail, password_hash, displayName, bio || '', startingCoins]
     );
 
     const newUserId = insertResult.insertId;
@@ -71,7 +73,7 @@ export async function register(req, res) {
       avatar_url: finalAvatar,
       bio: bio || '',
       role: 'user',
-      coins: 100,
+      coins: startingCoins,
       diamonds: 0,
       level: 1,
       vip_package: 'Standard',
@@ -403,11 +405,12 @@ export async function googleLogin(req, res) {
       const randomPassword = Math.random().toString(36).slice(-12) + Date.now().toString(36);
       const password_hash = await bcrypt.hash(randomPassword, 10);
 
+      const startingCoins = await getDefaultRegistrationCoins();
       try {
         const insertResult = await query(
           `INSERT INTO users (google_id, email, password_hash, full_name, avatar_url, role, coins, diamonds, level)
-           VALUES (?, ?, ?, ?, ?, 'user', 100, 0, 1)`,
-          [googleId, newEmail, password_hash, displayName, finalAvatar]
+           VALUES (?, ?, ?, ?, ?, 'user', ?, 0, 1)`,
+          [googleId, newEmail, password_hash, displayName, finalAvatar, startingCoins]
         );
 
         const newUserId = insertResult.insertId;
@@ -418,8 +421,8 @@ export async function googleLogin(req, res) {
           const fallbackEmail = `${googleId}_${Date.now()}@google.user`;
           const insertResult = await query(
             `INSERT INTO users (google_id, email, password_hash, full_name, avatar_url, role, coins, diamonds, level)
-             VALUES (?, ?, ?, ?, ?, 'user', 100, 0, 1)`,
-            [googleId, fallbackEmail, password_hash, displayName, finalAvatar]
+             VALUES (?, ?, ?, ?, ?, 'user', ?, 0, 1)`,
+            [googleId, fallbackEmail, password_hash, displayName, finalAvatar, startingCoins]
           );
           const newUserId = insertResult.insertId;
           const freshRows = await query('SELECT * FROM users WHERE id = ? LIMIT 1', [newUserId]);
@@ -976,11 +979,12 @@ export async function verifyOtp(req, res) {
       isNewUser = true;
       const displayName = full_name ? String(full_name).trim() : cleanTarget.split('@')[0] || 'Umi User';
       const dummyPassword = password ? await bcrypt.hash(password, 10) : await bcrypt.hash('umi123456', 10);
+      const startingCoins = await getDefaultRegistrationCoins();
 
       const insertResult = await query(
         `INSERT INTO users (email, password_hash, full_name, avatar_url, bio, role, coins, diamonds, level)
-         VALUES (?, ?, ?, '', 'Hey, I am using Umi Live!', 'user', 100, 0, 1)`,
-        [cleanTarget, dummyPassword, displayName]
+         VALUES (?, ?, ?, '', 'Hey, I am using Umi Live!', 'user', ?, 0, 1)`,
+        [cleanTarget, dummyPassword, displayName, startingCoins]
       );
 
       const newUserId = insertResult.insertId;
@@ -993,7 +997,7 @@ export async function verifyOtp(req, res) {
         full_name: displayName,
         avatar_url: avatarUrl,
         role: 'user',
-        coins: 100,
+        coins: startingCoins,
         diamonds: 0,
         level: 1,
       };

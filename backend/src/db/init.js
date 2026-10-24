@@ -1052,6 +1052,7 @@ export async function initializeDatabase() {
         ('allow_manual_withdrawal_input', 'true', 'Whether users/hosts can input custom diamond amount for withdrawal'),
         ('recharge_presets', '[500, 1000, 2500, 5000, 10000, 50000, 100000]', 'Quick preset coin amounts for wallet recharge'),
         ('platform_name', 'Umi Live', 'Public platform display name'),
+        ('default_registration_coins', '100', 'Default welcome bonus coins granted to new users upon account creation'),
         ('maintenance_mode', 'false', 'Platform maintenance status flag'),
         ('live_stream_provider', 'livekit', 'Streaming WebRTC/RTMP backend provider'),
         ('action_security_password', 'admin123', 'Security action password required for coin recharge and balance deductions'),
