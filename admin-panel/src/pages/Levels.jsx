@@ -134,10 +134,30 @@ export default function Levels({ onToast }) {
     try {
       setLoadingStars(true);
       const res = await levelApi.getStarSettings();
-      if (res.success) {
-        setStarConfig(res.config || {});
-        setStarStats(res.stats || {});
-        setTopStarUsers(res.topUsers || []);
+      if (res && res.success) {
+        if (res.config) {
+          const cfg = res.config;
+          setStarConfig({
+            is_enabled: cfg.is_enabled ?? true,
+            coins_per_unit: cfg.coins_per_unit || 100000,
+            metric_type: cfg.metric_type || 'coins_spent',
+            decimal_precision: cfg.decimal_precision ?? 1,
+            max_stars: cfg.max_stars || 100,
+            star_system_enabled: cfg.is_enabled ?? true,
+            star_coins_per_unit: cfg.coins_per_unit || 100000,
+            star_metric_type: cfg.metric_type || 'coins_spent',
+            star_decimal_precision: cfg.decimal_precision ?? 1,
+            star_max_stars: cfg.max_stars || 100,
+          });
+        }
+        if (res.stats) {
+          setStarStats({
+            total_starred_users: Number(res.stats.total_starred_users || 0),
+            highest_star: Number(res.stats.highest_star || 0),
+            average_star: Number(res.stats.average_star || 0),
+          });
+        }
+        setTopStarUsers(Array.isArray(res.topUsers) ? res.topUsers : []);
       }
     } catch (err) {
       console.error('Failed to load star settings:', err);
@@ -147,13 +167,22 @@ export default function Levels({ onToast }) {
   };
 
   const handleSaveStars = async (e) => {
-    if (e) e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
     try {
       setSavingStars(true);
-      const res = await levelApi.updateStarSettings(starConfig);
-      if (res.success) {
+      const payload = {
+        is_enabled: starConfig.is_enabled ?? starConfig.star_system_enabled ?? true,
+        coins_per_unit: starConfig.coins_per_unit ?? starConfig.star_coins_per_unit ?? 100000,
+        metric_type: starConfig.metric_type ?? starConfig.star_metric_type ?? 'coins_spent',
+        decimal_precision: starConfig.decimal_precision ?? starConfig.star_decimal_precision ?? 1,
+        max_stars: starConfig.max_stars ?? starConfig.star_max_stars ?? 100,
+      };
+      const res = await levelApi.updateStarSettings(payload);
+      if (res && res.success) {
         onToast(res.message || 'Star progression formula updated!', 'success');
         fetchStarSettings();
+      } else {
+        onToast(res?.message || 'Failed to save star settings', 'error');
       }
     } catch (err) {
       onToast(err.message || 'Failed to save star settings', 'error');
@@ -169,9 +198,11 @@ export default function Levels({ onToast }) {
     try {
       setRecalculatingStars(true);
       const res = await levelApi.recalculateAllStars();
-      if (res.success) {
+      if (res && res.success) {
         onToast(res.message || 'All user star ratings recalculated successfully!', 'success');
         fetchStarSettings();
+      } else {
+        onToast(res?.message || 'Failed to recalculate stars', 'error');
       }
     } catch (err) {
       onToast(err.message || 'Failed to recalculate stars', 'error');
@@ -181,9 +212,9 @@ export default function Levels({ onToast }) {
   };
 
   const simStarComputed = useMemo(() => {
-    const unit = Number(starConfig.star_coins_per_unit || 100000);
-    const precision = Number(starConfig.star_decimal_precision ?? 1);
-    const max = Number(starConfig.star_max_stars || 100);
+    const unit = Number(starConfig.star_coins_per_unit || starConfig.coins_per_unit || 100000);
+    const precision = Number(starConfig.star_decimal_precision ?? starConfig.decimal_precision ?? 1);
+    const max = Number(starConfig.star_max_stars || starConfig.max_stars || 100);
     if (unit <= 0) return '0.0';
     const computed = Math.min(Number(simStarCoins || 0) / unit, max);
     return computed.toFixed(precision);

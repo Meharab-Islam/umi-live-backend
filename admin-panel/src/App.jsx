@@ -32,6 +32,7 @@ import { checkHealth, getToken, setToken, getCurrentUser, setCurrentUser } from 
 import dashboardApi from './api/dashboardApi';
 import streamApi from './api/streamApi';
 import Loader from './components/Loader';
+import ErrorBoundary from './components/ErrorBoundary';
 
 const VALID_TABS = [
   'dashboard',
@@ -288,6 +289,7 @@ export default function App() {
         />
 
         <main className="content-area">
+          <ErrorBoundary>
           {activeTab === 'dashboard' && (
             <Dashboard
               stats={stats}
@@ -398,6 +400,7 @@ export default function App() {
           {activeTab === 'settings' && (
             <Settings onToast={addToast} />
           )}
+          </ErrorBoundary>
         </main>
       </div>
 
