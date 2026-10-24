@@ -2629,6 +2629,14 @@ export const API_SPEC = {
               "enable_agency_recruitment": true,
               "enable_vip_store": true,
               "enable_diamond_cashout": true
+            },
+            "stars": {
+              "is_enabled": true,
+              "coins_per_star": 100000,
+              "metric_type": "coins_spent",
+              "decimal_precision": 1,
+              "max_stars": 100,
+              "formula_description": "100,000 coins spent = 1.0 Star (e.g. 120,000 coins = 1.2 Stars)"
             }
           }
         }

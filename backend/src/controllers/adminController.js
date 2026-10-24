@@ -9,6 +9,7 @@ import {
   getLiveDurationRewardHistory,
   getLiveDurationRewardStats,
 } from '../services/liveRewardService.js';
+import { getStarProgressionConfig, calculateUserStars } from '../services/systemService.js';
 
 export async function getDashboardStats(req, res) {
   try {
@@ -225,7 +226,7 @@ export async function getUsers(req, res) {
       const users = await query(
         `SELECT u.id, u.email, u.full_name, u.avatar_url, u.bio, u.role, u.host_type, u.agency_id,
                 a.name as agency_name, a.agency_code,
-                u.coins, u.diamonds, u.level, u.vip_package, u.is_banned, u.created_at, u.updated_at
+                u.coins, u.diamonds, u.level, u.star, u.total_coins_spent, u.vip_package, u.is_banned, u.created_at, u.updated_at
          FROM users u
          LEFT JOIN agencies a ON u.agency_id = a.id
          ${whereSql}
@@ -5033,6 +5034,133 @@ export async function resetAllUsersBalances(req, res) {
   } catch (err) {
     console.error('resetAllUsersBalances error:', err);
     return res.status(500).json({ success: false, message: 'Failed to reset all users balances.', error: err.message });
+  }
+}
+
+/**
+ * Star Progression Rating Controllers
+ */
+
+export async function getStarSettings(req, res) {
+  try {
+    const config = await getStarProgressionConfig();
+
+    // Summary statistics
+    const [stats] = await query(`
+      SELECT 
+        COUNT(CASE WHEN star >= 1.0 THEN 1 END) as total_starred_users,
+        COALESCE(MAX(star), 0.0) as highest_star,
+        COALESCE(AVG(star), 0.0) as average_star,
+        COUNT(*) as total_users
+      FROM users
+      WHERE role != 'superadmin'
+    `);
+
+    // Top 5 Star Users
+    const topUsers = await query(`
+      SELECT id, full_name, avatar_url, role, coins, diamonds, level, star, total_coins_spent
+      FROM users
+      WHERE role != 'superadmin'
+      ORDER BY star DESC, total_coins_spent DESC
+      LIMIT 5
+    `);
+
+    return res.json({
+      success: true,
+      config,
+      stats: {
+        total_starred_users: parseInt(stats?.total_starred_users || 0, 10),
+        highest_star: parseFloat(Number(stats?.highest_star || 0.0).toFixed(config.decimal_precision || 1)),
+        average_star: parseFloat(Number(stats?.average_star || 0.0).toFixed(2)),
+        total_users: parseInt(stats?.total_users || 0, 10),
+      },
+      topUsers: topUsers || [],
+    });
+  } catch (err) {
+    console.error('getStarSettings error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to fetch star progression settings.' });
+  }
+}
+
+export async function updateStarSettings(req, res) {
+  try {
+    const {
+      is_enabled = true,
+      coins_per_unit = 100000,
+      metric_type = 'coins_spent',
+      decimal_precision = 1,
+      max_stars = 100,
+    } = req.body;
+
+    const unit = Math.max(1, parseInt(coins_per_unit, 10) || 100000);
+    const precision = Math.min(3, Math.max(0, parseInt(decimal_precision, 10) || 1));
+    const maxVal = parseFloat(max_stars) || 100.0;
+    const enabledStr = is_enabled === false || is_enabled === 'false' ? 'false' : 'true';
+
+    // Database-First Mutation (SSOT)
+    await query(`
+      INSERT INTO system_settings (key_name, key_value, description)
+      VALUES 
+        ('star_system_enabled', ?, 'Master switch to enable or disable the Star progression rating engine'),
+        ('star_coins_per_unit', ?, 'Amount of coins/diamonds required for 1 full star (e.g., 100000 = 1.0 star, 120000 = 1.2 star)'),
+        ('star_metric_type', ?, 'Metric used to calculate star progression: coins_spent, diamonds, or wallet_coins'),
+        ('star_decimal_precision', ?, 'Number of decimal places displayed for star progression (e.g., 1 for 1.2, 2 for 1.25)'),
+        ('star_max_stars', ?, 'Maximum star rating achievable')
+      ON DUPLICATE KEY UPDATE key_value = VALUES(key_value)
+    `, [enabledStr, String(unit), metric_type, String(precision), String(maxVal)]);
+
+    // Instant Redis Invalidation
+    await cache.del('config:star_progression');
+    await cache.del('config:mobile:app');
+    await cache.del('settings:all');
+    await cache.delByPattern('setting*');
+
+    return res.json({
+      success: true,
+      message: 'Star progression settings updated successfully!',
+      config: {
+        is_enabled: enabledStr === 'true',
+        coins_per_unit: unit,
+        metric_type,
+        decimal_precision: precision,
+        max_stars: maxVal,
+      },
+    });
+  } catch (err) {
+    console.error('updateStarSettings error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to update star progression settings.' });
+  }
+}
+
+export async function recalculateAllUserStars(req, res) {
+  try {
+    const starConfig = await getStarProgressionConfig();
+    const unit = starConfig.coins_per_unit;
+    const precision = starConfig.decimal_precision;
+    const maxStars = starConfig.max_stars;
+    const metricCol = starConfig.metric_type === 'diamonds' ? 'diamonds' : starConfig.metric_type === 'wallet_coins' ? 'coins' : 'total_coins_spent';
+
+    // Database-First Bulk Recalculation
+    const result = await query(`
+      UPDATE users 
+      SET star = LEAST(ROUND(COALESCE(${metricCol}, 0) / ?, ?), ?)
+      WHERE role != 'superadmin'
+    `, [unit, precision, maxStars]);
+
+    // Instant Invalidation of caches
+    await cache.delByPattern('user:*');
+    await cache.delByPattern('admin:users*');
+    await cache.delByPattern('mobile:user:profile*');
+    await cache.delByPattern('leaderboard:*');
+
+    return res.json({
+      success: true,
+      message: `Successfully recalculated star ratings for ${result.affectedRows || 0} users using formula (${metricCol} / ${unit.toLocaleString()} = stars).`,
+      affectedRows: result.affectedRows || 0,
+    });
+  } catch (err) {
+    console.error('recalculateAllUserStars error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to recalculate users stars.', error: err.message });
   }
 }
 

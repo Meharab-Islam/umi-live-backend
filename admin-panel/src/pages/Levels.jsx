@@ -22,6 +22,8 @@ import {
   ChevronRight,
   Shield,
   Zap,
+  Star,
+  StarHalf,
 } from 'lucide-react';
 import levelApi from '../api/levelApi';
 import Loader from '../components/Loader';
@@ -42,6 +44,21 @@ export default function Levels({ onToast }) {
 
   // Calculator State
   const [simCoinsSpent, setSimCoinsSpent] = useState(25000);
+
+  // Star Progression State
+  const [starConfig, setStarConfig] = useState({
+    star_system_enabled: true,
+    star_coins_per_unit: 100000,
+    star_metric_type: 'coins_spent',
+    star_decimal_precision: 1,
+    star_max_stars: 100,
+  });
+  const [starStats, setStarStats] = useState({ total_starred_users: 0, highest_star: 0, average_star: 0 });
+  const [topStarUsers, setTopStarUsers] = useState([]);
+  const [loadingStars, setLoadingStars] = useState(false);
+  const [savingStars, setSavingStars] = useState(false);
+  const [recalculatingStars, setRecalculatingStars] = useState(false);
+  const [simStarCoins, setSimStarCoins] = useState(120000);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -108,8 +125,69 @@ export default function Levels({ onToast }) {
   useEffect(() => {
     if (activeTab === 'history') {
       fetchHistory(1);
+    } else if (activeTab === 'stars') {
+      fetchStarSettings();
     }
   }, [activeTab]);
+
+  const fetchStarSettings = async () => {
+    try {
+      setLoadingStars(true);
+      const res = await levelApi.getStarSettings();
+      if (res.success) {
+        setStarConfig(res.config || {});
+        setStarStats(res.stats || {});
+        setTopStarUsers(res.topUsers || []);
+      }
+    } catch (err) {
+      console.error('Failed to load star settings:', err);
+    } finally {
+      setLoadingStars(false);
+    }
+  };
+
+  const handleSaveStars = async (e) => {
+    if (e) e.preventDefault();
+    try {
+      setSavingStars(true);
+      const res = await levelApi.updateStarSettings(starConfig);
+      if (res.success) {
+        onToast(res.message || 'Star progression formula updated!', 'success');
+        fetchStarSettings();
+      }
+    } catch (err) {
+      onToast(err.message || 'Failed to save star settings', 'error');
+    } finally {
+      setSavingStars(false);
+    }
+  };
+
+  const handleRecalculateAllStars = async () => {
+    if (!window.confirm('Recalculate and update Star ratings for ALL users in the system right now based on this formula?')) {
+      return;
+    }
+    try {
+      setRecalculatingStars(true);
+      const res = await levelApi.recalculateAllStars();
+      if (res.success) {
+        onToast(res.message || 'All user star ratings recalculated successfully!', 'success');
+        fetchStarSettings();
+      }
+    } catch (err) {
+      onToast(err.message || 'Failed to recalculate stars', 'error');
+    } finally {
+      setRecalculatingStars(false);
+    }
+  };
+
+  const simStarComputed = useMemo(() => {
+    const unit = Number(starConfig.star_coins_per_unit || 100000);
+    const precision = Number(starConfig.star_decimal_precision ?? 1);
+    const max = Number(starConfig.star_max_stars || 100);
+    if (unit <= 0) return '0.0';
+    const computed = Math.min(Number(simStarCoins || 0) / unit, max);
+    return computed.toFixed(precision);
+  }, [simStarCoins, starConfig]);
 
   const handleOpenModal = (lvl = null) => {
     if (lvl) {
@@ -394,6 +472,21 @@ export default function Levels({ onToast }) {
         >
           <History size={16} />
           <span>Reward Audit History ({historyTotal})</span>
+        </button>
+        <button
+          className={`btn ${activeTab === 'stars' ? 'btn-primary' : 'btn-secondary'}`}
+          onClick={() => setActiveTab('stars')}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            background: activeTab === 'stars' ? 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)' : undefined,
+            color: activeTab === 'stars' ? '#000' : undefined,
+            fontWeight: activeTab === 'stars' ? 700 : undefined,
+          }}
+        >
+          <Star size={16} fill={activeTab === 'stars' ? '#000' : '#f59e0b'} color={activeTab === 'stars' ? '#000' : '#f59e0b'} />
+          <span>Star Engine (100k = 1★)</span>
         </button>
       </div>
 
@@ -888,6 +981,352 @@ export default function Levels({ onToast }) {
                         </td>
                         <td style={{ fontSize: '0.78rem', color: 'var(--text-dim)' }}>
                           {h.claimed_at ? new Date(h.claimed_at).toLocaleString() : '-'}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* TAB 4: STAR PROGRESSION ENGINE */}
+      {activeTab === 'stars' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+          {/* Header Card */}
+          <div
+            className="panel-card"
+            style={{
+              background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(217, 119, 6, 0.05) 100%)',
+              border: '1px solid rgba(245, 158, 11, 0.35)',
+              padding: '1.5rem',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div
+                  style={{
+                    width: '46px',
+                    height: '46px',
+                    borderRadius: '12px',
+                    background: 'rgba(245, 158, 11, 0.2)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <Star size={26} color="#f59e0b" fill="#f59e0b" />
+                </div>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-main)' }}>
+                    Star Progression Engine (1 Lakh = 1.0★, 1.2 Lakh = 1.2★)
+                  </h3>
+                  <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--text-dim)', marginTop: '2px' }}>
+                    Formula: <code>Stars = Metric / Base Coins</code>. E.g. 100,000 = 1.0 Star, 120,000 = 1.2 Stars, 200,000 = 2.0 Stars.
+                  </p>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  disabled={recalculatingStars}
+                  onClick={handleRecalculateAllStars}
+                  style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+                >
+                  <RefreshCw size={14} className={recalculatingStars ? 'spin' : ''} />
+                  <span>{recalculatingStars ? 'Recalculating...' : 'Recalculate All Users'}</span>
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  disabled={savingStars}
+                  onClick={handleSaveStars}
+                  style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#f59e0b', borderColor: '#f59e0b', color: '#000', fontWeight: 700 }}
+                >
+                  {savingStars ? <RefreshCw size={14} className="spin" /> : <CheckCircle2 size={14} />}
+                  <span>{savingStars ? 'Saving...' : 'Save Settings'}</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Quick Metrics */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginTop: '1.25rem' }}>
+              <div style={{ padding: '0.9rem', borderRadius: '10px', background: 'var(--bg-primary)', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Starred Users</div>
+                <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#f59e0b', marginTop: '4px' }}>
+                  {Number(starStats.total_starred_users || 0).toLocaleString()} Users
+                </div>
+              </div>
+              <div style={{ padding: '0.9rem', borderRadius: '10px', background: 'var(--bg-primary)', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Highest Star Rating</div>
+                <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#10b981', marginTop: '4px' }}>
+                  ⭐ {Number(starStats.highest_star || 0).toFixed(1)} Stars
+                </div>
+              </div>
+              <div style={{ padding: '0.9rem', borderRadius: '10px', background: 'var(--bg-primary)', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Average Star Rating</div>
+                <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#8b5cf6', marginTop: '4px' }}>
+                  ⭐ {Number(starStats.average_star || 0).toFixed(2)} Stars
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Form & Simulator Grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '1.25rem' }}>
+            {/* Left: Configuration Controls */}
+            <div className="panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              <h4 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700, color: 'var(--text-main)', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
+                Star Formula Parameters
+              </h4>
+
+              <div>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.88rem', fontWeight: 600, color: 'var(--text-main)' }}>
+                  <input
+                    type="checkbox"
+                    checked={Boolean(starConfig.star_system_enabled)}
+                    onChange={(e) => setStarConfig((prev) => ({ ...prev, star_system_enabled: e.target.checked }))}
+                  />
+                  <span>Enable Star Progression Engine System-Wide</span>
+                </label>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginLeft: '24px', display: 'block', marginTop: '3px' }}>
+                  When enabled, user stars are automatically calculated and displayed across mobile app and admin panels.
+                </span>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '4px' }}>
+                  Coins Requirement Per 1.0 Star (Base Coins) *
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  step="1"
+                  className="input-field"
+                  value={starConfig.star_coins_per_unit || 100000}
+                  onChange={(e) => setStarConfig((prev) => ({ ...prev, star_coins_per_unit: Number(e.target.value) }))}
+                  style={{ fontWeight: 700, fontSize: '1rem', color: '#f59e0b' }}
+                />
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: '4px', display: 'block' }}>
+                  Default: <strong>100,000</strong> (1 Lakh). With 100,000, spending 120,000 gives <strong>1.2 Stars</strong>.
+                </span>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '4px' }}>
+                    Metric Source
+                  </label>
+                  <select
+                    className="input-field"
+                    value={starConfig.star_metric_type || 'coins_spent'}
+                    onChange={(e) => setStarConfig((prev) => ({ ...prev, star_metric_type: e.target.value }))}
+                  >
+                    <option value="coins_spent">Total Coins Spent (Recommended)</option>
+                    <option value="diamonds">Diamond Balance</option>
+                    <option value="wallet_coins">Current Coin Balance</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '4px' }}>
+                    Decimal Precision
+                  </label>
+                  <select
+                    className="input-field"
+                    value={starConfig.star_decimal_precision ?? 1}
+                    onChange={(e) => setStarConfig((prev) => ({ ...prev, star_decimal_precision: Number(e.target.value) }))}
+                  >
+                    <option value={1}>1 Decimal (1.2 Stars - Recommended)</option>
+                    <option value={2}>2 Decimals (1.20 Stars)</option>
+                    <option value={0}>Whole Numbers Only (Floor)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '4px' }}>
+                  Max Star Cap (Upper Limit)
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  max="1000"
+                  className="input-field"
+                  value={starConfig.star_max_stars || 100}
+                  onChange={(e) => setStarConfig((prev) => ({ ...prev, star_max_stars: Number(e.target.value) }))}
+                />
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: '4px', display: 'block' }}>
+                  Maximum stars a user can reach (default: 100).
+                </span>
+              </div>
+            </div>
+
+            {/* Right: Interactive Live Simulator */}
+            <div
+              className="panel-card"
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '1.25rem',
+                background: 'linear-gradient(135deg, rgba(30, 27, 75, 0.4) 0%, rgba(15, 23, 42, 0.6) 100%)',
+                border: '1px solid rgba(139, 92, 246, 0.25)',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '0.5rem' }}>
+                <Calculator size={18} color="#a78bfa" />
+                <h4 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700, color: 'var(--text-main)' }}>
+                  Interactive Live Star Simulator
+                </h4>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '6px' }}>
+                  Test Coins Spent Amount
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  step="1000"
+                  className="input-field"
+                  value={simStarCoins}
+                  onChange={(e) => setSimStarCoins(Number(e.target.value))}
+                  style={{ fontSize: '1.1rem', fontWeight: 700, color: '#f59e0b' }}
+                />
+              </div>
+
+              {/* Quick Preset Pills */}
+              <div>
+                <span style={{ fontSize: '0.72rem', color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'block', marginBottom: '6px' }}>
+                  Quick Preset Tests
+                </span>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                  {[
+                    { label: '50K (0.5★)', val: 50000 },
+                    { label: '1 Lakh (1.0★)', val: 100000 },
+                    { label: '1.2 Lakh (1.2★)', val: 120000 },
+                    { label: '1.5 Lakh (1.5★)', val: 150000 },
+                    { label: '2 Lakh (2.0★)', val: 200000 },
+                    { label: '5 Lakh (5.0★)', val: 500000 },
+                    { label: '10 Lakh (10★)', val: 1000000 },
+                  ].map((preset) => (
+                    <button
+                      key={preset.val}
+                      type="button"
+                      onClick={() => setSimStarCoins(preset.val)}
+                      style={{
+                        padding: '4px 10px',
+                        borderRadius: '20px',
+                        fontSize: '0.75rem',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        background: simStarCoins === preset.val ? '#f59e0b' : 'rgba(255, 255, 255, 0.06)',
+                        color: simStarCoins === preset.val ? '#000' : 'var(--text-main)',
+                        border: simStarCoins === preset.val ? '1px solid #f59e0b' : '1px solid rgba(255, 255, 255, 0.1)',
+                        transition: 'all 0.15s ease',
+                      }}
+                    >
+                      {preset.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Simulation Result Box */}
+              <div
+                style={{
+                  borderRadius: '12px',
+                  padding: '1.25rem',
+                  background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.12) 0%, rgba(217, 119, 6, 0.05) 100%)',
+                  border: '1px solid rgba(245, 158, 11, 0.3)',
+                  textAlign: 'center',
+                }}
+              >
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  Computed Star Rating
+                </span>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginTop: '6px' }}>
+                  <Star size={32} fill="#f59e0b" color="#f59e0b" />
+                  <span style={{ fontSize: '2.5rem', fontWeight: 900, color: '#f59e0b' }}>
+                    {simStarComputed}
+                  </span>
+                  <span style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--text-dim)' }}>Stars</span>
+                </div>
+                <p style={{ margin: '8px 0 0 0', fontSize: '0.8rem', color: 'var(--text-dim)' }}>
+                  {Number(simStarCoins).toLocaleString()} coins ÷ {Number(starConfig.star_coins_per_unit || 100000).toLocaleString()} base = <strong>{simStarComputed} Stars</strong>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Top Starred Users Leaderboard */}
+          {topStarUsers.length > 0 && (
+            <div className="panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Award size={18} color="#f59e0b" />
+                <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: 700, color: 'var(--text-main)' }}>
+                  Current Top Starred Users on Platform
+                </h4>
+              </div>
+              <div className="table-responsive">
+                <table className="data-table">
+                  <thead>
+                    <tr>
+                      <th>User</th>
+                      <th>Role</th>
+                      <th>Level</th>
+                      <th>Total Coins Spent</th>
+                      <th>Current Star Rating</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {topStarUsers.map((u) => (
+                      <tr key={u.id}>
+                        <td>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <img
+                              src={u.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&q=80'}
+                              alt=""
+                              style={{ width: '28px', height: '28px', borderRadius: '50%', objectFit: 'cover' }}
+                            />
+                            <div>
+                              <strong style={{ color: 'var(--text-main)', display: 'block' }}>{u.full_name || 'Anonymous User'}</strong>
+                              <span style={{ fontSize: '0.7rem', color: 'var(--text-dim)' }}>ID: #{u.id}</span>
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          <span style={{ fontSize: '0.72rem', textTransform: 'capitalize', padding: '2px 8px', borderRadius: '4px', background: 'rgba(255,255,255,0.06)' }}>
+                            {u.role}
+                          </span>
+                        </td>
+                        <td>
+                          <span style={{ fontWeight: 700, color: '#f59e0b' }}>Lv.{u.level}</span>
+                        </td>
+                        <td>
+                          <span style={{ fontWeight: 700 }}>{Number(u.total_coins_spent || 0).toLocaleString()} 🪙</span>
+                        </td>
+                        <td>
+                          <span
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '4px',
+                              padding: '3px 9px',
+                              borderRadius: '12px',
+                              background: 'rgba(245, 158, 11, 0.15)',
+                              color: '#fbbf24',
+                              fontWeight: 800,
+                              border: '1px solid rgba(245, 158, 11, 0.35)',
+                            }}
+                          >
+                            <Star size={13} fill="#fbbf24" color="#fbbf24" />
+                            <span>{Number(u.star || 0).toFixed(starConfig.star_decimal_precision ?? 1)} ★</span>
+                          </span>
                         </td>
                       </tr>
                     ))}

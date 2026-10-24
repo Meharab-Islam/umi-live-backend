@@ -106,6 +106,15 @@ export async function getAppConfig(req, res) {
           },
         },
 
+        // Star Progression Engine (e.g. 100k = 1 star, 120k = 1.2 star)
+        stars: {
+          is_enabled: settingsMap['star_system_enabled'] !== 'false',
+          coins_per_star: parseInt(settingsMap['star_coins_per_unit'] || '100000', 10),
+          metric_type: settingsMap['star_metric_type'] || 'coins_spent',
+          decimal_precision: parseInt(settingsMap['star_decimal_precision'] || '1', 10),
+          max_stars: parseFloat(settingsMap['star_max_stars'] || '100.0'),
+        },
+
         // WebRTC & Streaming Provider
         streaming: {
           provider: liveStreamProvider, // 'livekit' | 'agora' | 'rtmp'

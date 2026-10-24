@@ -1,6 +1,7 @@
 import { query } from '../config/db.js';
 import { cache } from '../config/redis.js';
 import { sendLevelUpPushNotification } from '../config/firebase.js';
+import { getStarProgressionConfig, calculateUserStars } from './systemService.js';
 
 /**
  * Level Progression & Rewards Engine
@@ -24,6 +25,11 @@ export async function recordCoinsSpentAndCheckLevelUp(userId, coinsSpent, io = n
     const user = userRows[0];
     const currentLevel = parseInt(user.level || 1, 10);
     const totalSpent = BigInt(user.total_coins_spent || 0);
+
+    // 2.1 Calculate and update User Star Rating dynamically (SSOT)
+    const starConfig = await getStarProgressionConfig();
+    const newStars = calculateUserStars(totalSpent, starConfig);
+    await query('UPDATE users SET star = ? WHERE id = ?', [newStars, userId]);
 
     // 3. Fetch all active level configs (cached via Redis Cache-Aside, TTL: 300s)
     const levelConfigs = await cache.getOrSet('levels:all_active', 300, async () => {

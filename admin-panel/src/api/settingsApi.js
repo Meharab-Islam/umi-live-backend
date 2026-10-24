@@ -32,6 +32,23 @@ export const settingsApi = {
       body: JSON.stringify({ actionPassword, includeAdmins }),
     });
   },
+
+  getStarSettings: async () => {
+    return await request('/admin/levels/star-settings');
+  },
+
+  updateStarSettings: async (data) => {
+    return await request('/admin/levels/star-settings', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  recalculateAllStars: async () => {
+    return await request('/admin/levels/recalculate-all-stars', {
+      method: 'POST',
+    });
+  },
 };
 
 export default settingsApi;

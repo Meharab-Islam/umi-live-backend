@@ -8,6 +8,7 @@ import {
   Gem,
   Award,
   Crown,
+  Star,
   Calendar,
   Building2,
   Ban,
@@ -608,9 +609,26 @@ export default function UserDetailsModal({
               )}
 
               <div className="stat-card" style={{ padding: '0.85rem', textAlign: 'center' }}>
-                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 600 }}>EXP LEVEL</div>
-                <div style={{ fontSize: '1.35rem', fontWeight: 800, color: '#8b5cf6', marginTop: '2px' }}>
-                  Lv.{user.level || 1}
+                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 600 }}>LEVEL & STARS</div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginTop: '4px' }}>
+                  <span style={{ fontSize: '1.25rem', fontWeight: 800, color: '#8b5cf6' }}>
+                    Lv.{user.level || 1}
+                  </span>
+                  <span style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '3px',
+                    fontSize: '0.85rem',
+                    fontWeight: 800,
+                    color: '#f59e0b',
+                    background: 'rgba(245, 158, 11, 0.12)',
+                    padding: '2px 7px',
+                    borderRadius: '6px',
+                    border: '1px solid rgba(245, 158, 11, 0.3)',
+                  }}>
+                    <Star size={13} fill="#f59e0b" color="#f59e0b" />
+                    {Number(user.star || 0).toFixed(1)} ★
+                  </span>
                 </div>
               </div>
 

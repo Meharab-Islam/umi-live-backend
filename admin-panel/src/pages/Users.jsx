@@ -14,6 +14,7 @@ import {
   Crown,
   Sparkles,
   Award,
+  Star,
   Building2,
   Eye,
   EyeOff,
@@ -568,23 +569,57 @@ export default function Users({ onToast }) {
                         </span>
                       </td>
 
-                      {/* Level */}
+                      {/* Level & Star */}
                       <td>
-                        <span style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '4px',
-                          fontSize: '0.78rem',
-                          fontWeight: 700,
-                          padding: '3px 8px',
-                          borderRadius: '6px',
-                          background: u.level >= 20 ? 'rgba(225, 29, 72, 0.1)' : u.level >= 10 ? 'rgba(217, 119, 6, 0.1)' : '#f1f5f9',
-                          color: u.level >= 20 ? '#be123c' : u.level >= 10 ? '#b45309' : '#334155',
-                          border: u.level >= 20 ? '1px solid rgba(225, 29, 72, 0.25)' : u.level >= 10 ? '1px solid rgba(217, 119, 6, 0.25)' : '1px solid #cbd5e1',
-                        }}>
-                          <Sparkles size={11} />
-                          <span>Lv.{u.level}</span>
-                        </span>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                          <span style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            fontSize: '0.78rem',
+                            fontWeight: 700,
+                            padding: '3px 8px',
+                            borderRadius: '6px',
+                            background: u.level >= 20 ? 'rgba(225, 29, 72, 0.1)' : u.level >= 10 ? 'rgba(217, 119, 6, 0.1)' : '#f1f5f9',
+                            color: u.level >= 20 ? '#be123c' : u.level >= 10 ? '#b45309' : '#334155',
+                            border: u.level >= 20 ? '1px solid rgba(225, 29, 72, 0.25)' : u.level >= 10 ? '1px solid rgba(217, 119, 6, 0.25)' : '1px solid #cbd5e1',
+                            width: 'fit-content',
+                          }}>
+                            <Sparkles size={11} />
+                            <span>Lv.{u.level}</span>
+                          </span>
+
+                          {Number(u.star || 0) > 0 ? (
+                            <span style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '3px',
+                              fontSize: '0.74rem',
+                              fontWeight: 800,
+                              padding: '2px 7px',
+                              borderRadius: '5px',
+                              background: 'rgba(245, 158, 11, 0.12)',
+                              color: '#d97706',
+                              border: '1px solid rgba(245, 158, 11, 0.3)',
+                              width: 'fit-content',
+                            }} title={`${Number(u.star || 0).toFixed(1)} Stars (${Number(u.total_coins_spent || 0).toLocaleString()} coins spent)`}>
+                              <Star size={11} fill="#f59e0b" color="#f59e0b" />
+                              <span>{Number(u.star || 0).toFixed(1)} ★</span>
+                            </span>
+                          ) : (
+                            <span style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '3px',
+                              fontSize: '0.7rem',
+                              color: 'var(--text-dim)',
+                              padding: '1px 4px',
+                            }}>
+                              <Star size={10} color="#94a3b8" />
+                              <span>0.0 ★</span>
+                            </span>
+                          )}
+                        </div>
                       </td>
 
                       {/* Coin Balance */}

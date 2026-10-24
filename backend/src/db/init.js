@@ -1082,7 +1082,12 @@ export async function initializeDatabase() {
         ('screen_guard_allow_moderator', 'true', 'Allow moderators to view screen / bypass screen guard'),
         ('screen_guard_allow_agency', 'true', 'Allow agency managers to view screen / bypass screen guard'),
         ('screen_guard_allow_general_users', 'true', 'Allow general audience to view screen when guard is turned off'),
-        ('screen_guard_watermark_enabled', 'true', 'Display anti-leak dynamic floating user ID & IP watermark on live screen')
+        ('screen_guard_watermark_enabled', 'true', 'Display anti-leak dynamic floating user ID & IP watermark on live screen'),
+        ('star_system_enabled', 'true', 'Master switch to enable or disable the Star progression rating engine'),
+        ('star_coins_per_unit', '100000', 'Amount of coins/diamonds required for 1 full star (e.g., 100000 = 1.0 star, 120000 = 1.2 star)'),
+        ('star_metric_type', 'coins_spent', 'Metric used to calculate star progression: coins_spent, diamonds, or wallet_coins'),
+        ('star_decimal_precision', '1', 'Number of decimal places displayed for star progression (e.g., 1 for 1.2, 2 for 1.25)'),
+        ('star_max_stars', '100', 'Maximum star rating achievable')
         ON DUPLICATE KEY UPDATE key_value = VALUES(key_value);
       `);
 
@@ -1094,8 +1099,12 @@ export async function initializeDatabase() {
         await connection.query("ALTER TABLE users ADD COLUMN country VARCHAR(50) DEFAULT '' AFTER mobile_number;");
       } catch (e) { }
       try {
-        await connection.query("ALTER TABLE users ADD COLUMN star INT DEFAULT 0 AFTER level;");
-      } catch (e) { }
+        await connection.query("ALTER TABLE users MODIFY COLUMN star DECIMAL(6, 2) NOT NULL DEFAULT 0.00;");
+      } catch (e) {
+        try {
+          await connection.query("ALTER TABLE users ADD COLUMN star DECIMAL(6, 2) NOT NULL DEFAULT 0.00 AFTER level;");
+        } catch (err) { }
+      }
       try {
         await connection.query("ALTER TABLE withdrawals ADD COLUMN coin_amount INT DEFAULT 0 AFTER diamond_amount;");
       } catch (e) { }

@@ -82,6 +82,9 @@ import {
   resetAllUsersCoins,
   resetAllUsersDiamonds,
   resetAllUsersBalances,
+  getStarSettings,
+  updateStarSettings,
+  recalculateAllUserStars,
 } from '../controllers/adminController.js';
 import {
   getPackageCategories,
@@ -338,6 +341,9 @@ router.put('/levels/:id', updateLevelConfig);
 router.delete('/levels/:id', deleteLevelConfig);
 router.get('/levels/history', getLevelRewardHistory);
 router.post('/levels/seed', seedDefaultLevels);
+router.get('/levels/star-settings', getStarSettings);
+router.put('/levels/star-settings', updateStarSettings);
+router.post('/levels/recalculate-all-stars', recalculateAllUserStars);
 
 // System-Wide Bulk Wallet Reset
 router.post('/wallets/reset-all-coins', resetAllUsersCoins);
