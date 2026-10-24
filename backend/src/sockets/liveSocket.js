@@ -162,6 +162,14 @@ export async function executeRoomTermination(canonicalRoomId, numericRoomId, hos
         io.to(ch).emit('room_viewers_updated', { roomId: canonicalRoomId, count: 0, viewer_count: 0 });
       }
 
+      // Broadcast globally to ALL connected clients (so Home screen, Lobby, Explore immediately remove this room card)
+      io.emit('room-closed', closePayload);
+      io.emit('room_closed', closePayload);
+      io.emit('room_ended', { roomId: canonicalRoomId, numericRoomId, message: closePayload.message });
+      io.emit('room_removed', { roomId: canonicalRoomId, numericRoomId, hostId });
+      io.emit('live_room_deleted', { roomId: canonicalRoomId, numericRoomId });
+      io.emit('stream-terminated', { roomId: canonicalRoomId, numericRoomId, reason: closePayload.reason });
+
       // Evict and unsubscribe all sockets from this room channel
       if (typeof io.socketsLeave === 'function') {
         for (const ch of channels) {
@@ -530,7 +538,71 @@ async function executeGuestSeatAndRoomCleanup(canonicalRoomId, numericRoomId, ho
   }
 }
 
+/**
+ * Periodic Ghost / Orphan Room Sweeper
+ * Detects any live rooms where:
+ * 1. Room is marked 'live' in MySQL
+ * 2. Room was created > 2 minutes ago
+ * 3. The host is NOT online in Socket.io
+ * 4. No reconnection grace period is currently running
+ * Automatically terminates these abandoned/crashed rooms and removes them from the room feed!
+ */
+export async function sweepOrphanedLiveRooms(io) {
+  if (!io) return;
+  try {
+    const activeRooms = await query(
+      "SELECT id, room_id, host_id, started_at FROM live_rooms WHERE status = 'live' AND started_at < NOW() - INTERVAL 2 MINUTE"
+    );
+
+    if (!activeRooms || activeRooms.length === 0) return;
+
+    // Collect all online user IDs from active Socket.IO connections
+    const onlineUserIds = new Set();
+    const sockets = io.sockets?.sockets?.values() || [];
+    for (const s of sockets) {
+      if (s.userId) onlineUserIds.add(Number(s.userId));
+      if (s.currentUser?.id) onlineUserIds.add(Number(s.currentUser.id));
+    }
+
+    for (const room of activeRooms) {
+      const canonicalRoomId = room.room_id;
+      const numericRoomId = room.id;
+      const hostId = Number(room.host_id);
+
+      // If a grace period timer is actively running, let the grace period manage it
+      if (
+        hostDisconnectGraceTimers.has(canonicalRoomId) ||
+        (numericRoomId && hostDisconnectGraceTimers.has(String(numericRoomId)))
+      ) {
+        continue;
+      }
+
+      // If the host is currently online with an active socket, room is alive
+      if (onlineUserIds.has(hostId)) {
+        continue;
+      }
+
+      // Host has vanished, phone crashed, or app died without reconnection -> Terminate orphan ghost room!
+      console.warn(`🧹 [Ghost Room Sweeper] Room ${canonicalRoomId} (ID: ${numericRoomId}) host ${hostId} is offline with no active grace timer. Terminating ghost room...`);
+      await executeRoomTermination(canonicalRoomId, numericRoomId, hostId, io, 'host_disconnected_timeout');
+    }
+  } catch (err) {
+    console.error('sweepOrphanedLiveRooms error:', err.message);
+  }
+}
+
 export function setupLiveSocket(io) {
+  // Run ghost room sweeper every 30 seconds to clean up any abandoned/crashed rooms
+  const sweeperInterval = setInterval(() => {
+    sweepOrphanedLiveRooms(io).catch(() => {});
+  }, 30000);
+  if (sweeperInterval.unref) sweeperInterval.unref();
+
+  // Run initial sweep 5 seconds after startup
+  setTimeout(() => {
+    sweepOrphanedLiveRooms(io).catch(() => {});
+  }, 5000);
+
   io.on('connection', (socket) => {
     let currentRoom = null;
     let currentUser = null;

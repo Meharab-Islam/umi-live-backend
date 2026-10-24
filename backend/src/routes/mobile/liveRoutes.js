@@ -64,12 +64,6 @@ router.param('roomId', async (req, res, next, rawId) => {
       req.params.roomId = room.room_id;
       req.canonicalRoomId = room.room_id;
       req.liveRoom = room;
-
-      // Auto-reactivate room if client is attempting to access/join
-      if (room.status !== 'live') {
-        await query("UPDATE live_rooms SET status = 'live', ended_at = NULL WHERE id = ?", [room.id]);
-        room.status = 'live';
-      }
     }
     next();
   } catch (err) {

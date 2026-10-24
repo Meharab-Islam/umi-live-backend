@@ -677,10 +677,13 @@ export async function joinRoom(req, res) {
     const room = rooms[0];
     const canonicalRoomId = room.room_id;
 
-    // Auto-reactivate if room status was ended
+    // Reject if room status is ended
     if (room.status !== 'live') {
-      await query("UPDATE live_rooms SET status = 'live', ended_at = NULL WHERE id = ?", [room.id]);
-      room.status = 'live';
+      return res.status(400).json({
+        success: false,
+        message: 'This live stream has ended.',
+        is_ended: true,
+      });
     }
 
     // 0. Verify Room Lock / Password Protection
@@ -1932,7 +1935,18 @@ export async function endRoom(req, res) {
       };
 
       req.io.to(canonicalRoomId).emit('room-closed', closePayload);
+      req.io.to(canonicalRoomId).emit('room_closed', closePayload);
+      req.io.to(canonicalRoomId).emit('room_ended', { roomId: canonicalRoomId, numericRoomId, message: closePayload.message });
+      req.io.to(canonicalRoomId).emit('stream-terminated', { roomId: canonicalRoomId, numericRoomId, reason: closePayload.reason });
       req.io.to(canonicalRoomId).emit('viewer-count-update', { roomId: canonicalRoomId, count: 0, viewer_count: 0 });
+
+      // Broadcast globally to ALL connected clients (so Home screen, Lobby, Explore immediately remove this room card)
+      req.io.emit('room-closed', closePayload);
+      req.io.emit('room_closed', closePayload);
+      req.io.emit('room_ended', { roomId: canonicalRoomId, numericRoomId, message: closePayload.message });
+      req.io.emit('room_removed', { roomId: canonicalRoomId, numericRoomId, hostId: room.host_id });
+      req.io.emit('live_room_deleted', { roomId: canonicalRoomId, numericRoomId });
+      req.io.emit('stream-terminated', { roomId: canonicalRoomId, numericRoomId, reason: closePayload.reason });
 
       // Evict and unsubscribe ALL sockets from this room channel
       if (typeof req.io.socketsLeave === 'function') {
@@ -4066,10 +4080,13 @@ export async function getLiveKitToken(req, res) {
     const room = roomRows[0];
     const canonicalRoomId = room.room_id;
 
-    // Auto-reactivate room if status is ended
+    // Reject if room status is ended
     if (room.status !== 'live') {
-      await query("UPDATE live_rooms SET status = 'live', ended_at = NULL WHERE id = ?", [room.id]);
-      room.status = 'live';
+      return res.status(400).json({
+        success: false,
+        message: 'This live stream has ended.',
+        is_ended: true,
+      });
     }
 
     // 2. Determine permissions
