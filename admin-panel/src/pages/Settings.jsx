@@ -37,6 +37,15 @@ import {
   PhoneIncoming,
   PhoneOutgoing,
   Clock,
+  Camera,
+  CameraOff,
+  Monitor,
+  MonitorOff,
+  Cast,
+  UserCheck,
+  Users,
+  Fingerprint,
+  VideoOff,
 } from 'lucide-react';
 import settingsApi from '../api/settingsApi';
 import Loader from '../components/Loader';
@@ -59,6 +68,7 @@ export default function Settings({ onToast }) {
   const [loadingCallLogs, setLoadingCallLogs] = useState(false);
   const [simCallType, setSimCallType] = useState('video');
   const [simCallMinutes, setSimCallMinutes] = useState(5);
+  const [savingScreenGuard, setSavingScreenGuard] = useState(false);
 
   const handleSaveCalls = async () => {
     try {
@@ -76,6 +86,34 @@ export default function Settings({ onToast }) {
       onToast(err.message, 'error');
     } finally {
       setSavingCalls(false);
+    }
+  };
+
+  const handleSaveScreenGuard = async () => {
+    try {
+      setSavingScreenGuard(true);
+      const keys = [
+        'app_screen_guard_enabled',
+        'live_screen_guard_enabled',
+        'live_screen_record_enabled',
+        'live_screen_share_enabled',
+        'live_screen_share_roles',
+        'screen_guard_allow_host',
+        'screen_guard_allow_moderator',
+        'screen_guard_allow_agency',
+        'screen_guard_allow_general_users',
+        'screen_guard_watermark_enabled',
+      ];
+      await Promise.all(
+        keys.map((k) =>
+          settingsApi.updateSetting(k, settings[k] !== undefined ? String(settings[k]) : 'true', '')
+        )
+      );
+      onToast('Screen Guard & Privacy settings saved and pushed to all live sessions!', 'success');
+    } catch (err) {
+      onToast(err.message, 'error');
+    } finally {
+      setSavingScreenGuard(false);
     }
   };
 
@@ -414,6 +452,15 @@ export default function Settings({ onToast }) {
       badgeColor: settings.call_is_enabled === 'false' ? '#ef4444' : '#10b981',
       accent: '#10b981',
       description: 'P2P Audio & Video Call per-minute coin costs, receiver revenue share, and live call logs.',
+    },
+    {
+      id: 'screen_guard',
+      name: 'Screen Guard',
+      icon: Camera,
+      badge: settings.app_screen_guard_enabled === 'false' ? 'Guard Off' : settings.live_screen_guard_enabled === 'false' ? 'App Only' : 'Full Guard',
+      badgeColor: settings.app_screen_guard_enabled === 'false' ? '#ef4444' : '#7c3aed',
+      accent: '#7c3aed',
+      description: 'Control screenshot, screen recording, screen share permissions for live rooms and the entire app.',
     },
     {
       id: 'system',
@@ -2221,6 +2268,331 @@ export default function Settings({ onToast }) {
                 </table>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* TAB CONTENT 6: SCREEN GUARD & PRIVACY CONTROLS */}
+      {activeTab === 'screen_guard' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          {/* Main Privacy Panel */}
+          <div className="panel-card" style={{ border: '1px solid rgba(124, 58, 237, 0.35)' }}>
+            <div className="panel-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div className="panel-title">
+                <Camera size={22} color="#7c3aed" />
+                <span>Screen Guard, Anti-Recording & Live Privacy Master Controls</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <span
+                  style={{
+                    fontSize: '0.75rem',
+                    fontWeight: 700,
+                    padding: '4px 10px',
+                    borderRadius: '20px',
+                    background: settings.app_screen_guard_enabled !== 'false' ? 'rgba(124, 58, 237, 0.12)' : 'rgba(239, 68, 68, 0.12)',
+                    color: settings.app_screen_guard_enabled !== 'false' ? '#a78bfa' : '#ef4444',
+                    border: settings.app_screen_guard_enabled !== 'false' ? '1px solid rgba(124, 58, 237, 0.3)' : '1px solid rgba(239, 68, 68, 0.3)',
+                  }}
+                >
+                  {settings.app_screen_guard_enabled !== 'false' ? '🛡️ Guard Active' : '⚠️ Guard Off'}
+                </span>
+                <button
+                  className="btn btn-primary"
+                  onClick={handleSaveScreenGuard}
+                  disabled={savingScreenGuard}
+                  style={{ background: '#7c3aed', borderColor: '#7c3aed', display: 'flex', alignItems: 'center', gap: '6px' }}
+                >
+                  <Save size={15} />
+                  <span>{savingScreenGuard ? 'Saving...' : 'Save Settings'}</span>
+                </button>
+              </div>
+            </div>
+
+            <p style={{ fontSize: '0.84rem', color: 'var(--text-dim)', marginBottom: '1.5rem' }}>
+              Enforce enterprise-grade content protection against unauthorized screenshots, external screen grabbers, and device screen recorders. Real-time updates push automatically to connected Flutter mobile clients via WebSocket.
+            </p>
+
+            {/* Grid of Master Controls */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.25rem' }}>
+              {/* App-wide Screen Guard */}
+              <div style={{ padding: '1.15rem', borderRadius: '12px', background: 'var(--bg-primary)', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '0.75rem', marginBottom: '0.75rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ padding: '8px', borderRadius: '8px', background: 'rgba(124, 58, 237, 0.15)', color: '#a78bfa' }}>
+                      <Lock size={18} />
+                    </div>
+                    <div>
+                      <div style={{ fontWeight: 700, fontSize: '0.92rem', color: 'var(--text-main)' }}>
+                        App-Wide Screen Guard
+                      </div>
+                      <div style={{ fontSize: '0.74rem', color: 'var(--text-dim)' }}>
+                        Android FLAG_SECURE & iOS Window Security
+                      </div>
+                    </div>
+                  </div>
+                  <select
+                    className="select-field"
+                    style={{ width: '130px', fontWeight: 600 }}
+                    value={settings.app_screen_guard_enabled !== 'false' ? 'true' : 'false'}
+                    onChange={(e) => handleChange('app_screen_guard_enabled', e.target.value)}
+                  >
+                    <option value="true">Active (Block)</option>
+                    <option value="false">Disabled (Allow)</option>
+                  </select>
+                </div>
+                <div style={{ fontSize: '0.78rem', color: 'var(--text-dim)', lineHeight: 1.4 }}>
+                  When enabled, screenshots and screen recording are completely blocked throughout the entire mobile application.
+                </div>
+              </div>
+
+              {/* Live Room Screen Guard */}
+              <div style={{ padding: '1.15rem', borderRadius: '12px', background: 'var(--bg-primary)', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '0.75rem', marginBottom: '0.75rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ padding: '8px', borderRadius: '8px', background: 'rgba(239, 68, 68, 0.15)', color: '#f87171' }}>
+                      <CameraOff size={18} />
+                    </div>
+                    <div>
+                      <div style={{ fontWeight: 700, fontSize: '0.92rem', color: 'var(--text-main)' }}>
+                        Live Room Privacy Guard
+                      </div>
+                      <div style={{ fontSize: '0.74rem', color: 'var(--text-dim)' }}>
+                        Video & Audio Streaming Sessions
+                      </div>
+                    </div>
+                  </div>
+                  <select
+                    className="select-field"
+                    style={{ width: '130px', fontWeight: 600 }}
+                    value={settings.live_screen_guard_enabled !== 'false' ? 'true' : 'false'}
+                    onChange={(e) => handleChange('live_screen_guard_enabled', e.target.value)}
+                  >
+                    <option value="true">Active (Block)</option>
+                    <option value="false">Disabled (Allow)</option>
+                  </select>
+                </div>
+                <div style={{ fontSize: '0.78rem', color: 'var(--text-dim)', lineHeight: 1.4 }}>
+                  Blocks screenshots and external recordings inside video and audio rooms to protect stream broadcasters.
+                </div>
+              </div>
+
+              {/* Live Room Screen Recording */}
+              <div style={{ padding: '1.15rem', borderRadius: '12px', background: 'var(--bg-primary)', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '0.75rem', marginBottom: '0.75rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ padding: '8px', borderRadius: '8px', background: 'rgba(59, 130, 246, 0.15)', color: '#60a5fa' }}>
+                      <Video size={18} />
+                    </div>
+                    <div>
+                      <div style={{ fontWeight: 700, fontSize: '0.92rem', color: 'var(--text-main)' }}>
+                        Live Screen Recording
+                      </div>
+                      <div style={{ fontSize: '0.74rem', color: 'var(--text-dim)' }}>
+                        Built-in Room Recording Feature
+                      </div>
+                    </div>
+                  </div>
+                  <select
+                    className="select-field"
+                    style={{ width: '130px', fontWeight: 600 }}
+                    value={settings.live_screen_record_enabled === 'true' ? 'true' : 'false'}
+                    onChange={(e) => handleChange('live_screen_record_enabled', e.target.value)}
+                  >
+                    <option value="false">Disallowed</option>
+                    <option value="true">Allowed</option>
+                  </select>
+                </div>
+                <div style={{ fontSize: '0.78rem', color: 'var(--text-dim)', lineHeight: 1.4 }}>
+                  Toggle whether users or hosts can trigger the in-app screen recording recorder during live broadcasts.
+                </div>
+              </div>
+
+              {/* Live Room Screen Share */}
+              <div style={{ padding: '1.15rem', borderRadius: '12px', background: 'var(--bg-primary)', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '0.75rem', marginBottom: '0.75rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ padding: '8px', borderRadius: '8px', background: 'rgba(16, 185, 129, 0.15)', color: '#34d399' }}>
+                      <Cast size={18} />
+                    </div>
+                    <div>
+                      <div style={{ fontWeight: 700, fontSize: '0.92rem', color: 'var(--text-main)' }}>
+                        Live Screen Share
+                      </div>
+                      <div style={{ fontSize: '0.74rem', color: 'var(--text-dim)' }}>
+                        WebRTC Screen Cast Feature
+                      </div>
+                    </div>
+                  </div>
+                  <select
+                    className="select-field"
+                    style={{ width: '130px', fontWeight: 600 }}
+                    value={settings.live_screen_share_enabled !== 'false' ? 'true' : 'false'}
+                    onChange={(e) => handleChange('live_screen_share_enabled', e.target.value)}
+                  >
+                    <option value="true">Enabled</option>
+                    <option value="false">Disabled</option>
+                  </select>
+                </div>
+                <div style={{ fontSize: '0.78rem', color: 'var(--text-dim)', lineHeight: 1.4 }}>
+                  Enable or disable the ability for participants to broadcast their device screen during live streaming sessions.
+                </div>
+              </div>
+
+              {/* Screen Share Permitted Roles */}
+              <div style={{ padding: '1.15rem', borderRadius: '12px', background: 'var(--bg-primary)', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '0.75rem', marginBottom: '0.75rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ padding: '8px', borderRadius: '8px', background: 'rgba(245, 158, 11, 0.15)', color: '#fbbf24' }}>
+                      <Users size={18} />
+                    </div>
+                    <div>
+                      <div style={{ fontWeight: 700, fontSize: '0.92rem', color: 'var(--text-main)' }}>
+                        Screen Share Roles
+                      </div>
+                      <div style={{ fontSize: '0.74rem', color: 'var(--text-dim)' }}>
+                        Who Can Broadcast Screen
+                      </div>
+                    </div>
+                  </div>
+                  <select
+                    className="select-field"
+                    style={{ minWidth: '150px', fontWeight: 600 }}
+                    value={settings.live_screen_share_roles || 'host_only'}
+                    onChange={(e) => handleChange('live_screen_share_roles', e.target.value)}
+                  >
+                    <option value="host_only">Host Only</option>
+                    <option value="host_and_moderator">Host & Moderators</option>
+                    <option value="all">All Seated Participants</option>
+                  </select>
+                </div>
+                <div style={{ fontSize: '0.78rem', color: 'var(--text-dim)', lineHeight: 1.4 }}>
+                  Restricts screen broadcasting to authorized room roles to prevent misuse.
+                </div>
+              </div>
+
+              {/* Dynamic Watermark */}
+              <div style={{ padding: '1.15rem', borderRadius: '12px', background: 'var(--bg-primary)', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '0.75rem', marginBottom: '0.75rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ padding: '8px', borderRadius: '8px', background: 'rgba(139, 92, 246, 0.15)', color: '#c084fc' }}>
+                      <Fingerprint size={18} />
+                    </div>
+                    <div>
+                      <div style={{ fontWeight: 700, fontSize: '0.92rem', color: 'var(--text-main)' }}>
+                        Anti-Leak Watermark
+                      </div>
+                      <div style={{ fontSize: '0.74rem', color: 'var(--text-dim)' }}>
+                        User ID & Timestamp Overlay
+                      </div>
+                    </div>
+                  </div>
+                  <select
+                    className="select-field"
+                    style={{ width: '130px', fontWeight: 600 }}
+                    value={settings.screen_guard_watermark_enabled !== 'false' ? 'true' : 'false'}
+                    onChange={(e) => handleChange('screen_guard_watermark_enabled', e.target.value)}
+                  >
+                    <option value="true">Enabled</option>
+                    <option value="false">Disabled</option>
+                  </select>
+                </div>
+                <div style={{ fontSize: '0.78rem', color: 'var(--text-dim)', lineHeight: 1.4 }}>
+                  Overlays a subtle dynamic watermark showing the viewer's User ID to trace any unauthorized external recording.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Role-Based Permissions Panel */}
+          <div className="panel-card" style={{ border: '1px solid rgba(16, 185, 129, 0.35)' }}>
+            <div className="panel-header">
+              <div className="panel-title">
+                <UserCheck size={22} color="#10b981" />
+                <span>Screen Guard Bypass & Role Visibility Permissions</span>
+              </div>
+            </div>
+
+            <p style={{ fontSize: '0.84rem', color: 'var(--text-dim)', marginBottom: '1.5rem' }}>
+              Configure which user groups are granted permission to view screen broadcasts when screen guard is toggled off or when role-based exceptions apply:
+            </p>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.25rem' }}>
+              {/* Host */}
+              <div style={{ padding: '1rem', borderRadius: '10px', background: 'var(--bg-primary)', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                  <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--text-main)' }}>👑 Host</div>
+                  <select
+                    className="select-field"
+                    style={{ width: '110px' }}
+                    value={settings.screen_guard_allow_host !== 'false' ? 'true' : 'false'}
+                    onChange={(e) => handleChange('screen_guard_allow_host', e.target.value)}
+                  >
+                    <option value="true">Allowed</option>
+                    <option value="false">Blocked</option>
+                  </select>
+                </div>
+                <span style={{ fontSize: '0.74rem', color: 'var(--text-dim)' }}>
+                  Room owner / host view privileges.
+                </span>
+              </div>
+
+              {/* Moderator */}
+              <div style={{ padding: '1rem', borderRadius: '10px', background: 'var(--bg-primary)', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                  <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--text-main)' }}>🛡️ Moderator</div>
+                  <select
+                    className="select-field"
+                    style={{ width: '110px' }}
+                    value={settings.screen_guard_allow_moderator !== 'false' ? 'true' : 'false'}
+                    onChange={(e) => handleChange('screen_guard_allow_moderator', e.target.value)}
+                  >
+                    <option value="true">Allowed</option>
+                    <option value="false">Blocked</option>
+                  </select>
+                </div>
+                <span style={{ fontSize: '0.74rem', color: 'var(--text-dim)' }}>
+                  Appointed room moderators and supervisors.
+                </span>
+              </div>
+
+              {/* Agency */}
+              <div style={{ padding: '1rem', borderRadius: '10px', background: 'var(--bg-primary)', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                  <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--text-main)' }}>🏢 Agency</div>
+                  <select
+                    className="select-field"
+                    style={{ width: '110px' }}
+                    value={settings.screen_guard_allow_agency !== 'false' ? 'true' : 'false'}
+                    onChange={(e) => handleChange('screen_guard_allow_agency', e.target.value)}
+                  >
+                    <option value="true">Allowed</option>
+                    <option value="false">Blocked</option>
+                  </select>
+                </div>
+                <span style={{ fontSize: '0.74rem', color: 'var(--text-dim)' }}>
+                  Agency managers overseeing their hosts.
+                </span>
+              </div>
+
+              {/* General Users */}
+              <div style={{ padding: '1rem', borderRadius: '10px', background: 'var(--bg-primary)', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                  <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--text-main)' }}>👥 General Users</div>
+                  <select
+                    className="select-field"
+                    style={{ width: '110px' }}
+                    value={settings.screen_guard_allow_general_users !== 'false' ? 'true' : 'false'}
+                    onChange={(e) => handleChange('screen_guard_allow_general_users', e.target.value)}
+                  >
+                    <option value="true">Allowed</option>
+                    <option value="false">Blocked</option>
+                  </select>
+                </div>
+                <span style={{ fontSize: '0.74rem', color: 'var(--text-dim)' }}>
+                  Regular audience members in room.
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       )}

@@ -1124,8 +1124,18 @@ export async function updateSetting(req, res) {
     await cache.del('host_ratios:all');
     await cache.del('wallet:withdrawal:config');
     await cache.del('config:call_rates');
+    await cache.del('config:screen_guard');
     await cache.delByPattern('wallet:*');
     await cache.delByPattern('withdrawal:*');
+
+    // Broadcast real-time screen guard change to connected mobile clients
+    if (req.io && (key.includes('screen_') || key.includes('guard_'))) {
+      req.io.emit('security:screen_guard_updated', {
+        key,
+        value: String(finalValue),
+        updated_at: new Date().toISOString(),
+      });
+    }
 
     return res.json({ success: true, message: `Setting ${key} updated successfully.` });
   } catch (err) {

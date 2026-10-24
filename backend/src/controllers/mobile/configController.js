@@ -125,6 +125,22 @@ export async function getAppConfig(req, res) {
           enable_vip_store: true,
           enable_diamond_cashout: isDiamondMode,
         },
+
+        // Screen Guard & Anti-Screenshot / Anti-Record Privacy Controls
+        screen_guard: {
+          app_screen_guard_enabled: settingsMap['app_screen_guard_enabled'] !== 'false',
+          live_screen_guard_enabled: settingsMap['live_screen_guard_enabled'] !== 'false',
+          live_screen_record_enabled: settingsMap['live_screen_record_enabled'] === 'true',
+          live_screen_share_enabled: settingsMap['live_screen_share_enabled'] !== 'false',
+          live_screen_share_roles: settingsMap['live_screen_share_roles'] || 'host_only',
+          permissions: {
+            allow_host: settingsMap['screen_guard_allow_host'] !== 'false',
+            allow_moderator: settingsMap['screen_guard_allow_moderator'] !== 'false',
+            allow_agency: settingsMap['screen_guard_allow_agency'] !== 'false',
+            allow_general_users: settingsMap['screen_guard_allow_general_users'] !== 'false',
+          },
+          watermark_enabled: settingsMap['screen_guard_watermark_enabled'] !== 'false',
+        },
       };
     });
 
@@ -186,5 +202,43 @@ export async function getLiveKitConfigEndpoint(req, res) {
   } catch (err) {
     console.error('getLiveKitConfigEndpoint error:', err);
     return res.status(500).json({ success: false, message: 'Failed to retrieve LiveKit configuration.', error: err.message });
+  }
+}
+
+/**
+ * Dedicated Screen Guard & Media Security Configuration Endpoint
+ * GET /api/mobile/config/screen-guard or GET /api/config/screen-guard
+ */
+export async function getScreenGuardConfig(req, res) {
+  try {
+    const config = await cache.getOrSet('config:screen_guard', 120, async () => {
+      const rows = await query('SELECT key_name, key_value FROM system_settings WHERE key_name LIKE "screen_guard_%" OR key_name LIKE "app_screen_%" OR key_name LIKE "live_screen_%"');
+      const map = {};
+      for (const r of rows) {
+        map[r.key_name] = r.key_value;
+      }
+      return {
+        app_screen_guard_enabled: map['app_screen_guard_enabled'] !== 'false',
+        live_screen_guard_enabled: map['live_screen_guard_enabled'] !== 'false',
+        live_screen_record_enabled: map['live_screen_record_enabled'] === 'true',
+        live_screen_share_enabled: map['live_screen_share_enabled'] !== 'false',
+        live_screen_share_roles: map['live_screen_share_roles'] || 'host_only',
+        permissions: {
+          allow_host: map['screen_guard_allow_host'] !== 'false',
+          allow_moderator: map['screen_guard_allow_moderator'] !== 'false',
+          allow_agency: map['screen_guard_allow_agency'] !== 'false',
+          allow_general_users: map['screen_guard_allow_general_users'] !== 'false',
+        },
+        watermark_enabled: map['screen_guard_watermark_enabled'] !== 'false',
+      };
+    });
+
+    return res.json({
+      success: true,
+      screen_guard: config,
+    });
+  } catch (err) {
+    console.error('getScreenGuardConfig error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to retrieve screen guard configuration.', error: err.message });
   }
 }

@@ -974,7 +974,17 @@ export async function initializeDatabase() {
         ('call_video_live_rate_per_minute', '30', 'Coin cost per minute for Video Live seat interaction or private call'),
         ('call_min_balance_to_start', '20', 'Minimum coin balance required for a caller to initiate a 1-on-1 call'),
         ('call_receiver_earnings_percent', '70', 'Percentage of call coins awarded to call receiver as diamonds'),
-        ('call_is_enabled', 'true', 'Master switch to enable or disable 1-on-1 direct audio and video calls')
+        ('call_is_enabled', 'true', 'Master switch to enable or disable 1-on-1 direct audio and video calls'),
+        ('app_screen_guard_enabled', 'true', 'Master switch to block screenshots and screen recording across the entire mobile application (Android FLAG_SECURE / iOS Screen Capture Protection)'),
+        ('live_screen_guard_enabled', 'true', 'Block screenshots and screen recordings specifically inside Video & Audio live rooms'),
+        ('live_screen_record_enabled', 'false', 'Allow users to record screen during live audio/video streams'),
+        ('live_screen_share_enabled', 'true', 'Master switch allowing screen share inside live video and audio rooms'),
+        ('live_screen_share_roles', 'host_only', 'Roles authorized to share screen: host_only, host_and_moderator, co_hosts, everyone'),
+        ('screen_guard_allow_host', 'true', 'Allow room host to view screen / bypass screen guard'),
+        ('screen_guard_allow_moderator', 'true', 'Allow moderators to view screen / bypass screen guard'),
+        ('screen_guard_allow_agency', 'true', 'Allow agency managers to view screen / bypass screen guard'),
+        ('screen_guard_allow_general_users', 'true', 'Allow general audience to view screen when guard is turned off'),
+        ('screen_guard_watermark_enabled', 'true', 'Display anti-leak dynamic floating user ID & IP watermark on live screen')
         ON DUPLICATE KEY UPDATE key_value = VALUES(key_value);
       `);
 

@@ -2545,6 +2545,41 @@ export const API_SPEC = {
       ]
     },
     {
+      "id": "screen-guard-config",
+      "category": "config",
+      "method": "GET",
+      "path": "/api/mobile/config/screen-guard",
+      "summary": "Get Screen Guard & Privacy Protection Settings",
+      "description": "Returns current platform screen guard, screen recording, screen sharing toggles, dynamic watermark settings, and role-based view permissions (host, moderator, agency, general users). Cached in Redis ('config:screen_guard', TTL 120s) and pushed live to mobile clients via Socket.IO 'security:screen_guard_updated' event.",
+      "requiresAuth": false,
+      "requestHeaders": [],
+      "parameters": [],
+      "requestBody": null,
+      "responses": [
+        {
+          "status": 200,
+          "description": "Active screen guard and privacy configuration returned successfully.",
+          "example": {
+            "success": true,
+            "screen_guard": {
+              "app_screen_guard_enabled": true,
+              "live_screen_guard_enabled": true,
+              "live_screen_record_enabled": false,
+              "live_screen_share_enabled": true,
+              "live_screen_share_roles": "host_only",
+              "permissions": {
+                "allow_host": true,
+                "allow_moderator": true,
+                "allow_agency": true,
+                "allow_general_users": true
+              },
+              "watermark_enabled": true
+            }
+          }
+        }
+      ]
+    },
+    {
       "id": "auth-register",
       "category": "auth",
       "method": "POST",
