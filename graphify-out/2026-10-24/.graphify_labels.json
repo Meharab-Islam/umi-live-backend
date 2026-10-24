@@ -52,7 +52,7 @@
   "50": "tag_live_types_in_docs.mjs",
   "51": "themeRoutes.js",
   "52": "chatController.js",
-  "53": "entryEffectController.js",
+  "53": "authMiddleware.js",
   "54": "mobile/index.js",
   "55": "hostController.js",
   "56": "ssh_runner.py",
@@ -69,7 +69,7 @@
   "67": "routes/liveRoutes.js",
   "68": "update_flutter_chat.py",
   "69": "init.js",
-  "70": "authMiddleware.js",
+  "70": "requireAuth",
   "71": "test_socket_realtime_emission.mjs",
   "72": "test_video_live_seat_guard.mjs"
 }
