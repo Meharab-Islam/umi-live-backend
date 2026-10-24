@@ -2535,7 +2535,7 @@
       "file_type": "code",
       "norm_label": "claimlivereward()",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L4446"
+      "source_location": "L4443"
     },
     {
       "id": "backend_src_controllers_mobile_livecontroller_createroom",
@@ -2643,7 +2643,7 @@
       "file_type": "code",
       "norm_label": "getliverewardstatus()",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L4430"
+      "source_location": "L4427"
     },
     {
       "id": "backend_src_controllers_mobile_livecontroller_getmyactiveroom",
@@ -2979,7 +2979,7 @@
       "file_type": "code",
       "norm_label": "toggleroomlock()",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L4318"
+      "source_location": "L4314"
     },
     {
       "id": "backend_src_controllers_mobile_livecontroller_toggleseatmedia",
@@ -16190,7 +16190,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L4450",
+      "source_location": "L4447",
       "weight": 1.0
     },
     {
@@ -16370,7 +16370,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L4434",
+      "source_location": "L4431",
       "weight": 1.0
     },
     {
@@ -16958,7 +16958,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L4324",
+      "source_location": "L4320",
       "weight": 1.0
     },
     {
@@ -35386,7 +35386,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L4318",
+      "source_location": "L4314",
       "weight": 1.0
     },
     {
@@ -35397,7 +35397,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L4430",
+      "source_location": "L4427",
       "weight": 1.0
     },
     {
@@ -35408,7 +35408,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L4446",
+      "source_location": "L4443",
       "weight": 1.0
     },
     {
@@ -43811,5 +43811,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "b3680e7edaba34f0ad7a98c02880c2665621f75e"
+  "built_at_commit": "6ba24143490b5da1802ba4330f806bfcebaec9ce"
 }

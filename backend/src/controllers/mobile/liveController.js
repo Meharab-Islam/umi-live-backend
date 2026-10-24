@@ -4269,27 +4269,23 @@ export async function updateRoomSettings(req, res) {
       cache.delByPattern('mobile:rooms:*'),
     ]);
 
-    // 3. Real-time broadcast to all room viewers
+    // 3. Real-time broadcast to all room viewers & global feed
     const io = req.io || req.app.get('io');
     if (io) {
-      io.to(room.room_id).emit('room-settings-updated', {
+      const lockPayload = {
         roomId: room.room_id,
         room_id: room.room_id,
+        numericRoomId: room.id,
         is_comment_disabled: Boolean(newCommentDisabled),
         is_reaction_disabled: Boolean(newReactionDisabled),
         is_locked: Boolean(newIsLocked),
         is_password_protected: Boolean(newIsLocked && newPassword),
         updated_by: hostId,
         timestamp: new Date().toISOString(),
-      });
-      io.to(room.room_id).emit('room_lock_updated', {
-        roomId: room.room_id,
-        room_id: room.room_id,
-        is_locked: Boolean(newIsLocked),
-        is_password_protected: Boolean(newIsLocked && newPassword),
-        updated_by: hostId,
-        timestamp: new Date().toISOString(),
-      });
+      };
+      io.to(room.room_id).emit('room-settings-updated', lockPayload);
+      io.to(room.room_id).emit('room_lock_updated', lockPayload);
+      io.emit('room_lock_updated', lockPayload);
     }
 
     return res.json({
@@ -4405,6 +4401,7 @@ export async function toggleRoomLock(req, res) {
       };
       io.to(room.room_id).emit('room_lock_updated', lockPayload);
       io.to(room.room_id).emit('room-lock-updated', lockPayload);
+      io.emit('room_lock_updated', lockPayload);
     }
 
     return res.json({
