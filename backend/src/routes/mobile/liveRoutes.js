@@ -77,8 +77,8 @@ router.get('/history', requireAuth, getUserLiveHistory);
 router.get('/my-history', requireAuth, getUserLiveHistory);
 router.get('/user-activity', requireAuth, getUserLiveHistory);
 
-// Authenticated Live Rooms Feed (Excludes currently logged-in user's own broadcast)
-router.get('/rooms', requireAuth, getRooms);
+// Public / Authenticated Live Rooms Feed (Excludes currently logged-in user's own broadcast if logged in)
+router.get('/rooms', optionalAuth, getRooms);
 
 // Authenticated: Get currently active room hosted by the logged-in user
 router.get('/rooms/my-active', requireAuth, getMyActiveRoom);
