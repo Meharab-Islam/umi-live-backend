@@ -50,8 +50,10 @@ import liveApi from '../api/liveApi';
 import GoogleMeetLiveStage from '../components/GoogleMeetLiveStage';
 import UserLiveAuth from '../components/UserLiveAuth';
 import { useLiveKit } from '../hooks/useLiveKit';
+import { useBranding } from '../context/BrandingContext';
 
 export default function UserLivePortal({ onToast, onSwitchToAdmin }) {
+  const { brandName } = useBranding();
   // Test users with pre-signed JWT tokens
   const [users, setUsers] = useState([]);
 
@@ -83,7 +85,7 @@ export default function UserLivePortal({ onToast, onSwitchToAdmin }) {
 
   // Create Room Modal
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [newRoomTitle, setNewRoomTitle] = useState('Umi Live Web Stage 🎉');
+  const [newRoomTitle, setNewRoomTitle] = useState(`${brandName} Web Stage 🎉`);
   const [newRoomType, setNewRoomType] = useState('video'); // 'video' | 'audio'
   const [newRoomSeats, setNewRoomSeats] = useState(8);
   const [creatingRoom, setCreatingRoom] = useState(false);

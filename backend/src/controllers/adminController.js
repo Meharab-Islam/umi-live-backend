@@ -1120,6 +1120,7 @@ export async function updateSetting(req, res) {
     await cache.del('config:mobile:app');
     await cache.del('config:livekit');
     await cache.delByPattern('setting*');
+    await cache.delByPattern('config:*');
     await cache.delByPattern('admin:dashboard*');
     await cache.delByPattern('mobile:user:profile*');
     await cache.del('host_ratios:all');
@@ -1128,6 +1129,15 @@ export async function updateSetting(req, res) {
     await cache.del('config:screen_guard');
     await cache.delByPattern('wallet:*');
     await cache.delByPattern('withdrawal:*');
+
+    // Broadcast real-time branding changes
+    if (req.io && (key.includes('platform_') || key.includes('app_name') || key.includes('logo'))) {
+      req.io.emit('branding_updated', {
+        key,
+        value: String(finalValue),
+        updated_at: new Date().toISOString(),
+      });
+    }
 
     // Broadcast real-time screen guard change to connected mobile clients
     if (req.io && (key.includes('screen_') || key.includes('guard_'))) {

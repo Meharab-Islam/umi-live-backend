@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { ShieldCheck, Lock, User, ArrowRight, Sparkles } from 'lucide-react';
 import authApi, { setToken, setCurrentUser } from '../api/authApi';
+import { useBranding } from '../context/BrandingContext';
 
 export default function Login({ onLoginSuccess }) {
+  const { brandName, resolvedLogoUrl, brandTagline } = useBranding();
   const [identifier, setIdentifier] = useState('admin@umi.live');
   const [password, setPassword] = useState('admin123');
   const [loading, setLoading] = useState(false);
@@ -56,25 +58,38 @@ export default function Login({ onLoginSuccess }) {
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <div style={{
-            width: '56px',
-            height: '56px',
-            borderRadius: '16px',
+            width: '64px',
+            height: '64px',
+            borderRadius: '18px',
             background: 'linear-gradient(135deg, #7c3aed 0%, #a855f7 100%)',
             display: 'inline-flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: '1.75rem',
+            fontSize: '1.85rem',
             boxShadow: '0 4px 16px rgba(124, 58, 237, 0.35)',
             marginBottom: '1rem',
             color: '#fff',
+            overflow: 'hidden',
           }}>
-            ⚡
+            {resolvedLogoUrl ? (
+              <img
+                src={resolvedLogoUrl}
+                alt={brandName}
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                  const fallback = e.currentTarget.parentElement?.querySelector('.login-fallback-icon');
+                  if (fallback) fallback.style.display = 'inline';
+                }}
+              />
+            ) : null}
+            <span className="login-fallback-icon" style={{ display: resolvedLogoUrl ? 'none' : 'inline' }}>⚡</span>
           </div>
           <h2 style={{ fontSize: '1.75rem', fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--text-main)' }}>
-            Umi Live
+            {brandName}
           </h2>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', marginTop: '0.25rem' }}>
-            Broadcasting & Live Streaming Admin Console
+            {brandTagline || 'Broadcasting & Live Streaming Admin Console'}
           </p>
         </div>
 

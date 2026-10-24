@@ -30,9 +30,9 @@ import { getToken } from '../api/client';
 import Loader from '../components/Loader';
 import { copyToClipboard } from '../utils/clipboard';
 
-// Fallback spec in case backend is loading or offline
 import { API_SPEC as FALLBACK_SPEC } from '../api/apiSpec';
 import SocketDocsView from '../components/SocketDocsView';
+import { useBranding } from '../context/BrandingContext';
 
 // Helper to extract image items from any response or example
 function extractMediaItems(data, baseUrl = '') {
@@ -250,6 +250,7 @@ function MediaGallery({ items, onCopy, copiedKey }) {
 }
 
 export default function ApiDocs({ onToast }) {
+  const { brandName } = useBranding();
   const [docMode, setDocMode] = useState('rest'); // 'rest' | 'socket'
   const [spec, setSpec] = useState(FALLBACK_SPEC);
   const [loading, setLoading] = useState(false);
@@ -868,7 +869,7 @@ ${ep.requiresAuth ? '4. Include the Bearer token in the `Authorization` header.'
                 <Terminal size={24} />
               </div>
               <h1 style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--text-main)', margin: 0 }}>
-                {spec.title || 'Umi Live REST API Explorer'}
+                {spec.title || `${brandName} REST API Explorer`}
               </h1>
               <span className="badge badge-primary" style={{ fontSize: '0.72rem', fontWeight: 800 }}>
                 {spec.version || 'v1.0.0'}

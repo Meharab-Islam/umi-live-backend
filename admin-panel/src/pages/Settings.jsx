@@ -51,13 +51,18 @@ import {
   Star,
   StarHalf,
   Crown,
+  Upload,
 } from 'lucide-react';
 import settingsApi from '../api/settingsApi';
 import Loader from '../components/Loader';
+import { uploadFile, resolveAssetUrl } from '../api/client';
+import { useBranding } from '../context/BrandingContext';
 
 export default function Settings({ onToast }) {
+  const { updateBranding } = useBranding();
   const [settings, setSettings] = useState({});
   const [loading, setLoading] = useState(true);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState('economy');
   const [showActionPassword, setShowActionPassword] = useState(false);
@@ -534,15 +539,56 @@ export default function Settings({ onToast }) {
     }
   };
 
+  const handleLogoUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      onToast('Please select a valid image file (PNG, JPG, SVG, WebP)', 'error');
+      return;
+    }
+
+    try {
+      setUploadingLogo(true);
+      const res = await uploadFile(file, 'branding');
+      if (res && res.url) {
+        handleChange('platform_logo_url', res.url);
+        handleChange('app_logo_url', res.url);
+        onToast('Logo uploaded! Click "Save System Settings" to persist.', 'success');
+      }
+    } catch (err) {
+      onToast(err.message || 'Logo upload failed', 'error');
+    } finally {
+      setUploadingLogo(false);
+    }
+  };
+
   const handleSaveSystem = async () => {
     try {
       setSavingSystem(true);
+      const finalName = (settings.platform_name || settings.app_name || 'Umi Live').trim();
+      const finalLogo = (settings.platform_logo_url || settings.app_logo_url || '').trim();
+      const finalTagline = (settings.admin_title || 'Broadcasting & Live Streaming Admin Console').trim();
+
       await Promise.all([
         settingsApi.updateSetting('maintenance_mode', settings.maintenance_mode || 'false', 'Platform maintenance mode flag'),
         settingsApi.updateSetting('maintenance_message', settings.maintenance_message || 'Platform is under scheduled maintenance. Please check back shortly.', 'Platform maintenance message'),
-        settingsApi.updateSetting('platform_name', settings.platform_name || 'Umi Live', 'Platform display name'),
+        settingsApi.updateSetting('platform_name', finalName, 'Platform display name'),
+        settingsApi.updateSetting('app_name', finalName, 'Mobile app display name'),
+        settingsApi.updateSetting('platform_logo_url', finalLogo, 'Platform and Admin Logo URL'),
+        settingsApi.updateSetting('app_logo_url', finalLogo, 'Mobile App Logo URL'),
+        settingsApi.updateSetting('admin_title', finalTagline, 'Admin Panel Tagline Title'),
+        settingsApi.updateSetting('min_supported_version', settings.min_supported_version || '1.0.0', 'Client minimum supported app version'),
       ]);
-      onToast('System and maintenance settings saved!', 'success');
+
+      // Propagate dynamically to entire Admin Panel UI
+      updateBranding({
+        name: finalName,
+        logo: finalLogo,
+        tagline: finalTagline,
+      });
+
+      onToast('Platform Branding, Name & Logo updated across Admin Panel!', 'success');
     } catch (err) {
       onToast(err.message, 'error');
     } finally {
@@ -582,6 +628,12 @@ export default function Settings({ onToast }) {
       setSaving(true);
       for (const key of Object.keys(settings)) {
         await settingsApi.updateSetting(key, settings[key]);
+      }
+      const finalName = settings.platform_name || settings.app_name;
+      const finalLogo = settings.platform_logo_url || settings.app_logo_url;
+      const finalTagline = settings.admin_title;
+      if (finalName || finalLogo) {
+        updateBranding({ name: finalName, logo: finalLogo, tagline: finalTagline });
       }
       onToast('All platform settings updated!', 'success');
     } catch (err) {
@@ -2671,9 +2723,209 @@ export default function Settings({ onToast }) {
         </div>
       )}
 
-      {/* TAB CONTENT 5: SYSTEM & MAINTENANCE */}
+      {/* TAB CONTENT 5: SYSTEM & BRANDING */}
       {activeTab === 'system' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          {/* Card 1: Global Platform Branding (Single Centralized Control) */}
+          <div className="panel-card" style={{ border: '1px solid rgba(124, 58, 237, 0.35)', background: 'var(--bg-card)' }}>
+            <div className="panel-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div className="panel-title">
+                <Sparkles size={22} color="#7c3aed" />
+                <span>Global Platform Branding & App Identity</span>
+              </div>
+              <span
+                style={{
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  padding: '4px 10px',
+                  borderRadius: '20px',
+                  background: 'rgba(124, 58, 237, 0.12)',
+                  color: '#7c3aed',
+                  border: '1px solid rgba(124, 58, 237, 0.3)',
+                }}
+              >
+                Single Control Center
+              </span>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-dim)', margin: 0, lineHeight: 1.5 }}>
+                Update your platform name and logo from this single place. Changes automatically propagate across the entire Admin Panel (Sidebar, Login screen, browser tab title, dashboard) and mobile apps in real time.
+              </p>
+
+              {/* Logo Upload & Live Preview Section */}
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '1.5rem',
+                  padding: '1.25rem',
+                  borderRadius: '14px',
+                  background: 'var(--bg-primary)',
+                  border: '1px solid var(--border-color)',
+                  flexWrap: 'wrap',
+                }}
+              >
+                {/* Visual Preview Box */}
+                <div
+                  style={{
+                    width: '72px',
+                    height: '72px',
+                    borderRadius: '20px',
+                    background: 'linear-gradient(135deg, #7c3aed 0%, #a855f7 100%)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '2rem',
+                    color: '#fff',
+                    boxShadow: '0 8px 20px rgba(124, 58, 237, 0.3)',
+                    overflow: 'hidden',
+                    flexShrink: 0,
+                    border: '2px solid rgba(255, 255, 255, 0.2)',
+                  }}
+                >
+                  {(settings.platform_logo_url || settings.app_logo_url) ? (
+                    <img
+                      src={resolveAssetUrl(settings.platform_logo_url || settings.app_logo_url)}
+                      alt="Brand Logo"
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                        const fallback = e.currentTarget.parentElement?.querySelector('.settings-logo-fallback');
+                        if (fallback) fallback.style.display = 'inline';
+                      }}
+                    />
+                  ) : null}
+                  <span
+                    className="settings-logo-fallback"
+                    style={{ display: (settings.platform_logo_url || settings.app_logo_url) ? 'none' : 'inline' }}
+                  >
+                    ⚡
+                  </span>
+                </div>
+
+                {/* Upload Actions & Direct URL */}
+                <div style={{ flex: 1, minWidth: '260px', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+                    <label
+                      className="btn btn-primary btn-sm"
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        cursor: uploadingLogo ? 'not-allowed' : 'pointer',
+                        background: '#7c3aed',
+                        borderColor: '#6d28d9',
+                        padding: '0.55rem 1rem',
+                      }}
+                    >
+                      <Upload size={15} />
+                      <span>{uploadingLogo ? 'Uploading Logo...' : 'Upload Logo from Computer'}</span>
+                      <input
+                        type="file"
+                        accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                        style={{ display: 'none' }}
+                        disabled={uploadingLogo}
+                        onChange={handleLogoUpload}
+                      />
+                    </label>
+
+                    {(settings.platform_logo_url || settings.app_logo_url) && (
+                      <button
+                        type="button"
+                        className="btn btn-secondary btn-sm"
+                        onClick={() => {
+                          handleChange('platform_logo_url', '');
+                          handleChange('app_logo_url', '');
+                        }}
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', color: '#ef4444' }}
+                      >
+                        <Trash2 size={14} />
+                        <span>Remove Logo</span>
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Direct Logo URL Input */}
+                  <div>
+                    <input
+                      type="text"
+                      className="input-field"
+                      style={{ width: '100%', fontSize: '0.85rem' }}
+                      value={settings.platform_logo_url || settings.app_logo_url || ''}
+                      onChange={(e) => {
+                        handleChange('platform_logo_url', e.target.value);
+                        handleChange('app_logo_url', e.target.value);
+                      }}
+                      placeholder="Or paste image URL (e.g. /uploads/branding/logo.png or https://...)"
+                    />
+                    <div style={{ fontSize: '0.74rem', color: 'var(--text-dim)', marginTop: '0.25rem' }}>
+                      PNG, SVG, or WebP with transparent background recommended.
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Name & Subtitle Grid */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '0.35rem' }}>
+                    Platform Brand Name
+                  </label>
+                  <input
+                    type="text"
+                    className="input-field"
+                    style={{ width: '100%', fontWeight: 700 }}
+                    value={settings.platform_name || settings.app_name || 'Umi Live'}
+                    onChange={(e) => {
+                      handleChange('platform_name', e.target.value);
+                      handleChange('app_name', e.target.value);
+                    }}
+                    placeholder="e.g. Umi Live or Your Brand"
+                  />
+                  <div style={{ fontSize: '0.74rem', color: 'var(--text-dim)', marginTop: '0.25rem' }}>
+                    Appears in Sidebar, Header, Login page, browser title, and mobile app headers.
+                  </div>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '0.35rem' }}>
+                    Admin Console Tagline / Subtitle
+                  </label>
+                  <input
+                    type="text"
+                    className="input-field"
+                    style={{ width: '100%' }}
+                    value={settings.admin_title || 'Broadcasting & Live Streaming Admin Console'}
+                    onChange={(e) => handleChange('admin_title', e.target.value)}
+                    placeholder="e.g. Broadcasting & Live Streaming Admin Console"
+                  />
+                  <div style={{ fontSize: '0.74rem', color: 'var(--text-dim)', marginTop: '0.25rem' }}>
+                    Appears under the brand name on the Login page.
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '0.35rem' }}>
+                  Client Minimum Supported App Version
+                </label>
+                <input
+                  type="text"
+                  className="input-field"
+                  style={{ maxWidth: '240px' }}
+                  value={settings.min_supported_version || '1.0.0'}
+                  onChange={(e) => handleChange('min_supported_version', e.target.value)}
+                  placeholder="e.g. 1.0.0"
+                />
+                <div style={{ fontSize: '0.74rem', color: 'var(--text-dim)', marginTop: '0.25rem' }}>
+                  Mobile apps below this version will prompt the user to update.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 2: Platform Maintenance Mode */}
           <div className="panel-card" style={{ border: '1px solid rgba(59, 130, 246, 0.35)' }}>
             <div className="panel-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div className="panel-title">
@@ -2731,42 +2983,16 @@ export default function Settings({ onToast }) {
                 />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem' }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '0.35rem' }}>
-                    Platform Brand Name
-                  </label>
-                  <input
-                    type="text"
-                    className="input-field"
-                    value={settings.platform_name || 'Umi Live'}
-                    onChange={(e) => handleChange('platform_name', e.target.value)}
-                  />
-                </div>
-
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '0.35rem' }}>
-                    Client Minimum Supported App Version
-                  </label>
-                  <input
-                    type="text"
-                    className="input-field"
-                    value={settings.min_supported_version || '1.0.0'}
-                    onChange={(e) => handleChange('min_supported_version', e.target.value)}
-                  />
-                </div>
-              </div>
-
               <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: '0.75rem', borderTop: '1px solid var(--border-color)' }}>
                 <button
                   type="button"
                   className="btn btn-primary"
                   onClick={handleSaveSystem}
                   disabled={savingSystem || saving}
-                  style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#3b82f6', borderColor: '#2563eb' }}
+                  style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#7c3aed', borderColor: '#6d28d9', padding: '0.65rem 1.4rem' }}
                 >
                   <Save size={16} />
-                  <span>{savingSystem ? 'Saving...' : 'Save System Settings'}</span>
+                  <span>{savingSystem ? 'Saving...' : 'Save Branding & System Settings'}</span>
                 </button>
               </div>
             </div>

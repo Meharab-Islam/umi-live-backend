@@ -15,8 +15,10 @@ import {
   HelpCircle,
 } from 'lucide-react';
 import { API_BASE } from '../api/client';
+import { useBranding } from '../context/BrandingContext';
 
 export default function UserLiveAuth({ onAuthSuccess, onToast, onSwitchToAdmin }) {
+  const { brandName } = useBranding();
   // Tabs: 'otp' | 'password' | 'register'
   const [authMode, setAuthMode] = useState('otp');
 
@@ -123,7 +125,7 @@ export default function UserLiveAuth({ onAuthSuccess, onToast, onSwitchToAdmin }
           },
         };
         localStorage.setItem('user_portal_auth', JSON.stringify(authData));
-        onToast?.(data.isNewUser ? 'Welcome to Umi Live! 🎉' : 'Logged in successfully! 🚀', 'success');
+        onToast?.(data.isNewUser ? `Welcome to ${brandName}! 🎉` : 'Logged in successfully! 🚀', 'success');
         onAuthSuccess(authData);
       } else {
         setError(data.message || 'Invalid verification code.');
@@ -229,7 +231,7 @@ export default function UserLiveAuth({ onAuthSuccess, onToast, onSwitchToAdmin }
           },
         };
         localStorage.setItem('user_portal_auth', JSON.stringify(authData));
-        onToast?.('Account created! Welcome to Umi Live 🌟', 'success');
+        onToast?.(`Account created! Welcome to ${brandName} 🌟`, 'success');
         onAuthSuccess(authData);
       } else {
         setError(data.message || 'Registration failed.');
@@ -331,7 +333,7 @@ export default function UserLiveAuth({ onAuthSuccess, onToast, onSwitchToAdmin }
             <Radio size={32} color="#fff" />
           </div>
           <h2 style={{ fontSize: '1.8rem', fontWeight: 800, margin: 0, letterSpacing: '-0.02em', color: '#fff' }}>
-            Umi Live Portal
+            {brandName} Portal
           </h2>
           <p style={{ color: '#94a3b8', fontSize: '0.88rem', marginTop: '0.35rem' }}>
             Broadcaster & Viewer Live Stage (Independent User App)

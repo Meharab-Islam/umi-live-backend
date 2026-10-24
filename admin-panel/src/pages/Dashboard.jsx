@@ -19,9 +19,11 @@ import StatCard from '../components/StatCard';
 import Loader from '../components/Loader';
 import dashboardApi from '../api/dashboardApi';
 import { useEconomy } from '../context/EconomyContext';
+import { useBranding } from '../context/BrandingContext';
 
 export default function Dashboard({ stats: initialStats, onNavigate, onTerminateStream }) {
   const { isDiamondMode } = useEconomy();
+  const { brandName } = useBranding();
   const [stats, setStats] = useState(initialStats);
   const [loading, setLoading] = useState(!initialStats);
   const [period, setPeriod] = useState('all'); // 'all' | 'today' | 'yesterday' | 'week' | 'month' | 'custom'
@@ -70,7 +72,7 @@ export default function Dashboard({ stats: initialStats, onNavigate, onTerminate
   };
 
   if (loading && !stats) {
-    return <Loader text="Analyzing Umi Live real-time telemetry..." size="lg" />;
+    return <Loader text={`Analyzing ${brandName} real-time telemetry...`} size="lg" />;
   }
 
   const usersStats = stats?.users || {

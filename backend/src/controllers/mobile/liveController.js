@@ -360,6 +360,8 @@ export async function getRooms(req, res) {
                 pc.name as host_vip_category,
                 pc.badge_icon as host_vip_icon,
                 pc.color_code as host_vip_color,
+                COALESCE(pp.image_url, pc.badge_icon, '') as package_image,
+                COALESCE(pp.image_url, pc.badge_icon, '') as host_package_image,
                 COALESCE(CASE WHEN pc.top_live_list = 1 THEN pc.display_order ELSE 999999 END, 999999) as vip_rank
          FROM live_rooms r
          JOIN users u ON r.host_id = u.id
@@ -367,6 +369,8 @@ export async function getRooms(req, res) {
            ON ups.user_id = u.id AND ups.status = 'active' AND ups.expires_at > NOW()
          LEFT JOIN package_categories pc 
            ON pc.id = ups.category_id AND pc.is_active = 1
+         LEFT JOIN privilege_packages pp 
+           ON pp.id = ups.package_id
          ${whereSql}
          ${orderClause}
          LIMIT ? OFFSET ?`,

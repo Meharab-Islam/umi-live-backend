@@ -31,6 +31,7 @@ import {
   TrendingUp,
 } from 'lucide-react';
 import packageApi from '../api/packageApi';
+import { useBranding } from '../context/BrandingContext';
 
 export default function Sidebar({
   activeTab,
@@ -43,7 +44,7 @@ export default function Sidebar({
   onClose,
 }) {
   const [categories, setCategories] = useState([]);
-  const [vipExpanded, setVipExpanded] = useState(false);
+  const { brandName, resolvedLogoUrl } = useBranding();
 
   // Load VIP categories for sidebar navigation
   useEffect(() => {
@@ -108,11 +109,25 @@ export default function Sidebar({
     <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
       {/* Brand */}
       <div className="brand-section">
-        <div className="brand-logo-badge">
-          <span>⚡</span>
+        <div className="brand-logo-badge" style={{ overflow: 'hidden', padding: resolvedLogoUrl ? 0 : undefined }}>
+          {resolvedLogoUrl ? (
+            <img
+              src={resolvedLogoUrl}
+              alt={brandName}
+              style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'inherit' }}
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+                const fallback = e.currentTarget.parentElement?.querySelector('.fallback-icon');
+                if (fallback) fallback.style.display = 'inline';
+              }}
+            />
+          ) : null}
+          <span className="fallback-icon" style={{ display: resolvedLogoUrl ? 'none' : 'inline' }}>⚡</span>
         </div>
-        <div>
-          <h1 className="brand-title">Umi Live</h1>
+        <div style={{ minWidth: 0 }}>
+          <h1 className="brand-title" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '140px' }} title={brandName}>
+            {brandName}
+          </h1>
           <span style={{ fontSize: '0.7rem', color: 'var(--text-dim)', fontWeight: 600 }}>ADMIN CONSOLE</span>
         </div>
         <div className="brand-live-pill">

@@ -69,13 +69,18 @@ export async function getAppConfig(req, res) {
       } catch (e) { }
 
       const liveStreamProvider = settingsMap['live_stream_provider'] || livekitConfig.provider || 'livekit';
-      const appName = settingsMap['app_name'] || `${projectName.toUpperCase()} LIVE`;
+      const platformName = settingsMap['platform_name'] || settingsMap['app_name'] || (projectName ? `${projectName.toUpperCase()} LIVE` : 'Umi Live');
+      const platformLogoUrl = settingsMap['platform_logo_url'] || settingsMap['app_logo_url'] || '';
       const maintenanceMode = settingsMap['maintenance_mode'] === 'true';
 
       const hostCoinShare = Math.max(0, 100 - adminGiftCommission - agencyGiftCommission);
 
       return {
-        app_name: appName,
+        app_name: platformName,
+        platform_name: platformName,
+        app_logo_url: platformLogoUrl,
+        platform_logo_url: platformLogoUrl,
+        admin_title: settingsMap['admin_title'] || 'Broadcasting & Live Streaming Admin Console',
         app_version: settingsMap['app_version'] || '1.0.0',
         min_supported_version: settingsMap['min_supported_version'] || '1.0.0',
         maintenance_mode: maintenanceMode,
