@@ -594,3 +594,53 @@ export async function sendLiveDurationRewardPushNotification({ userId, coins, du
     console.error('🔥 [Live Reward Push] Error:', err.message);
   }
 }
+
+/**
+ * ⭐ FCM Push Notification: User Level Up Milestone Promotion
+ * Dispatched to the user when they level up through coin spending/gifting.
+ */
+export async function sendLevelUpPushNotification({ userId, oldLevel, newLevel, levelName, rewardsSummary, badgeIcon = null }) {
+  const targetUserId = Number(userId);
+  if (!targetUserId || !isFirebaseReady()) return;
+
+  try {
+    const tokens = await getUserFcmTokens(targetUserId);
+    if (!tokens || tokens.length === 0) {
+      console.log(`📱 [FCM Level Up Push] User ${targetUserId} has no active FCM tokens.`);
+      return;
+    }
+
+    const title = `⭐ Congratulations! You reached Level ${newLevel}!`;
+    let body = `You leveled up to ${levelName || `Level ${newLevel}`}!`;
+    if (rewardsSummary) {
+      body += ` Unlocked rewards: ${rewardsSummary}`;
+    } else {
+      body += ` Enjoy your new privileges and rewards! 🎉✨`;
+    }
+
+    const pushResult = await sendPushNotification({
+      tokens,
+      title,
+      body,
+      imageUrl: badgeIcon || null,
+      data: {
+        notification_category: 'level_up',
+        type: 'level_promotion',
+        target_screen: 'levels',
+        route: '/levels',
+        click_action: 'FLUTTER_NOTIFICATION_CLICK',
+        user_id: String(targetUserId),
+        old_level: String(oldLevel),
+        new_level: String(newLevel),
+        level_name: String(levelName || ''),
+        created_at: new Date().toISOString(),
+      },
+    });
+
+    console.log(`📱 [FCM Level Up Push Sent] User: ${targetUserId} | Level: ${newLevel} (${levelName}) | Tokens Notified: ${tokens.length}`);
+    return pushResult;
+  } catch (err) {
+    console.error('🔥 [Level Up Push] Error:', err.message);
+  }
+}
+

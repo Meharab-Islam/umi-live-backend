@@ -1,5 +1,6 @@
 import { query } from '../config/db.js';
 import { cache } from '../config/redis.js';
+import { sendLevelUpPushNotification } from '../config/firebase.js';
 
 /**
  * Level Progression & Rewards Engine
@@ -185,6 +186,35 @@ export async function recordCoinsSpentAndCheckLevelUp(userId, coinsSpent, io = n
           level_name: targetLevelConfig.level_name,
         });
       }
+
+      // Format human-readable rewards summary for Push Notification
+      const rewardItems = [];
+      let totalCoinsGranted = 0;
+      let totalDiamondsGranted = 0;
+
+      for (const a of awardedLevels) {
+        if (a.coins > 0) totalCoinsGranted += a.coins;
+        if (a.diamonds > 0) totalDiamondsGranted += a.diamonds;
+        if (a.entry_effect) rewardItems.push(`${a.entry_effect} (${a.validity_days}d effect)`);
+        if (a.thumbnail) rewardItems.push(`${a.thumbnail} (${a.validity_days}d frame)`);
+        if (a.package) rewardItems.push(`${a.package} (${a.validity_days}d VIP)`);
+      }
+      if (totalCoinsGranted > 0) rewardItems.unshift(`+${totalCoinsGranted} Coins 🪙`);
+      if (totalDiamondsGranted > 0) rewardItems.unshift(`+${totalDiamondsGranted} Diamonds 💎`);
+
+      const rewardsSummary = rewardItems.join(', ');
+
+      // Dispatch FCM Push Notification to the user who leveled up
+      sendLevelUpPushNotification({
+        userId,
+        oldLevel: currentLevel,
+        newLevel,
+        levelName: targetLevelConfig.level_name,
+        rewardsSummary,
+        badgeIcon: targetLevelConfig.badge_icon || null,
+      }).catch((err) => {
+        console.warn('[LevelUp Push Error]:', err.message);
+      });
 
       return levelUpPayload;
     }
