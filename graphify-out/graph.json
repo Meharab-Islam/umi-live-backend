@@ -1107,7 +1107,7 @@
       "file_type": "code",
       "norm_label": "del()",
       "source_file": "admin-panel/src/api/client.js",
-      "source_location": "L130"
+      "source_location": "L143"
     },
     {
       "id": "admin_panel_src_api_client_get",
@@ -1119,7 +1119,7 @@
       "file_type": "code",
       "norm_label": "get()",
       "source_file": "admin-panel/src/api/client.js",
-      "source_location": "L98"
+      "source_location": "L111"
     },
     {
       "id": "admin_panel_src_api_client_getapibase",
@@ -1155,7 +1155,7 @@
       "file_type": "code",
       "norm_label": "patch()",
       "source_file": "admin-panel/src/api/client.js",
-      "source_location": "L121"
+      "source_location": "L134"
     },
     {
       "id": "admin_panel_src_api_client_post",
@@ -1167,7 +1167,7 @@
       "file_type": "code",
       "norm_label": "post()",
       "source_file": "admin-panel/src/api/client.js",
-      "source_location": "L103"
+      "source_location": "L116"
     },
     {
       "id": "admin_panel_src_api_client_put",
@@ -1179,7 +1179,7 @@
       "file_type": "code",
       "norm_label": "put()",
       "source_file": "admin-panel/src/api/client.js",
-      "source_location": "L112"
+      "source_location": "L125"
     },
     {
       "id": "admin_panel_src_api_client_request",
@@ -1216,18 +1216,6 @@
       "norm_label": "settoken()",
       "source_file": "admin-panel/src/api/client.js",
       "source_location": "L28"
-    },
-    {
-      "id": "admin_panel_src_api_client_uploadfile",
-      "label": "uploadFile()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "client.js",
-      "file_type": "code",
-      "norm_label": "uploadfile()",
-      "source_file": "admin-panel/src/api/client.js",
-      "source_location": "L170"
     },
     {
       "id": "admin_panel_src_api_client_wrapresponse",
@@ -3831,7 +3819,19 @@
       "file_type": "code",
       "norm_label": "checkhealth()",
       "source_file": "admin-panel/src/api/client.js",
-      "source_location": "L194"
+      "source_location": "L207"
+    },
+    {
+      "id": "admin_panel_src_api_client_resolveasseturl",
+      "label": "resolveAssetUrl()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 38,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": "resolveasseturl()",
+      "source_file": "admin-panel/src/api/client.js",
+      "source_location": "L148"
     },
     {
       "id": "admin_panel_src_app_app",
@@ -3894,16 +3894,16 @@
       "source_location": "L4"
     },
     {
-      "id": "admin_panel_src_components_sidebar_sidebar",
-      "label": "Sidebar()",
+      "id": "admin_panel_src_components_statcard_statcard",
+      "label": "StatCard()",
       "_callable": true,
       "_origin": "ast",
       "community": 38,
       "community_name": "App.jsx",
       "file_type": "code",
-      "norm_label": "sidebar()",
-      "source_file": "admin-panel/src/components/Sidebar.jsx",
-      "source_location": "L35"
+      "norm_label": "statcard()",
+      "source_file": "admin-panel/src/components/StatCard.jsx",
+      "source_location": "L3"
     },
     {
       "id": "admin_panel_src_context_economycontext_economyprovider",
@@ -3918,40 +3918,64 @@
       "source_location": "L10"
     },
     {
-      "id": "admin_panel_src_pages_createcategory_createcategory",
-      "label": "CreateCategory()",
+      "id": "admin_panel_src_pages_appthemes_appthemes",
+      "label": "AppThemes()",
       "_callable": true,
       "_origin": "ast",
       "community": 38,
       "community_name": "App.jsx",
       "file_type": "code",
-      "norm_label": "createcategory()",
-      "source_file": "admin-panel/src/pages/CreateCategory.jsx",
-      "source_location": "L19"
+      "norm_label": "appthemes()",
+      "source_file": "admin-panel/src/pages/AppThemes.jsx",
+      "source_location": "L32"
     },
     {
-      "id": "admin_panel_src_pages_levels_levels",
-      "label": "Levels()",
+      "id": "admin_panel_src_pages_banners_banners",
+      "label": "Banners()",
       "_callable": true,
       "_origin": "ast",
       "community": 38,
       "community_name": "App.jsx",
       "file_type": "code",
-      "norm_label": "levels()",
-      "source_file": "admin-panel/src/pages/Levels.jsx",
-      "source_location": "L31"
+      "norm_label": "banners()",
+      "source_file": "admin-panel/src/pages/Banners.jsx",
+      "source_location": "L25"
     },
     {
-      "id": "admin_panel_src_pages_liverewards_liverewards",
-      "label": "LiveRewards()",
+      "id": "admin_panel_src_pages_coinrecharge_coinrecharge",
+      "label": "CoinRecharge()",
       "_callable": true,
       "_origin": "ast",
       "community": 38,
       "community_name": "App.jsx",
       "file_type": "code",
-      "norm_label": "liverewards()",
-      "source_file": "admin-panel/src/pages/LiveRewards.jsx",
-      "source_location": "L26"
+      "norm_label": "coinrecharge()",
+      "source_file": "admin-panel/src/pages/CoinRecharge.jsx",
+      "source_location": "L41"
+    },
+    {
+      "id": "admin_panel_src_pages_dashboard_dashboard",
+      "label": "Dashboard()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 38,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": "dashboard()",
+      "source_file": "admin-panel/src/pages/Dashboard.jsx",
+      "source_location": "L23"
+    },
+    {
+      "id": "admin_panel_src_pages_entryeffects_entryeffects",
+      "label": "EntryEffects()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 38,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": "entryeffects()",
+      "source_file": "admin-panel/src/pages/EntryEffects.jsx",
+      "source_location": "L30"
     },
     {
       "id": "admin_panel_src_pages_livestreams_livestreams",
@@ -3964,6 +3988,78 @@
       "norm_label": "livestreams()",
       "source_file": "admin-panel/src/pages/LiveStreams.jsx",
       "source_location": "L7"
+    },
+    {
+      "id": "admin_panel_src_pages_moderators_getdefaultpermissions",
+      "label": "getDefaultPermissions()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 38,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": "getdefaultpermissions()",
+      "source_file": "admin-panel/src/pages/Moderators.jsx",
+      "source_location": "L134"
+    },
+    {
+      "id": "admin_panel_src_pages_moderators_moderators",
+      "label": "Moderators()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 38,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": "moderators()",
+      "source_file": "admin-panel/src/pages/Moderators.jsx",
+      "source_location": "L142"
+    },
+    {
+      "id": "admin_panel_src_pages_packagemanagement_packagemanagement",
+      "label": "PackageManagement()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 38,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": "packagemanagement()",
+      "source_file": "admin-panel/src/pages/PackageManagement.jsx",
+      "source_location": "L52"
+    },
+    {
+      "id": "admin_panel_src_pages_packagemanagement_packagemanagement_rendermodals",
+      "label": "renderModals()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 38,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": "rendermodals()",
+      "source_file": "admin-panel/src/pages/PackageManagement.jsx",
+      "source_location": "L1665"
+    },
+    {
+      "id": "admin_panel_src_pages_posts_posts",
+      "label": "Posts()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 38,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": "posts()",
+      "source_file": "admin-panel/src/pages/Posts.jsx",
+      "source_location": "L39"
+    },
+    {
+      "id": "admin_panel_src_pages_posts_resolvemediaurl",
+      "label": "resolveMediaUrl()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 38,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": "resolvemediaurl()",
+      "source_file": "admin-panel/src/pages/Posts.jsx",
+      "source_location": "L30"
     },
     {
       "id": "admin_panel_src_pages_reports_reports",
@@ -4000,6 +4096,18 @@
       "norm_label": "specialitems()",
       "source_file": "admin-panel/src/pages/SpecialItems.jsx",
       "source_location": "L10"
+    },
+    {
+      "id": "admin_panel_src_pages_thumbnails_thumbnails",
+      "label": "Thumbnails()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 38,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": "thumbnails()",
+      "source_file": "admin-panel/src/pages/Thumbnails.jsx",
+      "source_location": "L32"
     },
     {
       "id": "scratch_test_device_and_google_auth_runtests",
@@ -4746,16 +4854,40 @@
       "source_location": "L35"
     },
     {
-      "id": "admin_panel_src_pages_coinrecharge_coinrecharge",
-      "label": "CoinRecharge()",
+      "id": "admin_panel_src_pages_gifts_gifts",
+      "label": "Gifts()",
       "_callable": true,
       "_origin": "ast",
       "community": 47,
       "community_name": "react",
       "file_type": "code",
-      "norm_label": "coinrecharge()",
-      "source_file": "admin-panel/src/pages/CoinRecharge.jsx",
-      "source_location": "L41"
+      "norm_label": "gifts()",
+      "source_file": "admin-panel/src/pages/Gifts.jsx",
+      "source_location": "L50"
+    },
+    {
+      "id": "admin_panel_src_pages_gifts_ismediaurl",
+      "label": "isMediaUrl()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 47,
+      "community_name": "react",
+      "file_type": "code",
+      "norm_label": "ismediaurl()",
+      "source_file": "admin-panel/src/pages/Gifts.jsx",
+      "source_location": "L45"
+    },
+    {
+      "id": "admin_panel_src_pages_gifts_resolvemediaurl",
+      "label": "resolveMediaUrl()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 47,
+      "community_name": "react",
+      "file_type": "code",
+      "norm_label": "resolvemediaurl()",
+      "source_file": "admin-panel/src/pages/Gifts.jsx",
+      "source_location": "L36"
     },
     {
       "id": "admin_panel_src_pages_hostmanagement_hostmanagement",
@@ -4768,54 +4900,6 @@
       "norm_label": "hostmanagement()",
       "source_file": "admin-panel/src/pages/HostManagement.jsx",
       "source_location": "L45"
-    },
-    {
-      "id": "admin_panel_src_pages_moderators_getdefaultpermissions",
-      "label": "getDefaultPermissions()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 47,
-      "community_name": "react",
-      "file_type": "code",
-      "norm_label": "getdefaultpermissions()",
-      "source_file": "admin-panel/src/pages/Moderators.jsx",
-      "source_location": "L134"
-    },
-    {
-      "id": "admin_panel_src_pages_moderators_moderators",
-      "label": "Moderators()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 47,
-      "community_name": "react",
-      "file_type": "code",
-      "norm_label": "moderators()",
-      "source_file": "admin-panel/src/pages/Moderators.jsx",
-      "source_location": "L142"
-    },
-    {
-      "id": "admin_panel_src_pages_posts_posts",
-      "label": "Posts()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 47,
-      "community_name": "react",
-      "file_type": "code",
-      "norm_label": "posts()",
-      "source_file": "admin-panel/src/pages/Posts.jsx",
-      "source_location": "L39"
-    },
-    {
-      "id": "admin_panel_src_pages_posts_resolvemediaurl",
-      "label": "resolveMediaUrl()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 47,
-      "community_name": "react",
-      "file_type": "code",
-      "norm_label": "resolvemediaurl()",
-      "source_file": "admin-panel/src/pages/Posts.jsx",
-      "source_location": "L30"
     },
     {
       "id": "admin_panel_src_pages_users_users",
@@ -5730,16 +5814,16 @@
       "source_location": "L7"
     },
     {
-      "id": "admin_panel_src_api_client_resolveasseturl",
-      "label": "resolveAssetUrl()",
+      "id": "admin_panel_src_api_client_uploadfile",
+      "label": "uploadFile()",
       "_callable": true,
       "_origin": "ast",
       "community": 57,
-      "community_name": "PackageManagement.jsx",
+      "community_name": "Banners.jsx",
       "file_type": "code",
-      "norm_label": "resolveasseturl()",
+      "norm_label": "uploadfile()",
       "source_file": "admin-panel/src/api/client.js",
-      "source_location": "L135"
+      "source_location": "L183"
     },
     {
       "id": "admin_panel_src_components_fileuploadinput_fileuploadinput",
@@ -5747,95 +5831,35 @@
       "_callable": true,
       "_origin": "ast",
       "community": 57,
-      "community_name": "PackageManagement.jsx",
+      "community_name": "Banners.jsx",
       "file_type": "code",
       "norm_label": "fileuploadinput()",
       "source_file": "admin-panel/src/components/FileUploadInput.jsx",
       "source_location": "L11"
     },
     {
-      "id": "admin_panel_src_pages_banners_banners",
-      "label": "Banners()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 57,
-      "community_name": "PackageManagement.jsx",
-      "file_type": "code",
-      "norm_label": "banners()",
-      "source_file": "admin-panel/src/pages/Banners.jsx",
-      "source_location": "L25"
-    },
-    {
-      "id": "admin_panel_src_pages_entryeffects_entryeffects",
-      "label": "EntryEffects()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 57,
-      "community_name": "PackageManagement.jsx",
-      "file_type": "code",
-      "norm_label": "entryeffects()",
-      "source_file": "admin-panel/src/pages/EntryEffects.jsx",
-      "source_location": "L30"
-    },
-    {
-      "id": "admin_panel_src_pages_packagemanagement_packagemanagement",
-      "label": "PackageManagement()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 57,
-      "community_name": "PackageManagement.jsx",
-      "file_type": "code",
-      "norm_label": "packagemanagement()",
-      "source_file": "admin-panel/src/pages/PackageManagement.jsx",
-      "source_location": "L52"
-    },
-    {
-      "id": "admin_panel_src_pages_packagemanagement_packagemanagement_rendermodals",
-      "label": "renderModals()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 57,
-      "community_name": "PackageManagement.jsx",
-      "file_type": "code",
-      "norm_label": "rendermodals()",
-      "source_file": "admin-panel/src/pages/PackageManagement.jsx",
-      "source_location": "L1665"
-    },
-    {
-      "id": "admin_panel_src_pages_thumbnails_thumbnails",
-      "label": "Thumbnails()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 57,
-      "community_name": "PackageManagement.jsx",
-      "file_type": "code",
-      "norm_label": "thumbnails()",
-      "source_file": "admin-panel/src/pages/Thumbnails.jsx",
-      "source_location": "L32"
-    },
-    {
-      "id": "admin_panel_src_components_statcard_statcard",
-      "label": "StatCard()",
+      "id": "admin_panel_src_components_sidebar_sidebar",
+      "label": "Sidebar()",
       "_callable": true,
       "_origin": "ast",
       "community": 58,
-      "community_name": "Dashboard.jsx",
+      "community_name": "packageApi.js",
       "file_type": "code",
-      "norm_label": "statcard()",
-      "source_file": "admin-panel/src/components/StatCard.jsx",
-      "source_location": "L3"
+      "norm_label": "sidebar()",
+      "source_file": "admin-panel/src/components/Sidebar.jsx",
+      "source_location": "L35"
     },
     {
-      "id": "admin_panel_src_pages_dashboard_dashboard",
-      "label": "Dashboard()",
+      "id": "admin_panel_src_pages_createcategory_createcategory",
+      "label": "CreateCategory()",
       "_callable": true,
       "_origin": "ast",
       "community": 58,
-      "community_name": "Dashboard.jsx",
+      "community_name": "packageApi.js",
       "file_type": "code",
-      "norm_label": "dashboard()",
-      "source_file": "admin-panel/src/pages/Dashboard.jsx",
-      "source_location": "L23"
+      "norm_label": "createcategory()",
+      "source_file": "admin-panel/src/pages/CreateCategory.jsx",
+      "source_location": "L19"
     },
     {
       "id": "admin_panel_src_components_errorboundary_errorboundary_componentdidcatch",
@@ -6006,48 +6030,12 @@
       "source_location": "L60"
     },
     {
-      "id": "admin_panel_src_pages_gifts_gifts",
-      "label": "Gifts()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 62,
-      "community_name": "Gifts.jsx",
-      "file_type": "code",
-      "norm_label": "gifts()",
-      "source_file": "admin-panel/src/pages/Gifts.jsx",
-      "source_location": "L50"
-    },
-    {
-      "id": "admin_panel_src_pages_gifts_ismediaurl",
-      "label": "isMediaUrl()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 62,
-      "community_name": "Gifts.jsx",
-      "file_type": "code",
-      "norm_label": "ismediaurl()",
-      "source_file": "admin-panel/src/pages/Gifts.jsx",
-      "source_location": "L45"
-    },
-    {
-      "id": "admin_panel_src_pages_gifts_resolvemediaurl",
-      "label": "resolveMediaUrl()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 62,
-      "community_name": "Gifts.jsx",
-      "file_type": "code",
-      "norm_label": "resolvemediaurl()",
-      "source_file": "admin-panel/src/pages/Gifts.jsx",
-      "source_location": "L36"
-    },
-    {
       "id": "admin_panel_src_pages_topcontributors_topcontributors",
       "label": "TopContributors()",
       "_callable": true,
       "_origin": "ast",
       "community": 62,
-      "community_name": "Gifts.jsx",
+      "community_name": "TopContributors.jsx",
       "file_type": "code",
       "norm_label": "topcontributors()",
       "source_file": "admin-panel/src/pages/TopContributors.jsx",
@@ -6114,16 +6102,16 @@
       "source_location": "L222"
     },
     {
-      "id": "admin_panel_src_pages_appthemes_appthemes",
-      "label": "AppThemes()",
+      "id": "admin_panel_src_pages_levels_levels",
+      "label": "Levels()",
       "_callable": true,
       "_origin": "ast",
       "community": 65,
-      "community_name": "AppThemes.jsx",
+      "community_name": "Levels.jsx",
       "file_type": "code",
-      "norm_label": "appthemes()",
-      "source_file": "admin-panel/src/pages/AppThemes.jsx",
-      "source_location": "L32"
+      "norm_label": "levels()",
+      "source_file": "admin-panel/src/pages/Levels.jsx",
+      "source_location": "L31"
     },
     {
       "id": "admin_panel_src_pages_apidocs_endpointerrorboundary_componentdidcatch",
@@ -6196,6 +6184,18 @@
       "norm_label": "runtests()",
       "source_file": "scratch/test_audio_live_seats.mjs",
       "source_location": "L18"
+    },
+    {
+      "id": "admin_panel_src_pages_liverewards_liverewards",
+      "label": "LiveRewards()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 69,
+      "community_name": "LiveRewards.jsx",
+      "file_type": "code",
+      "norm_label": "liverewards()",
+      "source_file": "admin-panel/src/pages/LiveRewards.jsx",
+      "source_location": "L26"
     },
     {
       "id": "backend_src_controllers_mobile_giftcontroller_getgifts",
@@ -6475,6 +6475,17 @@
       "source_location": "L1"
     },
     {
+      "id": "admin_panel_src_api_agencyapi_agencyapi",
+      "label": "agencyApi",
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "client.js",
+      "file_type": "code",
+      "norm_label": "agencyapi",
+      "source_file": "admin-panel/src/api/agencyApi.js",
+      "source_location": "L3"
+    },
+    {
       "id": "admin_panel_src_api_authapi",
       "label": "authApi.js",
       "_origin": "ast",
@@ -6494,28 +6505,6 @@
       "file_type": "code",
       "norm_label": "authapi",
       "source_file": "admin-panel/src/api/authApi.js",
-      "source_location": "L3"
-    },
-    {
-      "id": "admin_panel_src_api_bannerapi",
-      "label": "bannerApi.js",
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "client.js",
-      "file_type": "code",
-      "norm_label": "bannerapi.js",
-      "source_file": "admin-panel/src/api/bannerApi.js",
-      "source_location": "L1"
-    },
-    {
-      "id": "admin_panel_src_api_bannerapi_bannerapi",
-      "label": "bannerApi",
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "client.js",
-      "file_type": "code",
-      "norm_label": "bannerapi",
-      "source_file": "admin-panel/src/api/bannerApi.js",
       "source_location": "L3"
     },
     {
@@ -6715,6 +6704,17 @@
       "norm_label": "resellerapi",
       "source_file": "admin-panel/src/api/resellerApi.js",
       "source_location": "L3"
+    },
+    {
+      "id": "admin_panel_src_api_specialitemapi",
+      "label": "specialItemApi.js",
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "client.js",
+      "file_type": "code",
+      "norm_label": "specialitemapi.js",
+      "source_file": "admin-panel/src/api/specialItemApi.js",
+      "source_location": "L1"
     },
     {
       "id": "admin_panel_src_api_withdrawalapi",
@@ -8915,69 +8915,25 @@
       "source_location": "L1"
     },
     {
-      "id": "admin_panel_src_api_levelapi",
-      "label": "levelApi.js",
+      "id": "admin_panel_src_api_dashboardapi",
+      "label": "dashboardApi.js",
       "_origin": "ast",
       "community": 38,
       "community_name": "App.jsx",
       "file_type": "code",
-      "norm_label": "levelapi.js",
-      "source_file": "admin-panel/src/api/levelApi.js",
+      "norm_label": "dashboardapi.js",
+      "source_file": "admin-panel/src/api/dashboardApi.js",
       "source_location": "L1"
     },
     {
-      "id": "admin_panel_src_api_levelapi_levelapi",
-      "label": "levelApi",
+      "id": "admin_panel_src_api_dashboardapi_dashboardapi",
+      "label": "dashboardApi",
       "_origin": "ast",
       "community": 38,
       "community_name": "App.jsx",
       "file_type": "code",
-      "norm_label": "levelapi",
-      "source_file": "admin-panel/src/api/levelApi.js",
-      "source_location": "L3"
-    },
-    {
-      "id": "admin_panel_src_api_liverewardapi",
-      "label": "liveRewardApi.js",
-      "_origin": "ast",
-      "community": 38,
-      "community_name": "App.jsx",
-      "file_type": "code",
-      "norm_label": "liverewardapi.js",
-      "source_file": "admin-panel/src/api/liveRewardApi.js",
-      "source_location": "L1"
-    },
-    {
-      "id": "admin_panel_src_api_liverewardapi_liverewardapi",
-      "label": "liveRewardApi",
-      "_origin": "ast",
-      "community": 38,
-      "community_name": "App.jsx",
-      "file_type": "code",
-      "norm_label": "liverewardapi",
-      "source_file": "admin-panel/src/api/liveRewardApi.js",
-      "source_location": "L3"
-    },
-    {
-      "id": "admin_panel_src_api_packageapi",
-      "label": "packageApi.js",
-      "_origin": "ast",
-      "community": 38,
-      "community_name": "App.jsx",
-      "file_type": "code",
-      "norm_label": "packageapi.js",
-      "source_file": "admin-panel/src/api/packageApi.js",
-      "source_location": "L1"
-    },
-    {
-      "id": "admin_panel_src_api_packageapi_packageapi",
-      "label": "packageApi",
-      "_origin": "ast",
-      "community": 38,
-      "community_name": "App.jsx",
-      "file_type": "code",
-      "norm_label": "packageapi",
-      "source_file": "admin-panel/src/api/packageApi.js",
+      "norm_label": "dashboardapi",
+      "source_file": "admin-panel/src/api/dashboardApi.js",
       "source_location": "L3"
     },
     {
@@ -9000,6 +8956,28 @@
       "file_type": "code",
       "norm_label": "streamapi",
       "source_file": "admin-panel/src/api/streamApi.js",
+      "source_location": "L3"
+    },
+    {
+      "id": "admin_panel_src_api_themeapi",
+      "label": "themeApi.js",
+      "_origin": "ast",
+      "community": 38,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": "themeapi.js",
+      "source_file": "admin-panel/src/api/themeApi.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "admin_panel_src_api_themeapi_themeapi",
+      "label": "themeApi",
+      "_origin": "ast",
+      "community": 38,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": "themeapi",
+      "source_file": "admin-panel/src/api/themeApi.js",
       "source_location": "L3"
     },
     {
@@ -9047,14 +9025,14 @@
       "source_location": "L1"
     },
     {
-      "id": "admin_panel_src_components_sidebar",
-      "label": "Sidebar.jsx",
+      "id": "admin_panel_src_components_statcard",
+      "label": "StatCard.jsx",
       "_origin": "ast",
       "community": 38,
       "community_name": "App.jsx",
       "file_type": "code",
-      "norm_label": "sidebar.jsx",
-      "source_file": "admin-panel/src/components/Sidebar.jsx",
+      "norm_label": "statcard.jsx",
+      "source_file": "admin-panel/src/components/StatCard.jsx",
       "source_location": "L1"
     },
     {
@@ -9069,36 +9047,36 @@
       "source_location": "L1"
     },
     {
-      "id": "admin_panel_src_pages_createcategory",
-      "label": "CreateCategory.jsx",
+      "id": "admin_panel_src_pages_appthemes",
+      "label": "AppThemes.jsx",
       "_origin": "ast",
       "community": 38,
       "community_name": "App.jsx",
       "file_type": "code",
-      "norm_label": "createcategory.jsx",
-      "source_file": "admin-panel/src/pages/CreateCategory.jsx",
+      "norm_label": "appthemes.jsx",
+      "source_file": "admin-panel/src/pages/AppThemes.jsx",
       "source_location": "L1"
     },
     {
-      "id": "admin_panel_src_pages_levels",
-      "label": "Levels.jsx",
+      "id": "admin_panel_src_pages_appthemes_tab_types",
+      "label": "TAB_TYPES",
       "_origin": "ast",
       "community": 38,
       "community_name": "App.jsx",
       "file_type": "code",
-      "norm_label": "levels.jsx",
-      "source_file": "admin-panel/src/pages/Levels.jsx",
-      "source_location": "L1"
+      "norm_label": "tab_types",
+      "source_file": "admin-panel/src/pages/AppThemes.jsx",
+      "source_location": "L26"
     },
     {
-      "id": "admin_panel_src_pages_liverewards",
-      "label": "LiveRewards.jsx",
+      "id": "admin_panel_src_pages_dashboard",
+      "label": "Dashboard.jsx",
       "_origin": "ast",
       "community": 38,
       "community_name": "App.jsx",
       "file_type": "code",
-      "norm_label": "liverewards.jsx",
-      "source_file": "admin-panel/src/pages/LiveRewards.jsx",
+      "norm_label": "dashboard.jsx",
+      "source_file": "admin-panel/src/pages/Dashboard.jsx",
       "source_location": "L1"
     },
     {
@@ -9110,6 +9088,17 @@
       "file_type": "code",
       "norm_label": "livestreams.jsx",
       "source_file": "admin-panel/src/pages/LiveStreams.jsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "admin_panel_src_pages_specialitems",
+      "label": "SpecialItems.jsx",
+      "_origin": "ast",
+      "community": 38,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": "specialitems.jsx",
+      "source_file": "admin-panel/src/pages/SpecialItems.jsx",
       "source_location": "L1"
     },
     {
@@ -9850,14 +9839,36 @@
       "source_location": "L1"
     },
     {
-      "id": "admin_panel_src_api_agencyapi_agencyapi",
-      "label": "agencyApi",
+      "id": "admin_panel_src_api_adminapi",
+      "label": "adminApi.js",
       "_origin": "ast",
       "community": 47,
       "community_name": "react",
       "file_type": "code",
-      "norm_label": "agencyapi",
-      "source_file": "admin-panel/src/api/agencyApi.js",
+      "norm_label": "adminapi.js",
+      "source_file": "admin-panel/src/api/adminApi.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "admin_panel_src_api_adminapi_adminapi",
+      "label": "adminApi",
+      "_origin": "ast",
+      "community": 47,
+      "community_name": "react",
+      "file_type": "code",
+      "norm_label": "adminapi",
+      "source_file": "admin-panel/src/api/adminApi.js",
+      "source_location": "L3"
+    },
+    {
+      "id": "admin_panel_src_api_specialitemapi_specialitemapi",
+      "label": "specialItemApi",
+      "_origin": "ast",
+      "community": 47,
+      "community_name": "react",
+      "file_type": "code",
+      "norm_label": "specialitemapi",
+      "source_file": "admin-panel/src/api/specialItemApi.js",
       "source_location": "L3"
     },
     {
@@ -9993,6 +10004,28 @@
       "source_location": "L1"
     },
     {
+      "id": "admin_panel_src_pages_entryeffects",
+      "label": "EntryEffects.jsx",
+      "_origin": "ast",
+      "community": 47,
+      "community_name": "react",
+      "file_type": "code",
+      "norm_label": "entryeffects.jsx",
+      "source_file": "admin-panel/src/pages/EntryEffects.jsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "admin_panel_src_pages_gifts",
+      "label": "Gifts.jsx",
+      "_origin": "ast",
+      "community": 47,
+      "community_name": "react",
+      "file_type": "code",
+      "norm_label": "gifts.jsx",
+      "source_file": "admin-panel/src/pages/Gifts.jsx",
+      "source_location": "L1"
+    },
+    {
       "id": "admin_panel_src_pages_hostmanagement",
       "label": "HostManagement.jsx",
       "_origin": "ast",
@@ -10026,6 +10059,28 @@
       "source_location": "L38"
     },
     {
+      "id": "admin_panel_src_pages_packagemanagement",
+      "label": "PackageManagement.jsx",
+      "_origin": "ast",
+      "community": 47,
+      "community_name": "react",
+      "file_type": "code",
+      "norm_label": "packagemanagement.jsx",
+      "source_file": "admin-panel/src/pages/PackageManagement.jsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "admin_panel_src_pages_packagemanagement_package_color_presets",
+      "label": "PACKAGE_COLOR_PRESETS",
+      "_origin": "ast",
+      "community": 47,
+      "community_name": "react",
+      "file_type": "code",
+      "norm_label": "package_color_presets",
+      "source_file": "admin-panel/src/pages/PackageManagement.jsx",
+      "source_location": "L37"
+    },
+    {
       "id": "admin_panel_src_pages_posts",
       "label": "Posts.jsx",
       "_origin": "ast",
@@ -10056,6 +10111,17 @@
       "file_type": "code",
       "norm_label": "resellers.jsx",
       "source_file": "admin-panel/src/pages/Resellers.jsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "admin_panel_src_pages_thumbnails",
+      "label": "Thumbnails.jsx",
+      "_origin": "ast",
+      "community": 47,
+      "community_name": "react",
+      "file_type": "code",
+      "norm_label": "thumbnails.jsx",
+      "source_file": "admin-panel/src/pages/Thumbnails.jsx",
       "source_location": "L1"
     },
     {
@@ -10650,47 +10716,25 @@
       "source_location": "L1"
     },
     {
-      "id": "admin_panel_src_api_adminapi",
-      "label": "adminApi.js",
+      "id": "admin_panel_src_api_bannerapi",
+      "label": "bannerApi.js",
       "_origin": "ast",
       "community": 57,
-      "community_name": "PackageManagement.jsx",
+      "community_name": "Banners.jsx",
       "file_type": "code",
-      "norm_label": "adminapi.js",
-      "source_file": "admin-panel/src/api/adminApi.js",
+      "norm_label": "bannerapi.js",
+      "source_file": "admin-panel/src/api/bannerApi.js",
       "source_location": "L1"
     },
     {
-      "id": "admin_panel_src_api_adminapi_adminapi",
-      "label": "adminApi",
+      "id": "admin_panel_src_api_bannerapi_bannerapi",
+      "label": "bannerApi",
       "_origin": "ast",
       "community": 57,
-      "community_name": "PackageManagement.jsx",
+      "community_name": "Banners.jsx",
       "file_type": "code",
-      "norm_label": "adminapi",
-      "source_file": "admin-panel/src/api/adminApi.js",
-      "source_location": "L3"
-    },
-    {
-      "id": "admin_panel_src_api_specialitemapi",
-      "label": "specialItemApi.js",
-      "_origin": "ast",
-      "community": 57,
-      "community_name": "PackageManagement.jsx",
-      "file_type": "code",
-      "norm_label": "specialitemapi.js",
-      "source_file": "admin-panel/src/api/specialItemApi.js",
-      "source_location": "L1"
-    },
-    {
-      "id": "admin_panel_src_api_specialitemapi_specialitemapi",
-      "label": "specialItemApi",
-      "_origin": "ast",
-      "community": 57,
-      "community_name": "PackageManagement.jsx",
-      "file_type": "code",
-      "norm_label": "specialitemapi",
-      "source_file": "admin-panel/src/api/specialItemApi.js",
+      "norm_label": "bannerapi",
+      "source_file": "admin-panel/src/api/bannerApi.js",
       "source_location": "L3"
     },
     {
@@ -10698,7 +10742,7 @@
       "label": "FileUploadInput.jsx",
       "_origin": "ast",
       "community": 57,
-      "community_name": "PackageManagement.jsx",
+      "community_name": "Banners.jsx",
       "file_type": "code",
       "norm_label": "fileuploadinput.jsx",
       "source_file": "admin-panel/src/components/FileUploadInput.jsx",
@@ -10709,109 +10753,54 @@
       "label": "Banners.jsx",
       "_origin": "ast",
       "community": 57,
-      "community_name": "PackageManagement.jsx",
+      "community_name": "Banners.jsx",
       "file_type": "code",
       "norm_label": "banners.jsx",
       "source_file": "admin-panel/src/pages/Banners.jsx",
       "source_location": "L1"
     },
     {
-      "id": "admin_panel_src_pages_entryeffects",
-      "label": "EntryEffects.jsx",
-      "_origin": "ast",
-      "community": 57,
-      "community_name": "PackageManagement.jsx",
-      "file_type": "code",
-      "norm_label": "entryeffects.jsx",
-      "source_file": "admin-panel/src/pages/EntryEffects.jsx",
-      "source_location": "L1"
-    },
-    {
-      "id": "admin_panel_src_pages_packagemanagement",
-      "label": "PackageManagement.jsx",
-      "_origin": "ast",
-      "community": 57,
-      "community_name": "PackageManagement.jsx",
-      "file_type": "code",
-      "norm_label": "packagemanagement.jsx",
-      "source_file": "admin-panel/src/pages/PackageManagement.jsx",
-      "source_location": "L1"
-    },
-    {
-      "id": "admin_panel_src_pages_packagemanagement_package_color_presets",
-      "label": "PACKAGE_COLOR_PRESETS",
-      "_origin": "ast",
-      "community": 57,
-      "community_name": "PackageManagement.jsx",
-      "file_type": "code",
-      "norm_label": "package_color_presets",
-      "source_file": "admin-panel/src/pages/PackageManagement.jsx",
-      "source_location": "L37"
-    },
-    {
-      "id": "admin_panel_src_pages_specialitems",
-      "label": "SpecialItems.jsx",
-      "_origin": "ast",
-      "community": 57,
-      "community_name": "PackageManagement.jsx",
-      "file_type": "code",
-      "norm_label": "specialitems.jsx",
-      "source_file": "admin-panel/src/pages/SpecialItems.jsx",
-      "source_location": "L1"
-    },
-    {
-      "id": "admin_panel_src_pages_thumbnails",
-      "label": "Thumbnails.jsx",
-      "_origin": "ast",
-      "community": 57,
-      "community_name": "PackageManagement.jsx",
-      "file_type": "code",
-      "norm_label": "thumbnails.jsx",
-      "source_file": "admin-panel/src/pages/Thumbnails.jsx",
-      "source_location": "L1"
-    },
-    {
-      "id": "admin_panel_src_api_dashboardapi",
-      "label": "dashboardApi.js",
+      "id": "admin_panel_src_api_packageapi",
+      "label": "packageApi.js",
       "_origin": "ast",
       "community": 58,
-      "community_name": "Dashboard.jsx",
+      "community_name": "packageApi.js",
       "file_type": "code",
-      "norm_label": "dashboardapi.js",
-      "source_file": "admin-panel/src/api/dashboardApi.js",
+      "norm_label": "packageapi.js",
+      "source_file": "admin-panel/src/api/packageApi.js",
       "source_location": "L1"
     },
     {
-      "id": "admin_panel_src_api_dashboardapi_dashboardapi",
-      "label": "dashboardApi",
+      "id": "admin_panel_src_api_packageapi_packageapi",
+      "label": "packageApi",
       "_origin": "ast",
       "community": 58,
-      "community_name": "Dashboard.jsx",
+      "community_name": "packageApi.js",
       "file_type": "code",
-      "norm_label": "dashboardapi",
-      "source_file": "admin-panel/src/api/dashboardApi.js",
+      "norm_label": "packageapi",
+      "source_file": "admin-panel/src/api/packageApi.js",
       "source_location": "L3"
     },
     {
-      "id": "admin_panel_src_components_statcard",
-      "label": "StatCard.jsx",
+      "id": "admin_panel_src_components_sidebar",
+      "label": "Sidebar.jsx",
       "_origin": "ast",
       "community": 58,
-      "community_name": "Dashboard.jsx",
+      "community_name": "packageApi.js",
       "file_type": "code",
-      "norm_label": "statcard.jsx",
-      "source_file": "admin-panel/src/components/StatCard.jsx",
+      "norm_label": "sidebar.jsx",
+      "source_file": "admin-panel/src/components/Sidebar.jsx",
       "source_location": "L1"
     },
     {
-      "id": "admin_panel_src_pages_dashboard",
-      "label": "Dashboard.jsx",
+      "id": "admin_panel_src_pages_createcategory",
+      "label": "CreateCategory.jsx",
       "_origin": "ast",
       "community": 58,
-      "community_name": "Dashboard.jsx",
+      "community_name": "packageApi.js",
       "file_type": "code",
-      "norm_label": "dashboard.jsx",
-      "source_file": "admin-panel/src/pages/Dashboard.jsx",
+      "norm_label": "createcategory.jsx",
+      "source_file": "admin-panel/src/pages/CreateCategory.jsx",
       "source_location": "L1"
     },
     {
@@ -10923,7 +10912,7 @@
       "label": "giftApi.js",
       "_origin": "ast",
       "community": 62,
-      "community_name": "Gifts.jsx",
+      "community_name": "TopContributors.jsx",
       "file_type": "code",
       "norm_label": "giftapi.js",
       "source_file": "admin-panel/src/api/giftApi.js",
@@ -10934,29 +10923,18 @@
       "label": "giftApi",
       "_origin": "ast",
       "community": 62,
-      "community_name": "Gifts.jsx",
+      "community_name": "TopContributors.jsx",
       "file_type": "code",
       "norm_label": "giftapi",
       "source_file": "admin-panel/src/api/giftApi.js",
       "source_location": "L3"
     },
     {
-      "id": "admin_panel_src_pages_gifts",
-      "label": "Gifts.jsx",
-      "_origin": "ast",
-      "community": 62,
-      "community_name": "Gifts.jsx",
-      "file_type": "code",
-      "norm_label": "gifts.jsx",
-      "source_file": "admin-panel/src/pages/Gifts.jsx",
-      "source_location": "L1"
-    },
-    {
       "id": "admin_panel_src_pages_topcontributors",
       "label": "TopContributors.jsx",
       "_origin": "ast",
       "community": 62,
-      "community_name": "Gifts.jsx",
+      "community_name": "TopContributors.jsx",
       "file_type": "code",
       "norm_label": "topcontributors.jsx",
       "source_file": "admin-panel/src/pages/TopContributors.jsx",
@@ -11150,48 +11128,37 @@
       "source_location": "L4"
     },
     {
-      "id": "admin_panel_src_api_themeapi",
-      "label": "themeApi.js",
+      "id": "admin_panel_src_api_levelapi",
+      "label": "levelApi.js",
       "_origin": "ast",
       "community": 65,
-      "community_name": "AppThemes.jsx",
+      "community_name": "Levels.jsx",
       "file_type": "code",
-      "norm_label": "themeapi.js",
-      "source_file": "admin-panel/src/api/themeApi.js",
+      "norm_label": "levelapi.js",
+      "source_file": "admin-panel/src/api/levelApi.js",
       "source_location": "L1"
     },
     {
-      "id": "admin_panel_src_api_themeapi_themeapi",
-      "label": "themeApi",
+      "id": "admin_panel_src_api_levelapi_levelapi",
+      "label": "levelApi",
       "_origin": "ast",
       "community": 65,
-      "community_name": "AppThemes.jsx",
+      "community_name": "Levels.jsx",
       "file_type": "code",
-      "norm_label": "themeapi",
-      "source_file": "admin-panel/src/api/themeApi.js",
+      "norm_label": "levelapi",
+      "source_file": "admin-panel/src/api/levelApi.js",
       "source_location": "L3"
     },
     {
-      "id": "admin_panel_src_pages_appthemes",
-      "label": "AppThemes.jsx",
+      "id": "admin_panel_src_pages_levels",
+      "label": "Levels.jsx",
       "_origin": "ast",
       "community": 65,
-      "community_name": "AppThemes.jsx",
+      "community_name": "Levels.jsx",
       "file_type": "code",
-      "norm_label": "appthemes.jsx",
-      "source_file": "admin-panel/src/pages/AppThemes.jsx",
+      "norm_label": "levels.jsx",
+      "source_file": "admin-panel/src/pages/Levels.jsx",
       "source_location": "L1"
-    },
-    {
-      "id": "admin_panel_src_pages_appthemes_tab_types",
-      "label": "TAB_TYPES",
-      "_origin": "ast",
-      "community": 65,
-      "community_name": "AppThemes.jsx",
-      "file_type": "code",
-      "norm_label": "tab_types",
-      "source_file": "admin-panel/src/pages/AppThemes.jsx",
-      "source_location": "L26"
     },
     {
       "id": "scratch_test_audio_live_seats",
@@ -11213,6 +11180,39 @@
       "file_type": "code",
       "norm_label": "update_flutter_chat.py",
       "source_file": "scratch/update_flutter_chat.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "admin_panel_src_api_liverewardapi",
+      "label": "liveRewardApi.js",
+      "_origin": "ast",
+      "community": 69,
+      "community_name": "LiveRewards.jsx",
+      "file_type": "code",
+      "norm_label": "liverewardapi.js",
+      "source_file": "admin-panel/src/api/liveRewardApi.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "admin_panel_src_api_liverewardapi_liverewardapi",
+      "label": "liveRewardApi",
+      "_origin": "ast",
+      "community": 69,
+      "community_name": "LiveRewards.jsx",
+      "file_type": "code",
+      "norm_label": "liverewardapi",
+      "source_file": "admin-panel/src/api/liveRewardApi.js",
+      "source_location": "L3"
+    },
+    {
+      "id": "admin_panel_src_pages_liverewards",
+      "label": "LiveRewards.jsx",
+      "_origin": "ast",
+      "community": 69,
+      "community_name": "LiveRewards.jsx",
+      "file_type": "code",
+      "norm_label": "liverewards.jsx",
+      "source_file": "admin-panel/src/pages/LiveRewards.jsx",
       "source_location": "L1"
     },
     {
@@ -11642,7 +11642,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "admin-panel/src/api/client.js",
-      "source_location": "L131",
+      "source_location": "L144",
       "weight": 1.0
     },
     {
@@ -11654,19 +11654,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "admin-panel/src/api/client.js",
-      "source_location": "L132",
-      "weight": 1.0
-    },
-    {
-      "source": "admin_panel_src_api_client_get",
-      "target": "admin_panel_src_api_client_wrapresponse",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "admin-panel/src/api/client.js",
-      "source_location": "L100",
+      "source_location": "L145",
       "weight": 1.0
     },
     {
@@ -11678,60 +11666,12 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "admin-panel/src/api/client.js",
-      "source_location": "L99",
+      "source_location": "L112",
       "weight": 1.0
     },
     {
-      "source": "admin_panel_src_api_client_patch",
-      "target": "admin_panel_src_api_client_request",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "admin-panel/src/api/client.js",
-      "source_location": "L122",
-      "weight": 1.0
-    },
-    {
-      "source": "admin_panel_src_api_client_patch",
+      "source": "admin_panel_src_api_client_get",
       "target": "admin_panel_src_api_client_wrapresponse",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "admin-panel/src/api/client.js",
-      "source_location": "L127",
-      "weight": 1.0
-    },
-    {
-      "source": "admin_panel_src_api_client_post",
-      "target": "admin_panel_src_api_client_request",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "admin-panel/src/api/client.js",
-      "source_location": "L104",
-      "weight": 1.0
-    },
-    {
-      "source": "admin_panel_src_api_client_post",
-      "target": "admin_panel_src_api_client_wrapresponse",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "admin-panel/src/api/client.js",
-      "source_location": "L109",
-      "weight": 1.0
-    },
-    {
-      "source": "admin_panel_src_api_client_put",
-      "target": "admin_panel_src_api_client_request",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -11742,6 +11682,66 @@
       "weight": 1.0
     },
     {
+      "source": "admin_panel_src_api_client_patch",
+      "target": "admin_panel_src_api_client_request",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "admin-panel/src/api/client.js",
+      "source_location": "L135",
+      "weight": 1.0
+    },
+    {
+      "source": "admin_panel_src_api_client_patch",
+      "target": "admin_panel_src_api_client_wrapresponse",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "admin-panel/src/api/client.js",
+      "source_location": "L140",
+      "weight": 1.0
+    },
+    {
+      "source": "admin_panel_src_api_client_post",
+      "target": "admin_panel_src_api_client_request",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "admin-panel/src/api/client.js",
+      "source_location": "L117",
+      "weight": 1.0
+    },
+    {
+      "source": "admin_panel_src_api_client_post",
+      "target": "admin_panel_src_api_client_wrapresponse",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "admin-panel/src/api/client.js",
+      "source_location": "L122",
+      "weight": 1.0
+    },
+    {
+      "source": "admin_panel_src_api_client_put",
+      "target": "admin_panel_src_api_client_request",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "admin-panel/src/api/client.js",
+      "source_location": "L126",
+      "weight": 1.0
+    },
+    {
       "source": "admin_panel_src_api_client_put",
       "target": "admin_panel_src_api_client_wrapresponse",
       "relation": "calls",
@@ -11750,7 +11750,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "admin-panel/src/api/client.js",
-      "source_location": "L118",
+      "source_location": "L131",
       "weight": 1.0
     },
     {
@@ -11774,7 +11774,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "admin-panel/src/api/client.js",
-      "source_location": "L180",
+      "source_location": "L193",
       "weight": 1.0
     },
     {
@@ -43518,7 +43518,7 @@
       "confidence_score": 0.85,
       "context": "collection",
       "source_file": "admin-panel/src/api/client.js",
-      "source_location": "L205",
+      "source_location": "L218",
       "weight": 1.0
     },
     {
@@ -43530,7 +43530,7 @@
       "confidence_score": 0.85,
       "context": "collection",
       "source_file": "admin-panel/src/api/client.js",
-      "source_location": "L206",
+      "source_location": "L219",
       "weight": 1.0
     },
     {
@@ -43542,7 +43542,7 @@
       "confidence_score": 0.85,
       "context": "collection",
       "source_file": "admin-panel/src/api/client.js",
-      "source_location": "L207",
+      "source_location": "L220",
       "weight": 1.0
     },
     {
@@ -43554,7 +43554,7 @@
       "confidence_score": 0.85,
       "context": "collection",
       "source_file": "admin-panel/src/api/client.js",
-      "source_location": "L208",
+      "source_location": "L221",
       "weight": 1.0
     },
     {
@@ -43566,7 +43566,7 @@
       "confidence_score": 0.85,
       "context": "collection",
       "source_file": "admin-panel/src/api/client.js",
-      "source_location": "L209",
+      "source_location": "L222",
       "weight": 1.0
     },
     {
@@ -43578,7 +43578,7 @@
       "confidence_score": 0.85,
       "context": "collection",
       "source_file": "admin-panel/src/api/client.js",
-      "source_location": "L210",
+      "source_location": "L223",
       "weight": 1.0
     },
     {
@@ -43590,7 +43590,7 @@
       "confidence_score": 0.85,
       "context": "collection",
       "source_file": "admin-panel/src/api/client.js",
-      "source_location": "L211",
+      "source_location": "L224",
       "weight": 1.0
     },
     {
@@ -43602,7 +43602,7 @@
       "confidence_score": 0.85,
       "context": "collection",
       "source_file": "admin-panel/src/api/client.js",
-      "source_location": "L212",
+      "source_location": "L225",
       "weight": 1.0
     },
     {
@@ -43614,7 +43614,7 @@
       "confidence_score": 0.85,
       "context": "collection",
       "source_file": "admin-panel/src/api/client.js",
-      "source_location": "L213",
+      "source_location": "L226",
       "weight": 1.0
     },
     {
@@ -43626,7 +43626,7 @@
       "confidence_score": 0.85,
       "context": "collection",
       "source_file": "admin-panel/src/api/client.js",
-      "source_location": "L214",
+      "source_location": "L227",
       "weight": 1.0
     },
     {
@@ -43638,7 +43638,7 @@
       "confidence_score": 0.85,
       "context": "collection",
       "source_file": "admin-panel/src/api/client.js",
-      "source_location": "L215",
+      "source_location": "L228",
       "weight": 1.0
     },
     {
@@ -43650,7 +43650,7 @@
       "confidence_score": 0.85,
       "context": "collection",
       "source_file": "admin-panel/src/api/client.js",
-      "source_location": "L216",
+      "source_location": "L229",
       "weight": 1.0
     },
     {
@@ -43662,7 +43662,7 @@
       "confidence_score": 0.85,
       "context": "collection",
       "source_file": "admin-panel/src/api/client.js",
-      "source_location": "L217",
+      "source_location": "L230",
       "weight": 1.0
     },
     {
@@ -43811,5 +43811,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "d67ff8ba87cae1bd86f65165a350ccf05fd7d718"
+  "built_at_commit": "ea8e9a06a2d125fb640740573761eee2e808f17d"
 }

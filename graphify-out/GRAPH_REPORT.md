@@ -1,16 +1,16 @@
 # Graph Report - umi_backend  (2026-10-24)
 
 ## Corpus Check
-- 184 files · ~1,095,957 words
+- 184 files · ~1,096,019 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1002 nodes · 2745 edges · 71 communities (51 shown, 20 thin omitted)
+- 1002 nodes · 2745 edges · 72 communities (49 shown, 23 thin omitted)
 - Extraction: 85% EXTRACTED · 15% INFERRED · 0% AMBIGUOUS · INFERRED: 401 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `d67ff8ba`
+- Built from commit: `ea8e9a06`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -67,17 +67,18 @@
 - entryEffectController.js
 - mobile/index.js
 - hostController.js
-- PackageManagement.jsx
-- Dashboard.jsx
+- Banners.jsx
+- packageApi.js
 - ErrorBoundary
 - settingsApi.js
 - liveRewardService.js
-- Gifts.jsx
+- TopContributors.jsx
 - db.js
 - livekit.js
-- AppThemes.jsx
+- Levels.jsx
 - EndpointErrorBoundary
 - test_audio_live_seats.mjs
+- LiveRewards.jsx
 - authMiddleware.js
 - test_video_live_seat_guard.mjs
 
@@ -108,7 +109,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (71 total, 20 thin omitted)
+## Communities (72 total, 23 thin omitted)
 
 ### Community 0 - "controllers/packageController.js"
 Cohesion: 0.14
@@ -152,7 +153,7 @@ Nodes (3): Expanding the Oxlint configuration, React Compiler, React + Vite
 
 ### Community 11 - "client.js"
 Cohesion: 0.09
-Nodes (31): accountMergeApi, authApi, bannerApi, API_BASE, del(), get(), getApiBase(), getCurrentUser() (+23 more)
+Nodes (30): accountMergeApi, agencyApi, authApi, API_BASE, del(), get(), getApiBase(), getCurrentUser() (+22 more)
 
 ### Community 12 - "Mandatory Production-Grade Redis Caching, Invalidation & .env Architecture Policy"
 Cohesion: 0.29
@@ -211,8 +212,8 @@ Cohesion: 0.30
 Nodes (6): API_SPEC, getToken(), SocketDocsView(), ApiDocs(), extractMediaItems(), copyToClipboard()
 
 ### Community 38 - "App.jsx"
-Cohesion: 0.10
-Nodes (20): checkHealth(), levelApi, liveRewardApi, packageApi, streamApi, App(), getInitialTab(), isTabValid() (+12 more)
+Cohesion: 0.08
+Nodes (29): checkHealth(), resolveAssetUrl(), dashboardApi, streamApi, themeApi, App(), getInitialTab(), isTabValid() (+21 more)
 
 ### Community 41 - "dev.js"
 Cohesion: 0.33
@@ -231,8 +232,8 @@ Cohesion: 0.11
 Nodes (38): __dirname, __filename, signToken(), verifyToken(), formatKey(), getMe(), login(), register() (+30 more)
 
 ### Community 47 - "react"
-Cohesion: 0.22
-Nodes (21): agencyApi, userApi, BulkActionBar(), Loader(), Pagination(), MODERATOR_POWER_LABELS, UserDetailsModal(), EconomyContext (+13 more)
+Cohesion: 0.24
+Nodes (21): adminApi, specialItemApi, userApi, BulkActionBar(), Loader(), Pagination(), MODERATOR_POWER_LABELS, UserDetailsModal() (+13 more)
 
 ### Community 48 - "adminRoutes.js"
 Cohesion: 0.09
@@ -258,21 +259,17 @@ Nodes (16): getMobileBanners(), getTopAgencies(), getTopGifters(), router, route
 Cohesion: 0.68
 Nodes (6): formatDuration(), getHostAgencySummary(), getHostDashboardOverview(), getHostMonthlyBreakdown(), getHostStreamHistory(), resolveHostId()
 
-### Community 57 - "PackageManagement.jsx"
-Cohesion: 0.28
-Nodes (9): adminApi, resolveAssetUrl(), specialItemApi, FileUploadInput(), Banners(), EntryEffects(), PACKAGE_COLOR_PRESETS, PackageManagement() (+1 more)
+### Community 57 - "Banners.jsx"
+Cohesion: 0.53
+Nodes (3): bannerApi, uploadFile(), FileUploadInput()
 
-### Community 58 - "Dashboard.jsx"
+### Community 58 - "packageApi.js"
 Cohesion: 0.47
-Nodes (3): dashboardApi, StatCard(), Dashboard()
+Nodes (3): packageApi, Sidebar(), CreateCategory()
 
 ### Community 61 - "liveRewardService.js"
 Cohesion: 0.28
 Nodes (8): getLiveRewardHistoryAdmin(), getLiveRewardSettingsAdmin(), getLiveRewardStatsAdmin(), updateLiveRewardSettingsAdmin(), getLiveDurationRewardHistory(), getLiveDurationRewardSettings(), getLiveDurationRewardStats(), updateLiveDurationRewardSettings()
-
-### Community 62 - "Gifts.jsx"
-Cohesion: 0.39
-Nodes (5): giftApi, Gifts(), isMediaUrl(), resolveMediaUrl(), TopContributors()
 
 ### Community 63 - "db.js"
 Cohesion: 0.33
@@ -282,10 +279,6 @@ Nodes (5): dbConfig, __dirname, __filename, poolProxy, testConnection()
 Cohesion: 0.17
 Nodes (13): DEFAULT_LIVEKIT_API_KEY, DEFAULT_LIVEKIT_API_SECRET, DEFAULT_LIVEKIT_URL, __dirname, __filename, getLiveKitConfig(), LIVEKIT_API_KEY, LIVEKIT_API_SECRET (+5 more)
 
-### Community 65 - "AppThemes.jsx"
-Cohesion: 0.50
-Nodes (3): themeApi, AppThemes(), TAB_TYPES
-
 ### Community 70 - "authMiddleware.js"
 Cohesion: 0.19
 Nodes (12): getGifts(), getUserGiftContributions(), sendGift(), getMyLevelRewards(), optionalAuth(), requireAdmin(), requireAgency(), requireAuth() (+4 more)
@@ -293,7 +286,7 @@ Nodes (12): getGifts(), getUserGiftContributions(), sendGift(), getMyLevelReward
 ## Knowledge Gaps
 - **170 isolated node(s):** `$schema`, `oxc`, `react/rules-of-hooks`, `warn`, `name` (+165 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **20 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **23 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_

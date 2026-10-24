@@ -160,7 +160,7 @@ if [[ -n "$BACKEND_DOMAIN" ]]; then
 server {
     listen 80;
     server_name ${BACKEND_DOMAIN};
-    client_max_body_size 50M;
+    client_max_body_size 100M;
 
     # REST API
     location / {
@@ -222,7 +222,7 @@ if [[ -z "$BACKEND_DOMAIN" && -z "$ADMIN_DOMAIN" ]]; then
 server {
     listen 80 default_server;
     server_name _;
-    client_max_body_size 50M;
+    client_max_body_size 100M;
 
     # Admin Panel on root
     location / {

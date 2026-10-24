@@ -186,9 +186,9 @@
     "semantic_hash": ""
   },
   "backend/src/server.js": {
-    "mtime": 1792775785.7487679,
-    "seen": 1792775956.8934631,
-    "ast_hash": "8475114300ce8b366a40dfe335c0a417",
+    "mtime": 1792860962.1487184,
+    "seen": 1792861011.4639978,
+    "ast_hash": "9ef35827904e1d76c837826f77a81613",
     "semantic_hash": ""
   },
   "backend/src/sockets/liveSocket.js": {
@@ -270,9 +270,9 @@
     "semantic_hash": ""
   },
   "admin-panel/src/api/client.js": {
-    "mtime": 1792737362.6030765,
-    "seen": 1792737635.6399271,
-    "ast_hash": "4eb77b4bace8a873012872ab6f8d5c06",
+    "mtime": 1792860948.8106296,
+    "seen": 1792861011.4614668,
+    "ast_hash": "19c1d42f2d9bc80591cce19fe370c939",
     "semantic_hash": ""
   },
   "admin-panel/src/api/dashboardApi.js": {
@@ -1230,9 +1230,9 @@
     "semantic_hash": ""
   },
   "deploy.sh": {
-    "mtime": 1792153889.9128296,
-    "seen": 1792153904.662861,
-    "ast_hash": "96b0551385481cbd1ef90bb71fb12847",
+    "mtime": 1792860997.9309957,
+    "seen": 1792861011.464074,
+    "ast_hash": "bd4e0ccab4b76766e776af5f52339120",
     "semantic_hash": ""
   },
   "DEPLOYMENT_GUIDE.md": {
@@ -1290,9 +1290,9 @@
     "semantic_hash": ""
   },
   "scratch/ssh_runner.py": {
-    "mtime": 1792740876.230313,
-    "seen": 1792740960.199612,
-    "ast_hash": "2840e5d0433a3d601ba2b9cfa7b24790",
+    "mtime": 1792860845.4631097,
+    "seen": 1792861011.464185,
+    "ast_hash": "d5d98f10fd01e890d127d23c69c3765a",
     "semantic_hash": ""
   },
   "admin-panel/src/api/themeApi.js": {

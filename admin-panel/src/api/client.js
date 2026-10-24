@@ -84,9 +84,22 @@ export async function request(endpoint, options = {}) {
       headers,
     });
 
-    const data = await res.json();
+    const text = await res.text();
+    let data;
+    try {
+      data = text ? JSON.parse(text) : {};
+    } catch {
+      if (!res.ok) {
+        if (res.status === 413) {
+          throw new Error('File payload too large (413 Request Entity Too Large). Maximum allowed upload is 100MB.');
+        }
+        throw new Error(`Server returned HTTP ${res.status}: ${res.statusText || 'Unexpected non-JSON response'}`);
+      }
+      data = {};
+    }
+
     if (!res.ok) {
-      throw new Error(data.message || 'API request failed');
+      throw new Error(data.message || `API request failed with status ${res.status}`);
     }
     return data;
   } catch (err) {

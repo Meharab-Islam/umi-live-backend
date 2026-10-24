@@ -12,9 +12,9 @@
     "semantic_hash": ""
   },
   "admin-panel/src/App.jsx": {
-    "mtime": 1792830336.452352,
-    "seen": 1792830407.710199,
-    "ast_hash": "db1c19eb663032fe373d6c1a7b8112ce",
+    "mtime": 1792838432.7722557,
+    "seen": 1792838450.869021,
+    "ast_hash": "300cd9ded6419445e1d2610e8df97ec6",
     "semantic_hash": ""
   },
   "admin-panel/src/api.js": {
@@ -72,9 +72,9 @@
     "semantic_hash": ""
   },
   "admin-panel/src/pages/Settings.jsx": {
-    "mtime": 1792835520.545917,
-    "seen": 1792836735.5226932,
-    "ast_hash": "34cf2344f7ebf039fc21f7e386a83208",
+    "mtime": 1792838366.1482975,
+    "seen": 1792838450.8701582,
+    "ast_hash": "66935dfd3438535bff53f9f2ca624d99",
     "semantic_hash": ""
   },
   "admin-panel/src/pages/Users.jsx": {
@@ -1374,9 +1374,9 @@
     "semantic_hash": ""
   },
   "admin-panel/src/pages/Levels.jsx": {
-    "mtime": 1792836716.967228,
-    "seen": 1792836735.522527,
-    "ast_hash": "4b0df895d87e599ff95a76ed828c9622",
+    "mtime": 1792838397.1745484,
+    "seen": 1792838450.8699882,
+    "ast_hash": "683328126288a2c978ff8b635ecffe50",
     "semantic_hash": ""
   },
   "backend/src/controllers/mobile/levelController.js": {
@@ -1401,6 +1401,12 @@
     "mtime": 1792835235.5224478,
     "seen": 1792836735.524147,
     "ast_hash": "b978e131a2a839240fc0f0282c4b62b3",
+    "semantic_hash": ""
+  },
+  "admin-panel/src/components/ErrorBoundary.jsx": {
+    "mtime": 1792838411.1993935,
+    "seen": 1792838450.869544,
+    "ast_hash": "c745067b5aa8c5fb76bb311af4c6b3c0",
     "semantic_hash": ""
   }
 }
