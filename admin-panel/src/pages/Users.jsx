@@ -254,6 +254,21 @@ export default function Users({ onToast }) {
     }
   };
 
+  // If user details is selected, render as a dedicated full-page view!
+  if (detailsModalUser) {
+    return (
+      <UserDetailsModal
+        userId={detailsModalUser.id}
+        initialUser={detailsModalUser}
+        onClose={() => setDetailsModalUser(null)}
+        onUserUpdated={() => fetchUsers(activeSearch, page, pageSize)}
+        onToast={onToast}
+        isPage={true}
+        backTitle="Back to Users Directory"
+      />
+    );
+  }
+
   return (
     <div>
       {/* 5 User Statistics Cards */}
@@ -926,16 +941,6 @@ export default function Users({ onToast }) {
         </div>
       )}
 
-      {/* User Details Modal (Full Telemetry, Streams, Moderator Powers, Financials) */}
-      {detailsModalUser && (
-        <UserDetailsModal
-          userId={detailsModalUser.id}
-          initialUser={detailsModalUser}
-          onClose={() => setDetailsModalUser(null)}
-          onUserUpdated={() => fetchUsers(activeSearch, page, pageSize)}
-          onToast={onToast}
-        />
-      )}
 
       {/* Delete User / Host Confirmation Modal */}
       {deleteConfirmUser && (

@@ -153,6 +153,20 @@ export default function Posts({ onToast }) {
     }
   };
 
+  // If viewing details of a user, render as a dedicated full-page view!
+  if (detailsUserId) {
+    return (
+      <UserDetailsModal
+        userId={detailsUserId}
+        onClose={() => setDetailsUserId(null)}
+        onUserUpdated={() => fetchPosts(true)}
+        onToast={onToast}
+        isPage={true}
+        backTitle="Back to Community Posts"
+      />
+    );
+  }
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
 
@@ -913,15 +927,6 @@ export default function Posts({ onToast }) {
         </div>
       )}
 
-      {/* 8. USER TELEMETRY MODAL */}
-      {detailsUserId && (
-        <UserDetailsModal
-          userId={detailsUserId}
-          onClose={() => setDetailsUserId(null)}
-          onUserUpdated={() => fetchPosts(true)}
-          onToast={onToast}
-        />
-      )}
     </div>
   );
 }

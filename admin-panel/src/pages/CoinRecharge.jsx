@@ -395,6 +395,29 @@ export default function CoinRecharge({ onToast }) {
   const rechargeVal = parseInt(coinAmount, 10) || 0;
   const projectedTotal = currentCoins + rechargeVal;
 
+  // If viewing details of a user, render as a dedicated full-page view!
+  if (detailsUserId) {
+    return (
+      <UserDetailsModal
+        userId={detailsUserId}
+        onClose={() => setDetailsUserId(null)}
+        onToast={onToast}
+        onUserUpdated={() => {
+          fetchHistory();
+          if (selectedUser && selectedUser.id === detailsUserId) {
+            userApi.getUserDetails(detailsUserId).then((res) => {
+              if (res.success && res.user) {
+                setSelectedUser(res.user);
+              }
+            });
+          }
+        }}
+        isPage={true}
+        backTitle="Back to Coin Recharge"
+      />
+    );
+  }
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', maxWidth: '1200px', margin: '0 auto', paddingBottom: '3rem' }}>
       {/* Header Banner */}
@@ -1905,24 +1928,6 @@ export default function CoinRecharge({ onToast }) {
         </div>
       )}
 
-      {/* User Details Modal */}
-      {detailsUserId && (
-        <UserDetailsModal
-          userId={detailsUserId}
-          onClose={() => setDetailsUserId(null)}
-          onToast={onToast}
-          onUserUpdated={() => {
-            fetchHistory();
-            if (selectedUser && selectedUser.id === detailsUserId) {
-              userApi.getUserDetails(detailsUserId).then((res) => {
-                if (res.success && res.user) {
-                  setSelectedUser(res.user);
-                }
-              });
-            }
-          }}
-        />
-      )}
     </div>
   );
 }

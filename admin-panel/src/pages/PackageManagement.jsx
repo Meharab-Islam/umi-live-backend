@@ -638,6 +638,19 @@ export default function PackageManagement({ activeTabKey = 'packages', onNavigat
     }
   };
 
+  // If viewing details of a VIP member/user, render as a dedicated full-page view!
+  if (detailsUserId) {
+    return (
+      <UserDetailsModal
+        userId={detailsUserId}
+        onClose={() => setDetailsUserId(null)}
+        onToast={onToast}
+        isPage={true}
+        backTitle="Back to VIP Packages"
+      />
+    );
+  }
+
   // ========================================================
   // RENDER: SPECIFIC CATEGORY DEDICATED VIEW (e.g. KING)
   // ========================================================
@@ -2495,15 +2508,6 @@ export default function PackageManagement({ activeTabKey = 'packages', onNavigat
           </div>
         )}
 
-        {/* User Details Modal */}
-        {detailsUserId && (
-          <UserDetailsModal
-            userId={detailsUserId}
-            isOpen={Boolean(detailsUserId)}
-            onClose={() => setDetailsUserId(null)}
-            onToast={onToast}
-          />
-        )}
 
         {/* QUICK ASSIGN PACKAGE MODAL */}
         {assignModalOpen && (

@@ -422,6 +422,20 @@ export default function HostManagement({ onToast }) {
     return ((diamonds || 0) * rate).toFixed(2);
   };
 
+  // If viewing details of a host/user, render as a dedicated full-page view!
+  if (detailsUserId) {
+    return (
+      <UserDetailsModal
+        userId={detailsUserId}
+        onClose={() => setDetailsUserId(null)}
+        onToast={onToast}
+        onUserUpdated={fetchHosts}
+        isPage={true}
+        backTitle="Back to Host Management"
+      />
+    );
+  }
+
   return (
     <div className="page-container" style={{ paddingBottom: '3rem' }}>
       {/* Vibrant Stat Metric Cards */}
@@ -1705,15 +1719,6 @@ export default function HostManagement({ onToast }) {
         </div>
       )}
 
-      {/* User Details Modal */}
-      {detailsUserId && (
-        <UserDetailsModal
-          userId={detailsUserId}
-          onClose={() => setDetailsUserId(null)}
-          onToast={onToast}
-          onUserUpdated={fetchHosts}
-        />
-      )}
     </div>
   );
 }

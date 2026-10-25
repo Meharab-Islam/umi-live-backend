@@ -37,6 +37,8 @@ import {
   Lock,
   Eye,
   EyeOff,
+  ArrowLeft,
+  RotateCw,
 } from 'lucide-react';
 import userApi from '../api/userApi';
 import Loader from './Loader';
@@ -61,6 +63,8 @@ export default function UserDetailsModal({
   onClose,
   onUserUpdated,
   onToast,
+  isPage = true,
+  backTitle = 'Back to List',
 }) {
   const { isDiamondMode } = useEconomy();
   const [details, setDetails] = useState(null);
@@ -284,20 +288,31 @@ export default function UserDetailsModal({
     }
   };
 
-  return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div
-        className="modal-box user-details-modal"
-        style={{
-          maxWidth: '880px',
-          width: '95%',
-          maxHeight: '92vh',
-          overflowY: 'auto',
-          padding: '1.75rem',
-        }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Top Header: Prominent User ID & Close */}
+  const renderContent = () => (
+    <div
+      className={isPage ? 'user-details-page-card panel-card' : 'modal-box user-details-modal'}
+      style={
+        isPage
+          ? {
+              padding: '1.75rem',
+              border: '1px solid var(--border-color)',
+              borderRadius: 'var(--radius-lg)',
+              background: 'var(--bg-card)',
+              boxShadow: 'var(--shadow-sm)',
+              marginBottom: 0,
+            }
+          : {
+              maxWidth: '920px',
+              width: '95%',
+              maxHeight: '92vh',
+              overflowY: 'auto',
+              padding: '1.75rem',
+            }
+      }
+      onClick={(e) => e.stopPropagation()}
+    >
+      {/* Modal-only Close header (when rendered in fallback modal) */}
+      {!isPage && (
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '1rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
             <span style={{
@@ -351,19 +366,20 @@ export default function UserDetailsModal({
             <X size={18} />
           </button>
         </div>
+      )}
 
-        {loading && !details ? (
-          <div style={{ padding: '3rem 1rem', textAlign: 'center' }}>
-            <Loader text={`Loading telemetry for User #${userId}...`} />
-            <button
-              className="btn btn-secondary btn-sm"
-              onClick={onClose}
-              style={{ marginTop: '1.25rem' }}
-            >
-              Cancel / Close
-            </button>
-          </div>
-        ) : (
+      {loading && !details ? (
+        <div style={{ padding: '4rem 1rem', textAlign: 'center' }}>
+          <Loader text={`Loading telemetry for User #${userId}...`} />
+          <button
+            className="btn btn-secondary btn-sm"
+            onClick={onClose}
+            style={{ marginTop: '1.25rem' }}
+          >
+            {isPage ? backTitle : 'Cancel / Close'}
+          </button>
+        </div>
+      ) : (
           <>
             {/* User Hero Profile Banner */}
             <div style={{
@@ -669,8 +685,20 @@ export default function UserDetailsModal({
               </div>
             </div>
 
-            {/* Navigation Tabs */}
-            <div style={{ display: 'flex', gap: '0.5rem', borderBottom: '1px solid var(--border-color)', marginBottom: '1.25rem', overflowX: 'auto', paddingBottom: '4px' }}>
+            {/* Navigation Tabs - Sticky */}
+            <div style={{
+              position: 'sticky',
+              top: 0,
+              zIndex: 15,
+              display: 'flex',
+              gap: '0.5rem',
+              borderBottom: '1px solid var(--border-color)',
+              marginBottom: '1.25rem',
+              padding: '0.65rem 0',
+              overflowX: 'auto',
+              background: 'var(--bg-card)',
+              backdropFilter: 'blur(10px)',
+            }}>
               <button
                 className={`btn btn-sm ${activeTab === 'overview' ? 'btn-primary' : 'btn-secondary'}`}
                 onClick={() => setActiveTab('overview')}
@@ -1544,14 +1572,24 @@ export default function UserDetailsModal({
                     </div>
                   </div>
 
-                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px solid var(--border-color)' }}>
+                    {onClose && (
+                      <button
+                        type="button"
+                        className="btn btn-secondary"
+                        onClick={onClose}
+                        style={{ padding: '0.65rem 1.25rem' }}
+                      >
+                        Cancel
+                      </button>
+                    )}
                     <button
                       type="submit"
                       className="btn btn-danger"
                       disabled={submittingDeduction || (!deductCoins && !deductDiamonds)}
-                      style={{ padding: '0.65rem 1.5rem', fontWeight: 700 }}
+                      style={{ padding: '0.75rem 2rem', fontWeight: 700, fontSize: '0.95rem', display: 'inline-flex', alignItems: 'center', gap: '8px' }}
                     >
-                      {submittingDeduction ? <Loader inline small /> : <Coins size={16} />}
+                      {submittingDeduction ? <Loader inline small /> : <Coins size={18} />}
                       <span>{submittingDeduction ? 'Processing Deduction...' : 'Confirm Balance Deduction'}</span>
                     </button>
                   </div>
@@ -1560,7 +1598,128 @@ export default function UserDetailsModal({
             )}
           </>
         )}
+    </div>
+  );
+
+  if (isPage) {
+    return (
+      <div
+        className="user-details-page-view"
+        style={{
+          width: '100%',
+          maxWidth: '1400px',
+          margin: '0 auto',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '1.25rem',
+          paddingBottom: '4rem',
+        }}
+      >
+        {/* Top Header / Navigation Bar */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: '0.85rem',
+            padding: '0.85rem 1.25rem',
+            borderRadius: 'var(--radius-lg)',
+            background: 'var(--bg-card)',
+            border: '1px solid var(--border-color)',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+            {onClose && (
+              <button
+                type="button"
+                className="btn btn-secondary btn-sm"
+                onClick={onClose}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontWeight: 700 }}
+                title="Return to previous screen"
+              >
+                <ArrowLeft size={16} />
+                <span>{backTitle}</span>
+              </button>
+            )}
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.88rem', color: 'var(--text-muted)' }}>
+              <span>Directory</span>
+              <span>/</span>
+              <span style={{ color: 'var(--text-main)', fontWeight: 700 }}>
+                Profile Details: {user?.full_name || `User #${user?.id || userId}`}
+              </span>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap' }}>
+            <span style={{
+              fontFamily: 'var(--font-mono)',
+              fontWeight: 800,
+              fontSize: '0.95rem',
+              background: 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)',
+              color: '#ffffff',
+              padding: '4px 12px',
+              borderRadius: '8px',
+              boxShadow: '0 2px 8px rgba(124, 58, 237, 0.3)',
+              whiteSpace: 'nowrap',
+            }}>
+              UID: #{user?.id || userId}
+            </span>
+
+            {user?.role && (
+              <span className={`badge ${user?.role === 'admin' ? 'badge-primary' : user?.role === 'moderator' ? 'badge-primary' : user?.role === 'host' ? 'badge-warning' : 'badge-neutral'}`} style={{ textTransform: 'uppercase', fontSize: '0.75rem', fontWeight: 700 }}>
+                {user?.role}
+              </span>
+            )}
+
+            {user?.role === 'host' && (
+              <span style={{
+                fontSize: '0.72rem',
+                fontWeight: 700,
+                padding: '3px 8px',
+                borderRadius: '6px',
+                background: user?.host_type === 'audio' ? 'rgba(2, 132, 199, 0.15)' : 'rgba(236, 72, 153, 0.15)',
+                color: user?.host_type === 'audio' ? '#0284c7' : '#ec4899',
+                border: `1px solid ${user?.host_type === 'audio' ? 'rgba(2, 132, 199, 0.3)' : 'rgba(236, 72, 153, 0.3)'}`,
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '4px',
+              }}>
+                {user?.host_type === 'audio' ? '🎙️ Audio Host' : '📹 Video Host'}
+              </span>
+            )}
+
+            {user && (
+              user?.is_banned ? (
+                <span className="badge badge-danger">Banned</span>
+              ) : (
+                <span className="badge badge-success">Active</span>
+              )
+            )}
+
+            <button
+              type="button"
+              className="btn btn-secondary btn-sm"
+              onClick={fetchUserDetails}
+              title="Refresh User Data"
+              style={{ borderRadius: '8px', padding: '6px 12px', display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.78rem' }}
+            >
+              <RotateCw size={14} className={loading ? 'spin' : ''} />
+              <span>Sync</span>
+            </button>
+          </div>
+        </div>
+
+        {renderContent()}
       </div>
+    );
+  }
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      {renderContent()}
     </div>
   );
 }

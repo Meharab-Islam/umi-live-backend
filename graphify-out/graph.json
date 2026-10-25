@@ -4767,7 +4767,7 @@
       "file_type": "code",
       "norm_label": "userdetailsmodal()",
       "source_file": "admin-panel/src/components/UserDetailsModal.jsx",
-      "source_location": "L58"
+      "source_location": "L60"
     },
     {
       "id": "admin_panel_src_context_economycontext_useeconomy",
@@ -5643,7 +5643,7 @@
       "file_type": "code",
       "norm_label": "rendermodals()",
       "source_file": "admin-panel/src/pages/PackageManagement.jsx",
-      "source_location": "L1722"
+      "source_location": "L1735"
     },
     {
       "id": "admin_panel_src_pages_settings_settings",
@@ -10098,7 +10098,7 @@
       "file_type": "code",
       "norm_label": "moderator_power_labels",
       "source_file": "admin-panel/src/components/UserDetailsModal.jsx",
-      "source_location": "L45"
+      "source_location": "L47"
     },
     {
       "id": "admin_panel_src_context_economycontext",
@@ -12248,7 +12248,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "admin-panel/src/components/UserDetailsModal.jsx",
-      "source_location": "L65",
+      "source_location": "L69",
       "weight": 1.0
     },
     {
@@ -12548,7 +12548,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "admin-panel/src/pages/PackageManagement.jsx",
-      "source_location": "L1228",
+      "source_location": "L1241",
       "weight": 1.0
     },
     {
@@ -12560,7 +12560,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "admin-panel/src/pages/Posts.jsx",
-      "source_location": "L618",
+      "source_location": "L632",
       "weight": 1.0
     },
     {
@@ -20096,7 +20096,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "admin-panel/src/pages/PackageManagement.jsx",
-      "source_location": "L1722",
+      "source_location": "L1735",
       "weight": 1.0
     },
     {
@@ -21644,7 +21644,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "admin-panel/src/components/UserDetailsModal.jsx",
-      "source_location": "L41",
+      "source_location": "L43",
       "weight": 1.0
     },
     {
@@ -21656,7 +21656,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "admin-panel/src/components/UserDetailsModal.jsx",
-      "source_location": "L42",
+      "source_location": "L44",
       "weight": 1.0
     },
     {
@@ -21668,7 +21668,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "admin-panel/src/components/UserDetailsModal.jsx",
-      "source_location": "L43",
+      "source_location": "L45",
       "weight": 1.0
     },
     {
@@ -27092,7 +27092,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "admin-panel/src/components/UserDetailsModal.jsx",
-      "source_location": "L41",
+      "source_location": "L43",
       "weight": 1.0
     },
     {
@@ -27104,7 +27104,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "admin-panel/src/components/UserDetailsModal.jsx",
-      "source_location": "L42",
+      "source_location": "L44",
       "weight": 1.0
     },
     {
@@ -27116,7 +27116,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "admin-panel/src/components/UserDetailsModal.jsx",
-      "source_location": "L43",
+      "source_location": "L45",
       "weight": 1.0
     },
     {
@@ -32862,7 +32862,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "admin-panel/src/components/UserDetailsModal.jsx",
-      "source_location": "L45",
+      "source_location": "L47",
       "weight": 1.0
     },
     {
@@ -32873,7 +32873,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "admin-panel/src/components/UserDetailsModal.jsx",
-      "source_location": "L58",
+      "source_location": "L60",
       "weight": 1.0
     },
     {
@@ -45642,5 +45642,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "eace24f105e263d9f9980f3fe60b74b3e9868fec"
+  "built_at_commit": "1db31a6cfbd49ec2dff3ca298ad48262748cb0f7"
 }

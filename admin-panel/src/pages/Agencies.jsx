@@ -320,6 +320,19 @@ export default function Agencies({ onToast }) {
   const totalRecruitedHosts = agencies.reduce((acc, a) => acc + (parseInt(a.host_count, 10) || 0), 0);
   const totalAgencyDiamonds = agencies.reduce((acc, a) => acc + (parseInt(a.total_host_diamonds, 10) || 0), 0);
 
+  // If viewing details of a host/user, render as a dedicated full-page view!
+  if (detailsUserId) {
+    return (
+      <UserDetailsModal
+        userId={detailsUserId}
+        onClose={() => setDetailsUserId(null)}
+        onToast={onToast}
+        isPage={true}
+        backTitle="Back to Agencies"
+      />
+    );
+  }
+
   return (
     <div>
       {/* 3 Metric Summary Cards */}
@@ -1265,14 +1278,6 @@ export default function Agencies({ onToast }) {
         </div>
       )}
 
-      {/* User Details Modal for Agency Owner or Recruited Host */}
-      {detailsUserId && (
-        <UserDetailsModal
-          userId={detailsUserId}
-          onClose={() => setDetailsUserId(null)}
-          onToast={onToast}
-        />
-      )}
 
       {/* Delete Agency Confirmation Modal */}
       {deleteConfirmAgency && (

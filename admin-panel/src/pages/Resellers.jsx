@@ -396,6 +396,20 @@ export default function Resellers({ onToast }) {
     fetchResellers(page, searchQuery);
   };
 
+  // If viewing details of a reseller/user, render as a dedicated full-page view!
+  if (detailsUserId) {
+    return (
+      <UserDetailsModal
+        userId={detailsUserId}
+        onClose={() => setDetailsUserId(null)}
+        onToast={onToast}
+        onUserUpdated={fetchResellers}
+        isPage={true}
+        backTitle="Back to Resellers"
+      />
+    );
+  }
+
   return (
     <div className="page-container" style={{ paddingBottom: '3rem' }}>
       {/* Action Toolbar */}
@@ -1961,15 +1975,6 @@ export default function Resellers({ onToast }) {
         </div>
       )}
 
-      {/* User Details Modal */}
-      {detailsUserId && (
-        <UserDetailsModal
-          userId={detailsUserId}
-          onClose={() => setDetailsUserId(null)}
-          onToast={onToast}
-          onUserUpdated={fetchResellers}
-        />
-      )}
     </div>
   );
 }

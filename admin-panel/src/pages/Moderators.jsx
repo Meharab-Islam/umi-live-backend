@@ -395,6 +395,20 @@ export default function Moderators({ onToast }) {
     return <Loader message="Loading moderator directory..." />;
   }
 
+  // If viewing details of a user, render as a dedicated full-page view!
+  if (detailsUserId) {
+    return (
+      <UserDetailsModal
+        userId={detailsUserId}
+        onClose={() => setDetailsUserId(null)}
+        onUserUpdated={fetchModerators}
+        onToast={onToast}
+        isPage={true}
+        backTitle="Back to Moderators"
+      />
+    );
+  }
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
       {/* 1. Sleek Top Stats Bar */}
@@ -1661,15 +1675,6 @@ export default function Moderators({ onToast }) {
         </div>
       )}
 
-      {/* User Details Modal */}
-      {detailsUserId && (
-        <UserDetailsModal
-          userId={detailsUserId}
-          onClose={() => setDetailsUserId(null)}
-          onUserUpdated={fetchModerators}
-          onToast={onToast}
-        />
-      )}
     </div>
   );
 }

@@ -216,6 +216,19 @@ export default function Withdrawals({ onToast }) {
     }
   };
 
+  // If viewing details of a user, render as a dedicated full-page view!
+  if (detailsUserId) {
+    return (
+      <UserDetailsModal
+        userId={detailsUserId}
+        onClose={() => setDetailsUserId(null)}
+        onToast={onToast}
+        isPage={true}
+        backTitle="Back to Withdrawals"
+      />
+    );
+  }
+
   return (
     <div>
       {/* Top Controls: Filter & Settings Toolbar */}
@@ -961,14 +974,6 @@ export default function Withdrawals({ onToast }) {
         )}
       </div>
 
-      {/* User Details Telemetry Modal */}
-      {detailsUserId && (
-        <UserDetailsModal
-          userId={detailsUserId}
-          onClose={() => setDetailsUserId(null)}
-          onToast={onToast}
-        />
-      )}
 
       {/* Process Modal */}
       {selectedItem && (
