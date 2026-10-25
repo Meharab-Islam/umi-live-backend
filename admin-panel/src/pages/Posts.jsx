@@ -5,7 +5,6 @@ import {
   Trash2,
   RefreshCw,
   Video,
-  Music,
   Image as ImageIcon,
   Heart,
   MessageCircle,
@@ -62,7 +61,6 @@ export default function Posts({ onToast }) {
   const [stats, setStats] = useState({
     total_posts: 0,
     total_videos: 0,
-    total_audios: 0,
     total_images: 0,
     total_likes: 0,
     total_comments: 0,
@@ -237,7 +235,7 @@ export default function Posts({ onToast }) {
               </span>
             </div>
             <p style={{ fontSize: '0.86rem', color: 'var(--text-muted)', margin: '3px 0 0', lineHeight: 1.4 }}>
-              Moderate moments, photos, video shorts, and audio notes with real-time content inspection.
+              Moderate community posts, photo albums, and video shorts with real-time content inspection.
             </p>
           </div>
         </div>
@@ -320,8 +318,8 @@ export default function Posts({ onToast }) {
         </div>
       </div>
 
-      {/* 2. TOP STATS KPIS */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(175px, 1fr))', gap: '0.85rem' }}>
+      {/* 2. TOP STATS KPIS (NO AUDIO NOTE) */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))', gap: '0.85rem' }}>
         <div className="post-stat-card">
           <div
             className="stat-icon-wrapper"
@@ -354,30 +352,10 @@ export default function Posts({ onToast }) {
           </div>
           <div>
             <div style={{ fontSize: '0.74rem', fontWeight: 700, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-              Videos
+              Video Posts
             </div>
             <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-main)', lineHeight: 1.15, marginTop: '2px' }}>
               {stats.total_videos.toLocaleString()}
-            </div>
-          </div>
-        </div>
-
-        <div className="post-stat-card">
-          <div
-            className="stat-icon-wrapper"
-            style={{
-              background: 'linear-gradient(135deg, rgba(147, 51, 234, 0.12) 0%, rgba(192, 132, 252, 0.22) 100%)',
-              color: '#9333ea',
-            }}
-          >
-            <Music size={22} />
-          </div>
-          <div>
-            <div style={{ fontSize: '0.74rem', fontWeight: 700, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-              Audio Notes
-            </div>
-            <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-main)', lineHeight: 1.15, marginTop: '2px' }}>
-              {stats.total_audios.toLocaleString()}
             </div>
           </div>
         </div>
@@ -394,7 +372,7 @@ export default function Posts({ onToast }) {
           </div>
           <div>
             <div style={{ fontSize: '0.74rem', fontWeight: 700, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-              Photos
+              Photo Posts
             </div>
             <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-main)', lineHeight: 1.15, marginTop: '2px' }}>
               {stats.total_images.toLocaleString()}
@@ -512,17 +490,16 @@ export default function Posts({ onToast }) {
             )}
           </div>
 
-          {/* Media Format Filter Chips */}
+          {/* Media Format Filter Chips (Only Videos, Photos, Text - NO AUDIO) */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
             <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-dim)', marginRight: '0.2rem' }}>
               Filter:
             </span>
             {[
               { id: 'all', label: 'All Formats', icon: <SlidersHorizontal size={13} /> },
-              { id: 'video', label: 'Videos', icon: <Video size={13} /> },
-              { id: 'audio', label: 'Audio', icon: <Music size={13} /> },
-              { id: 'image', label: 'Photos', icon: <ImageIcon size={13} /> },
-              { id: 'none', label: 'Text Only', icon: <FileText size={13} /> },
+              { id: 'video', label: 'Videos 🎥', icon: <Video size={13} /> },
+              { id: 'image', label: 'Photos 🖼️', icon: <ImageIcon size={13} /> },
+              { id: 'none', label: 'Text Only 📝', icon: <FileText size={13} /> },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -824,7 +801,7 @@ export default function Posts({ onToast }) {
                       </div>
                     )}
 
-                    {/* Attached Media Cards */}
+                    {/* Attached Media Cards (Videos and Photos ONLY) */}
                     {post.media && post.media.length > 0 && (
                       <div style={{ marginBottom: '0.95rem' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.5rem' }}>
@@ -871,20 +848,6 @@ export default function Posts({ onToast }) {
                                     {item.duration > 0 && <span>{item.duration}s</span>}
                                   </div>
                                 </div>
-                              ) : item.media_type === 'audio' ? (
-                                <div className="post-media-audio">
-                                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                    <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#9333ea', fontSize: '12px', fontWeight: 700 }}>
-                                      <Music size={15} /> Audio Clip
-                                    </span>
-                                    {item.duration > 0 && (
-                                      <span style={{ fontSize: '11px', color: 'var(--text-dim)', fontWeight: 600 }}>
-                                        {item.duration}s
-                                      </span>
-                                    )}
-                                  </div>
-                                  <audio src={resolveMediaUrl(item.media_url)} controls style={{ width: '100%', height: '36px' }} />
-                                </div>
                               ) : (
                                 <div style={{ position: 'relative' }}>
                                   <img
@@ -907,7 +870,7 @@ export default function Posts({ onToast }) {
                                       backdropFilter: 'blur(4px)',
                                     }}
                                   >
-                                    Image #{idx + 1}
+                                    Photo #{idx + 1}
                                   </div>
                                 </div>
                               )}
@@ -955,11 +918,11 @@ export default function Posts({ onToast }) {
                             letterSpacing: '0.04em',
                           }}
                         >
-                          Type: {post.media_type || 'text'}
+                          {post.media_type === 'video' ? 'Video 🎥' : post.media_type === 'image' ? 'Photos 🖼️' : 'Text 📝'}
                         </span>
 
                         <span style={{ fontSize: '0.74rem', color: 'var(--text-dim)' }}>
-                          Post ID #{post.id}
+                          Post #{post.id}
                         </span>
                       </div>
                     </div>
@@ -1046,10 +1009,6 @@ export default function Posts({ onToast }) {
                               {post.media_type === 'video' ? (
                                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: '#e11d48', fontWeight: 600, fontSize: '0.8rem' }}>
                                   <Video size={14} /> Video ({post.media?.length || 1})
-                                </span>
-                              ) : post.media_type === 'audio' ? (
-                                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: '#9333ea', fontWeight: 600, fontSize: '0.8rem' }}>
-                                  <Music size={14} /> Audio ({post.media?.length || 1})
                                 </span>
                               ) : post.media_type === 'image' ? (
                                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: '#0284c7', fontWeight: 600, fontSize: '0.8rem' }}>
@@ -1205,7 +1164,7 @@ export default function Posts({ onToast }) {
               {selectedPostDetails.content || <span style={{ fontStyle: 'italic', color: 'var(--text-dim)' }}>No caption text</span>}
             </div>
 
-            {/* Media Gallery */}
+            {/* Media Gallery (Video & Images ONLY) */}
             {selectedPostDetails.media && selectedPostDetails.media.length > 0 && (
               <div style={{ marginBottom: '1.4rem' }}>
                 <div style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--primary)', marginBottom: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
@@ -1233,13 +1192,6 @@ export default function Posts({ onToast }) {
                           <div style={{ padding: '6px 12px', fontSize: '11px', color: '#94a3b8', background: '#090d16' }}>
                             Video clip • {m.duration || 0}s duration
                           </div>
-                        </div>
-                      ) : m.media_type === 'audio' ? (
-                        <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
-                          <span style={{ fontSize: '0.84rem', color: '#a855f7', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <Music size={16} /> Audio Recording
-                          </span>
-                          <audio src={resolveMediaUrl(m.media_url)} controls style={{ width: '100%' }} />
                         </div>
                       ) : (
                         <a href={resolveMediaUrl(m.media_url)} target="_blank" rel="noreferrer" style={{ display: 'block' }}>
@@ -1345,7 +1297,7 @@ export default function Posts({ onToast }) {
                 Delete Post #{deleteConfirmId}?
               </h3>
               <p style={{ fontSize: '0.86rem', color: 'var(--text-muted)', lineHeight: 1.5, marginBottom: '1.4rem' }}>
-                Are you sure you want to permanently erase this post? All attached images, videos, audio notes, comments, and reactions will be permanently deleted.
+                Are you sure you want to permanently erase this post? All attached images, videos, comments, and reactions will be permanently deleted.
               </p>
 
               <div style={{ display: 'flex', justifyContent: 'center', gap: '0.75rem' }}>
