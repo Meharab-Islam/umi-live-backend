@@ -144,9 +144,9 @@
     "semantic_hash": ""
   },
   "backend/src/db/init.js": {
-    "mtime": 1792931492.5263872,
-    "seen": 1792932497.418754,
-    "ast_hash": "08ba57f6b9cefcd88aeacf52fe234c39",
+    "mtime": 1792934156.4590166,
+    "seen": 1792934264.5494452,
+    "ast_hash": "1e4bdf11aba575878f746b362ced4b36",
     "semantic_hash": ""
   },
   "backend/src/middlewares/authMiddleware.js": {
@@ -1425,6 +1425,12 @@
     "mtime": 1792929074.8816032,
     "seen": 1792929389.13473,
     "ast_hash": "fd302211224c4ee12aa6394fa6b2fa2f",
+    "semantic_hash": ""
+  },
+  "backend/src/scripts/clean_fresh_system.js": {
+    "mtime": 1792934247.723416,
+    "seen": 1792934264.550067,
+    "ast_hash": "ba437ada63846677f2652966dac33e37",
     "semantic_hash": ""
   }
 }

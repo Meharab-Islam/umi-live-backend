@@ -1016,206 +1016,94 @@ export async function initializeDatabase() {
     await safeAddColumn('special_thumbnails', 'uploader_id', "INT NULL");
     await safeAddColumn('privilege_packages', 'color', "VARCHAR(50) DEFAULT '#8b5cf6' AFTER description");
 
-    // Seed Admin & Initial Data if users table is empty
+    // Seed Admin if users table is empty (Fresh deployment: Super Admin ONLY)
     const [userRows] = await connection.query('SELECT COUNT(*) as count FROM users');
     if (userRows[0].count === 0) {
-      console.log('[DB Init] Seeding initial database records...');
+      console.log('[DB Init] Fresh deployment detected: Seeding Super Admin only (Zero dummy users/data)...');
       const adminPassHash = await bcrypt.hash('admin123', 10);
-      const userPassHash = await bcrypt.hash('user123', 10);
 
-      // Admin user
+      // Super Admin user ONLY
       await connection.query(`
         INSERT INTO users (email, password_hash, full_name, avatar_url, bio, role, coins, diamonds, level)
         VALUES 
-        ('admin@umi.live', ?, 'System Admin', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150', 'Super Administrator of Umi Live', 'superadmin', 100000, 50000, 99),
-        ('nila@umi.live', ?, 'Nila Akter', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150', 'Singer & Lifestyle Streamer 🎤', 'host', 5000, 18500, 15),
-        ('rohan@umi.live', ?, 'Rohan Chowdhury', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150', 'Pro MLBB & Valorant Gamer 🎮', 'host', 8200, 24600, 22),
-        ('tisha@umi.live', ?, 'Tisha Roy', 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150', 'Daily acoustic songs & talk show ✨', 'host', 3100, 12400, 10),
-        ('tanvir@umi.live', ?, 'Tanvir Ahmed', 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150', 'Live music enthusiast and top supporter', 'user', 25000, 450, 8);
-      `, [adminPassHash, userPassHash, userPassHash, userPassHash, userPassHash]);
+        ('admin@umi.live', ?, 'System Admin', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150', 'Super Administrator of Umi Live', 'superadmin', 0, 0, 99);
+      `, [adminPassHash]);
 
-      // Seed Gifts
-      await connection.query(`
-        INSERT INTO gifts (name, icon_url, animation_type, coin_cost, diamond_reward, category)
-        VALUES
-        ('Rose', '🌹', 'float', 10, 5, 'Popular'),
-        ('Heart', '💖', 'pulse', 50, 25, 'Popular'),
-        ('Ice Cream', '🍦', 'float', 100, 50, 'Casual'),
-        ('Crown', '👑', 'sparkle', 500, 250, 'VIP'),
-        ('Sports Car', '🏎️', 'fullscreen', 1200, 600, 'Luxury'),
-        ('Rocket', '🚀', 'fullscreen', 3000, 1500, 'Luxury'),
-        ('Super Castle', '🏰', 'fullscreen', 5000, 2500, 'Luxury'),
-        ('Golden Dragon', '🐉', 'fullscreen', 10000, 5000, 'Legendary');
-      `);
-
-      // Seed Coin Packages
-      await connection.query(`
-        INSERT INTO coin_packages (name, coins, price_usd, bonus_coins, badge)
-        VALUES
-        ('Starter Pack', 100, 0.99, 10, 'Starter'),
-        ('Value Bundle', 500, 4.99, 80, 'Popular'),
-        ('Pro Streamer', 1200, 9.99, 250, 'Best Value'),
-        ('Diamond King', 6500, 49.99, 1500, 'Mega Bonus'),
-        ('Ultimate VIP', 14000, 99.99, 4000, 'VIP Elite');
-      `);
-
-      // Seed Live Rooms
-      await connection.query(`
-        INSERT INTO live_rooms (room_id, host_id, title, category, cover_image, status, viewer_count, total_diamonds, stream_key)
-        VALUES
-        ('room-nila-101', 2, 'Friday Night Acoustic Live Session 🎸', 'Music', 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400', 'live', 428, 5420, 'sk_live_nila_9823'),
-        ('room-rohan-202', 3, 'Mythical Glory Solo Rank Push! MLBB 🚀', 'Gaming', 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=400', 'live', 894, 9150, 'sk_live_rohan_4512'),
-        ('room-tisha-303', 4, 'Chit-Chat & Q&A with Tisha ☕', 'Chatting', 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=400', 'live', 215, 3120, 'sk_live_tisha_8731');
-      `);
-
-      // Seed Settings
-      await connection.query(`
-        INSERT INTO system_settings (key_name, key_value, description)
-        VALUES
-        ('diamond_to_usd_rate', '0.005', 'Conversion rate: USD per 1 diamond for host payouts'),
-        ('min_withdrawal_diamonds', '1000', 'Minimum diamond balance required to request cashout'),
-        ('withdrawal_presets', '[1000, 2000, 5000, 10000, 25000, 50000]', 'Preset diamond cashout options for hosts'),
-        ('allow_manual_withdrawal_input', 'true', 'Whether users/hosts can input custom diamond amount for withdrawal'),
-        ('recharge_presets', '[500, 1000, 2500, 5000, 10000, 50000, 100000]', 'Quick preset coin amounts for wallet recharge'),
-        ('platform_name', 'Umi Live', 'Public platform display name'),
-        ('default_registration_coins', '100', 'Default welcome bonus coins granted to new users upon account creation'),
-        ('maintenance_mode', 'false', 'Platform maintenance status flag'),
-        ('live_stream_provider', 'livekit', 'Streaming WebRTC/RTMP backend provider'),
-        ('action_security_password', 'admin123', 'Security action password required for coin recharge and balance deductions'),
-        ('is_convert_to_diamond', 'true', 'Master economy mode: true for diamond conversion, false for direct coin commission mode'),
-        ('coin_to_diamond_ratio', '1.0', 'Conversion ratio: diamonds awarded per 1 coin sent'),
-        ('admin_gift_commission_percent', '15.0', 'Admin commission percentage on coin gifts when diamond mode is false'),
-        ('agency_gift_commission_percent', '10.0', 'Agency commission percentage on host coin gifts when diamond mode is false'),
-        ('user_transfer_commission_percent', '5.0', 'Admin commission percentage on peer-to-peer coin transfers'),
-        ('custom_thumbnail_upload_coin_cost', '500', 'Required coin balance deducted when a user uploads a custom room background thumbnail'),
-        ('custom_thumbnail_validity_days', '30', 'Default validity duration in days for user-uploaded custom thumbnails'),
-        ('custom_thumbnail_pricing_tiers', '[{\"days\": 7, \"coins\": 200}, {\"days\": 15, \"coins\": 350}, {\"days\": 30, \"coins\": 500}, {\"days\": 90, \"coins\": 1200}]', 'Dynamic pricing tiers (days vs coins) for user-uploaded custom room background thumbnails'),
-        ('livekit_url', 'wss://snlive-y3r75itj.livekit.cloud', 'LiveKit Cloud or Self-hosted WebSocket URL for WebRTC room media'),
-        ('livekit_api_key', 'APInTHjZ4pwntq4', 'LiveKit Project API Key for generating access tokens'),
-        ('livekit_api_secret', 'euPgL1zVA1nD0GeorSxn9amK7PayQg0nnoliE4e9xWlB', 'LiveKit Project API Secret for token signing'),
-        ('call_audio_rate_per_minute', '20', 'Default coin cost per minute for 1-on-1 audio call in direct messages'),
-        ('call_video_rate_per_minute', '50', 'Default coin cost per minute for 1-on-1 video call in direct messages'),
-        ('call_video_live_rate_per_minute', '30', 'Coin cost per minute for Video Live seat interaction or private call'),
-        ('call_min_balance_to_start', '20', 'Minimum coin balance required for a caller to initiate a 1-on-1 call'),
-        ('call_receiver_earnings_percent', '70', 'Percentage of call coins awarded to call receiver as diamonds'),
-        ('call_is_enabled', 'true', 'Master switch to enable or disable 1-on-1 direct audio and video calls'),
-        ('app_screen_guard_enabled', 'true', 'Master switch to block screenshots and screen recording across the entire mobile application (Android FLAG_SECURE / iOS Screen Capture Protection)'),
-        ('live_screen_guard_enabled', 'true', 'Block screenshots and screen recordings specifically inside Video & Audio live rooms'),
-        ('live_screen_record_enabled', 'false', 'Allow users to record screen during live audio/video streams'),
-        ('live_screen_share_enabled', 'true', 'Master switch allowing screen share inside live video and audio rooms'),
-        ('live_screen_share_roles', 'host_only', 'Roles authorized to share screen: host_only, host_and_moderator, co_hosts, everyone'),
-        ('screen_guard_allow_host', 'true', 'Allow room host to view screen / bypass screen guard'),
-        ('screen_guard_allow_moderator', 'true', 'Allow moderators to view screen / bypass screen guard'),
-        ('screen_guard_allow_agency', 'true', 'Allow agency managers to view screen / bypass screen guard'),
-        ('screen_guard_allow_general_users', 'true', 'Allow general audience to view screen when guard is turned off'),
-        ('screen_guard_watermark_enabled', 'true', 'Display anti-leak dynamic floating user ID & IP watermark on live screen'),
-        ('star_system_enabled', 'true', 'Master switch to enable or disable the Star progression rating engine'),
-        ('star_coins_per_unit', '100000', 'Amount of coins/diamonds required for 1 full star (e.g., 100000 = 1.0 star, 120000 = 1.2 star)'),
-        ('star_metric_type', 'coins_spent', 'Metric used to calculate star progression: coins_spent, diamonds, or wallet_coins'),
-        ('star_decimal_precision', '1', 'Number of decimal places displayed for star progression (e.g., 1 for 1.2, 2 for 1.25)'),
-        ('star_max_stars', '100', 'Maximum star rating achievable')
-        ON DUPLICATE KEY UPDATE key_value = VALUES(key_value);
-      `);
-
-      // Ensure mobile_number, country, star columns exist in users
-      try {
-        await connection.query("ALTER TABLE users ADD COLUMN mobile_number VARCHAR(30) DEFAULT '' AFTER bio;");
-      } catch (e) { }
-      try {
-        await connection.query("ALTER TABLE users ADD COLUMN country VARCHAR(50) DEFAULT '' AFTER mobile_number;");
-      } catch (e) { }
-      try {
-        await connection.query("ALTER TABLE users MODIFY COLUMN star DECIMAL(6, 2) NOT NULL DEFAULT 0.00;");
-      } catch (e) {
-        try {
-          await connection.query("ALTER TABLE users ADD COLUMN star DECIMAL(6, 2) NOT NULL DEFAULT 0.00 AFTER level;");
-        } catch (err) { }
-      }
-      try {
-        await connection.query("ALTER TABLE withdrawals ADD COLUMN coin_amount INT DEFAULT 0 AFTER diamond_amount;");
-      } catch (e) { }
-      try {
-        await connection.query("ALTER TABLE withdrawals MODIFY COLUMN host_type VARCHAR(50) DEFAULT 'user';");
-      } catch (e) { }
-      try {
-        await connection.query("ALTER TABLE withdrawals ADD COLUMN user_role VARCHAR(50) DEFAULT 'user' AFTER host_type;");
-      } catch (e) { }
-
-      // Seed a sample withdrawal request
-      await connection.query(`
-        INSERT INTO withdrawals (host_id, diamond_amount, usd_amount, payment_method, account_details, status, admin_notes)
-        VALUES
-        (2, 5000, 25.00, 'bKash', '01700000000 (Personal)', 'pending', 'First withdrawal application for Nila Akter');
-      `);
-
-      console.log('[DB Init] Database schema and seed successfully initialized.');
+      console.log('✅ [DB Init] Super Admin seeded (admin@umi.live). No fake users or dummy records created.');
     }
 
-    // Seed Package Categories and Privilege Packages if empty
-    const [pkgCatRows] = await connection.query('SELECT COUNT(*) as count FROM package_categories');
-    if (pkgCatRows[0].count === 0) {
-      console.log('[DB Init] Seeding package categories & packages...');
-      await connection.query(`
-        INSERT INTO package_categories (id, name, badge_icon, color_code, display_order, cant_be_removed, cant_be_banned, self_seat_accept, top_live_list, anti_mute, special_entry, custom_privileges, is_active)
-        VALUES 
-        (1, 'Royal Crown VIP', '👑', '#f59e0b', 1, 1, 1, 1, 1, 1, 0, JSON_ARRAY(), 1),
-        (2, 'King VIP', '⚡', '#8b5cf6', 2, 1, 1, 1, 1, 0, 0, JSON_ARRAY(), 1),
-        (3, 'Knight VIP', '🛡️', '#3b82f6', 3, 1, 0, 1, 0, 0, 0, JSON_ARRAY(), 1);
-      `);
+    // Seed Essential System Settings (Default Configuration)
+    await connection.query(`
+      INSERT INTO system_settings (key_name, key_value, description)
+      VALUES
+      ('diamond_to_usd_rate', '0.005', 'Conversion rate: USD per 1 diamond for host payouts'),
+      ('min_withdrawal_diamonds', '1000', 'Minimum diamond balance required to request cashout'),
+      ('withdrawal_presets', '[1000, 2000, 5000, 10000, 25000, 50000]', 'Preset diamond cashout options for hosts'),
+      ('allow_manual_withdrawal_input', 'true', 'Whether users/hosts can input custom diamond amount for withdrawal'),
+      ('recharge_presets', '[500, 1000, 2500, 5000, 10000, 50000, 100000]', 'Quick preset coin amounts for wallet recharge'),
+      ('platform_name', 'Umi Live', 'Public platform display name'),
+      ('default_registration_coins', '100', 'Default welcome bonus coins granted to new users upon account creation'),
+      ('maintenance_mode', 'false', 'Platform maintenance status flag'),
+      ('live_stream_provider', 'livekit', 'Streaming WebRTC/RTMP backend provider'),
+      ('action_security_password', 'admin123', 'Security action password required for coin recharge and balance deductions'),
+      ('is_convert_to_diamond', 'true', 'Master economy mode: true for diamond conversion, false for direct coin commission mode'),
+      ('coin_to_diamond_ratio', '1.0', 'Conversion ratio: diamonds awarded per 1 coin sent'),
+      ('admin_gift_commission_percent', '15.0', 'Admin commission percentage on coin gifts when diamond mode is false'),
+      ('agency_gift_commission_percent', '10.0', 'Agency commission percentage on host coin gifts when diamond mode is false'),
+      ('user_transfer_commission_percent', '5.0', 'Admin commission percentage on peer-to-peer coin transfers'),
+      ('custom_thumbnail_upload_coin_cost', '500', 'Required coin balance deducted when a user uploads a custom room background thumbnail'),
+      ('custom_thumbnail_validity_days', '30', 'Default validity duration in days for user-uploaded custom thumbnails'),
+      ('custom_thumbnail_pricing_tiers', '[{\"days\": 7, \"coins\": 200}, {\"days\": 15, \"coins\": 350}, {\"days\": 30, \"coins\": 500}, {\"days\": 90, \"coins\": 1200}]', 'Dynamic pricing tiers (days vs coins) for user-uploaded custom room background thumbnails'),
+      ('livekit_url', 'wss://snlive-y3r75itj.livekit.cloud', 'LiveKit Cloud or Self-hosted WebSocket URL for WebRTC room media'),
+      ('livekit_api_key', 'APInTHjZ4pwntq4', 'LiveKit Project API Key for generating access tokens'),
+      ('livekit_api_secret', 'euPgL1zVA1nD0GeorSxn9amK7PayQg0nnoliE4e9xWlB', 'LiveKit Project API Secret for token signing'),
+      ('call_audio_rate_per_minute', '20', 'Default coin cost per minute for 1-on-1 audio call in direct messages'),
+      ('call_video_rate_per_minute', '50', 'Default coin cost per minute for 1-on-1 video call in direct messages'),
+      ('call_video_live_rate_per_minute', '30', 'Coin cost per minute for Video Live seat interaction or private call'),
+      ('call_min_balance_to_start', '20', 'Minimum coin balance required for a caller to initiate a 1-on-1 call'),
+      ('call_receiver_earnings_percent', '70', 'Percentage of call coins awarded to call receiver as diamonds'),
+      ('call_is_enabled', 'true', 'Master switch to enable or disable 1-on-1 direct audio and video calls'),
+      ('app_screen_guard_enabled', 'true', 'Master switch to block screenshots and screen recording across the entire mobile application (Android FLAG_SECURE / iOS Screen Capture Protection)'),
+      ('live_screen_guard_enabled', 'true', 'Block screenshots and screen recordings specifically inside Video & Audio live rooms'),
+      ('live_screen_record_enabled', 'false', 'Allow users to record screen during live audio/video streams'),
+      ('live_screen_share_enabled', 'true', 'Master switch allowing screen share inside live video and audio rooms'),
+      ('live_screen_share_roles', 'host_only', 'Roles authorized to share screen: host_only, host_and_moderator, co_hosts, everyone'),
+      ('screen_guard_allow_host', 'true', 'Allow room host to view screen / bypass screen guard'),
+      ('screen_guard_allow_moderator', 'true', 'Allow moderators to view screen / bypass screen guard'),
+      ('screen_guard_allow_agency', 'true', 'Allow agency managers to view screen / bypass screen guard'),
+      ('screen_guard_allow_general_users', 'true', 'Allow general audience to view screen when guard is turned off'),
+      ('screen_guard_watermark_enabled', 'true', 'Display anti-leak dynamic floating user ID & IP watermark on live screen'),
+      ('star_system_enabled', 'true', 'Master switch to enable or disable the Star progression rating engine'),
+      ('star_coins_per_unit', '100000', 'Amount of coins/diamonds required for 1 full star (e.g., 100000 = 1.0 star, 120000 = 1.2 star)'),
+      ('star_metric_type', 'coins_spent', 'Metric used to calculate star progression: coins_spent, diamonds, or wallet_coins'),
+      ('star_decimal_precision', '1', 'Number of decimal places displayed for star progression (e.g., 1 for 1.2, 2 for 1.25)'),
+      ('star_max_stars', '100', 'Maximum star rating achievable')
+      ON DUPLICATE KEY UPDATE description = VALUES(description);
+    `);
 
-      await connection.query(`
-        INSERT INTO privilege_packages (category_id, name, image_url, validity_days, price, currency, description, is_active)
-        VALUES
-        (1, 'Royal 30-Day Pass', 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=300', 30, 50000, 'coins', '30 days of supreme Royal VIP status and privileges.', 1),
-        (1, 'Royal Quarter Pass (90 Days)', 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=300', 90, 135000, 'coins', '90 days of Royal Crown VIP privilege benefits with 10% discount.', 1),
-        (1, 'Royal Annual Majesty (365 Days)', 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=300', 365, 480000, 'coins', 'Full year of ultimate Royal privileges, supreme entrance animations, and top tier status.', 1),
-        (2, 'King 7-Day Trial', 'https://images.unsplash.com/photo-1563089145-599997674d42?w=300', 7, 5000, 'coins', '7-day starter pack for King VIP privilege tier.', 1),
-        (2, 'King 30-Day Pass', 'https://images.unsplash.com/photo-1563089145-599997674d42?w=300', 30, 18000, 'coins', '30-day King VIP membership with anti-kick and VIP entrance.', 1),
-        (2, 'King 90-Day Pass', 'https://images.unsplash.com/photo-1563089145-599997674d42?w=300', 90, 48000, 'coins', '90-day King VIP membership with discounted pricing.', 1),
-        (3, 'Knight 7-Day Pass', 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=300', 7, 2000, 'coins', '7-day Knight privilege pass.', 1),
-        (3, 'Knight 30-Day Pass', 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=300', 30, 7000, 'coins', 'Monthly Knight pass with anti-kick and special entry.', 1);
-      `);
+    // Ensure mobile_number, country, star columns exist in users
+    try {
+      await connection.query("ALTER TABLE users ADD COLUMN mobile_number VARCHAR(30) DEFAULT '' AFTER bio;");
+    } catch (e) { }
+    try {
+      await connection.query("ALTER TABLE users ADD COLUMN country VARCHAR(50) DEFAULT '' AFTER mobile_number;");
+    } catch (e) { }
+    try {
+      await connection.query("ALTER TABLE users MODIFY COLUMN star DECIMAL(6, 2) NOT NULL DEFAULT 0.00;");
+    } catch (e) {
+      try {
+        await connection.query("ALTER TABLE users ADD COLUMN star DECIMAL(6, 2) NOT NULL DEFAULT 0.00 AFTER level;");
+      } catch (err) { }
     }
-
-    // Seed Banners if empty
-    const [bannerRows] = await connection.query('SELECT COUNT(*) as count FROM banners');
-    if (bannerRows[0].count === 0) {
-      console.log('[DB Init] Seeding promotional banners...');
-      await connection.query(`
-        INSERT INTO banners (title, image_url, link_url, target_type, target_value, display_order, is_active)
-        VALUES
-        ('Grand Umi PK Tournament 🏆', 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=1000&auto=format&fit=crop&q=80', '', 'live_room', 'room-rohan-202', 1, 1),
-        ('Royal Crown VIP Membership 👑', 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=1000&auto=format&fit=crop&q=80', '', 'vip', '1', 2, 1),
-        ('Weekend Coin Recharge Mega Bonus +25% 🪙', 'https://images.unsplash.com/photo-1621416894569-0f39ed31d247?w=1000&auto=format&fit=crop&q=80', '', 'recharge', 'packages', 3, 1),
-        ('Official Agency Recruitment Program ✨', 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1000&auto=format&fit=crop&q=80', '', 'agency', 'apply', 4, 1);
-      `);
-    }
-
-    // Seed Entry Effects if empty
-    const [entryEffectRows] = await connection.query('SELECT COUNT(*) as count FROM entry_effects');
-    if (entryEffectRows[0].count === 0) {
-      console.log('[DB Init] Seeding entry effects...');
-      await connection.query(`
-        INSERT INTO entry_effects (name, effect_type, preview_image_url, svga_url, gif_url, sound_url, price, validity_days, is_active)
-        VALUES 
-        ('Golden Dragon Arrival', 'svga', '/uploads/gifts/sports_car_thumb_1791794086432-13704975.png', '/uploads/gifts/sports_car_anim_1791794086435-998043722.svga', '/uploads/gifts/fire_dragon_anim_1791794086443-492844523.gif', '/uploads/gifts/dragon_roar_1791794086446-125382975.mp3', 1000, 30, 1),
-        ('Cyber Supercar Entrance', 'svga', '/uploads/gifts/sports_car_thumb_1791794056867-245337673.png', '/uploads/gifts/sports_car_anim_1791794056871-502798849.svga', '/uploads/gifts/fire_dragon_anim_1791794086443-492844523.gif', NULL, 2500, 30, 1),
-        ('Pegasus Wings Glory', 'gif', '/uploads/packages/Kawaii_Weekly_Sign-In_Princess_Frame_1792037801034-450048310.png', NULL, '/uploads/gifts/fire_dragon_anim_1791794086443-492844523.gif', NULL, 5000, 60, 1);
-      `);
-    }
-
-    // Seed Special Thumbnails if empty
-    const [thumbRows] = await connection.query('SELECT COUNT(*) as count FROM special_thumbnails');
-    if (thumbRows[0].count === 0) {
-      console.log('[DB Init] Seeding special avatar thumbnails...');
-      await connection.query(`
-        INSERT INTO special_thumbnails (name, image_url, price, validity_days, is_active)
-        VALUES 
-        ('Kawaii Princess Avatar Frame', '/uploads/packages/Kawaii_Weekly_Sign-In_Princess_Frame_1792037801034-450048310.png', 500, 30, 1),
-        ('Golden Dragon Avatar Frame', '/uploads/gifts/sports_car_thumb_1791794086432-13704975.png', 1500, 30, 1),
-        ('Cyber Neon Glow Frame', '/uploads/thumbnails/test_thumb_1791720885105-621496700.png', 3000, 60, 1);
-      `);
-    }
+    try {
+      await connection.query("ALTER TABLE withdrawals ADD COLUMN coin_amount INT DEFAULT 0 AFTER diamond_amount;");
+    } catch (e) { }
+    try {
+      await connection.query("ALTER TABLE withdrawals MODIFY COLUMN host_type VARCHAR(50) DEFAULT 'user';");
+    } catch (e) { }
+    try {
+      await connection.query("ALTER TABLE withdrawals ADD COLUMN user_role VARCHAR(50) DEFAULT 'user' AFTER host_type;");
+    } catch (e) { }
 
     // 16. Ensure user_fcm_tokens table and users.fcm_token column exist
     await connection.query(`
