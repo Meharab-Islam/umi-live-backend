@@ -5749,6 +5749,10 @@ export async function rejectDeletionRequest(req, res) {
       return res.status(404).json({ success: false, message: 'Deletion request not found.' });
     }
 
+    const reviewerId = req.user?.id || 1;
+    const finalNotes = (notes && String(notes).trim()) ? String(notes).trim() : 'Request rejected by Admin.';
+
+    // 1. Database-First Write (SSOT)
     await query(
       `UPDATE account_deletion_requests 
        SET status = 'rejected', 
@@ -5756,14 +5760,47 @@ export async function rejectDeletionRequest(req, res) {
            reviewed_by = ?, 
            reviewed_at = NOW() 
        WHERE id = ?`,
-      [notes || 'Request rejected by Admin.', req.user?.id || 1, id]
+      [finalNotes, reviewerId, id]
     );
 
+    // 2. Fetch updated request with user details for instant client response
+    const [updatedRow] = await query(
+      `SELECT 
+        r.id,
+        r.user_id,
+        r.identifier,
+        r.name,
+        r.email,
+        r.phone,
+        r.reason,
+        r.details,
+        r.status,
+        r.admin_notes,
+        r.reviewed_by,
+        r.ip_address,
+        r.created_at,
+        r.reviewed_at,
+        COALESCE(u.full_name, r.name) as matched_user_name,
+        u.avatar_url as matched_user_avatar,
+        u.coins as matched_user_coins,
+        u.diamonds as matched_user_diamonds,
+        u.role as matched_user_role,
+        admin.full_name as reviewer_name
+       FROM account_deletion_requests r
+       LEFT JOIN users u ON r.user_id = u.id
+       LEFT JOIN users admin ON r.reviewed_by = admin.id
+       WHERE r.id = ?
+       LIMIT 1`,
+      [id]
+    );
+
+    // 3. Invalidate Redis deletion requests cache
     await cache.delByPattern('admin:deletion_requests*');
 
     return res.json({
       success: true,
       message: 'Account deletion request has been marked as Rejected.',
+      request: updatedRow || null,
     });
   } catch (err) {
     console.error('rejectDeletionRequest error:', err);

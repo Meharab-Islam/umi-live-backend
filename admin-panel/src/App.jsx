@@ -29,6 +29,7 @@ import LiveRewards from './pages/LiveRewards';
 import Levels from './pages/Levels';
 import AccountDeletionRequests from './pages/AccountDeletionRequests';
 import LegalPolicies from './pages/LegalPolicies';
+import LandingPage from './pages/LandingPage';
 
 import { checkHealth, getToken, setToken, getCurrentUser, setCurrentUser } from './api/client';
 import dashboardApi from './api/dashboardApi';
@@ -72,9 +73,24 @@ const VALID_TABS = [
   'settings',
 ];
 
+
 const isTabValid = (tab) => {
   if (!tab) return false;
   return VALID_TABS.includes(tab) || tab.startsWith('vip-');
+};
+
+const checkIsAdminPath = (pathname = window.location.pathname, hash = window.location.hash) => {
+  if (typeof window === 'undefined') return false;
+  const p = (pathname || '').toLowerCase();
+  const rawHash = (hash || '').toLowerCase().replace(/^#\/?/, '');
+  return (
+    p === '/admin' ||
+    p.startsWith('/admin/') ||
+    p === '/console' ||
+    p.startsWith('/console/') ||
+    rawHash.startsWith('admin') ||
+    isTabValid(rawHash)
+  );
 };
 
 const normalizeTab = (tab) => {
@@ -99,7 +115,19 @@ const getInitialTab = () => {
 
 export default function App() {
   const [user, setUser] = useState(getCurrentUser());
+  const [isAdminView, setIsAdminView] = useState(() => checkIsAdminPath());
   const [activeTab, setActiveTab] = useState(getInitialTab);
+
+  const goToAdmin = () => {
+    setIsAdminView(true);
+    const targetHash = window.location.hash && isTabValid(window.location.hash.replace(/^#\/?/, '')) ? window.location.hash : '#dashboard';
+    window.history.pushState(null, '', `/admin${targetHash}`);
+  };
+
+  const goToHome = () => {
+    setIsAdminView(false);
+    window.history.pushState(null, '', '/');
+  };
   const [isConnected, setIsConnected] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [stats, setStats] = useState(null);
@@ -113,23 +141,27 @@ export default function App() {
     setActiveTab(finalTab);
     setMobileMenuOpen(false);
     localStorage.setItem('admin_active_tab', finalTab);
+    const prefix = window.location.pathname.startsWith('/admin') ? '/admin' : '';
     if (window.location.hash !== `#${finalTab}`) {
-      window.history.pushState(null, '', `#${finalTab}`);
+      window.history.pushState(null, '', `${prefix}#${finalTab}`);
     }
   };
 
   useEffect(() => {
     const syncFromUrl = () => {
-      const tab = getInitialTab();
-      setActiveTab((prev) => (prev !== tab ? tab : prev));
+      const onAdmin = checkIsAdminPath();
+      setIsAdminView(onAdmin);
+      if (onAdmin) {
+        const tab = getInitialTab();
+        setActiveTab((prev) => (prev !== tab ? tab : prev));
+      }
     };
 
     window.addEventListener('hashchange', syncFromUrl);
     window.addEventListener('popstate', syncFromUrl);
 
-    // Ensure the initial tab is reflected in the URL hash
-    if (!window.location.hash && activeTab) {
-      window.history.replaceState(null, '', `#${activeTab}`);
+    if (checkIsAdminPath() && !window.location.hash && activeTab) {
+      window.history.replaceState(null, '', `/admin#${activeTab}`);
     }
 
     return () => {
@@ -228,12 +260,36 @@ export default function App() {
 
 
 
-  // If not logged in, show Login page
+  // If not accessing /admin route, display Landing Page by default!
+  if (!isAdminView) {
+    return (
+      <>
+        <LandingPage
+          onNavigateToAdmin={goToAdmin}
+          user={user}
+          onLogout={handleLogout}
+        />
+        <div className="toast-container">
+          {toasts.map((t) => (
+            <div key={t.id} className="toast" style={{
+              borderColor: t.type === 'error' ? 'rgba(244, 63, 94, 0.4)' : t.type === 'success' ? 'rgba(16, 185, 129, 0.4)' : 'var(--border-color)',
+            }}>
+              <span>{t.type === 'error' ? '⚠️' : t.type === 'success' ? '✅' : 'ℹ️'}</span>
+              <span>{t.message}</span>
+            </div>
+          ))}
+        </div>
+      </>
+    );
+  }
+
+  // On /admin route, if not logged in, show Login page with back-to-home option!
   if (!user) {
     return (
       <>
         <Login
           onLoginSuccess={handleLoginSuccess}
+          onBackToHome={goToHome}
         />
         <div className="toast-container">
           {toasts.map((t) => (
@@ -320,6 +376,7 @@ export default function App() {
           isRefreshing={isRefreshing}
           isConnected={isConnected}
           onToggleMobileMenu={() => setMobileMenuOpen((prev) => !prev)}
+          onGoToLanding={goToHome}
         />
 
         <main className="content-area">

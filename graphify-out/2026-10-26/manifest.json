@@ -12,9 +12,9 @@
     "semantic_hash": ""
   },
   "admin-panel/src/App.jsx": {
-    "mtime": 1792948480.9375973,
-    "seen": 1792948614.34636,
-    "ast_hash": "b66a8bcfb17e8fbc0992db7848d04569",
+    "mtime": 1792955873.4218614,
+    "seen": 1792956088.7563672,
+    "ast_hash": "2c9667e93b22636041b90db344ac02bb",
     "semantic_hash": ""
   },
   "admin-panel/src/api.js": {
@@ -30,9 +30,9 @@
     "semantic_hash": ""
   },
   "admin-panel/src/components/Sidebar.jsx": {
-    "mtime": 1792931277.6819315,
-    "seen": 1792931313.825871,
-    "ast_hash": "7ca2f95f78b4c481421af92eeead9d5a",
+    "mtime": 1792955828.503344,
+    "seen": 1792956088.75701,
+    "ast_hash": "9c0d82bc73860dd823e43d257f86a58f",
     "semantic_hash": ""
   },
   "admin-panel/src/components/StatCard.jsx": {
@@ -114,9 +114,9 @@
     "semantic_hash": ""
   },
   "backend/src/controllers/adminController.js": {
-    "mtime": 1792954412.374083,
-    "seen": 1792954481.854698,
-    "ast_hash": "33d3a9122b6654c2803c62c71a6e7e0b",
+    "mtime": 1792955495.437062,
+    "seen": 1792956088.7578392,
+    "ast_hash": "2cc635f1eb43e74406f14cf7a7fae1a1",
     "semantic_hash": ""
   },
   "backend/src/controllers/authController.js": {
@@ -144,9 +144,9 @@
     "semantic_hash": ""
   },
   "backend/src/db/init.js": {
-    "mtime": 1792947298.5442305,
-    "seen": 1792947409.114058,
-    "ast_hash": "b30fedd756f05ca10d3f66a368719d81",
+    "mtime": 1792955409.370853,
+    "seen": 1792956088.758431,
+    "ast_hash": "d2169ed0a9a56ef393017d12444b5bc7",
     "semantic_hash": ""
   },
   "backend/src/middlewares/authMiddleware.js": {
@@ -156,9 +156,9 @@
     "semantic_hash": ""
   },
   "backend/src/routes/adminRoutes.js": {
-    "mtime": 1792930908.947305,
-    "seen": 1792931313.827317,
-    "ast_hash": "fa6a2365e82868f5c5ca2945d944be06",
+    "mtime": 1792955551.2075038,
+    "seen": 1792956088.758487,
+    "ast_hash": "34d2e3f9cdff20ea9e111ae2aa1d18fc",
     "semantic_hash": ""
   },
   "backend/src/routes/authRoutes.js": {
@@ -186,9 +186,9 @@
     "semantic_hash": ""
   },
   "backend/src/server.js": {
-    "mtime": 1792936587.9183772,
-    "seen": 1792936776.089731,
-    "ast_hash": "95457cff8fec56f8594b312abdcb2bd8",
+    "mtime": 1792955610.4259465,
+    "seen": 1792956088.759072,
+    "ast_hash": "fe51e947d48cfaa21cfd443f48229792",
     "semantic_hash": ""
   },
   "backend/src/sockets/liveSocket.js": {
@@ -1437,6 +1437,48 @@
     "mtime": 1792947217.9611704,
     "seen": 1792947409.1147032,
     "ast_hash": "ef48fe998d9d49458c59d0e38c7b3898",
+    "semantic_hash": ""
+  },
+  "admin-panel/src/api/deletionRequestApi.js": {
+    "mtime": 1792955718.9925442,
+    "seen": 1792956088.756562,
+    "ast_hash": "b13542ef344b7ee8d1908266a3eadf81",
+    "semantic_hash": ""
+  },
+  "admin-panel/src/api/legalApi.js": {
+    "mtime": 1792955726.0713222,
+    "seen": 1792956088.756618,
+    "ast_hash": "77fa2a2ed72d8bc0bf092642fb5643b5",
+    "semantic_hash": ""
+  },
+  "admin-panel/src/pages/AccountDeletionRequests.jsx": {
+    "mtime": 1792955777.6852734,
+    "seen": 1792956088.757159,
+    "ast_hash": "fe7531486c3f1c6983196fa57aa03bea",
+    "semantic_hash": ""
+  },
+  "admin-panel/src/pages/LegalPolicies.jsx": {
+    "mtime": 1792955806.71449,
+    "seen": 1792956088.757362,
+    "ast_hash": "6c5b7e4591ade82718246b8d4ccc2de1",
+    "semantic_hash": ""
+  },
+  "backend/src/controllers/publicController.js": {
+    "mtime": 1792956013.0937843,
+    "seen": 1792956088.758394,
+    "ast_hash": "c60b343699f525aff41041da23243bfc",
+    "semantic_hash": ""
+  },
+  "backend/src/routes/publicRoutes.js": {
+    "mtime": 1792955455.9131167,
+    "seen": 1792956088.759016,
+    "ast_hash": "9d96ba3f0baaa3327504becbce1d0111",
+    "semantic_hash": ""
+  },
+  "backend/public/index.html": {
+    "mtime": 1792955707.8776329,
+    "seen": 1792956088.7597098,
+    "ast_hash": "74e1c7f2987829ba871e4393863ceea8",
     "semantic_hash": ""
   }
 }

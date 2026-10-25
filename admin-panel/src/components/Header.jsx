@@ -1,7 +1,14 @@
 import React from 'react';
-import { RefreshCw, Activity, Menu, ShieldCheck } from 'lucide-react';
+import { RefreshCw, Activity, Menu, ShieldCheck, Globe } from 'lucide-react';
 
-export default function Header({ pageTitle, onRefresh, isRefreshing, isConnected, onToggleMobileMenu }) {
+export default function Header({
+  pageTitle,
+  onRefresh,
+  isRefreshing,
+  isConnected,
+  onToggleMobileMenu,
+  onGoToLanding,
+}) {
   return (
     <header className="top-navbar">
       <div className="navbar-left">
@@ -54,8 +61,29 @@ export default function Header({ pageTitle, onRefresh, isRefreshing, isConnected
           <span>{isConnected ? 'System Online' : 'Connecting...'}</span>
         </div>
 
+        {/* View Website / Landing Page button */}
+        {onGoToLanding && (
+          <button
+            type="button"
+            className="btn btn-secondary btn-sm"
+            onClick={onGoToLanding}
+            title="View Landing Page"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              borderRadius: 'var(--radius-md)',
+              fontWeight: 600,
+            }}
+          >
+            <Globe size={14} color="#1E88E5" />
+            <span>Website</span>
+          </button>
+        )}
+
         {/* Refresh button */}
         <button
+          type="button"
           className="btn btn-secondary btn-sm"
           onClick={onRefresh}
           disabled={isRefreshing}
@@ -86,4 +114,3 @@ export default function Header({ pageTitle, onRefresh, isRefreshing, isConnected
     </header>
   );
 }
-

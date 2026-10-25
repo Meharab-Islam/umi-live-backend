@@ -131,21 +131,55 @@ export default function AccountDeletionRequests({ onToast }) {
     if (e) e.preventDefault();
     if (!selectedRequest) return;
 
+    const targetId = selectedRequest.id;
+    const finalReason = rejectNotes.trim() || 'Request rejected by Admin.';
+
     try {
       setIsProcessing(true);
-      const res = await deletionRequestApi.rejectRequest(selectedRequest.id, {
-        notes: rejectNotes.trim(),
+      const res = await deletionRequestApi.rejectRequest(targetId, {
+        notes: finalReason,
       });
 
       if (res.success) {
         onToast(res.message || 'Request marked as rejected.', 'success');
         setRejectModalOpen(false);
         setSelectedRequest(null);
-        fetchRequests();
+
+        // Immediate Optimistic UI Update: updates status to rejected immediately without waiting for network/cache
+        const updatedRequest = res.request;
+        setRequests((prev) =>
+          prev.map((item) => {
+            if (item.id === targetId) {
+              return (
+                updatedRequest || {
+                  ...item,
+                  status: 'rejected',
+                  admin_notes: finalReason,
+                  reviewed_at: new Date().toISOString(),
+                  reviewer_name: 'Admin',
+                }
+              );
+            }
+            return item;
+          })
+        );
+
+        // Immediate summary stats update
+        setSummary((prev) => ({
+          ...prev,
+          pending_count: Math.max(0, Number(prev.pending_count || 0) - 1),
+          rejected_count: Number(prev.rejected_count || 0) + 1,
+        }));
+
+        // Re-fetch in background to ensure sync
+        setTimeout(() => {
+          fetchRequests();
+        }, 150);
       } else {
         onToast(res.message || 'Failed to reject request.', 'error');
       }
     } catch (err) {
+      console.error('handleExecuteReject error:', err);
       onToast(err.message || 'Error rejecting deletion request.', 'error');
     } finally {
       setIsProcessing(false);
@@ -469,12 +503,23 @@ export default function AccountDeletionRequests({ onToast }) {
 
                             <button
                               type="button"
-                              className="btn btn-secondary btn-sm"
+                              className="btn btn-sm"
                               onClick={() => handleOpenRejectModal(reqItem)}
                               title="Reject Request"
-                              style={{ padding: '4px 8px', fontSize: '0.75rem' }}
+                              style={{
+                                background: 'rgba(239, 68, 68, 0.1)',
+                                color: '#ef4444',
+                                border: '1px solid rgba(239, 68, 68, 0.25)',
+                                padding: '4px 8px',
+                                fontSize: '0.75rem',
+                                fontWeight: 600,
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '4px',
+                              }}
                             >
                               <XCircle size={13} />
+                              <span>Reject</span>
                             </button>
                           </>
                         )}
@@ -655,7 +700,7 @@ export default function AccountDeletionRequests({ onToast }) {
                     value={rejectNotes}
                     onChange={(e) => setRejectNotes(e.target.value)}
                     rows="3"
-                    required
+                    placeholder="Enter rejection reason (optional)..."
                   ></textarea>
                 </div>
               </div>
@@ -671,7 +716,13 @@ export default function AccountDeletionRequests({ onToast }) {
                 </button>
                 <button
                   type="submit"
-                  className="btn btn-secondary"
+                  className="btn btn-danger"
+                  style={{
+                    background: '#ef4444',
+                    color: '#ffffff',
+                    border: 'none',
+                    fontWeight: 600,
+                  }}
                   disabled={isProcessing}
                 >
                   {isProcessing ? 'Rejecting...' : 'Confirm Reject'}
