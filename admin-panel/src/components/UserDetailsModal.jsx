@@ -39,8 +39,12 @@ import {
   EyeOff,
   ArrowLeft,
   RotateCw,
+  Mic,
+  Video,
+  UserMinus,
 } from 'lucide-react';
 import userApi from '../api/userApi';
+import agencyApi from '../api/agencyApi';
 import Loader from './Loader';
 import { useEconomy } from '../context/EconomyContext';
 
@@ -87,6 +91,10 @@ export default function UserDetailsModal({
   const [submittingProfile, setSubmittingProfile] = useState(false);
 
   const fileInputRef = useRef(null);
+
+  // Host & Agency Management State
+  const [updatingHostType, setUpdatingHostType] = useState(false);
+  const [actionInProgress, setActionInProgress] = useState(false);
 
   // Chats & Chat Details State
   const [selectedChat, setSelectedChat] = useState(null);
@@ -288,6 +296,85 @@ export default function UserDetailsModal({
     }
   };
 
+  // Update Host Type (Audio Host <-> Video Host)
+  const handleUpdateHostType = async (newType) => {
+    if (!newType || newType === user.host_type) return;
+    try {
+      setUpdatingHostType(true);
+      const res = await userApi.updateUser(user.id, { host_type: newType, role: 'host' });
+      if (res.success) {
+        onToast(`Host #${user.id} type updated to ${newType === 'audio' ? '🎙️ Audio Host' : '📹 Video Host'}!`, 'success');
+        fetchUserDetails();
+        if (onUserUpdated) onUserUpdated();
+      }
+    } catch (err) {
+      onToast(err.message, 'error');
+    } finally {
+      setUpdatingHostType(false);
+    }
+  };
+
+  // Remove Host from Agency
+  const handleRemoveFromAgency = async () => {
+    if (!user.agency_id) return;
+    if (!window.confirm(`Are you sure you want to dismiss/remove Host #${user.id} (${user.full_name || 'Host'}) from ${user.agency_name || 'the agency'}?`)) {
+      return;
+    }
+    try {
+      setActionInProgress(true);
+      const res = await agencyApi.removeUserFromAgency(user.agency_id, user.id);
+      if (res.success) {
+        onToast(`Host #${user.id} removed from agency successfully!`, 'success');
+        fetchUserDetails();
+        if (onUserUpdated) onUserUpdated();
+      }
+    } catch (err) {
+      onToast(err.message, 'error');
+    } finally {
+      setActionInProgress(false);
+    }
+  };
+
+  // Dismiss Host Role (Demote back to Normal User)
+  const handleDemoteHostToUser = async () => {
+    if (!window.confirm(`Are you sure you want to dismiss Host status and demote User #${user.id} (${user.full_name || 'Host'}) back to a Normal User?`)) {
+      return;
+    }
+    try {
+      setActionInProgress(true);
+      const res = await userApi.updateUser(user.id, { role: 'user', host_type: null, agency_id: null });
+      if (res.success) {
+        onToast(`User #${user.id} is now a Normal User (Host role dismissed).`, 'success');
+        fetchUserDetails();
+        if (onUserUpdated) onUserUpdated();
+      }
+    } catch (err) {
+      onToast(err.message, 'error');
+    } finally {
+      setActionInProgress(false);
+    }
+  };
+
+  // Permanently Delete Host Account
+  const handleDeleteHostAccount = async () => {
+    if (!window.confirm(`🚨 CAUTION: Are you sure you want to PERMANENTLY DELETE Host #${user.id} (${user.full_name || 'Host'})? This will erase their user profile, balances, streams, and host telemetry!`)) {
+      return;
+    }
+    try {
+      setActionInProgress(true);
+      const res = await userApi.deleteUser(user.id);
+      if (res.success) {
+        onToast(`Host #${user.id} deleted successfully.`, 'success');
+        if (onUserUpdated) onUserUpdated();
+        if (onClose) onClose();
+      }
+    } catch (err) {
+      onToast(err.message, 'error');
+    } finally {
+      setActionInProgress(false);
+    }
+  };
+
   const renderContent = () => (
     <div
       className={isPage ? 'user-details-page-card panel-card' : 'modal-box user-details-modal'}
@@ -455,6 +542,157 @@ export default function UserDetailsModal({
                 </button>
               </div>
             </div>
+
+            {/* Host & Agency Affiliation Management Card */}
+            {(user.role === 'host' || user.agency_id) && (
+              <div
+                className="panel-card"
+                style={{
+                  padding: '1.25rem',
+                  borderRadius: '12px',
+                  background: 'linear-gradient(135deg, rgba(236, 72, 153, 0.05) 0%, rgba(124, 58, 237, 0.05) 100%)',
+                  border: '1px solid rgba(236, 72, 153, 0.25)',
+                  marginBottom: '1.5rem',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.85rem', marginBottom: '1rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                    <Radio size={18} color="#ec4899" />
+                    <span style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text-main)' }}>
+                      Host & Agency Affiliation Controls
+                    </span>
+                    {user.agency_name && (
+                      <span className="badge badge-purple" style={{ fontSize: '0.75rem', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                        <Building2 size={12} /> {user.agency_name}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Host Action Buttons: Remove from Agency, Demote, Delete */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                    {user.agency_id && (
+                      <button
+                        type="button"
+                        className="btn btn-secondary btn-sm"
+                        onClick={handleRemoveFromAgency}
+                        disabled={actionInProgress}
+                        style={{ color: '#f59e0b', borderColor: 'rgba(245, 158, 11, 0.3)', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '0.78rem' }}
+                        title="Remove host from current agency"
+                      >
+                        <Building2 size={13} />
+                        <span>Remove from Agency</span>
+                      </button>
+                    )}
+
+                    {user.role === 'host' && (
+                      <button
+                        type="button"
+                        className="btn btn-secondary btn-sm"
+                        onClick={handleDemoteHostToUser}
+                        disabled={actionInProgress}
+                        style={{ color: '#fda4af', borderColor: 'rgba(244, 63, 94, 0.3)', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '0.78rem' }}
+                        title="Dismiss host role and return to normal user status"
+                      >
+                        <UserMinus size={13} />
+                        <span>Dismiss Host Role</span>
+                      </button>
+                    )}
+
+                    <button
+                      type="button"
+                      className="btn btn-danger btn-sm"
+                      onClick={handleDeleteHostAccount}
+                      disabled={actionInProgress}
+                      style={{ fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '0.78rem' }}
+                      title="Permanently delete this host account"
+                    >
+                      <Trash2 size={13} />
+                      <span>Delete Host</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Host Type Selector (Audio vs Video) */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', background: 'var(--bg-primary)', padding: '0.85rem 1rem', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
+                  <div>
+                    <div style={{ fontSize: '0.86rem', fontWeight: 700, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span>Host Broadcaster Type:</span>
+                      <span style={{
+                        fontSize: '0.78rem',
+                        fontWeight: 800,
+                        padding: '2px 8px',
+                        borderRadius: '6px',
+                        background: user.host_type === 'audio' ? 'rgba(2, 132, 199, 0.15)' : 'rgba(236, 72, 153, 0.15)',
+                        color: user.host_type === 'audio' ? '#0284c7' : '#ec4899',
+                        border: `1px solid ${user.host_type === 'audio' ? 'rgba(2, 132, 199, 0.3)' : 'rgba(236, 72, 153, 0.3)'}`,
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                      }}>
+                        {user.host_type === 'audio' ? <Mic size={12} /> : <Video size={12} />}
+                        {user.host_type === 'audio' ? 'Audio Host' : 'Video Host'}
+                      </span>
+                    </div>
+                    <p style={{ fontSize: '0.75rem', color: 'var(--text-dim)', margin: '3px 0 0' }}>
+                      Determines streaming camera permissions and role-based withdrawal cashout exchange rate.
+                    </p>
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)' }}>Switch Type:</span>
+                    <button
+                      type="button"
+                      onClick={() => handleUpdateHostType('video')}
+                      disabled={updatingHostType || user.host_type === 'video'}
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '5px',
+                        padding: '5px 12px',
+                        borderRadius: '7px',
+                        fontSize: '0.8rem',
+                        fontWeight: 700,
+                        cursor: user.host_type === 'video' ? 'default' : 'pointer',
+                        background: user.host_type === 'video' ? 'linear-gradient(135deg, #ec4899, #f43f5e)' : 'var(--bg-secondary)',
+                        color: user.host_type === 'video' ? '#ffffff' : 'var(--text-dim)',
+                        border: user.host_type === 'video' ? '1px solid transparent' : '1px solid var(--border-color)',
+                        boxShadow: user.host_type === 'video' ? '0 2px 6px rgba(236, 72, 153, 0.35)' : 'none',
+                        opacity: updatingHostType ? 0.7 : 1,
+                        transition: 'all 0.15s ease',
+                      }}
+                    >
+                      <Video size={13} />
+                      <span>Video Host</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleUpdateHostType('audio')}
+                      disabled={updatingHostType || user.host_type === 'audio'}
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '5px',
+                        padding: '5px 12px',
+                        borderRadius: '7px',
+                        fontSize: '0.8rem',
+                        fontWeight: 700,
+                        cursor: user.host_type === 'audio' ? 'default' : 'pointer',
+                        background: user.host_type === 'audio' ? 'linear-gradient(135deg, #0284c7, #06b6d4)' : 'var(--bg-secondary)',
+                        color: user.host_type === 'audio' ? '#ffffff' : 'var(--text-dim)',
+                        border: user.host_type === 'audio' ? '1px solid transparent' : '1px solid var(--border-color)',
+                        boxShadow: user.host_type === 'audio' ? '0 2px 6px rgba(2, 132, 199, 0.35)' : 'none',
+                        opacity: updatingHostType ? 0.7 : 1,
+                        transition: 'all 0.15s ease',
+                      }}
+                    >
+                      <Mic size={13} />
+                      <span>Audio Host</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Edit Profile Form (Role, Level, Package Removed; Pick Photo from Device) */}
             {isEditingProfile && (

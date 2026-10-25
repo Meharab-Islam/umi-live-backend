@@ -281,6 +281,22 @@ export default function Agencies({ onToast }) {
     }
   };
 
+  const handleToggleHostType = async (userId, currentType) => {
+    const newType = currentType === 'audio' ? 'video' : 'audio';
+    try {
+      const res = await userApi.updateUser(userId, { host_type: newType });
+      if (res.success) {
+        onToast(`Host #${userId} type switched to ${newType === 'audio' ? '🎙️ Audio Host' : '📹 Video Host'}!`, 'success');
+        setAgencyHosts((prev) =>
+          prev.map((h) => (h.id === userId ? { ...h, host_type: newType } : h))
+        );
+        fetchAgencies();
+      }
+    } catch (err) {
+      onToast(err.message, 'error');
+    }
+  };
+
   const handleRemoveHost = async (userId) => {
     if (!window.confirm('Remove this host from this agency?')) return;
     try {
@@ -1233,16 +1249,40 @@ export default function Agencies({ onToast }) {
                         </div>
                       </div>
 
-                      <button
-                        type="button"
-                        className="btn btn-secondary btn-sm"
-                        onClick={() => handleRemoveHost(host.id)}
-                        title="Remove host from agency"
-                        style={{ color: '#fda4af', borderColor: 'rgba(244, 63, 94, 0.3)', fontSize: '0.75rem', padding: '3px 8px' }}
-                      >
-                        <Trash2 size={13} />
-                        <span>Remove</span>
-                      </button>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <button
+                          type="button"
+                          className="btn btn-secondary btn-sm"
+                          onClick={() => handleToggleHostType(host.id, host.host_type)}
+                          title={`Switch host type to ${host.host_type === 'audio' ? 'Video Host' : 'Audio Host'}`}
+                          style={{ fontSize: '0.72rem', padding: '3px 8px', gap: '4px' }}
+                        >
+                          {host.host_type === 'audio' ? <Video size={12} /> : <Mic size={12} />}
+                          <span>To {host.host_type === 'audio' ? 'Video' : 'Audio'}</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          className="btn btn-secondary btn-sm"
+                          onClick={() => setDetailsUserId(host.id)}
+                          title="View full host profile details and controls"
+                          style={{ fontSize: '0.72rem', padding: '3px 8px', gap: '4px' }}
+                        >
+                          <Eye size={12} />
+                          <span>Details</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          className="btn btn-secondary btn-sm"
+                          onClick={() => handleRemoveHost(host.id)}
+                          title="Remove host from agency"
+                          style={{ color: '#fda4af', borderColor: 'rgba(244, 63, 94, 0.3)', fontSize: '0.72rem', padding: '3px 8px' }}
+                        >
+                          <Trash2 size={12} />
+                          <span>Remove</span>
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
