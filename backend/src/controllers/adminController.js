@@ -627,6 +627,17 @@ export async function terminateStream(req, res) {
 
     await query("UPDATE live_rooms SET status = 'blocked', ended_at = CURRENT_TIMESTAMP WHERE room_id = ?", [roomId]);
 
+    // Instant Redis cache invalidation for terminated stream
+    await cache.del(`room:${roomId}`, `mobile:room_details:${roomId}`);
+    await cache.delByPattern('mobile:rooms:*');
+    await cache.delByPattern('live:*');
+
+    const io = req.io || req.app?.get('io');
+    if (io) {
+      io.to(`room_${roomId}`).emit('stream:terminated', { roomId, reason });
+      io.to(`room_${roomId}`).emit('room:ended', { roomId, reason });
+    }
+
     return res.json({
       success: true,
       message: `Stream ${roomId} forcefully terminated: ${reason}`,
@@ -1175,6 +1186,8 @@ export async function updateSetting(req, res) {
     // Database write succeeded -> Invalidate Redis cache & immediately pre-warm with fresh DB state
     await invalidateWalletWithdrawalCache(req.io);
     await cache.del('settings:all');
+    await cache.del(`setting:${key}`);
+    await cache.del('config:mobile:app');
     await cache.del('config:livekit');
     await cache.delByPattern('admin:dashboard*');
     await cache.delByPattern('mobile:user:profile*');

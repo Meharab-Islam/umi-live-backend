@@ -386,8 +386,12 @@ export async function acceptCall(req, res) {
     await Promise.allSettled([
       cache.del(`user:${call.caller_id}`),
       cache.del(`user:${receiverId}`),
+      cache.del(`user:balance:${call.caller_id}`),
+      cache.del(`user:balance:${receiverId}`),
       cache.del(`wallet:balance:${call.caller_id}`),
       cache.del(`wallet:balance:${receiverId}`),
+      cache.del(`mobile:user:profile:${call.caller_id}`),
+      cache.del(`mobile:user:profile:${receiverId}`),
     ]);
 
     // Generate LiveKit token for receiver
@@ -614,8 +618,12 @@ export async function heartbeatCall(req, res) {
     await Promise.allSettled([
       cache.del(`user:${call.caller_id}`),
       cache.del(`user:${call.receiver_id}`),
+      cache.del(`user:balance:${call.caller_id}`),
+      cache.del(`user:balance:${call.receiver_id}`),
       cache.del(`wallet:balance:${call.caller_id}`),
       cache.del(`wallet:balance:${call.receiver_id}`),
+      cache.del(`mobile:user:profile:${call.caller_id}`),
+      cache.del(`mobile:user:profile:${call.receiver_id}`),
     ]);
 
     const io = req.io || req.app.get('io');

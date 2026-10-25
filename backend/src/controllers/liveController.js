@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { query } from '../config/db.js';
+import { cache } from '../config/redis.js';
 
 export async function createRoom(req, res) {
   try {
@@ -53,6 +54,10 @@ export async function createRoom(req, res) {
       [result.insertId]
     );
 
+    // Instant Redis cache invalidation for live rooms lists
+    await cache.delByPattern('mobile:rooms:*');
+    await cache.delByPattern('live:*');
+
     return res.status(201).json({
       success: true,
       message: 'Live stream started successfully.',
@@ -69,58 +74,67 @@ export async function getRooms(req, res) {
     const { category, search, live_type, liveType, type, status = 'live', page = 1, limit = 20 } = req.query;
     const offset = (parseInt(page, 10) - 1) * parseInt(limit, 10);
 
-    let whereClauses = ['r.status = ?'];
-    let params = [status];
+    const cacheKey = `live:rooms:list:${category || 'all'}:${status}:${live_type || liveType || type || 'all'}:${search || ''}:${page}:${limit}`;
 
-    const filterLiveType = live_type || liveType || type;
-    if (filterLiveType && ['video', 'audio'].includes(String(filterLiveType).toLowerCase().trim())) {
-      whereClauses.push('r.live_type = ?');
-      params.push(String(filterLiveType).toLowerCase().trim());
-    }
+    const cachedData = await cache.getOrSet(cacheKey, 10, async () => {
+      let whereClauses = ['r.status = ?'];
+      let params = [status];
 
-    if (category && category !== 'All') {
-      whereClauses.push('r.category = ?');
-      params.push(category);
-    }
+      const filterLiveType = live_type || liveType || type;
+      if (filterLiveType && ['video', 'audio'].includes(String(filterLiveType).toLowerCase().trim())) {
+        whereClauses.push('r.live_type = ?');
+        params.push(String(filterLiveType).toLowerCase().trim());
+      }
 
-    if (search) {
-      whereClauses.push('(r.title LIKE ? OR u.full_name LIKE ?)');
-      const s = `%${search}%`;
-      params.push(s, s);
-    }
+      if (category && category !== 'All') {
+        whereClauses.push('r.category = ?');
+        params.push(category);
+      }
 
-    const whereSql = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
+      if (search) {
+        whereClauses.push('(r.title LIKE ? OR u.full_name LIKE ?)');
+        const s = `%${search}%`;
+        params.push(s, s);
+      }
 
-    const rooms = await query(
-      `SELECT r.id, r.room_id, r.host_id, r.title, r.category, r.live_type, r.total_seats, r.cover_image, r.status,
-              r.viewer_count, r.total_diamonds, r.started_at,
-              u.full_name as host_name, u.avatar_url as host_avatar, u.level as host_level,
-              pc.name as host_vip_category,
-              pc.badge_icon as host_vip_icon,
-              pc.color_code as host_vip_color,
-              COALESCE(CASE WHEN pc.top_live_list = 1 THEN pc.display_order ELSE 999999 END, 999999) as vip_rank
-       FROM live_rooms r
-       JOIN users u ON r.host_id = u.id
-       LEFT JOIN user_package_subscriptions ups 
-         ON ups.user_id = u.id AND ups.status = 'active' AND ups.expires_at > NOW()
-       LEFT JOIN package_categories pc 
-         ON pc.id = ups.category_id AND pc.is_active = 1
-       ${whereSql}
-       ORDER BY vip_rank ASC, r.viewer_count DESC, r.started_at DESC
-       LIMIT ${parseInt(limit, 10)} OFFSET ${parseInt(offset, 10)}`,
-      params
-    );
+      const whereSql = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
 
-    const totalCountRows = await query(
-      `SELECT COUNT(*) as count FROM live_rooms r JOIN users u ON r.host_id = u.id ${whereSql}`,
-      params
-    );
+      const rooms = await query(
+        `SELECT r.id, r.room_id, r.host_id, r.title, r.category, r.live_type, r.total_seats, r.cover_image, r.status,
+                r.viewer_count, r.total_diamonds, r.started_at,
+                u.full_name as host_name, u.avatar_url as host_avatar, u.level as host_level,
+                pc.name as host_vip_category,
+                pc.badge_icon as host_vip_icon,
+                pc.color_code as host_vip_color,
+                COALESCE(CASE WHEN pc.top_live_list = 1 THEN pc.display_order ELSE 999999 END, 999999) as vip_rank
+         FROM live_rooms r
+         JOIN users u ON r.host_id = u.id
+         LEFT JOIN user_package_subscriptions ups 
+           ON ups.user_id = u.id AND ups.status = 'active' AND ups.expires_at > NOW()
+         LEFT JOIN package_categories pc 
+           ON pc.id = ups.category_id AND pc.is_active = 1
+         ${whereSql}
+         ORDER BY vip_rank ASC, r.viewer_count DESC, r.started_at DESC
+         LIMIT ${parseInt(limit, 10)} OFFSET ${parseInt(offset, 10)}`,
+        params
+      );
+
+      const totalCountRows = await query(
+        `SELECT COUNT(*) as count FROM live_rooms r JOIN users u ON r.host_id = u.id ${whereSql}`,
+        params
+      );
+
+      return {
+        rooms,
+        total: totalCountRows[0]?.count || 0,
+      };
+    });
 
     return res.json({
       success: true,
-      rooms,
+      rooms: cachedData.rooms,
       pagination: {
-        total: totalCountRows[0].count,
+        total: cachedData.total,
         page: parseInt(page, 10),
         limit: parseInt(limit, 10),
       },
@@ -135,29 +149,32 @@ export async function getRoomDetails(req, res) {
   try {
     const { roomId } = req.params;
 
-    const rooms = await query(
-      `SELECT r.*,
-              u.full_name as host_name, u.avatar_url as host_avatar, u.level as host_level, u.bio as host_bio
-       FROM live_rooms r
-       JOIN users u ON r.host_id = u.id
-       WHERE r.room_id = ?`,
-      [roomId]
-    );
+    const room = await cache.getOrSet(`room:${roomId}`, 10, async () => {
+      const rooms = await query(
+        `SELECT r.*,
+                u.full_name as host_name, u.avatar_url as host_avatar, u.level as host_level, u.bio as host_bio
+         FROM live_rooms r
+         JOIN users u ON r.host_id = u.id
+         WHERE r.room_id = ?`,
+        [roomId]
+      );
+      return rooms.length > 0 ? rooms[0] : null;
+    });
 
-    if (rooms.length === 0) {
+    if (!room) {
       return res.status(404).json({ success: false, message: 'Room not found.' });
     }
 
-    const room = rooms[0];
+    const roomCopy = { ...room };
 
     // If request user is not host and not admin, hide sensitive stream_key
-    if (!req.user || (req.user.id !== room.host_id && req.user.role !== 'admin' && req.user.role !== 'superadmin')) {
-      delete room.stream_key;
+    if (!req.user || (req.user.id !== roomCopy.host_id && req.user.role !== 'admin' && req.user.role !== 'superadmin')) {
+      delete roomCopy.stream_key;
     }
 
     return res.json({
       success: true,
-      room,
+      room: roomCopy,
     });
   } catch (err) {
     console.error('getRoomDetails error:', err);
@@ -182,6 +199,11 @@ export async function endRoom(req, res) {
     }
 
     await query("UPDATE live_rooms SET status = 'ended', ended_at = CURRENT_TIMESTAMP WHERE room_id = ?", [roomId]);
+
+    // Instant Redis cache invalidation for ended stream
+    await cache.del(`room:${roomId}`, `mobile:room_details:${roomId}`);
+    await cache.delByPattern('mobile:rooms:*');
+    await cache.delByPattern('live:*');
 
     return res.json({
       success: true,
