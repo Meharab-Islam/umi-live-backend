@@ -222,9 +222,9 @@
     "semantic_hash": ""
   },
   "docker-compose.yml": {
-    "mtime": 1792950362.9460533,
-    "seen": 1792950377.372975,
-    "ast_hash": "462b6a4ca5da900b405c9cb78780bbe6",
+    "mtime": 1792951121.0258977,
+    "seen": 1792951128.936159,
+    "ast_hash": "a28845a56429faf10636ec18e32c9023",
     "semantic_hash": ""
   },
   "admin-panel/public/favicon.svg": {
@@ -498,9 +498,9 @@
     "semantic_hash": ""
   },
   "backend/src/config/redis.js": {
-    "mtime": 1792950227.2893107,
-    "seen": 1792950377.371066,
-    "ast_hash": "06ec5393b84b9aed50d478e2240b07fc",
+    "mtime": 1792951086.7407725,
+    "seen": 1792951128.93424,
+    "ast_hash": "a4ea9d4acdc9e1ce3c52e0b43dc52685",
     "semantic_hash": ""
   },
   ".agents/rules/redis-caching-policy.md": {

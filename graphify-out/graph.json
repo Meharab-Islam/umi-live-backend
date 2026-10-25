@@ -3366,6 +3366,90 @@
       "source_location": "L854"
     },
     {
+      "id": "backend_src_controllers_mobile_thumbnailcontroller_getcustomthumbnailuploadconfig",
+      "label": "getCustomThumbnailUploadConfig()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "chatController.js",
+      "file_type": "code",
+      "norm_label": "getcustomthumbnailuploadconfig()",
+      "source_file": "backend/src/controllers/mobile/thumbnailController.js",
+      "source_location": "L391"
+    },
+    {
+      "id": "backend_src_controllers_mobile_thumbnailcontroller_getmythumbnails",
+      "label": "getMyThumbnails()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "chatController.js",
+      "file_type": "code",
+      "norm_label": "getmythumbnails()",
+      "source_file": "backend/src/controllers/mobile/thumbnailController.js",
+      "source_location": "L117"
+    },
+    {
+      "id": "backend_src_controllers_mobile_thumbnailcontroller_getthumbnailcatalog",
+      "label": "getThumbnailCatalog()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "chatController.js",
+      "file_type": "code",
+      "norm_label": "getthumbnailcatalog()",
+      "source_file": "backend/src/controllers/mobile/thumbnailController.js",
+      "source_location": "L51"
+    },
+    {
+      "id": "backend_src_controllers_mobile_thumbnailcontroller_getuseractivethumbnailsmap",
+      "label": "getUserActiveThumbnailsMap()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "chatController.js",
+      "file_type": "code",
+      "norm_label": "getuseractivethumbnailsmap()",
+      "source_file": "backend/src/controllers/mobile/thumbnailController.js",
+      "source_location": "L7"
+    },
+    {
+      "id": "backend_src_controllers_mobile_thumbnailcontroller_purchasethumbnail",
+      "label": "purchaseThumbnail()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "chatController.js",
+      "file_type": "code",
+      "norm_label": "purchasethumbnail()",
+      "source_file": "backend/src/controllers/mobile/thumbnailController.js",
+      "source_location": "L183"
+    },
+    {
+      "id": "backend_src_controllers_mobile_thumbnailcontroller_togglethumbnail",
+      "label": "toggleThumbnail()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "chatController.js",
+      "file_type": "code",
+      "norm_label": "togglethumbnail()",
+      "source_file": "backend/src/controllers/mobile/thumbnailController.js",
+      "source_location": "L296"
+    },
+    {
+      "id": "backend_src_controllers_mobile_thumbnailcontroller_uploadcustomthumbnail",
+      "label": "uploadCustomThumbnail()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "chatController.js",
+      "file_type": "code",
+      "norm_label": "uploadcustomthumbnail()",
+      "source_file": "backend/src/controllers/mobile/thumbnailController.js",
+      "source_location": "L473"
+    },
+    {
       "id": "backend_src_middleware_upload_filefilter",
       "label": "fileFilter()",
       "_callable": true,
@@ -3639,7 +3723,7 @@
       "file_type": "code",
       "norm_label": "calculatejitteredttl()",
       "source_file": "backend/src/config/redis.js",
-      "source_location": "L42"
+      "source_location": "L178"
     },
     {
       "id": "backend_src_config_redis_formatkey",
@@ -3651,7 +3735,7 @@
       "file_type": "code",
       "norm_label": "formatkey()",
       "source_file": "backend/src/config/redis.js",
-      "source_location": "L58"
+      "source_location": "L196"
     },
     {
       "id": "backend_src_config_redis_reconnectonerror",
@@ -3663,7 +3747,19 @@
       "file_type": "code",
       "norm_label": "reconnectonerror()",
       "source_file": "backend/src/config/redis.js",
-      "source_location": "L104"
+      "source_location": "L242"
+    },
+    {
+      "id": "backend_src_config_redis_resolvesectionforkey",
+      "label": "resolveSectionForKey()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 34,
+      "community_name": "redis.js",
+      "file_type": "code",
+      "norm_label": "resolvesectionforkey()",
+      "source_file": "backend/src/config/redis.js",
+      "source_location": "L158"
     },
     {
       "id": "backend_src_config_redis_retrystrategy",
@@ -3675,7 +3771,7 @@
       "file_type": "code",
       "norm_label": "retrystrategy()",
       "source_file": "backend/src/config/redis.js",
-      "source_location": "L98"
+      "source_location": "L236"
     },
     {
       "id": "backend_src_config_redis_stripkeyprefix",
@@ -3687,7 +3783,7 @@
       "file_type": "code",
       "norm_label": "stripkeyprefix()",
       "source_file": "backend/src/config/redis.js",
-      "source_location": "L67"
+      "source_location": "L205"
     },
     {
       "id": "backend_src_config_redis_withtimeout",
@@ -3699,7 +3795,7 @@
       "file_type": "code",
       "norm_label": "withtimeout()",
       "source_file": "backend/src/config/redis.js",
-      "source_location": "L76"
+      "source_location": "L214"
     },
     {
       "id": "scratch_test_redis_hit_and_freshness_getredisraw",
@@ -4074,88 +4170,64 @@
       "source_location": "L10"
     },
     {
-      "id": "backend_src_controllers_mobile_notificationcontroller_clearallnotifications",
-      "label": "clearAllNotifications()",
+      "id": "backend_src_config_livekit_getlivekitconfig",
+      "label": "getLiveKitConfig()",
       "_callable": true,
       "_origin": "ast",
       "community": 43,
-      "community_name": "notificationRoutes.js",
+      "community_name": "livekit.js",
       "file_type": "code",
-      "norm_label": "clearallnotifications()",
-      "source_file": "backend/src/controllers/mobile/notificationController.js",
-      "source_location": "L333"
+      "norm_label": "getlivekitconfig()",
+      "source_file": "backend/src/config/livekit.js",
+      "source_location": "L26"
     },
     {
-      "id": "backend_src_controllers_mobile_notificationcontroller_deletenotification",
-      "label": "deleteNotification()",
+      "id": "backend_src_controllers_mobile_configcontroller_getappconfig",
+      "label": "getAppConfig()",
       "_callable": true,
       "_origin": "ast",
       "community": 43,
-      "community_name": "notificationRoutes.js",
+      "community_name": "livekit.js",
       "file_type": "code",
-      "norm_label": "deletenotification()",
-      "source_file": "backend/src/controllers/mobile/notificationController.js",
-      "source_location": "L290"
+      "norm_label": "getappconfig()",
+      "source_file": "backend/src/controllers/mobile/configController.js",
+      "source_location": "L16"
     },
     {
-      "id": "backend_src_controllers_mobile_notificationcontroller_getnotifications",
-      "label": "getNotifications()",
+      "id": "backend_src_controllers_mobile_configcontroller_getlivekitconfigendpoint",
+      "label": "getLiveKitConfigEndpoint()",
       "_callable": true,
       "_origin": "ast",
       "community": 43,
-      "community_name": "notificationRoutes.js",
+      "community_name": "livekit.js",
       "file_type": "code",
-      "norm_label": "getnotifications()",
-      "source_file": "backend/src/controllers/mobile/notificationController.js",
-      "source_location": "L19"
+      "norm_label": "getlivekitconfigendpoint()",
+      "source_file": "backend/src/controllers/mobile/configController.js",
+      "source_location": "L228"
     },
     {
-      "id": "backend_src_controllers_mobile_notificationcontroller_getunreadcount",
-      "label": "getUnreadCount()",
+      "id": "backend_src_controllers_mobile_configcontroller_getmaintenancestatus",
+      "label": "getMaintenanceStatus()",
       "_callable": true,
       "_origin": "ast",
       "community": 43,
-      "community_name": "notificationRoutes.js",
+      "community_name": "livekit.js",
       "file_type": "code",
-      "norm_label": "getunreadcount()",
-      "source_file": "backend/src/controllers/mobile/notificationController.js",
-      "source_location": "L177"
+      "norm_label": "getmaintenancestatus()",
+      "source_file": "backend/src/controllers/mobile/configController.js",
+      "source_location": "L294"
     },
     {
-      "id": "backend_src_controllers_mobile_notificationcontroller_markallasread",
-      "label": "markAllAsRead()",
+      "id": "backend_src_controllers_mobile_configcontroller_getscreenguardconfig",
+      "label": "getScreenGuardConfig()",
       "_callable": true,
       "_origin": "ast",
       "community": 43,
-      "community_name": "notificationRoutes.js",
+      "community_name": "livekit.js",
       "file_type": "code",
-      "norm_label": "markallasread()",
-      "source_file": "backend/src/controllers/mobile/notificationController.js",
-      "source_location": "L253"
-    },
-    {
-      "id": "backend_src_controllers_mobile_notificationcontroller_markasread",
-      "label": "markAsRead()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 43,
-      "community_name": "notificationRoutes.js",
-      "file_type": "code",
-      "norm_label": "markasread()",
-      "source_file": "backend/src/controllers/mobile/notificationController.js",
-      "source_location": "L210"
-    },
-    {
-      "id": "backend_src_controllers_mobile_notificationcontroller_resolveasseturl",
-      "label": "resolveAssetUrl()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 43,
-      "community_name": "notificationRoutes.js",
-      "file_type": "code",
-      "norm_label": "resolveasseturl()",
-      "source_file": "backend/src/controllers/mobile/notificationController.js",
-      "source_location": "L7"
+      "norm_label": "getscreenguardconfig()",
+      "source_file": "backend/src/controllers/mobile/configController.js",
+      "source_location": "L250"
     },
     {
       "id": "backend_src_scripts_restore_all_admin_data_restorealladmindata",
@@ -4384,6 +4456,90 @@
       "norm_label": "verifysession()",
       "source_file": "backend/src/controllers/mobile/authController.js",
       "source_location": "L787"
+    },
+    {
+      "id": "backend_src_controllers_mobile_notificationcontroller_clearallnotifications",
+      "label": "clearAllNotifications()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 45,
+      "community_name": "mobile/authController.js",
+      "file_type": "code",
+      "norm_label": "clearallnotifications()",
+      "source_file": "backend/src/controllers/mobile/notificationController.js",
+      "source_location": "L333"
+    },
+    {
+      "id": "backend_src_controllers_mobile_notificationcontroller_deletenotification",
+      "label": "deleteNotification()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 45,
+      "community_name": "mobile/authController.js",
+      "file_type": "code",
+      "norm_label": "deletenotification()",
+      "source_file": "backend/src/controllers/mobile/notificationController.js",
+      "source_location": "L290"
+    },
+    {
+      "id": "backend_src_controllers_mobile_notificationcontroller_getnotifications",
+      "label": "getNotifications()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 45,
+      "community_name": "mobile/authController.js",
+      "file_type": "code",
+      "norm_label": "getnotifications()",
+      "source_file": "backend/src/controllers/mobile/notificationController.js",
+      "source_location": "L19"
+    },
+    {
+      "id": "backend_src_controllers_mobile_notificationcontroller_getunreadcount",
+      "label": "getUnreadCount()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 45,
+      "community_name": "mobile/authController.js",
+      "file_type": "code",
+      "norm_label": "getunreadcount()",
+      "source_file": "backend/src/controllers/mobile/notificationController.js",
+      "source_location": "L177"
+    },
+    {
+      "id": "backend_src_controllers_mobile_notificationcontroller_markallasread",
+      "label": "markAllAsRead()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 45,
+      "community_name": "mobile/authController.js",
+      "file_type": "code",
+      "norm_label": "markallasread()",
+      "source_file": "backend/src/controllers/mobile/notificationController.js",
+      "source_location": "L253"
+    },
+    {
+      "id": "backend_src_controllers_mobile_notificationcontroller_markasread",
+      "label": "markAsRead()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 45,
+      "community_name": "mobile/authController.js",
+      "file_type": "code",
+      "norm_label": "markasread()",
+      "source_file": "backend/src/controllers/mobile/notificationController.js",
+      "source_location": "L210"
+    },
+    {
+      "id": "backend_src_controllers_mobile_notificationcontroller_resolveasseturl",
+      "label": "resolveAssetUrl()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 45,
+      "community_name": "mobile/authController.js",
+      "file_type": "code",
+      "norm_label": "resolveasseturl()",
+      "source_file": "backend/src/controllers/mobile/notificationController.js",
+      "source_location": "L7"
     },
     {
       "id": "backend_src_middlewares_securitymiddleware_checkloginlockout",
@@ -5070,90 +5226,6 @@
       "source_location": "L13"
     },
     {
-      "id": "backend_src_controllers_mobile_thumbnailcontroller_getcustomthumbnailuploadconfig",
-      "label": "getCustomThumbnailUploadConfig()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 52,
-      "community_name": "thumbnailRoutes.js",
-      "file_type": "code",
-      "norm_label": "getcustomthumbnailuploadconfig()",
-      "source_file": "backend/src/controllers/mobile/thumbnailController.js",
-      "source_location": "L391"
-    },
-    {
-      "id": "backend_src_controllers_mobile_thumbnailcontroller_getmythumbnails",
-      "label": "getMyThumbnails()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 52,
-      "community_name": "thumbnailRoutes.js",
-      "file_type": "code",
-      "norm_label": "getmythumbnails()",
-      "source_file": "backend/src/controllers/mobile/thumbnailController.js",
-      "source_location": "L117"
-    },
-    {
-      "id": "backend_src_controllers_mobile_thumbnailcontroller_getthumbnailcatalog",
-      "label": "getThumbnailCatalog()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 52,
-      "community_name": "thumbnailRoutes.js",
-      "file_type": "code",
-      "norm_label": "getthumbnailcatalog()",
-      "source_file": "backend/src/controllers/mobile/thumbnailController.js",
-      "source_location": "L51"
-    },
-    {
-      "id": "backend_src_controllers_mobile_thumbnailcontroller_getuseractivethumbnailsmap",
-      "label": "getUserActiveThumbnailsMap()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 52,
-      "community_name": "thumbnailRoutes.js",
-      "file_type": "code",
-      "norm_label": "getuseractivethumbnailsmap()",
-      "source_file": "backend/src/controllers/mobile/thumbnailController.js",
-      "source_location": "L7"
-    },
-    {
-      "id": "backend_src_controllers_mobile_thumbnailcontroller_purchasethumbnail",
-      "label": "purchaseThumbnail()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 52,
-      "community_name": "thumbnailRoutes.js",
-      "file_type": "code",
-      "norm_label": "purchasethumbnail()",
-      "source_file": "backend/src/controllers/mobile/thumbnailController.js",
-      "source_location": "L183"
-    },
-    {
-      "id": "backend_src_controllers_mobile_thumbnailcontroller_togglethumbnail",
-      "label": "toggleThumbnail()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 52,
-      "community_name": "thumbnailRoutes.js",
-      "file_type": "code",
-      "norm_label": "togglethumbnail()",
-      "source_file": "backend/src/controllers/mobile/thumbnailController.js",
-      "source_location": "L296"
-    },
-    {
-      "id": "backend_src_controllers_mobile_thumbnailcontroller_uploadcustomthumbnail",
-      "label": "uploadCustomThumbnail()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 52,
-      "community_name": "thumbnailRoutes.js",
-      "file_type": "code",
-      "norm_label": "uploadcustomthumbnail()",
-      "source_file": "backend/src/controllers/mobile/thumbnailController.js",
-      "source_location": "L473"
-    },
-    {
       "id": "backend_src_controllers_mobile_entryeffectcontroller_getentryeffectcatalog",
       "label": "getEntryEffectCatalog()",
       "_callable": true,
@@ -5214,18 +5286,6 @@
       "source_location": "L303"
     },
     {
-      "id": "backend_src_config_livekit_getlivekitconfig",
-      "label": "getLiveKitConfig()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 54,
-      "community_name": "mobile/index.js",
-      "file_type": "code",
-      "norm_label": "getlivekitconfig()",
-      "source_file": "backend/src/config/livekit.js",
-      "source_location": "L26"
-    },
-    {
       "id": "backend_src_controllers_mobile_bannercontroller_getmobilebanners",
       "label": "getMobileBanners()",
       "_callable": true,
@@ -5238,52 +5298,28 @@
       "source_location": "L10"
     },
     {
-      "id": "backend_src_controllers_mobile_configcontroller_getappconfig",
-      "label": "getAppConfig()",
+      "id": "backend_src_controllers_mobile_leaderboardcontroller_gettopagencies",
+      "label": "getTopAgencies()",
       "_callable": true,
       "_origin": "ast",
       "community": 54,
       "community_name": "mobile/index.js",
       "file_type": "code",
-      "norm_label": "getappconfig()",
-      "source_file": "backend/src/controllers/mobile/configController.js",
-      "source_location": "L16"
+      "norm_label": "gettopagencies()",
+      "source_file": "backend/src/controllers/mobile/leaderboardController.js",
+      "source_location": "L132"
     },
     {
-      "id": "backend_src_controllers_mobile_configcontroller_getlivekitconfigendpoint",
-      "label": "getLiveKitConfigEndpoint()",
+      "id": "backend_src_controllers_mobile_leaderboardcontroller_gettopgifters",
+      "label": "getTopGifters()",
       "_callable": true,
       "_origin": "ast",
       "community": 54,
       "community_name": "mobile/index.js",
       "file_type": "code",
-      "norm_label": "getlivekitconfigendpoint()",
-      "source_file": "backend/src/controllers/mobile/configController.js",
-      "source_location": "L228"
-    },
-    {
-      "id": "backend_src_controllers_mobile_configcontroller_getmaintenancestatus",
-      "label": "getMaintenanceStatus()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 54,
-      "community_name": "mobile/index.js",
-      "file_type": "code",
-      "norm_label": "getmaintenancestatus()",
-      "source_file": "backend/src/controllers/mobile/configController.js",
-      "source_location": "L294"
-    },
-    {
-      "id": "backend_src_controllers_mobile_configcontroller_getscreenguardconfig",
-      "label": "getScreenGuardConfig()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 54,
-      "community_name": "mobile/index.js",
-      "file_type": "code",
-      "norm_label": "getscreenguardconfig()",
-      "source_file": "backend/src/controllers/mobile/configController.js",
-      "source_location": "L250"
+      "norm_label": "gettopgifters()",
+      "source_file": "backend/src/controllers/mobile/leaderboardController.js",
+      "source_location": "L12"
     },
     {
       "id": "backend_src_config_db_getpool",
@@ -6282,30 +6318,6 @@
       "source_location": "L93"
     },
     {
-      "id": "backend_src_controllers_mobile_leaderboardcontroller_gettopagencies",
-      "label": "getTopAgencies()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 66,
-      "community_name": "leaderboardController.js",
-      "file_type": "code",
-      "norm_label": "gettopagencies()",
-      "source_file": "backend/src/controllers/mobile/leaderboardController.js",
-      "source_location": "L132"
-    },
-    {
-      "id": "backend_src_controllers_mobile_leaderboardcontroller_gettopgifters",
-      "label": "getTopGifters()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 66,
-      "community_name": "leaderboardController.js",
-      "file_type": "code",
-      "norm_label": "gettopgifters()",
-      "source_file": "backend/src/controllers/mobile/leaderboardController.js",
-      "source_location": "L12"
-    },
-    {
       "id": "backend_src_controllers_mobile_levelcontroller_getlevelsprogression",
       "label": "getLevelsProgression()",
       "_callable": true,
@@ -6328,18 +6340,6 @@
       "norm_label": "getmylevelrewards()",
       "source_file": "backend/src/controllers/mobile/levelController.js",
       "source_location": "L49"
-    },
-    {
-      "id": "backend_src_middlewares_authmiddleware_optionalauth",
-      "label": "optionalAuth()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 67,
-      "community_name": "cache",
-      "file_type": "code",
-      "norm_label": "optionalauth()",
-      "source_file": "backend/src/middlewares/authMiddleware.js",
-      "source_location": "L118"
     },
     {
       "id": "backend_src_services_levelservice_getuserlevelprogression",
@@ -6472,6 +6472,18 @@
       "norm_label": "sendgift()",
       "source_file": "backend/src/controllers/mobile/giftController.js",
       "source_location": "L41"
+    },
+    {
+      "id": "backend_src_middlewares_authmiddleware_optionalauth",
+      "label": "optionalAuth()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 70,
+      "community_name": "authMiddleware.js",
+      "file_type": "code",
+      "norm_label": "optionalauth()",
+      "source_file": "backend/src/middlewares/authMiddleware.js",
+      "source_location": "L118"
     },
     {
       "id": "backend_src_middlewares_authmiddleware_requireadmin",
@@ -8304,6 +8316,17 @@
       "source_location": "L1"
     },
     {
+      "id": "backend_src_controllers_mobile_thumbnailcontroller",
+      "label": "thumbnailController.js",
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "chatController.js",
+      "file_type": "code",
+      "norm_label": "thumbnailcontroller.js",
+      "source_file": "backend/src/controllers/mobile/thumbnailController.js",
+      "source_location": "L1"
+    },
+    {
       "id": "backend_src_middleware_upload",
       "label": "upload.js",
       "_origin": "ast",
@@ -8390,6 +8413,28 @@
       "norm_label": "chatroutes.js",
       "source_file": "backend/src/routes/mobile/chatRoutes.js",
       "source_location": "L1"
+    },
+    {
+      "id": "backend_src_routes_mobile_thumbnailroutes",
+      "label": "thumbnailRoutes.js",
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "chatController.js",
+      "file_type": "code",
+      "norm_label": "thumbnailroutes.js",
+      "source_file": "backend/src/routes/mobile/thumbnailRoutes.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "backend_src_routes_mobile_thumbnailroutes_router",
+      "label": "router",
+      "_origin": "ast",
+      "community": 23,
+      "community_name": "chatController.js",
+      "file_type": "code",
+      "norm_label": "router",
+      "source_file": "backend/src/routes/mobile/thumbnailRoutes.js",
+      "source_location": "L13"
     },
     {
       "id": "scratch_add_reseller_api_docs",
@@ -8920,6 +8965,17 @@
       "source_location": "L1"
     },
     {
+      "id": "backend_src_config_redis_cache_sections",
+      "label": "CACHE_SECTIONS",
+      "_origin": "ast",
+      "community": 34,
+      "community_name": "redis.js",
+      "file_type": "code",
+      "norm_label": "cache_sections",
+      "source_file": "backend/src/config/redis.js",
+      "source_location": "L31"
+    },
+    {
       "id": "backend_src_config_redis_dirname",
       "label": "__dirname",
       "_origin": "ast",
@@ -8950,7 +9006,7 @@
       "file_type": "code",
       "norm_label": "inflightfetches",
       "source_file": "backend/src/config/redis.js",
-      "source_location": "L35"
+      "source_location": "L147"
     },
     {
       "id": "backend_src_config_redis_redis_command_timeout",
@@ -8986,39 +9042,6 @@
       "source_location": "L18"
     },
     {
-      "id": "backend_src_config_redis_redis_default_ttl",
-      "label": "REDIS_DEFAULT_TTL",
-      "_origin": "ast",
-      "community": 34,
-      "community_name": "redis.js",
-      "file_type": "code",
-      "norm_label": "redis_default_ttl",
-      "source_file": "backend/src/config/redis.js",
-      "source_location": "L25"
-    },
-    {
-      "id": "backend_src_config_redis_redis_max_ttl",
-      "label": "REDIS_MAX_TTL",
-      "_origin": "ast",
-      "community": 34,
-      "community_name": "redis.js",
-      "file_type": "code",
-      "norm_label": "redis_max_ttl",
-      "source_file": "backend/src/config/redis.js",
-      "source_location": "L27"
-    },
-    {
-      "id": "backend_src_config_redis_redis_min_ttl",
-      "label": "REDIS_MIN_TTL",
-      "_origin": "ast",
-      "community": 34,
-      "community_name": "redis.js",
-      "file_type": "code",
-      "norm_label": "redis_min_ttl",
-      "source_file": "backend/src/config/redis.js",
-      "source_location": "L26"
-    },
-    {
       "id": "backend_src_config_redis_redis_port",
       "label": "REDIS_PORT",
       "_origin": "ast",
@@ -9028,6 +9051,17 @@
       "norm_label": "redis_port",
       "source_file": "backend/src/config/redis.js",
       "source_location": "L16"
+    },
+    {
+      "id": "backend_src_config_redis_sorted_prefix_entries",
+      "label": "SORTED_PREFIX_ENTRIES",
+      "_origin": "ast",
+      "community": 34,
+      "community_name": "redis.js",
+      "file_type": "code",
+      "norm_label": "sorted_prefix_entries",
+      "source_file": "backend/src/config/redis.js",
+      "source_location": "L151"
     },
     {
       "id": "scratch_test_redis_hit_and_freshness",
@@ -9899,37 +9933,136 @@
       "source_location": "L1"
     },
     {
-      "id": "backend_src_controllers_mobile_notificationcontroller",
-      "label": "notificationController.js",
+      "id": "backend_src_config_livekit",
+      "label": "livekit.js",
       "_origin": "ast",
       "community": 43,
-      "community_name": "notificationRoutes.js",
+      "community_name": "livekit.js",
       "file_type": "code",
-      "norm_label": "notificationcontroller.js",
-      "source_file": "backend/src/controllers/mobile/notificationController.js",
+      "norm_label": "livekit.js",
+      "source_file": "backend/src/config/livekit.js",
       "source_location": "L1"
     },
     {
-      "id": "backend_src_routes_mobile_notificationroutes",
-      "label": "notificationRoutes.js",
+      "id": "backend_src_config_livekit_default_livekit_api_key",
+      "label": "DEFAULT_LIVEKIT_API_KEY",
       "_origin": "ast",
       "community": 43,
-      "community_name": "notificationRoutes.js",
+      "community_name": "livekit.js",
       "file_type": "code",
-      "norm_label": "notificationroutes.js",
-      "source_file": "backend/src/routes/mobile/notificationRoutes.js",
+      "norm_label": "default_livekit_api_key",
+      "source_file": "backend/src/config/livekit.js",
+      "source_location": "L16"
+    },
+    {
+      "id": "backend_src_config_livekit_default_livekit_api_secret",
+      "label": "DEFAULT_LIVEKIT_API_SECRET",
+      "_origin": "ast",
+      "community": 43,
+      "community_name": "livekit.js",
+      "file_type": "code",
+      "norm_label": "default_livekit_api_secret",
+      "source_file": "backend/src/config/livekit.js",
+      "source_location": "L17"
+    },
+    {
+      "id": "backend_src_config_livekit_default_livekit_url",
+      "label": "DEFAULT_LIVEKIT_URL",
+      "_origin": "ast",
+      "community": 43,
+      "community_name": "livekit.js",
+      "file_type": "code",
+      "norm_label": "default_livekit_url",
+      "source_file": "backend/src/config/livekit.js",
+      "source_location": "L15"
+    },
+    {
+      "id": "backend_src_config_livekit_dirname",
+      "label": "__dirname",
+      "_origin": "ast",
+      "community": 43,
+      "community_name": "livekit.js",
+      "file_type": "code",
+      "norm_label": "__dirname",
+      "source_file": "backend/src/config/livekit.js",
+      "source_location": "L9"
+    },
+    {
+      "id": "backend_src_config_livekit_filename",
+      "label": "__filename",
+      "_origin": "ast",
+      "community": 43,
+      "community_name": "livekit.js",
+      "file_type": "code",
+      "norm_label": "__filename",
+      "source_file": "backend/src/config/livekit.js",
+      "source_location": "L8"
+    },
+    {
+      "id": "backend_src_config_livekit_livekit_api_key",
+      "label": "LIVEKIT_API_KEY",
+      "_origin": "ast",
+      "community": 43,
+      "community_name": "livekit.js",
+      "file_type": "code",
+      "norm_label": "livekit_api_key",
+      "source_file": "backend/src/config/livekit.js",
+      "source_location": "L20"
+    },
+    {
+      "id": "backend_src_config_livekit_livekit_api_secret",
+      "label": "LIVEKIT_API_SECRET",
+      "_origin": "ast",
+      "community": 43,
+      "community_name": "livekit.js",
+      "file_type": "code",
+      "norm_label": "livekit_api_secret",
+      "source_file": "backend/src/config/livekit.js",
+      "source_location": "L21"
+    },
+    {
+      "id": "backend_src_config_livekit_livekit_url",
+      "label": "LIVEKIT_URL",
+      "_origin": "ast",
+      "community": 43,
+      "community_name": "livekit.js",
+      "file_type": "code",
+      "norm_label": "livekit_url",
+      "source_file": "backend/src/config/livekit.js",
+      "source_location": "L19"
+    },
+    {
+      "id": "backend_src_controllers_mobile_configcontroller",
+      "label": "configController.js",
+      "_origin": "ast",
+      "community": 43,
+      "community_name": "livekit.js",
+      "file_type": "code",
+      "norm_label": "configcontroller.js",
+      "source_file": "backend/src/controllers/mobile/configController.js",
       "source_location": "L1"
     },
     {
-      "id": "backend_src_routes_mobile_notificationroutes_router",
+      "id": "backend_src_routes_mobile_configroutes",
+      "label": "configRoutes.js",
+      "_origin": "ast",
+      "community": 43,
+      "community_name": "livekit.js",
+      "file_type": "code",
+      "norm_label": "configroutes.js",
+      "source_file": "backend/src/routes/mobile/configRoutes.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "backend_src_routes_mobile_configroutes_router",
       "label": "router",
       "_origin": "ast",
       "community": 43,
-      "community_name": "notificationRoutes.js",
+      "community_name": "livekit.js",
       "file_type": "code",
       "norm_label": "router",
-      "source_file": "backend/src/routes/mobile/notificationRoutes.js",
-      "source_location": "L13"
+      "source_file": "backend/src/routes/mobile/configRoutes.js",
+      "source_location": "L4"
     },
     {
       "id": "backend_src_scripts_restore_all_admin_data",
@@ -10031,6 +10164,17 @@
       "source_location": "L876"
     },
     {
+      "id": "backend_src_controllers_mobile_notificationcontroller",
+      "label": "notificationController.js",
+      "_origin": "ast",
+      "community": 45,
+      "community_name": "mobile/authController.js",
+      "file_type": "code",
+      "norm_label": "notificationcontroller.js",
+      "source_file": "backend/src/controllers/mobile/notificationController.js",
+      "source_location": "L1"
+    },
+    {
       "id": "backend_src_middlewares_securitymiddleware",
       "label": "securityMiddleware.js",
       "_origin": "ast",
@@ -10106,6 +10250,28 @@
       "norm_label": "mobile/authroutes.js",
       "source_file": "backend/src/routes/mobile/authRoutes.js",
       "source_location": "L1"
+    },
+    {
+      "id": "backend_src_routes_mobile_notificationroutes",
+      "label": "notificationRoutes.js",
+      "_origin": "ast",
+      "community": 45,
+      "community_name": "mobile/authController.js",
+      "file_type": "code",
+      "norm_label": "notificationroutes.js",
+      "source_file": "backend/src/routes/mobile/notificationRoutes.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "backend_src_routes_mobile_notificationroutes_router",
+      "label": "router",
+      "_origin": "ast",
+      "community": 45,
+      "community_name": "mobile/authController.js",
+      "file_type": "code",
+      "norm_label": "router",
+      "source_file": "backend/src/routes/mobile/notificationRoutes.js",
+      "source_location": "L13"
     },
     {
       "id": "scratch_test_live_type",
@@ -10666,39 +10832,6 @@
       "source_location": "L6"
     },
     {
-      "id": "backend_src_controllers_mobile_thumbnailcontroller",
-      "label": "thumbnailController.js",
-      "_origin": "ast",
-      "community": 52,
-      "community_name": "thumbnailRoutes.js",
-      "file_type": "code",
-      "norm_label": "thumbnailcontroller.js",
-      "source_file": "backend/src/controllers/mobile/thumbnailController.js",
-      "source_location": "L1"
-    },
-    {
-      "id": "backend_src_routes_mobile_thumbnailroutes",
-      "label": "thumbnailRoutes.js",
-      "_origin": "ast",
-      "community": 52,
-      "community_name": "thumbnailRoutes.js",
-      "file_type": "code",
-      "norm_label": "thumbnailroutes.js",
-      "source_file": "backend/src/routes/mobile/thumbnailRoutes.js",
-      "source_location": "L1"
-    },
-    {
-      "id": "backend_src_routes_mobile_thumbnailroutes_router",
-      "label": "router",
-      "_origin": "ast",
-      "community": 52,
-      "community_name": "thumbnailRoutes.js",
-      "file_type": "code",
-      "norm_label": "router",
-      "source_file": "backend/src/routes/mobile/thumbnailRoutes.js",
-      "source_location": "L13"
-    },
-    {
       "id": "backend_src_controllers_mobile_entryeffectcontroller",
       "label": "entryEffectController.js",
       "_origin": "ast",
@@ -10743,14 +10876,14 @@
       "source_location": "L1"
     },
     {
-      "id": "backend_src_controllers_mobile_configcontroller",
-      "label": "configController.js",
+      "id": "backend_src_controllers_mobile_leaderboardcontroller",
+      "label": "leaderboardController.js",
       "_origin": "ast",
       "community": 54,
       "community_name": "mobile/index.js",
       "file_type": "code",
-      "norm_label": "configcontroller.js",
-      "source_file": "backend/src/controllers/mobile/configController.js",
+      "norm_label": "leaderboardcontroller.js",
+      "source_file": "backend/src/controllers/mobile/leaderboardController.js",
       "source_location": "L1"
     },
     {
@@ -10820,28 +10953,6 @@
       "source_location": "L17"
     },
     {
-      "id": "backend_src_routes_mobile_configroutes",
-      "label": "configRoutes.js",
-      "_origin": "ast",
-      "community": 54,
-      "community_name": "mobile/index.js",
-      "file_type": "code",
-      "norm_label": "configroutes.js",
-      "source_file": "backend/src/routes/mobile/configRoutes.js",
-      "source_location": "L1"
-    },
-    {
-      "id": "backend_src_routes_mobile_configroutes_router",
-      "label": "router",
-      "_origin": "ast",
-      "community": 54,
-      "community_name": "mobile/index.js",
-      "file_type": "code",
-      "norm_label": "router",
-      "source_file": "backend/src/routes/mobile/configRoutes.js",
-      "source_location": "L4"
-    },
-    {
       "id": "backend_src_routes_mobile_feedroutes_router",
       "label": "router",
       "_origin": "ast",
@@ -10884,6 +10995,28 @@
       "norm_label": "mobile/index.js",
       "source_file": "backend/src/routes/mobile/index.js",
       "source_location": "L1"
+    },
+    {
+      "id": "backend_src_routes_mobile_leaderboardroutes",
+      "label": "leaderboardRoutes.js",
+      "_origin": "ast",
+      "community": 54,
+      "community_name": "mobile/index.js",
+      "file_type": "code",
+      "norm_label": "leaderboardroutes.js",
+      "source_file": "backend/src/routes/mobile/leaderboardRoutes.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "backend_src_routes_mobile_leaderboardroutes_router",
+      "label": "router",
+      "_origin": "ast",
+      "community": 54,
+      "community_name": "mobile/index.js",
+      "file_type": "code",
+      "norm_label": "router",
+      "source_file": "backend/src/routes/mobile/leaderboardRoutes.js",
+      "source_location": "L4"
     },
     {
       "id": "backend_src_routes_mobile_liveroutes_router",
@@ -11496,105 +11629,6 @@
       "source_location": "L1"
     },
     {
-      "id": "backend_src_config_livekit",
-      "label": "livekit.js",
-      "_origin": "ast",
-      "community": 64,
-      "community_name": "callController.js",
-      "file_type": "code",
-      "norm_label": "livekit.js",
-      "source_file": "backend/src/config/livekit.js",
-      "source_location": "L1"
-    },
-    {
-      "id": "backend_src_config_livekit_default_livekit_api_key",
-      "label": "DEFAULT_LIVEKIT_API_KEY",
-      "_origin": "ast",
-      "community": 64,
-      "community_name": "callController.js",
-      "file_type": "code",
-      "norm_label": "default_livekit_api_key",
-      "source_file": "backend/src/config/livekit.js",
-      "source_location": "L16"
-    },
-    {
-      "id": "backend_src_config_livekit_default_livekit_api_secret",
-      "label": "DEFAULT_LIVEKIT_API_SECRET",
-      "_origin": "ast",
-      "community": 64,
-      "community_name": "callController.js",
-      "file_type": "code",
-      "norm_label": "default_livekit_api_secret",
-      "source_file": "backend/src/config/livekit.js",
-      "source_location": "L17"
-    },
-    {
-      "id": "backend_src_config_livekit_default_livekit_url",
-      "label": "DEFAULT_LIVEKIT_URL",
-      "_origin": "ast",
-      "community": 64,
-      "community_name": "callController.js",
-      "file_type": "code",
-      "norm_label": "default_livekit_url",
-      "source_file": "backend/src/config/livekit.js",
-      "source_location": "L15"
-    },
-    {
-      "id": "backend_src_config_livekit_dirname",
-      "label": "__dirname",
-      "_origin": "ast",
-      "community": 64,
-      "community_name": "callController.js",
-      "file_type": "code",
-      "norm_label": "__dirname",
-      "source_file": "backend/src/config/livekit.js",
-      "source_location": "L9"
-    },
-    {
-      "id": "backend_src_config_livekit_filename",
-      "label": "__filename",
-      "_origin": "ast",
-      "community": 64,
-      "community_name": "callController.js",
-      "file_type": "code",
-      "norm_label": "__filename",
-      "source_file": "backend/src/config/livekit.js",
-      "source_location": "L8"
-    },
-    {
-      "id": "backend_src_config_livekit_livekit_api_key",
-      "label": "LIVEKIT_API_KEY",
-      "_origin": "ast",
-      "community": 64,
-      "community_name": "callController.js",
-      "file_type": "code",
-      "norm_label": "livekit_api_key",
-      "source_file": "backend/src/config/livekit.js",
-      "source_location": "L20"
-    },
-    {
-      "id": "backend_src_config_livekit_livekit_api_secret",
-      "label": "LIVEKIT_API_SECRET",
-      "_origin": "ast",
-      "community": 64,
-      "community_name": "callController.js",
-      "file_type": "code",
-      "norm_label": "livekit_api_secret",
-      "source_file": "backend/src/config/livekit.js",
-      "source_location": "L21"
-    },
-    {
-      "id": "backend_src_config_livekit_livekit_url",
-      "label": "LIVEKIT_URL",
-      "_origin": "ast",
-      "community": 64,
-      "community_name": "callController.js",
-      "file_type": "code",
-      "norm_label": "livekit_url",
-      "source_file": "backend/src/config/livekit.js",
-      "source_location": "L19"
-    },
-    {
       "id": "backend_src_controllers_mobile_callcontroller",
       "label": "callController.js",
       "_origin": "ast",
@@ -11617,39 +11651,6 @@
       "source_location": "L1"
     },
     {
-      "id": "backend_src_controllers_mobile_leaderboardcontroller",
-      "label": "leaderboardController.js",
-      "_origin": "ast",
-      "community": 66,
-      "community_name": "leaderboardController.js",
-      "file_type": "code",
-      "norm_label": "leaderboardcontroller.js",
-      "source_file": "backend/src/controllers/mobile/leaderboardController.js",
-      "source_location": "L1"
-    },
-    {
-      "id": "backend_src_routes_mobile_leaderboardroutes",
-      "label": "leaderboardRoutes.js",
-      "_origin": "ast",
-      "community": 66,
-      "community_name": "leaderboardController.js",
-      "file_type": "code",
-      "norm_label": "leaderboardroutes.js",
-      "source_file": "backend/src/routes/mobile/leaderboardRoutes.js",
-      "source_location": "L1"
-    },
-    {
-      "id": "backend_src_routes_mobile_leaderboardroutes_router",
-      "label": "router",
-      "_origin": "ast",
-      "community": 66,
-      "community_name": "leaderboardController.js",
-      "file_type": "code",
-      "norm_label": "router",
-      "source_file": "backend/src/routes/mobile/leaderboardRoutes.js",
-      "source_location": "L4"
-    },
-    {
       "id": "backend_src_config_redis_cache",
       "label": "cache",
       "_origin": "ast",
@@ -11658,7 +11659,7 @@
       "file_type": "code",
       "norm_label": "cache",
       "source_file": "backend/src/config/redis.js",
-      "source_location": "L156"
+      "source_location": "L294"
     },
     {
       "id": "backend_src_controllers_mobile_levelcontroller",
@@ -13366,6 +13367,30 @@
       "context": "call",
       "source_file": "backend/src/config/livekit.js",
       "source_location": "L32",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_src_config_redis_calculatejitteredttl",
+      "target": "backend_src_config_redis_resolvesectionforkey",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "backend/src/config/redis.js",
+      "source_location": "L179",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_src_config_redis_resolvesectionforkey",
+      "target": "backend_src_config_redis_stripkeyprefix",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "backend/src/config/redis.js",
+      "source_location": "L160",
       "weight": 1.0
     },
     {
@@ -34653,24 +34678,24 @@
     },
     {
       "source": "backend_src_config_redis",
-      "target": "backend_src_config_redis_reconnectonerror",
+      "target": "backend_src_config_redis_inflightfetches",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/config/redis.js",
-      "source_location": "L104",
+      "source_location": "L147",
       "weight": 1.0
     },
     {
       "source": "backend_src_config_redis",
-      "target": "backend_src_config_redis_cache",
+      "target": "backend_src_config_redis_sorted_prefix_entries",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/config/redis.js",
-      "source_location": "L156",
+      "source_location": "L151",
       "weight": 1.0
     },
     {
@@ -34697,6 +34722,39 @@
     },
     {
       "source": "backend_src_config_redis",
+      "target": "backend_src_config_redis_formatkey",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/src/config/redis.js",
+      "source_location": "L196",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_src_config_redis",
+      "target": "backend_src_config_redis_stripkeyprefix",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/src/config/redis.js",
+      "source_location": "L205",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_src_config_redis",
+      "target": "backend_src_config_redis_withtimeout",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/src/config/redis.js",
+      "source_location": "L214",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_src_config_redis",
       "target": "backend_src_config_redis_redis_connect_timeout",
       "relation": "contains",
       "_origin": "ast",
@@ -34704,6 +34762,17 @@
       "confidence_score": 1.0,
       "source_file": "backend/src/config/redis.js",
       "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_src_config_redis",
+      "target": "backend_src_config_redis_retrystrategy",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/src/config/redis.js",
+      "source_location": "L236",
       "weight": 1.0
     },
     {
@@ -34719,68 +34788,35 @@
     },
     {
       "source": "backend_src_config_redis",
-      "target": "backend_src_config_redis_redis_default_ttl",
+      "target": "backend_src_config_redis_reconnectonerror",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/config/redis.js",
-      "source_location": "L25",
+      "source_location": "L242",
       "weight": 1.0
     },
     {
       "source": "backend_src_config_redis",
-      "target": "backend_src_config_redis_redis_min_ttl",
+      "target": "backend_src_config_redis_cache",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/config/redis.js",
-      "source_location": "L26",
+      "source_location": "L294",
       "weight": 1.0
     },
     {
       "source": "backend_src_config_redis",
-      "target": "backend_src_config_redis_redis_max_ttl",
+      "target": "backend_src_config_redis_cache_sections",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/config/redis.js",
-      "source_location": "L27",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_src_config_redis",
-      "target": "backend_src_config_redis_inflightfetches",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/src/config/redis.js",
-      "source_location": "L35",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_src_config_redis",
-      "target": "backend_src_config_redis_calculatejitteredttl",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/src/config/redis.js",
-      "source_location": "L42",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_src_config_redis",
-      "target": "backend_src_config_redis_formatkey",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/src/config/redis.js",
-      "source_location": "L58",
+      "source_location": "L31",
       "weight": 1.0
     },
     {
@@ -34796,17 +34832,6 @@
     },
     {
       "source": "backend_src_config_redis",
-      "target": "backend_src_config_redis_stripkeyprefix",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/src/config/redis.js",
-      "source_location": "L67",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_src_config_redis",
       "target": "backend_src_config_redis_dirname",
       "relation": "contains",
       "_origin": "ast",
@@ -34814,28 +34839,6 @@
       "confidence_score": 1.0,
       "source_file": "backend/src/config/redis.js",
       "source_location": "L7",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_src_config_redis",
-      "target": "backend_src_config_redis_withtimeout",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/src/config/redis.js",
-      "source_location": "L76",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_src_config_redis",
-      "target": "backend_src_config_redis_retrystrategy",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/src/config/redis.js",
-      "source_location": "L98",
       "weight": 1.0
     },
     {
@@ -46238,6 +46241,30 @@
       "weight": 1.0
     },
     {
+      "source": "backend_src_config_redis",
+      "target": "backend_src_config_redis_resolvesectionforkey",
+      "relation": "indirect_call",
+      "_origin": "ast",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "context": "collection",
+      "source_file": "backend/src/config/redis.js",
+      "source_location": "L459",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_src_config_redis",
+      "target": "backend_src_config_redis_calculatejitteredttl",
+      "relation": "indirect_call",
+      "_origin": "ast",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "context": "collection",
+      "source_file": "backend/src/config/redis.js",
+      "source_location": "L460",
+      "weight": 1.0
+    },
+    {
       "source": "backend_src_controllers_mobile_bannercontroller",
       "target": "backend_src_controllers_mobile_bannercontroller_getmobilebanners",
       "relation": "indirect_call",
@@ -46287,5 +46314,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "5ecb16e45264ead70b32b4b322c3912cec9fc40e"
+  "built_at_commit": "bdb45a57b35bb483224750e5ea7cdcc753468415"
 }
