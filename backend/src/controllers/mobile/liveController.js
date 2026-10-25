@@ -356,7 +356,7 @@ export async function getRooms(req, res) {
         `SELECT r.id, r.room_id, r.host_id, r.title, r.category, r.live_type, r.total_seats,
                 r.background_image, r.status,
                 r.viewer_count, r.total_diamonds, r.is_comment_disabled, r.is_reaction_disabled, r.is_locked, r.started_at,
-                u.full_name as host_name, u.avatar_url as host_avatar, u.level as host_level,
+                u.full_name as host_name, u.avatar_url as host_avatar, u.level as host_level, u.role as host_role,
                 pc.name as host_vip_category,
                 pc.badge_icon as host_vip_icon,
                 pc.color_code as host_vip_color,
@@ -464,7 +464,7 @@ export async function getMyActiveRoom(req, res) {
 
     const data = await cache.getOrSet(cacheKey, 15, async () => {
       const rooms = await query(
-        `SELECT r.*, u.full_name as host_name, u.avatar_url as host_avatar, u.level as host_level
+        `SELECT r.*, u.full_name as host_name, u.avatar_url as host_avatar, u.level as host_level, u.role as host_role
          FROM live_rooms r
          JOIN users u ON r.host_id = u.id
          WHERE r.host_id = ? AND r.status = 'live'
@@ -1979,15 +1979,23 @@ export async function endRoom(req, res) {
       query('DELETE FROM live_room_admins WHERE room_id = ? OR room_id = ?', [canonicalRoomId, String(numericRoomId)]),
     ]);
 
-    // 3. Complete Redis Cache Annihilation: Wipe all cached feeds, room details, viewer lists, chat, and host keys
+    // 3. Redis Cache Invalidation: Wipe targeted cache keys for this room and host only
     const patternsToDelete = [
       'mobile:rooms:*',
-      `*${canonicalRoomId}*`,
-      numericRoomId ? `*${numericRoomId}*` : null,
-      `host:${room.host_id}*`,
-      `host:${userId}*`,
-      `mobile:live:rewards:${room.host_id}*`,
-      'host:*',
+      `mobile:room_details:${canonicalRoomId}`,
+      numericRoomId ? `mobile:room_details:${numericRoomId}` : null,
+      `mobile:room:users:${canonicalRoomId}*`,
+      numericRoomId ? `mobile:room:users:${numericRoomId}*` : null,
+      `mobile:live:seat_requests:${canonicalRoomId}*`,
+      numericRoomId ? `mobile:live:seat_requests:${numericRoomId}*` : null,
+      `mobile:live:room_admins:${canonicalRoomId}*`,
+      numericRoomId ? `mobile:live:room_admins:${numericRoomId}*` : null,
+      `room:${canonicalRoomId}`,
+      numericRoomId ? `room:${numericRoomId}` : null,
+      `host:${room.host_id}:*`,
+      `host:${userId}:*`,
+      `mobile:live:rewards:${room.host_id}:*`,
+      `mobile:live:rewards:${userId}:*`,
     ].filter(Boolean);
 
     await Promise.allSettled([
@@ -1996,7 +2004,7 @@ export async function endRoom(req, res) {
       cache.del(`mobile:live:my_active:${userId}`),
     ]);
 
-    // 4. Socket notifications to all participants in this room channel
+    // 4. Socket notifications exclusively to participants in this room's channel
     if (req.io) {
       const closePayload = {
         roomId: canonicalRoomId,
@@ -2008,19 +2016,19 @@ export async function endRoom(req, res) {
         timestamp: new Date().toISOString(),
       };
 
-      req.io.to(canonicalRoomId).emit('room-closed', closePayload);
-      req.io.to(canonicalRoomId).emit('room_closed', closePayload);
-      req.io.to(canonicalRoomId).emit('room_ended', { roomId: canonicalRoomId, numericRoomId, message: closePayload.message });
-      req.io.to(canonicalRoomId).emit('stream-terminated', { roomId: canonicalRoomId, numericRoomId, reason: closePayload.reason });
-      req.io.to(canonicalRoomId).emit('viewer-count-update', { roomId: canonicalRoomId, count: 0, viewer_count: 0 });
+      const targetChannels = new Set([canonicalRoomId, String(numericRoomId)].filter(Boolean));
+      for (const ch of targetChannels) {
+        req.io.to(ch).emit('room-closed', closePayload);
+        req.io.to(ch).emit('room_closed', closePayload);
+        req.io.to(ch).emit('room_ended', { roomId: canonicalRoomId, numericRoomId, message: closePayload.message });
+        req.io.to(ch).emit('stream-terminated', { roomId: canonicalRoomId, numericRoomId, reason: closePayload.reason });
+        req.io.to(ch).emit('viewer-count-update', { roomId: canonicalRoomId, count: 0, viewer_count: 0 });
+      }
 
-      // Broadcast globally to ALL connected clients (so Home screen, Lobby, Explore immediately remove this room card)
-      req.io.emit('room-closed', closePayload);
-      req.io.emit('room_closed', closePayload);
-      req.io.emit('room_ended', { roomId: canonicalRoomId, numericRoomId, message: closePayload.message });
+      // Broadcast ONLY feed-card removal events globally to Home / Lobby / Explore screens
+      // (NEVER broadcast room-closed, room_ended, or stream-terminated globally, as that closes other hosts' live rooms!)
       req.io.emit('room_removed', { roomId: canonicalRoomId, numericRoomId, hostId: room.host_id });
       req.io.emit('live_room_deleted', { roomId: canonicalRoomId, numericRoomId });
-      req.io.emit('stream-terminated', { roomId: canonicalRoomId, numericRoomId, reason: closePayload.reason });
 
       // Evict and unsubscribe ALL sockets from this room channel
       if (typeof req.io.socketsLeave === 'function') {

@@ -10,7 +10,7 @@ services:
       MYSQL_USER: ${DB_USER:-umi_user}
       MYSQL_PASSWORD: ${DB_PASSWORD:-umi_password}
     ports:
-      - "${MYSQL_PORT:-3306}:3306"
+      - "127.0.0.1:${MYSQL_PORT:-3306}:3306"
     volumes:
       - mysql_data:/var/lib/mysql
       - ./backend/src/db/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
@@ -90,7 +90,7 @@ services:
       REDIS_MAX_MEMORY: ${REDIS_MAX_MEMORY:-256mb}
       REDIS_MAX_MEMORY_POLICY: ${REDIS_MAX_MEMORY_POLICY:-allkeys-lru}
     ports:
-      - "${REDIS_PORT:-6379}:6379"
+      - "127.0.0.1:${REDIS_PORT:-6379}:6379"
     volumes:
       - redis_data:/data
     networks:

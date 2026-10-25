@@ -11,6 +11,8 @@ def run_ssh_command(remote_cmd, timeout=300):
         os.execvp('ssh', [
             'ssh',
             '-o', 'StrictHostKeyChecking=no',
+            '-o', 'PubkeyAuthentication=no',
+            '-o', 'PreferredAuthentications=password',
             '-o', 'ConnectTimeout=10',
             '-o', 'ServerAliveInterval=5',
             'root@107.174.137.29',

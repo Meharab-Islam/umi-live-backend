@@ -179,16 +179,30 @@ export async function requestWithdrawal(req, res) {
     await connection.beginTransaction();
 
     if (isDiamondMode) {
-      // Deduct diamonds pending payout
-      await connection.execute('UPDATE users SET diamonds = diamonds - ? WHERE id = ?', [amount, userId]);
+      // Deduct diamonds pending payout with atomic balance guard (anti-race condition)
+      const [deductRes] = await connection.execute(
+        'UPDATE users SET diamonds = diamonds - ? WHERE id = ? AND diamonds >= ?',
+        [amount, userId, amount]
+      );
+      if (!deductRes || deductRes.affectedRows === 0) {
+        await connection.rollback();
+        return res.status(400).json({ success: false, message: 'Insufficient diamonds balance or concurrent transaction detected.' });
+      }
       await connection.execute(
         `INSERT INTO withdrawals (host_id, diamond_amount, coin_amount, usd_amount, payout_amount, payout_currency, host_type, payment_method, account_details, status)
          VALUES (?, ?, 0, ?, ?, 'BDT', ?, ?, ?, 'pending')`,
         [userId, amount, usdAmount, payoutAmount, hostType, paymentMethod, accountDetails]
       );
     } else {
-      // Deduct coins pending payout
-      await connection.execute('UPDATE users SET coins = coins - ? WHERE id = ?', [amount, userId]);
+      // Deduct coins pending payout with atomic balance guard (anti-race condition)
+      const [deductRes] = await connection.execute(
+        'UPDATE users SET coins = coins - ? WHERE id = ? AND coins >= ?',
+        [amount, userId, amount]
+      );
+      if (!deductRes || deductRes.affectedRows === 0) {
+        await connection.rollback();
+        return res.status(400).json({ success: false, message: 'Insufficient coins balance or concurrent transaction detected.' });
+      }
       await connection.execute(
         `INSERT INTO withdrawals (host_id, diamond_amount, coin_amount, usd_amount, payout_amount, payout_currency, host_type, payment_method, account_details, status)
          VALUES (?, 0, ?, ?, ?, 'BDT', ?, ?, ?, 'pending')`,

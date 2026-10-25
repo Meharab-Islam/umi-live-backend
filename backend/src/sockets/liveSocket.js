@@ -132,14 +132,21 @@ export async function executeRoomTermination(canonicalRoomId, numericRoomId, hos
       query('DELETE FROM live_room_admins WHERE room_id = ? OR room_id = ?', [canonicalRoomId, String(numericRoomId || '')]),
     ]);
 
-    // 4. Complete Redis Cache Annihilation: Wipe all cached feeds, room details, viewer lists, chat, and host keys
+    // 4. Redis Cache Invalidation: Wipe targeted cache keys for this room and host only
     const patternsToDelete = [
       'mobile:rooms:*',
-      `*${canonicalRoomId}*`,
-      numericRoomId ? `*${numericRoomId}*` : null,
-      `host:${hostId}*`,
-      `mobile:live:rewards:${hostId}*`,
-      'host:*',
+      `mobile:room_details:${canonicalRoomId}`,
+      numericRoomId ? `mobile:room_details:${numericRoomId}` : null,
+      `mobile:room:users:${canonicalRoomId}*`,
+      numericRoomId ? `mobile:room:users:${numericRoomId}*` : null,
+      `mobile:live:seat_requests:${canonicalRoomId}*`,
+      numericRoomId ? `mobile:live:seat_requests:${numericRoomId}*` : null,
+      `mobile:live:room_admins:${canonicalRoomId}*`,
+      numericRoomId ? `mobile:live:room_admins:${numericRoomId}*` : null,
+      `room:${canonicalRoomId}`,
+      numericRoomId ? `room:${numericRoomId}` : null,
+      `host:${hostId}:*`,
+      `mobile:live:rewards:${hostId}:*`,
     ].filter(Boolean);
 
     await Promise.allSettled([
@@ -147,7 +154,7 @@ export async function executeRoomTermination(canonicalRoomId, numericRoomId, hos
       cache.del(`mobile:live:my_active:${hostId}`),
     ]);
 
-    // 5. Broadcast Room Closed / Ended event to all participants
+    // 5. Broadcast Room Closed / Ended event EXCLUSIVELY to participants in this room's channel
     if (io) {
       const isTimeout = reason === 'host_disconnected_timeout';
       const closePayload = {
@@ -158,8 +165,8 @@ export async function executeRoomTermination(canonicalRoomId, numericRoomId, hos
         message: isTimeout
           ? 'Host did not reconnect within grace period. Live stream has ended.'
           : (reason === 'disconnect'
-              ? 'Host disconnected (connection lost). Live stream has ended.'
-              : 'Host has closed the live stream.'),
+            ? 'Host disconnected (connection lost). Live stream has ended.'
+            : 'Host has closed the live stream.'),
         reason: isTimeout ? 'host_disconnected_timeout' : (reason === 'disconnect' ? 'host_disconnected' : 'host_closed'),
         timestamp: new Date().toISOString(),
       };
@@ -168,19 +175,16 @@ export async function executeRoomTermination(canonicalRoomId, numericRoomId, hos
       for (const ch of channels) {
         io.to(ch).emit('room-closed', closePayload);
         io.to(ch).emit('room_closed', closePayload);
-        io.to(ch).emit('room_ended', { roomId: canonicalRoomId, message: closePayload.message });
-        io.to(ch).emit('stream-terminated', { roomId: canonicalRoomId, reason: closePayload.reason });
+        io.to(ch).emit('room_ended', { roomId: canonicalRoomId, numericRoomId, message: closePayload.message });
+        io.to(ch).emit('stream-terminated', { roomId: canonicalRoomId, numericRoomId, reason: closePayload.reason });
         io.to(ch).emit('viewer-count-update', { roomId: canonicalRoomId, count: 0, viewer_count: 0 });
         io.to(ch).emit('room_viewers_updated', { roomId: canonicalRoomId, count: 0, viewer_count: 0 });
       }
 
-      // Broadcast globally to ALL connected clients (so Home screen, Lobby, Explore immediately remove this room card)
-      io.emit('room-closed', closePayload);
-      io.emit('room_closed', closePayload);
-      io.emit('room_ended', { roomId: canonicalRoomId, numericRoomId, message: closePayload.message });
+      // Broadcast ONLY feed-card removal events globally to Home / Lobby / Explore screens
+      // (NEVER broadcast room-closed, room_ended, or stream-terminated globally, as that closes other hosts' live rooms!)
       io.emit('room_removed', { roomId: canonicalRoomId, numericRoomId, hostId });
       io.emit('live_room_deleted', { roomId: canonicalRoomId, numericRoomId });
-      io.emit('stream-terminated', { roomId: canonicalRoomId, numericRoomId, reason: closePayload.reason });
 
       // Evict and unsubscribe all sockets from this room channel
       if (typeof io.socketsLeave === 'function') {
@@ -232,7 +236,7 @@ async function cleanupUserFromRoom(roomId, userId, io, userInfo = null, reason =
         // 1. Check if the host has any other active socket connection in this room
         const hostSockets = Array.from(io?.sockets?.sockets?.values() || []).filter(
           (s) => (Number(s.userId) === Number(hostId) || Number(s.currentUser?.id) === Number(hostId)) &&
-                 (s.currentRoom === canonicalRoomId || s.rooms?.has(canonicalRoomId))
+            (s.currentRoom === canonicalRoomId || s.rooms?.has(canonicalRoomId))
         );
         if (hostSockets.length > 0) {
           console.log(`ℹ️ [Host Disconnect] Host ${hostId} has another active socket in room ${canonicalRoomId}. Skipping grace period.`);
@@ -319,7 +323,7 @@ async function cleanupUserFromRoom(roomId, userId, io, userInfo = null, reason =
       // 1. Check if user has another active socket connection in this room
       const userSockets = Array.from(io?.sockets?.sockets?.values() || []).filter(
         (s) => (Number(s.userId) === Number(userId) || Number(s.currentUser?.id) === Number(userId)) &&
-               (s.currentRoom === canonicalRoomId || s.rooms?.has(canonicalRoomId))
+          (s.currentRoom === canonicalRoomId || s.rooms?.has(canonicalRoomId))
       );
       if (userSockets.length > 0) {
         console.log(`ℹ️ [Seated Guest Disconnect] User ${userId} has another active socket in room ${canonicalRoomId}. Skipping grace period.`);
@@ -590,6 +594,13 @@ export async function sweepOrphanedLiveRooms(io) {
         continue;
       }
 
+      // If the room has active viewers or sockets connected in room channel, room is alive!
+      const roomSockets = io.sockets?.adapter?.rooms?.get(canonicalRoomId);
+      const numRoomSockets = numericRoomId ? io.sockets?.adapter?.rooms?.get(String(numericRoomId)) : null;
+      if ((roomSockets && roomSockets.size > 0) || (numRoomSockets && numRoomSockets.size > 0)) {
+        continue;
+      }
+
       // If the host is currently online with an active socket, room is alive
       if (onlineUserIds.has(hostId)) {
         continue;
@@ -615,13 +626,13 @@ export async function sweepOrphanedLiveRooms(io) {
 export function setupLiveSocket(io) {
   // Run ghost room sweeper every 30 seconds to clean up any abandoned/crashed rooms
   const sweeperInterval = setInterval(() => {
-    sweepOrphanedLiveRooms(io).catch(() => {});
+    sweepOrphanedLiveRooms(io).catch(() => { });
   }, 30000);
   if (sweeperInterval.unref) sweeperInterval.unref();
 
   // Run initial sweep 5 seconds after startup
   setTimeout(() => {
-    sweepOrphanedLiveRooms(io).catch(() => {});
+    sweepOrphanedLiveRooms(io).catch(() => { });
   }, 5000);
 
   io.on('connection', (socket) => {
@@ -651,7 +662,7 @@ export function setupLiveSocket(io) {
 
     // Join a live streaming room
     const handleJoinRoom = async ({ roomId, room_id, user }) => {
-            roomId = roomId || room_id;
+      roomId = roomId || room_id;
 
       try {
         if (!roomId) return;
@@ -690,6 +701,9 @@ export function setupLiveSocket(io) {
         }
 
         socket.join(canonicalRoomId);
+        if (numericRoomId) {
+          socket.join(String(numericRoomId));
+        }
 
         // Host is never counted as a viewer
         const isHost = room && (Number(currentUser.id) === Number(room.host_id) || Number(socket.userId) === Number(room.host_id));
@@ -1368,7 +1382,7 @@ export function setupLiveSocket(io) {
                   parseInt(item.duration || 0, 10),
                   item.display_order || i + 1,
                 ]
-              ).catch(() => {});
+              ).catch(() => { });
             }
           }
         }

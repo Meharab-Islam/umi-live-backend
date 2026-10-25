@@ -976,6 +976,8 @@ export async function initializeDatabase() {
     await safeAddColumn('users', 'country', "VARCHAR(50) DEFAULT '' AFTER mobile_number");
     await safeAddColumn('users', 'star', "INT DEFAULT 0 AFTER level");
     await safeAddColumn('users', 'fcm_token', "VARCHAR(512) NULL");
+    await safeModifyColumn('users', 'coins', 'INT UNSIGNED NOT NULL DEFAULT 100');
+    await safeModifyColumn('users', 'diamonds', 'INT UNSIGNED NOT NULL DEFAULT 0');
     await safeAddColumn('live_rooms', 'live_type', "ENUM('video', 'audio') DEFAULT 'video' AFTER category");
     await safeAddColumn('live_rooms', 'total_seats', "INT DEFAULT 9 AFTER live_type");
     await safeAddColumn('live_rooms', 'background_image', "VARCHAR(255) DEFAULT '' AFTER cover_image");

@@ -72,6 +72,12 @@ const fileFilter = (req, file, cb) => {
   ];
 
   const ext = path.extname(file.originalname).toLowerCase();
+
+  // Security: Disallow SVG for user avatars to eliminate Stored XSS vectors
+  if (ext === '.svg' && (req.uploadCategory === 'avatars' || req.originalUrl?.includes('avatar'))) {
+    return cb(new Error('SVG format is not allowed for avatars for security reasons. Please use PNG, JPG, or WEBP.'), false);
+  }
+
   if (allowedExtensions.includes(ext)) {
     cb(null, true);
   } else {
@@ -92,6 +98,14 @@ export const upload = multer({
   },
 });
 
+export const avatarMulter = multer({
+  storage,
+  fileFilter,
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5 MB max for avatar images
+  },
+});
+
 /**
  * Mobile Avatar Upload Middleware
  * Automatically handles multipart/form-data for registration & profile updates.
@@ -102,7 +116,7 @@ export const optionalAvatarUpload = (req, res, next) => {
   const contentType = req.headers['content-type'] || '';
   if (contentType.includes('multipart/form-data')) {
     req.uploadCategory = 'avatars';
-    return upload.any()(req, res, (err) => {
+    return avatarMulter.any()(req, res, (err) => {
       if (err) {
         return res.status(400).json({
           success: false,

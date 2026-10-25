@@ -266,7 +266,7 @@ async function resolveGoogleProfile(body) {
         if (info.name && !name) name = info.name;
         if (info.picture && !avatarUrl) avatarUrl = info.picture;
       }
-    } catch (_) {}
+    } catch (_) { }
 
     // 2. Try UserInfo endpoint (for OAuth2 Access Tokens)
     if (!resolved) {
@@ -286,7 +286,7 @@ async function resolveGoogleProfile(body) {
           if (info.name && !name) name = info.name;
           if (info.picture && !avatarUrl) avatarUrl = info.picture;
         }
-      } catch (_) {}
+      } catch (_) { }
     }
 
     // 3. Fallback: Parse JWT payload directly
@@ -301,7 +301,7 @@ async function resolveGoogleProfile(body) {
           if (payload.name && !name) name = payload.name;
           if (payload.picture && !avatarUrl) avatarUrl = payload.picture;
         }
-      } catch (_) {}
+      } catch (_) { }
     }
   }
 
@@ -1062,7 +1062,7 @@ export const ensureFcmSchema = async () => {
         INDEX idx_user_active (user_id, is_active),
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-    `).catch(() => {});
+    `).catch(() => { });
 
     isFcmSchemaVerified = true;
   } catch (err) {
@@ -1113,7 +1113,7 @@ export async function updateFcmToken(req, res) {
       if (colErr.errno === 1054 || colErr.code === 'ER_BAD_FIELD_ERROR') {
         isFcmSchemaVerified = false;
         await ensureFcmSchema();
-        await query('UPDATE users SET fcm_token = ? WHERE id = ?', [cleanToken, userId]).catch(() => {});
+        await query('UPDATE users SET fcm_token = ? WHERE id = ?', [cleanToken, userId]).catch(() => { });
       }
     }
 
@@ -1149,11 +1149,11 @@ export async function removeFcmToken(req, res) {
     const cleanToken = (fcm_token || fcmToken || token || '').trim();
 
     if (cleanToken) {
-      await query('DELETE FROM user_fcm_tokens WHERE user_id = ? AND fcm_token = ?', [userId, cleanToken]).catch(() => {});
-      await query('UPDATE users SET fcm_token = NULL WHERE id = ? AND fcm_token = ?', [userId, cleanToken]).catch(() => {});
+      await query('DELETE FROM user_fcm_tokens WHERE user_id = ? AND fcm_token = ?', [userId, cleanToken]).catch(() => { });
+      await query('UPDATE users SET fcm_token = NULL WHERE id = ? AND fcm_token = ?', [userId, cleanToken]).catch(() => { });
     } else {
-      await query('DELETE FROM user_fcm_tokens WHERE user_id = ?', [userId]).catch(() => {});
-      await query('UPDATE users SET fcm_token = NULL WHERE id = ?', [userId]).catch(() => {});
+      await query('DELETE FROM user_fcm_tokens WHERE user_id = ?', [userId]).catch(() => { });
+      await query('UPDATE users SET fcm_token = NULL WHERE id = ?', [userId]).catch(() => { });
     }
 
     await cache.del(`user:${userId}:fcm_token`);

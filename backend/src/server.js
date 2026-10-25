@@ -63,8 +63,8 @@ setupLiveSocket(io);
 
 // Middlewares
 app.use(cors());
-app.use(express.json({ limit: '100mb' }));
-app.use(express.urlencoded({ extended: true, limit: '100mb' }));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(sqlInjectionGuard);
 app.use(morgan('dev'));
 
@@ -120,13 +120,24 @@ app.get('/', (req, res) => {
   });
 });
 
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
 // Live Stream Share Landing Route (Web Preview & Deep Link Auto-Redirect)
 app.get(['/room', '/room/:roomId'], (req, res) => {
   const roomId = req.params.roomId || req.query.id || req.query.roomId || '';
   const liveType = req.query.type || req.query.liveType || 'video';
-  const hostName = req.query.hostName || req.query.name || 'Host';
+  const rawHostName = req.query.hostName || req.query.name || 'Host';
+  const hostName = escapeHtml(rawHostName);
 
-  const deepLink = `umilive://room?roomId=${encodeURIComponent(roomId)}&liveType=${encodeURIComponent(liveType)}&hostName=${encodeURIComponent(hostName)}`;
+  const deepLink = `umilive://room?roomId=${encodeURIComponent(roomId)}&liveType=${encodeURIComponent(liveType)}&hostName=${encodeURIComponent(rawHostName)}`;
 
   res.send(`<!DOCTYPE html>
 <html lang="en">

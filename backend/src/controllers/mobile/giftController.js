@@ -276,8 +276,19 @@ export async function sendGift(req, res) {
     // 11. Database-First Atomic Transaction (SSOT)
     await connection.beginTransaction();
 
-    // Deduct total coins from sender wallet
-    await connection.execute('UPDATE users SET coins = coins - ? WHERE id = ?', [totalCoinCostAll, senderId]);
+    // Deduct total coins from sender wallet with atomic balance guard (anti-race condition / anti-double spending)
+    const [deductResult] = await connection.execute(
+      'UPDATE users SET coins = coins - ? WHERE id = ? AND coins >= ?',
+      [totalCoinCostAll, senderId, totalCoinCostAll]
+    );
+
+    if (!deductResult || deductResult.affectedRows === 0) {
+      await connection.rollback();
+      return res.status(400).json({
+        success: false,
+        message: 'Insufficient coins balance or concurrent transaction detected. Please try again.',
+      });
+    }
 
     const recordedRoomId = activeRoom ? activeRoom.room_id : (targetRoomId || '');
 
