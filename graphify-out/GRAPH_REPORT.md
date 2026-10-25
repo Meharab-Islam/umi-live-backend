@@ -1,16 +1,16 @@
 # Graph Report - umi_backend  (2026-10-25)
 
 ## Corpus Check
-- 188 files · ~1,111,103 words
+- 189 files · ~1,113,715 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1036 nodes · 2894 edges · 74 communities (55 shown, 19 thin omitted)
+- 1040 nodes · 2897 edges · 68 communities (51 shown, 17 thin omitted)
 - Extraction: 86% EXTRACTED · 14% INFERRED · 0% AMBIGUOUS · INFERRED: 414 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `50c43be0`
+- Built from commit: `9cb7a373`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -49,16 +49,16 @@
 - test_agency_applicant_flow.mjs
 - test_user_live_history.mjs
 - add_moderator_agency_docs.mjs
-- redis.js
+- thumbnailRoutes.js
 - test_redis_hit_and_freshness.mjs
 - mobile/packageRoutes.js
 - ApiDocs.jsx
 - App.jsx
 - dev.js
 - test_google_token_flow.mjs
-- controllers/walletController.js
-- resellerController.js
-- mobile/authController.js
+- Gifts.jsx
+- restore_all_admin_data.js
+- redis.js
 - react
 - specialItemController.js
 - add_audio_live_api_docs.mjs
@@ -73,16 +73,10 @@
 - hostController.js
 - liveRewardService.js
 - adminThemeController.js
-- livekit.js
 - callController.js
-- configController.js
-- routes/liveRoutes.js
 - authMiddleware.js
-- AccountMerge.jsx
-- requireAuth
+- mobile/giftController.js
 - ErrorBoundary
-- test_socket_realtime_emission.mjs
-- test_video_live_seat_guard.mjs
 
 ## God Nodes (most connected - your core abstractions)
 1. `query()` - 355 edges
@@ -111,19 +105,19 @@
 ## Import Cycles
 - None detected.
 
-## Communities (74 total, 19 thin omitted)
+## Communities (68 total, 17 thin omitted)
 
 ### Community 0 - "controllers/packageController.js"
 Cohesion: 0.14
-Nodes (23): checkRoomActionPrivilege(), createPackage(), createPackageCategory(), deletePackage(), deletePackageCategory(), enrichCategoryWithUserSubscription(), enrichPackageWithUserSubscription(), formatCategoryPrivileges() (+15 more)
+Nodes (22): checkRoomActionPrivilege(), createPackage(), createPackageCategory(), deletePackage(), deletePackageCategory(), enrichCategoryWithUserSubscription(), enrichPackageWithUserSubscription(), formatCategoryPrivileges() (+14 more)
 
 ### Community 1 - "query"
 Cohesion: 0.08
-Nodes (72): query(), bulkDelete(), bulkDeleteReports(), clearGiftHistoryAdmin(), clearResellerSales(), createCoinPackageAdmin(), createGift(), createHostRequest() (+64 more)
+Nodes (73): query(), bulkDelete(), bulkDeleteReports(), clearGiftHistoryAdmin(), clearResellerSales(), createCoinPackageAdmin(), createGift(), createHostRequest() (+65 more)
 
 ### Community 2 - "server.js"
-Cohesion: 0.09
-Nodes (21): __dirname, __filename, initializeDatabase(), router, router, API_SPEC, router, router (+13 more)
+Cohesion: 0.06
+Nodes (36): createRoom(), endRoom(), getRoomDetails(), getRooms(), getBalances(), getPackages(), getRechargeConfig(), getTransactions() (+28 more)
 
 ### Community 3 - "admin-panel/package.json"
 Cohesion: 0.06
@@ -187,19 +181,19 @@ Nodes (12): description, name, private, scripts, build, dev, dev:admin, dev:all 
 
 ### Community 20 - "mobile/liveController.js"
 Cohesion: 0.08
-Nodes (65): verifyToken(), approveSeatRequest(), assignRoomAdmin(), buildRoomResponse(), cancelSeatRequest(), claimLiveReward(), createRoom(), decreaseRoomSeats() (+57 more)
+Nodes (64): approveSeatRequest(), assignRoomAdmin(), buildRoomResponse(), cancelSeatRequest(), claimLiveReward(), createRoom(), decreaseRoomSeats(), deleteRoomChatMessage() (+56 more)
 
 ### Community 22 - "mobile/walletRoutes.js"
 Cohesion: 0.23
 Nodes (17): getBalances, getPackages, getRechargeConfig, getTransactions, getWithdrawalConfig, purchaseCoins, requestWithdrawal, cancelWithdrawalRequest() (+9 more)
 
 ### Community 23 - "chatController.js"
-Cohesion: 0.10
-Nodes (31): clearChatMessages(), deleteConversation(), extractPackageCategory(), getConversations(), getMessages(), getOrCreateConversation(), invalidateChatCache(), markConversationRead() (+23 more)
+Cohesion: 0.14
+Nodes (23): clearChatMessages(), deleteConversation(), extractPackageCategory(), getConversations(), getMessages(), getOrCreateConversation(), invalidateChatCache(), markConversationRead() (+15 more)
 
-### Community 34 - "redis.js"
-Cohesion: 0.15
-Nodes (12): cache, __dirname, __filename, formatKey(), REDIS_COMMAND_TIMEOUT, REDIS_CONNECT_TIMEOUT, REDIS_DB, REDIS_DEFAULT_TTL (+4 more)
+### Community 34 - "thumbnailRoutes.js"
+Cohesion: 0.36
+Nodes (8): getCustomThumbnailUploadConfig(), getMyThumbnails(), getThumbnailCatalog(), getUserActiveThumbnailsMap(), purchaseThumbnail(), toggleThumbnail(), uploadCustomThumbnail(), router
 
 ### Community 35 - "test_redis_hit_and_freshness.mjs"
 Cohesion: 0.83
@@ -214,24 +208,20 @@ Cohesion: 0.18
 Nodes (7): API_SPEC, getToken(), SocketDocsView(), ApiDocs(), EndpointErrorBoundary, extractMediaItems(), copyToClipboard()
 
 ### Community 38 - "App.jsx"
-Cohesion: 0.09
-Nodes (28): checkHealth(), giftApi, levelApi, liveRewardApi, streamApi, App(), getInitialTab(), isTabValid() (+20 more)
+Cohesion: 0.10
+Nodes (25): accountMergeApi, checkHealth(), levelApi, liveRewardApi, streamApi, App(), getInitialTab(), isTabValid() (+17 more)
 
 ### Community 41 - "dev.js"
 Cohesion: 0.33
 Nodes (3): children, __dirname, __filename
 
-### Community 43 - "controllers/walletController.js"
-Cohesion: 0.33
-Nodes (9): getBalances(), getPackages(), getRechargeConfig(), getTransactions(), getWithdrawalConfig(), parseRoleRate(), purchaseCoins(), requestWithdrawal() (+1 more)
+### Community 43 - "Gifts.jsx"
+Cohesion: 0.39
+Nodes (5): giftApi, Gifts(), isMediaUrl(), resolveMediaUrl(), TopContributors()
 
-### Community 44 - "resellerController.js"
-Cohesion: 0.49
-Nodes (8): clearTransactions(), deleteTransaction(), getResellerBalance(), getResellerTransactions(), getUserDetails(), rechargeUser(), resolveResellerId(), searchUsers()
-
-### Community 45 - "mobile/authController.js"
-Cohesion: 0.09
-Nodes (43): __dirname, __filename, signToken(), getMe(), login(), register(), ensureFcmSchema(), getMe() (+35 more)
+### Community 45 - "redis.js"
+Cohesion: 0.06
+Nodes (56): __dirname, __filename, signToken(), verifyToken(), cache, __dirname, __filename, formatKey() (+48 more)
 
 ### Community 47 - "react"
 Cohesion: 0.27
@@ -242,8 +232,8 @@ Cohesion: 0.13
 Nodes (14): createEntryEffect(), createThumbnail(), deleteEntryEffect(), deleteThumbnail(), getEntryEffects(), getEntryEffectSubscribers(), getThumbnails(), getThumbnailSubscribers() (+6 more)
 
 ### Community 51 - "db.js"
-Cohesion: 0.18
-Nodes (9): dbConfig, __dirname, __filename, poolProxy, testConnection(), __dirname, __filename, makeToken() (+1 more)
+Cohesion: 0.10
+Nodes (23): dbConfig, __dirname, __filename, poolProxy, testConnection(), clearTransactions(), deleteTransaction(), getResellerBalance() (+15 more)
 
 ### Community 52 - "CreateCategory.jsx"
 Cohesion: 0.38
@@ -285,49 +275,37 @@ Nodes (8): getLiveRewardHistoryAdmin(), getLiveRewardSettingsAdmin(), getLiveRew
 Cohesion: 0.29
 Nodes (6): createThemeItem(), deleteThemeItem(), getAdminThemeItems(), getThemeStats(), setDefaultThemeItem(), updateThemeItem()
 
-### Community 63 - "livekit.js"
-Cohesion: 0.22
-Nodes (8): DEFAULT_LIVEKIT_API_KEY, DEFAULT_LIVEKIT_API_SECRET, DEFAULT_LIVEKIT_URL, __dirname, __filename, LIVEKIT_API_KEY, LIVEKIT_API_SECRET, LIVEKIT_URL
-
 ### Community 64 - "callController.js"
-Cohesion: 0.38
-Nodes (9): generateLiveKitToken(), acceptCall(), endCall(), getActiveCallSettings(), getCallHistory(), getCallRates(), heartbeatCall(), initiateCall() (+1 more)
-
-### Community 65 - "configController.js"
-Cohesion: 0.46
-Nodes (6): getLiveKitConfig(), getAppConfig(), getLiveKitConfigEndpoint(), getMaintenanceStatus(), getScreenGuardConfig(), router
-
-### Community 66 - "routes/liveRoutes.js"
-Cohesion: 0.48
-Nodes (5): createRoom(), endRoom(), getRoomDetails(), getRooms(), router
+Cohesion: 0.12
+Nodes (24): DEFAULT_LIVEKIT_API_KEY, DEFAULT_LIVEKIT_API_SECRET, DEFAULT_LIVEKIT_URL, __dirname, __filename, generateLiveKitToken(), getLiveKitConfig(), LIVEKIT_API_KEY (+16 more)
 
 ### Community 67 - "authMiddleware.js"
-Cohesion: 0.21
-Nodes (10): getLevelsProgression(), getMyLevelRewards(), optionalAuth(), requireAdmin(), requireAgency(), requireHost(), requireModerator(), requireReseller() (+2 more)
+Cohesion: 0.28
+Nodes (7): getMyLevelRewards(), optionalAuth(), requireAdmin(), requireAgency(), requireAuth(), requireHost(), requireModerator()
 
-### Community 70 - "requireAuth"
-Cohesion: 0.26
-Nodes (8): getGifts(), getUserGiftContributions(), sendGift(), getTopAgencies(), getTopGifters(), requireAuth(), router, router
+### Community 70 - "mobile/giftController.js"
+Cohesion: 0.28
+Nodes (7): getGifts(), getUserGiftContributions(), sendGift(), getTopAgencies(), getTopGifters(), router, router
 
 ## Knowledge Gaps
-- **177 isolated node(s):** `$schema`, `oxc`, `react/rules-of-hooks`, `warn`, `name` (+172 more)
+- **179 isolated node(s):** `$schema`, `oxc`, `react/rules-of-hooks`, `warn`, `name` (+174 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **19 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **17 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `query()` connect `query` to `controllers/packageController.js`, `moderatorRoutes.js`, `controllers/bannerController.js`, `feedController.js`, `mobile/liveController.js`, `mobile/walletRoutes.js`, `chatController.js`, `redis.js`, `controllers/walletController.js`, `resellerController.js`, `mobile/authController.js`, `specialItemController.js`, `db.js`, `entryEffectController.js`, `mobile/index.js`, `getPool`, `themeRoutes.js`, `hostController.js`, `liveRewardService.js`, `adminThemeController.js`, `livekit.js`, `callController.js`, `configController.js`, `routes/liveRoutes.js`, `authMiddleware.js`, `requireAuth`, `test_socket_realtime_emission.mjs`, `test_video_live_seat_guard.mjs`?**
-  _High betweenness centrality (0.200) - this node is a cross-community bridge._
-- **Why does `getPool()` connect `getPool` to `callController.js`, `query`, `requireAuth`, `controllers/walletController.js`, `resellerController.js`, `mobile/authController.js`, `feedController.js`, `db.js`, `mobile/walletRoutes.js`, `chatController.js`?**
+- **Why does `query()` connect `query` to `controllers/packageController.js`, `server.js`, `moderatorRoutes.js`, `controllers/bannerController.js`, `feedController.js`, `mobile/liveController.js`, `mobile/walletRoutes.js`, `chatController.js`, `thumbnailRoutes.js`, `redis.js`, `specialItemController.js`, `db.js`, `entryEffectController.js`, `mobile/index.js`, `getPool`, `themeRoutes.js`, `hostController.js`, `liveRewardService.js`, `adminThemeController.js`, `callController.js`, `authMiddleware.js`, `mobile/giftController.js`?**
+  _High betweenness centrality (0.206) - this node is a cross-community bridge._
+- **Why does `getPool()` connect `getPool` to `callController.js`, `query`, `server.js`, `mobile/giftController.js`, `redis.js`, `feedController.js`, `db.js`, `mobile/walletRoutes.js`, `chatController.js`?**
   _High betweenness centrality (0.013) - this node is a cross-community bridge._
-- **Why does `react` connect `react` to `ApiDocs.jsx`, `App.jsx`, `AccountMerge.jsx`, `.oxlintrc.json`, `client.js`, `CreateCategory.jsx`, `Settings.jsx`, `UserLivePortal.jsx`?**
+- **Why does `react` connect `react` to `ApiDocs.jsx`, `App.jsx`, `.oxlintrc.json`, `Gifts.jsx`, `client.js`, `CreateCategory.jsx`, `Settings.jsx`, `UserLivePortal.jsx`?**
   _High betweenness centrality (0.010) - this node is a cross-community bridge._
 - **What connects `$schema`, `oxc`, `react/rules-of-hooks` to the rest of the system?**
-  _177 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _179 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `controllers/packageController.js` be split into smaller, more focused modules?**
-  _Cohesion score 0.13666666666666666 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.14492753623188406 - nodes in this community are weakly interconnected._
 - **Should `query` be split into smaller, more focused modules?**
-  _Cohesion score 0.07783783783783783 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.07719298245614035 - nodes in this community are weakly interconnected._
 - **Should `server.js` be split into smaller, more focused modules?**
-  _Cohesion score 0.09333333333333334 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.06448202959830866 - nodes in this community are weakly interconnected._
