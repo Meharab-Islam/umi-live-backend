@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   LayoutDashboard,
   Radio,
@@ -29,6 +29,7 @@ import {
   Palette,
   Award,
   TrendingUp,
+  Search,
 } from 'lucide-react';
 import packageApi from '../api/packageApi';
 import { useBranding } from '../context/BrandingContext';
@@ -45,6 +46,7 @@ export default function Sidebar({
 }) {
   const [categories, setCategories] = useState([]);
   const [vipExpanded, setVipExpanded] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const { brandName, resolvedLogoUrl } = useBranding();
 
   // Load VIP categories for sidebar navigation
@@ -74,37 +76,88 @@ export default function Sidebar({
     };
   }, []);
 
-  const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'streams', label: 'Live Streams', icon: Radio, badge: activeStreamCount > 0 ? `${activeStreamCount}` : null },
-    { id: 'host-management', label: 'Hosts', icon: Mic },
-    { id: 'live-rewards', label: 'Live Rewards', icon: Award },
-    { id: 'levels', label: 'Levels', icon: TrendingUp },
-    { id: 'agencies', label: 'Agencies', icon: Building2 },
-    { id: 'resellers', label: 'Resellers', icon: ShoppingBag },
-    { id: 'moderators', label: 'Moderators', icon: Shield },
-    { id: 'users', label: 'Users', icon: Users, badge: totalUsersCount > 0 ? `${totalUsersCount}` : null },
-    { id: 'reports', label: 'Reports', icon: ShieldAlert },
-    { id: 'posts', label: 'Posts', icon: Newspaper },
-    { id: 'account-merge', label: 'Account Merge', icon: GitMerge },
-    // VIP Packages item handled specifically below
-    { id: 'packages', label: 'VIP Packages', icon: Crown },
-    { id: 'thumbnails', label: 'Thumbnails', icon: ImageIcon },
-    { id: 'entry-effects', label: 'Entry Effects', icon: Sparkles },
-    { id: 'banners', label: 'Banners', icon: GalleryHorizontal },
-    { id: 'themes', label: 'Themes', icon: Palette },
-    { id: 'recharge', label: 'Coin Recharge', icon: Coins },
-    { id: 'gifts', label: 'Gifts', icon: Gift },
-    { id: 'top-contributors', label: 'Top Contributors', icon: Trophy },
-    { id: 'withdrawals', label: 'Withdrawals', icon: CreditCard },
-    { id: 'api-docs', label: 'API Docs', icon: Terminal },
-    { id: 'settings', label: 'Settings', icon: Settings },
-  ];
+  const menuSections = useMemo(
+    () => [
+      {
+        title: 'Overview',
+        items: [
+          { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+          { id: 'streams', label: 'Live Streams', icon: Radio, badge: activeStreamCount > 0 ? `${activeStreamCount}` : null },
+        ],
+      },
+      {
+        title: 'Talent & Creators',
+        items: [
+          { id: 'host-management', label: 'Hosts', icon: Mic },
+          { id: 'agencies', label: 'Agencies', icon: Building2 },
+          { id: 'live-rewards', label: 'Live Rewards', icon: Award },
+        ],
+      },
+      {
+        title: 'Users & Safety',
+        items: [
+          { id: 'users', label: 'Users', icon: Users, badge: totalUsersCount > 0 ? `${totalUsersCount}` : null },
+          { id: 'moderators', label: 'Moderators', icon: Shield },
+          { id: 'reports', label: 'Reports', icon: ShieldAlert },
+          { id: 'posts', label: 'Posts', icon: Newspaper },
+          { id: 'levels', label: 'Levels', icon: TrendingUp },
+          { id: 'account-merge', label: 'Account Merge', icon: GitMerge },
+        ],
+      },
+      {
+        title: 'Economy & Monetization',
+        items: [
+          { id: 'recharge', label: 'Coin Recharge', icon: Coins },
+          { id: 'withdrawals', label: 'Withdrawals', icon: CreditCard },
+          { id: 'gifts', label: 'Gifts', icon: Gift },
+          { id: 'top-contributors', label: 'Top Contributors', icon: Trophy },
+          { id: 'resellers', label: 'Resellers', icon: ShoppingBag },
+        ],
+      },
+      {
+        title: 'Store & Appearance',
+        items: [
+          { id: 'packages', label: 'VIP Packages', icon: Crown },
+          { id: 'thumbnails', label: 'Thumbnails', icon: ImageIcon },
+          { id: 'entry-effects', label: 'Entry Effects', icon: Sparkles },
+          { id: 'banners', label: 'Banners', icon: GalleryHorizontal },
+          { id: 'themes', label: 'Themes', icon: Palette },
+        ],
+      },
+      {
+        title: 'System & API',
+        items: [
+          { id: 'api-docs', label: 'API Docs', icon: Terminal },
+          { id: 'settings', label: 'Settings', icon: Settings },
+        ],
+      },
+    ],
+    [activeStreamCount, totalUsersCount]
+  );
 
   const handleItemClick = (id) => {
     setActiveTab(id);
     if (onClose) onClose();
   };
+
+  // Filter sections if search input has query
+  const query = searchQuery.trim().toLowerCase();
+  const filteredSections = useMemo(() => {
+    if (!query) return menuSections;
+    return menuSections
+      .map((section) => ({
+        ...section,
+        items: section.items.filter((item) => {
+          if (item.label.toLowerCase().includes(query)) return true;
+          if (item.id === 'packages') {
+            // Also search inside category names
+            return categories.some((c) => c.name?.toLowerCase().includes(query));
+          }
+          return false;
+        }),
+      }))
+      .filter((section) => section.items.length > 0);
+  }, [menuSections, query, categories]);
 
   return (
     <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
@@ -129,7 +182,7 @@ export default function Sidebar({
           <h1 className="brand-title" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '140px' }} title={brandName}>
             {brandName}
           </h1>
-          <span style={{ fontSize: '0.7rem', color: 'var(--text-dim)', fontWeight: 600 }}>ADMIN CONSOLE</span>
+          <span style={{ fontSize: '0.68rem', color: 'var(--text-dim)', fontWeight: 600, letterSpacing: '0.04em' }}>ADMIN CONSOLE</span>
         </div>
         <div className="brand-live-pill">
           <span className="pulsing-dot" />
@@ -149,180 +202,257 @@ export default function Sidebar({
         )}
       </div>
 
-      {/* Navigation */}
+      {/* Quick Search Jump */}
+      <div className="sidebar-search-box" style={{ padding: '0 0.25rem 0.65rem 0.25rem' }}>
+        <div
+          style={{
+            position: 'relative',
+            display: 'flex',
+            alignItems: 'center',
+            background: 'var(--bg-primary)',
+            borderRadius: 'var(--radius-md)',
+            border: '1px solid var(--border-color)',
+            padding: '0.35rem 0.65rem',
+            transition: 'border-color 0.2s',
+          }}
+        >
+          <Search size={14} style={{ color: 'var(--text-dim)', marginRight: '6px', flexShrink: 0 }} />
+          <input
+            type="text"
+            placeholder="Search menu..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            style={{
+              width: '100%',
+              border: 'none',
+              background: 'transparent',
+              outline: 'none',
+              fontSize: '0.78rem',
+              color: 'var(--text-main)',
+              fontFamily: 'inherit',
+            }}
+          />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery('')}
+              style={{
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                color: 'var(--text-dim)',
+                padding: 0,
+                display: 'flex',
+                alignItems: 'center',
+              }}
+            >
+              <X size={13} />
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Navigation Groups */}
       <nav className="nav-links">
-        {menuItems.map((item) => {
-          if (item.id === 'packages') {
-            const isAnyVipActive = activeTab === 'packages' || activeTab.startsWith('vip-') || activeTab === 'create-category';
+        {filteredSections.length === 0 ? (
+          <div style={{ padding: '1rem', textAlign: 'center', color: 'var(--text-dim)', fontSize: '0.8rem' }}>
+            No matching menu items
+          </div>
+        ) : (
+          filteredSections.map((section, sIndex) => (
+            <div key={section.title || sIndex} className="nav-section-group" style={{ marginBottom: '0.45rem' }}>
+              <div
+                className="nav-section-title"
+                style={{
+                  fontSize: '0.66rem',
+                  fontWeight: 700,
+                  color: 'var(--text-dim)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.06em',
+                  padding: '0.4rem 0.85rem 0.25rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  userSelect: 'none',
+                }}
+              >
+                <span>{section.title}</span>
+              </div>
 
-            return (
-              <div key="vip-menu-group" style={{ display: 'flex', flexDirection: 'column' }}>
-                {/* Clicking VIP Categories button directly toggles the dropdown */}
-                <button
-                  type="button"
-                  className={`nav-item ${isAnyVipActive ? 'active' : ''}`}
-                  onClick={() => {
-                    const willExpand = !vipExpanded;
-                    setVipExpanded(willExpand);
-                    if (willExpand && categories.length > 0 && !activeTab.startsWith('vip-')) {
-                      handleItemClick(`vip-${categories[0].id}`);
-                    }
-                  }}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    width: '100%',
-                    cursor: 'pointer',
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <Crown size={18} />
-                    <span>VIP Categories</span>
-                  </div>
+              {section.items.map((item) => {
+                if (item.id === 'packages') {
+                  const isAnyVipActive = activeTab === 'packages' || activeTab.startsWith('vip-') || activeTab === 'create-category';
 
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    {categories.length > 0 && (
-                      <span
-                        className="nav-badge"
+                  return (
+                    <div key="vip-menu-group" style={{ display: 'flex', flexDirection: 'column' }}>
+                      {/* Clicking VIP Categories button directly toggles the dropdown */}
+                      <button
+                        type="button"
+                        className={`nav-item ${isAnyVipActive ? 'active' : ''}`}
+                        onClick={() => {
+                          const willExpand = !vipExpanded;
+                          setVipExpanded(willExpand);
+                          if (willExpand && categories.length > 0 && !activeTab.startsWith('vip-')) {
+                            handleItemClick(`vip-${categories[0].id}`);
+                          }
+                        }}
                         style={{
-                          fontSize: '0.68rem',
-                          padding: '1px 6px',
-                          borderRadius: '10px',
-                          background: isAnyVipActive ? 'rgba(255,255,255,0.25)' : 'rgba(124, 58, 237, 0.1)',
-                          color: isAnyVipActive ? '#fff' : '#7c3aed',
-                          fontWeight: 700,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          width: '100%',
+                          cursor: 'pointer',
                         }}
                       >
-                        {categories.length}
-                      </span>
-                    )}
-                    <ChevronDown
-                      size={15}
-                      style={{
-                        transform: vipExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
-                        transition: 'transform 0.2s ease',
-                      }}
-                    />
-                  </div>
-                </button>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                          <Crown size={17} />
+                          <span>VIP Packages</span>
+                        </div>
 
-                {/* Dropdown list of Categories */}
-                {vipExpanded && (
-                  <div
-                    style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '2px',
-                      marginLeft: '1.25rem',
-                      paddingLeft: '0.65rem',
-                      borderLeft: '1.5px solid var(--border-color)',
-                      marginRight: '0.5rem',
-                      marginTop: '2px',
-                      marginBottom: '4px',
-                    }}
-                  >
-                    {/* Individual Category items (e.g. King, Duke, Knight) */}
-                    {categories.map((cat) => {
-                      const isCatActive = activeTab === `vip-${cat.id}`;
-
-                      return (
-                        <button
-                          key={cat.id}
-                          type="button"
-                          className={`nav-item sub-nav-item ${isCatActive ? 'active' : ''}`}
-                          onClick={() => handleItemClick(`vip-${cat.id}`)}
-                          style={{
-                            fontSize: '0.82rem',
-                            padding: '0.42rem 0.65rem',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                            borderRadius: '8px',
-                          }}
-                        >
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
-                            <span
-                              style={{
-                                width: '6px',
-                                height: '6px',
-                                borderRadius: '50%',
-                                background: isCatActive ? '#7c3aed' : 'var(--text-dim)',
-                                flexShrink: 0,
-                              }}
-                            />
-                            <span
-                              style={{
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                whiteSpace: 'nowrap',
-                                fontWeight: isCatActive ? 700 : 500,
-                              }}
-                            >
-                              {cat.name}
-                            </span>
-                          </div>
-
-                          {cat.package_count > 0 && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          {categories.length > 0 && (
                             <span
                               className="nav-badge"
                               style={{
                                 fontSize: '0.68rem',
                                 padding: '1px 6px',
                                 borderRadius: '10px',
-                                background: isCatActive ? 'rgba(255,255,255,0.25)' : 'rgba(124, 58, 237, 0.1)',
-                                color: isCatActive ? '#fff' : '#7c3aed',
+                                background: isAnyVipActive ? 'rgba(255,255,255,0.25)' : 'rgba(124, 58, 237, 0.1)',
+                                color: isAnyVipActive ? '#fff' : '#7c3aed',
                                 fontWeight: 700,
                               }}
                             >
-                              {cat.package_count}
+                              {categories.length}
                             </span>
                           )}
-                        </button>
-                      );
-                    })}
+                          <ChevronDown
+                            size={14}
+                            style={{
+                              transform: vipExpanded || query ? 'rotate(180deg)' : 'rotate(0deg)',
+                              transition: 'transform 0.2s ease',
+                            }}
+                          />
+                        </div>
+                      </button>
 
-                    {/* Quick + Create Category Button */}
-                    <button
-                      type="button"
-                      className={`nav-item sub-nav-item ${activeTab === 'create-category' ? 'active' : ''}`}
-                      onClick={() => handleItemClick('create-category')}
-                      style={{
-                        fontSize: '0.78rem',
-                        padding: '0.4rem 0.65rem',
-                        color: activeTab === 'create-category' ? '#fff' : '#7c3aed',
-                        fontWeight: 700,
-                        gap: '6px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        borderRadius: '8px',
-                        marginTop: '2px',
-                        cursor: 'pointer',
-                      }}
-                    >
-                      <Plus size={13} />
-                      <span>+ Create Category</span>
-                    </button>
-                  </div>
-                )}
-              </div>
-            );
-          }
+                      {/* Dropdown list of Categories */}
+                      {(vipExpanded || query) && (
+                        <div
+                          style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '2px',
+                            marginLeft: '1.25rem',
+                            paddingLeft: '0.65rem',
+                            borderLeft: '1.5px solid var(--border-color)',
+                            marginRight: '0.5rem',
+                            marginTop: '2px',
+                            marginBottom: '4px',
+                          }}
+                        >
+                          {categories.map((cat) => {
+                            const isCatActive = activeTab === `vip-${cat.id}`;
 
-          const Icon = item.icon;
-          const isActive = activeTab === item.id;
-          return (
-            <button
-              key={item.id}
-              className={`nav-item ${isActive ? 'active' : ''}`}
-              onClick={() => handleItemClick(item.id)}
-            >
-              <Icon size={18} />
-              <span>{item.label}</span>
-              {item.badge && <span className="nav-badge">{item.badge}</span>}
-            </button>
-          );
-        })}
+                            return (
+                              <button
+                                key={cat.id}
+                                type="button"
+                                className={`nav-item sub-nav-item ${isCatActive ? 'active' : ''}`}
+                                onClick={() => handleItemClick(`vip-${cat.id}`)}
+                                style={{
+                                  fontSize: '0.8rem',
+                                  padding: '0.38rem 0.65rem',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'space-between',
+                                  borderRadius: '8px',
+                                }}
+                              >
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
+                                  <span
+                                    style={{
+                                      width: '6px',
+                                      height: '6px',
+                                      borderRadius: '50%',
+                                      background: isCatActive ? '#7c3aed' : 'var(--text-dim)',
+                                      flexShrink: 0,
+                                    }}
+                                  />
+                                  <span
+                                    style={{
+                                      overflow: 'hidden',
+                                      textOverflow: 'ellipsis',
+                                      whiteSpace: 'nowrap',
+                                      fontWeight: isCatActive ? 700 : 500,
+                                    }}
+                                  >
+                                    {cat.name}
+                                  </span>
+                                </div>
+
+                                {cat.package_count > 0 && (
+                                  <span
+                                    className="nav-badge"
+                                    style={{
+                                      fontSize: '0.65rem',
+                                      padding: '1px 5px',
+                                      borderRadius: '10px',
+                                      background: isCatActive ? 'rgba(255,255,255,0.25)' : 'rgba(124, 58, 237, 0.1)',
+                                      color: isCatActive ? '#fff' : '#7c3aed',
+                                      fontWeight: 700,
+                                    }}
+                                  >
+                                    {cat.package_count}
+                                  </span>
+                                )}
+                              </button>
+                            );
+                          })}
+
+                          {/* Quick + Create Category Button */}
+                          <button
+                            type="button"
+                            className={`nav-item sub-nav-item ${activeTab === 'create-category' ? 'active' : ''}`}
+                            onClick={() => handleItemClick('create-category')}
+                            style={{
+                              fontSize: '0.76rem',
+                              padding: '0.35rem 0.65rem',
+                              color: activeTab === 'create-category' ? '#fff' : '#7c3aed',
+                              fontWeight: 700,
+                              gap: '6px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              borderRadius: '8px',
+                              marginTop: '2px',
+                              cursor: 'pointer',
+                            }}
+                          >
+                            <Plus size={13} />
+                            <span>+ Create Category</span>
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  );
+                }
+
+                const Icon = item.icon;
+                const isActive = activeTab === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    className={`nav-item ${isActive ? 'active' : ''}`}
+                    onClick={() => handleItemClick(item.id)}
+                  >
+                    <Icon size={17} />
+                    <span>{item.label}</span>
+                    {item.badge && <span className="nav-badge">{item.badge}</span>}
+                  </button>
+                );
+              })}
+            </div>
+          ))
+        )}
       </nav>
 
       {/* Admin Profile & Logout */}

@@ -12,7 +12,7 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, rootDir, '');
   const port = parseInt(env.ADMIN_PORT || process.env.ADMIN_PORT || '3000', 10);
   const backendPort = parseInt(env.BACKEND_PORT || process.env.BACKEND_PORT || '5050', 10);
-  const backendTarget = `http://127.0.0.1:${backendPort}`;
+  const backendTarget = env.BACKEND_TARGET || process.env.BACKEND_TARGET || `http://127.0.0.1:${backendPort}`;
 
   return {
     plugins: [react()],
