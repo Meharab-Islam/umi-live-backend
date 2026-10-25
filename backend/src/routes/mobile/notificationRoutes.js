@@ -1,8 +1,27 @@
 import express from 'express';
 import { requireAuth } from '../../middlewares/authMiddleware.js';
 import { updateFcmToken, removeFcmToken } from '../../controllers/mobile/authController.js';
+import {
+  getNotifications,
+  getUnreadCount,
+  markAsRead,
+  markAllAsRead,
+  deleteNotification,
+  clearAllNotifications,
+} from '../../controllers/mobile/notificationController.js';
 
 const router = express.Router();
+
+/**
+ * In-App Notification Feed & Badge Endpoints (Authenticated)
+ */
+router.get('/', requireAuth, getNotifications);
+router.get('/unread-count', requireAuth, getUnreadCount);
+router.patch('/:id/read', requireAuth, markAsRead);
+router.post('/mark-all-read', requireAuth, markAllAsRead);
+router.patch('/read-all', requireAuth, markAllAsRead);
+router.delete('/:id', requireAuth, deleteNotification);
+router.delete('/', requireAuth, clearAllNotifications);
 
 /**
  * Specification and payload definitions for all incoming Firebase Cloud Messaging (FCM) Push Notifications

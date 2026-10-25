@@ -495,6 +495,287 @@ export const API_SPEC = {
       ]
     },
     {
+      "id": "notifications-feed",
+      "category": "notifications",
+      "method": "GET",
+      "path": "/api/mobile/notifications",
+      "summary": "Get In-App Notifications Feed (Follow, Comment, Live Stream)",
+      "description": "Returns paginated in-app notifications for the authenticated user. Automatically enriches notifications with actor profile and dynamically evaluates real-time live stream status (is_live, can_join, display_status: 'Live Now' vs 'Live Ended'). If a live stream has ended, can_join is false, enabling the mobile app to safely prevent navigating to an ended room.",
+      "requiresAuth": true,
+      "requestHeaders": [
+        {
+          "name": "Authorization",
+          "type": "string",
+          "required": true,
+          "example": "Bearer eyJhbGciOiJIUzI1Ni..."
+        }
+      ],
+      "parameters": [
+        {
+          "name": "limit",
+          "in": "query",
+          "type": "integer",
+          "required": false,
+          "description": "Number of notifications to return (default 20, max 100).",
+          "example": "20"
+        },
+        {
+          "name": "offset",
+          "in": "query",
+          "type": "integer",
+          "required": false,
+          "description": "Pagination offset.",
+          "example": "0"
+        },
+        {
+          "name": "unread_only",
+          "in": "query",
+          "type": "string",
+          "required": false,
+          "description": "Filter by unread notifications only ('true' or 'false').",
+          "example": "false"
+        }
+      ],
+      "responses": [
+        {
+          "status": 200,
+          "description": "List of user notifications with dynamic live status.",
+          "example": {
+            "success": true,
+            "notifications": [
+              {
+                "id": 105,
+                "type": "live_started",
+                "title": "🔴 Nila Akter is now LIVE!",
+                "body": "Nila Akter started a live stream: VIP Live Party with Fans 🎤",
+                "entity_type": "live_room",
+                "entity_id": "room-3ca22036",
+                "is_read": 0,
+                "created_at": "2026-10-25T11:45:00.000Z",
+                "actor": {
+                  "id": 2,
+                  "name": "Nila Akter",
+                  "avatar": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150",
+                  "level": 5,
+                  "role": "user"
+                },
+                "live": {
+                  "is_live": false,
+                  "live_status": "ended",
+                  "can_join": false,
+                  "display_status": "Live Ended",
+                  "room_id": "room-3ca22036",
+                  "live_type": "video",
+                  "room_title": "VIP Live Party with Fans 🎤",
+                  "cover_image": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150"
+                }
+              },
+              {
+                "id": 104,
+                "type": "comment",
+                "title": "Sakib Hasan commented on your post 💬",
+                "body": "Awesome post brother! Keep it up!",
+                "entity_type": "post",
+                "entity_id": "3",
+                "is_read": 1,
+                "created_at": "2026-10-25T11:30:00.000Z",
+                "actor": {
+                  "id": 1,
+                  "name": "Sakib Hasan",
+                  "avatar": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150",
+                  "level": 8,
+                  "role": "admin"
+                },
+                "live": null
+              },
+              {
+                "id": 103,
+                "type": "follow",
+                "title": "Sakib Hasan started following you 👤",
+                "body": "Sakib Hasan is now following your profile.",
+                "entity_type": "user",
+                "entity_id": "1",
+                "is_read": 1,
+                "created_at": "2026-10-25T11:20:00.000Z",
+                "actor": {
+                  "id": 1,
+                  "name": "Sakib Hasan",
+                  "avatar": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150",
+                  "level": 8,
+                  "role": "admin"
+                },
+                "live": null
+              }
+            ],
+            "unread_count": 1,
+            "pagination": {
+              "limit": 20,
+              "offset": 0,
+              "has_more": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "notifications-unread-count",
+      "category": "notifications",
+      "method": "GET",
+      "path": "/api/mobile/notifications/unread-count",
+      "summary": "Get Unread Notifications Count Badge",
+      "description": "Ultra-fast Redis-cached endpoint returning the total number of unread in-app notifications for notification bell badge displays on mobile screens.",
+      "requiresAuth": true,
+      "requestHeaders": [
+        {
+          "name": "Authorization",
+          "type": "string",
+          "required": true,
+          "example": "Bearer eyJhbGciOiJIUzI1Ni..."
+        }
+      ],
+      "parameters": [],
+      "responses": [
+        {
+          "status": 200,
+          "description": "Unread count returned.",
+          "example": {
+            "success": true,
+            "unread_count": 3
+          }
+        }
+      ]
+    },
+    {
+      "id": "notifications-mark-read",
+      "category": "notifications",
+      "method": "PATCH",
+      "path": "/api/mobile/notifications/:id/read",
+      "summary": "Mark Single Notification as Read",
+      "description": "Marks a single in-app notification as read (is_read: 1). Instantly invalidates the user's notification cache in Redis.",
+      "requiresAuth": true,
+      "requestHeaders": [
+        {
+          "name": "Authorization",
+          "type": "string",
+          "required": true,
+          "example": "Bearer eyJhbGciOiJIUzI1Ni..."
+        }
+      ],
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "type": "integer",
+          "required": true,
+          "description": "Notification ID to mark as read.",
+          "example": "105"
+        }
+      ],
+      "responses": [
+        {
+          "status": 200,
+          "description": "Notification marked as read.",
+          "example": {
+            "success": true,
+            "message": "Notification marked as read."
+          }
+        }
+      ]
+    },
+    {
+      "id": "notifications-mark-all-read",
+      "category": "notifications",
+      "method": "POST",
+      "path": "/api/mobile/notifications/mark-all-read",
+      "summary": "Mark All Notifications as Read",
+      "description": "Marks all unread in-app notifications as read in bulk for the authenticated user and clears Redis cache.",
+      "requiresAuth": true,
+      "requestHeaders": [
+        {
+          "name": "Authorization",
+          "type": "string",
+          "required": true,
+          "example": "Bearer eyJhbGciOiJIUzI1Ni..."
+        }
+      ],
+      "parameters": [],
+      "responses": [
+        {
+          "status": 200,
+          "description": "All notifications marked as read.",
+          "example": {
+            "success": true,
+            "message": "All notifications marked as read."
+          }
+        }
+      ]
+    },
+    {
+      "id": "notifications-delete-single",
+      "category": "notifications",
+      "method": "DELETE",
+      "path": "/api/mobile/notifications/:id",
+      "summary": "Delete Single In-App Notification",
+      "description": "Permanently deletes a specific notification owned by the authenticated user from MySQL database and refreshes Redis cache.",
+      "requiresAuth": true,
+      "requestHeaders": [
+        {
+          "name": "Authorization",
+          "type": "string",
+          "required": true,
+          "example": "Bearer eyJhbGciOiJIUzI1Ni..."
+        }
+      ],
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "type": "integer",
+          "required": true,
+          "description": "Notification ID to delete.",
+          "example": "105"
+        }
+      ],
+      "responses": [
+        {
+          "status": 200,
+          "description": "Notification deleted successfully.",
+          "example": {
+            "success": true,
+            "message": "Notification deleted successfully."
+          }
+        }
+      ]
+    },
+    {
+      "id": "notifications-clear-all",
+      "category": "notifications",
+      "method": "DELETE",
+      "path": "/api/mobile/notifications",
+      "summary": "Clear All In-App Notifications",
+      "description": "Removes all in-app notifications for the authenticated user.",
+      "requiresAuth": true,
+      "requestHeaders": [
+        {
+          "name": "Authorization",
+          "type": "string",
+          "required": true,
+          "example": "Bearer eyJhbGciOiJIUzI1Ni..."
+        }
+      ],
+      "parameters": [],
+      "responses": [
+        {
+          "status": 200,
+          "description": "All notifications cleared.",
+          "example": {
+            "success": true,
+            "message": "All notifications cleared successfully."
+          }
+        }
+      ]
+    },
+    {
       "id": "agency-top-shortcut",
       "category": "agency-management",
       "method": "GET",

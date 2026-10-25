@@ -5,6 +5,7 @@ import { generateLiveKitToken, LIVEKIT_URL } from '../../config/livekit.js';
 import { sendLiveRoomStartedPushNotification } from '../../config/firebase.js';
 import { cancelHostDisconnectGraceTimer, hostDisconnectGraceTimers, clearRoomMemoryState } from '../../sockets/liveSocket.js';
 import { checkStreamRewardStatus, claimAndAwardLiveReward } from '../../services/liveRewardService.js';
+import { notifyLiveStarted, handleLiveEndedNotifications } from '../../services/notificationService.js';
 
 /**
  * Format elapsed seconds into standard timer format:
@@ -695,7 +696,15 @@ export async function createRoom(req, res) {
 
     const roomData = await buildRoomResponse(roomId, req.user);
 
-    // 3. Asynchronously trigger push notification strictly to followers only
+    // 3. Asynchronously trigger in-app & push notification strictly to followers only
+    notifyLiveStarted({
+      hostId,
+      roomId,
+      title,
+      liveType,
+      coverImage: defaultBg,
+    }).catch((err) => console.error('[Notification] Live start error:', err.message));
+
     sendLiveRoomStartedPushNotification({
       roomId,
       host: req.user,
@@ -2003,6 +2012,11 @@ export async function endRoom(req, res) {
       cache.del(`mobile:live:my_active:${room.host_id}`),
       cache.del(`mobile:live:my_active:${userId}`),
     ]);
+
+    // Update in-app notifications to mark live as ended
+    handleLiveEndedNotifications({ roomId: canonicalRoomId, numericRoomId }).catch((err) => {
+      console.error('[Notification] Handle live ended error:', err.message);
+    });
 
     // 4. Socket notifications exclusively to participants in this room's channel
     if (req.io) {

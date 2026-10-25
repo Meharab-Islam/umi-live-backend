@@ -945,6 +945,30 @@ export async function initializeDatabase() {
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     `);
 
+    // Ensure notifications table exists
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS notifications (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
+        actor_id INT NOT NULL,
+        type ENUM('follow', 'comment', 'reply', 'live_started') NOT NULL,
+        title VARCHAR(255) NOT NULL,
+        body TEXT,
+        entity_type VARCHAR(50) DEFAULT 'general',
+        entity_id VARCHAR(100) DEFAULT '',
+        meta JSON NULL,
+        is_read TINYINT(1) DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        INDEX idx_user_id (user_id),
+        INDEX idx_actor_id (actor_id),
+        INDEX idx_user_created (user_id, created_at),
+        INDEX idx_entity (entity_type, entity_id),
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (actor_id) REFERENCES users(id) ON DELETE CASCADE
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    `);
+
     // Schema Migrations - Ensure newly added columns exist on existing tables (compatible with MySQL 5.7, 8.0, 8.4 & MariaDB)
     const safeAddColumn = async (table, column, colDef) => {
       try {

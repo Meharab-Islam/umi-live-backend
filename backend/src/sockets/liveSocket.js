@@ -3,6 +3,7 @@ import { cache } from '../config/redis.js';
 import { verifyToken } from '../config/jwt.js';
 import { handleUserSeatDeparture } from '../controllers/mobile/liveController.js';
 import { sendChatPushNotification } from '../config/firebase.js';
+import { handleLiveEndedNotifications } from '../services/notificationService.js';
 
 // Store connected viewers: roomId -> Set of socket IDs (Module-level scope)
 const roomViewers = new Map();
@@ -153,6 +154,11 @@ export async function executeRoomTermination(canonicalRoomId, numericRoomId, hos
       ...patternsToDelete.map((p) => cache.delByPattern(p)),
       cache.del(`mobile:live:my_active:${hostId}`),
     ]);
+
+    // Update in-app notifications to mark live as ended
+    handleLiveEndedNotifications({ roomId: canonicalRoomId, numericRoomId }).catch((err) => {
+      console.error('[Notification] Handle live ended error:', err.message);
+    });
 
     // 5. Broadcast Room Closed / Ended event EXCLUSIVELY to participants in this room's channel
     if (io) {
@@ -623,7 +629,13 @@ export async function sweepOrphanedLiveRooms(io) {
   }
 }
 
+let liveIOInstance = null;
+export function getLiveIO() {
+  return liveIOInstance;
+}
+
 export function setupLiveSocket(io) {
+  liveIOInstance = io;
   // Run ghost room sweeper every 30 seconds to clean up any abandoned/crashed rooms
   const sweeperInterval = setInterval(() => {
     sweepOrphanedLiveRooms(io).catch(() => { });

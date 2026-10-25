@@ -6,6 +6,7 @@ import {
   sendCommentReplyPushNotification,
   sendNewPostPushNotification,
 } from '../../config/firebase.js';
+import { notifyComment, notifyCommentReply } from '../../services/notificationService.js';
 
 /**
  * Helper to build user package category object from joined SQL row
@@ -1185,8 +1186,17 @@ export const addComment = async (req, res) => {
       },
     };
 
-    // Trigger push notification asynchronously
+    // Trigger in-app notification & push notification asynchronously
     if (parentId && parentAuthorId) {
+      notifyCommentReply({
+        replierId: userId,
+        parentAuthorId,
+        postId,
+        replyContent: cleanContent,
+        commentId,
+        parentId,
+      }).catch((err) => console.error('[Notification] Comment reply error:', err.message));
+
       sendCommentReplyPushNotification({
         postId,
         commentId,
@@ -1195,6 +1205,14 @@ export const addComment = async (req, res) => {
         content: cleanContent,
       }).catch((err) => console.error('[FCM] Comment reply notification error:', err.message));
     } else if (postAuthorId) {
+      notifyComment({
+        commenterId: userId,
+        postAuthorId,
+        postId,
+        commentContent: cleanContent,
+        commentId,
+      }).catch((err) => console.error('[Notification] Post comment error:', err.message));
+
       sendPostCommentPushNotification({
         postId,
         commentId,

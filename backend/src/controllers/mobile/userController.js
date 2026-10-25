@@ -1,6 +1,7 @@
 import { query } from '../../config/db.js';
 import { cache } from '../../config/redis.js';
 import { sendNewFollowerPushNotification } from '../../config/firebase.js';
+import { notifyFollow } from '../../services/notificationService.js';
 import { ensureFeedSchema } from './feedController.js';
 
 /**
@@ -272,24 +273,11 @@ export async function toggleFollowUser(req, res) {
 
     const isNowFollowing = shouldFollow;
 
-    // 4. Non-blocking Firebase FCM push notification to target user on follow
+    // 4. Non-blocking In-App & Firebase FCM push notification to target user on follow
     if (isNowFollowing) {
-      (async () => {
-        try {
-          const [followerUser] = await query(
-            'SELECT id, full_name, avatar_url FROM users WHERE id = ? LIMIT 1',
-            [followerId]
-          );
-          if (followerUser) {
-            await sendNewFollowerPushNotification({
-              followingUserId: followingId,
-              follower: followerUser,
-            });
-          }
-        } catch (pushErr) {
-          console.error('[FCM Follow Push] Non-blocking push notification error:', pushErr.message);
-        }
-      })();
+      notifyFollow({ followerId, followingId }).catch((err) => {
+        console.error('[Follow Notification] Non-blocking error:', err.message);
+      });
     }
 
     return res.json({
