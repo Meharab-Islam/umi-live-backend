@@ -34,6 +34,8 @@ import {
   Server,
   Camera,
   Star,
+  UserX,
+  FileText,
 } from 'lucide-react';
 import packageApi from '../api/packageApi';
 import { useBranding } from '../context/BrandingContext';
@@ -101,6 +103,7 @@ export default function Sidebar({
         title: 'Users & Safety',
         items: [
           { id: 'users', label: 'Users', icon: Users, badge: totalUsersCount > 0 ? `${totalUsersCount}` : null },
+          { id: 'deletion-requests', label: 'Deletion Requests', icon: UserX },
           { id: 'moderators', label: 'Moderators', icon: Shield },
           { id: 'reports', label: 'Reports', icon: ShieldAlert },
           { id: 'posts', label: 'Posts', icon: Newspaper },
@@ -142,6 +145,7 @@ export default function Sidebar({
       {
         title: 'System & Security',
         items: [
+          { id: 'legal-policies', label: 'Privacy & Policies', icon: FileText },
           { id: 'api-docs', label: 'API Docs', icon: Terminal },
           { id: 'settings', label: 'Admin Settings', icon: Settings },
         ],

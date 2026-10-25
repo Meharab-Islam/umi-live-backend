@@ -27,6 +27,8 @@ import Reports from './pages/Reports';
 import AppThemes from './pages/AppThemes';
 import LiveRewards from './pages/LiveRewards';
 import Levels from './pages/Levels';
+import AccountDeletionRequests from './pages/AccountDeletionRequests';
+import LegalPolicies from './pages/LegalPolicies';
 
 import { checkHealth, getToken, setToken, getCurrentUser, setCurrentUser } from './api/client';
 import dashboardApi from './api/dashboardApi';
@@ -44,6 +46,7 @@ const VALID_TABS = [
   'resellers',
   'moderators',
   'users',
+  'deletion-requests',
   'reports',
   'posts',
   'account-merge',
@@ -64,6 +67,7 @@ const VALID_TABS = [
   'screen-guard',
   'star-system',
   'wallpaper-pricing',
+  'legal-policies',
   'api-docs',
   'settings',
 ];
@@ -362,6 +366,10 @@ export default function App() {
             <Users onToast={addToast} />
           )}
 
+          {activeTab === 'deletion-requests' && (
+            <AccountDeletionRequests onToast={addToast} />
+          )}
+
           {activeTab === 'reports' && (
             <Reports onToast={addToast} />
           )}
@@ -425,6 +433,10 @@ export default function App() {
 
           {activeTab === 'api-docs' && (
             <ApiDocs onToast={addToast} />
+          )}
+
+          {activeTab === 'legal-policies' && (
+            <LegalPolicies onToast={addToast} />
           )}
 
           {activeTab === 'app-economy' && (

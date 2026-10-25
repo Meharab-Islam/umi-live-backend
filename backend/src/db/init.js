@@ -237,9 +237,35 @@ export async function initializeDatabase() {
     await connection.query(`
       CREATE TABLE IF NOT EXISTS system_settings (
         key_name VARCHAR(50) PRIMARY KEY,
-        key_value TEXT NOT NULL,
+        key_value LONGTEXT NOT NULL,
         description VARCHAR(255)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    `);
+
+    // Ensure key_value is LONGTEXT for rich documents and policies
+    await connection.query('ALTER TABLE system_settings MODIFY COLUMN key_value LONGTEXT NOT NULL;').catch(() => {});
+
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS account_deletion_requests (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NULL,
+        identifier VARCHAR(191) NOT NULL,
+        name VARCHAR(191) NULL,
+        email VARCHAR(191) NULL,
+        phone VARCHAR(50) NULL,
+        reason VARCHAR(255) NULL,
+        details TEXT NULL,
+        status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
+        admin_notes TEXT NULL,
+        reviewed_by INT NULL,
+        ip_address VARCHAR(45) DEFAULT '',
+        user_agent VARCHAR(255) DEFAULT '',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        reviewed_at TIMESTAMP NULL,
+        INDEX idx_status (status),
+        INDEX idx_user_id (user_id),
+        INDEX idx_created_at (created_at)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
     `);
 
     await connection.query(`
@@ -1012,7 +1038,13 @@ export async function initializeDatabase() {
       ('star_coins_per_unit', '100000', 'Amount of coins/diamonds required for 1 full star (e.g., 100000 = 1.0 star, 120000 = 1.2 star)'),
       ('star_metric_type', 'coins_spent', 'Metric used to calculate star progression: coins_spent, diamonds, or wallet_coins'),
       ('star_decimal_precision', '1', 'Number of decimal places displayed for star progression (e.g., 1 for 1.2, 2 for 1.25)'),
-      ('star_max_stars', '100', 'Maximum star rating achievable')
+      ('star_max_stars', '100', 'Maximum star rating achievable'),
+      ('privacy_policy_title', 'UMI LIVE - Privacy Policy', 'Display title of Privacy Policy on public landing page'),
+      ('privacy_policy_content', '## UMI LIVE Privacy Policy\n\n**Effective Date:** October 26, 2026\n\nWelcome to **UMI LIVE**! We respect your privacy and are committed to protecting your personal information. This Privacy Policy outlines our practices regarding data collection, usage, and your rights.\n\n### 1. Information We Collect\n- **Account Information:** Name, email address, avatar, user ID, profile bio.\n- **User Content:** Live video/audio streams, public comments, gifts sent and received.\n- **Device & Technical Data:** IP address, device model, operating system version, crash diagnostics.\n- **Payment & Coin Transactions:** Records of coin purchases, diamond earnings, and withdrawal history (financial details are processed via secure third-party gateways).\n\n### 2. Device Permissions\n- **Camera & Microphone:** Required to broadcast live video and audio. Access is only active while streaming or speaking on a guest seat.\n- **Storage / Photos:** Used to upload avatars and cover thumbnails.\n\n### 3. How We Use Information\n- Provide real-time live streaming, audio chat, and virtual gifting.\n- Protect users from fraud, spam, and abuse through AI moderation and screen guard protection.\n- Process host withdrawals and reseller top-up transactions.\n\n### 4. Account & Data Deletion Rights\nYou have the absolute right to delete your account and all associated personal data at any time. You can submit an account deletion request directly through our [Delete Account Request Form](/delete-account) on this website or inside the mobile app settings. Upon verification, your account, personal data, coins, and records will be permanently removed within 24 to 48 hours.\n\n### 5. Contact Us\nIf you have any questions or privacy concerns, contact our Data Protection Officer at: **support@umilive.com**.', 'Comprehensive markdown privacy policy content for public landing page and mobile app'),
+      ('privacy_policy_updated_at', '2026-10-26', 'Last modification date of public privacy policy'),
+      ('terms_of_service_title', 'UMI LIVE - Terms of Service', 'Display title of Terms of Service'),
+      ('terms_of_service_content', '## UMI LIVE Terms of Service\n\n**Effective Date:** October 26, 2026\n\n### 1. Acceptance of Terms\nBy accessing or using UMI LIVE, you agree to comply with and be bound by these Terms of Service. If you do not agree, please do not use our platform.\n\n### 2. Eligibility & Community Guidelines\n- You must be at least 18 years old (or the legal age of majority in your jurisdiction) to stream or purchase virtual items.\n- Hate speech, nudity, harassment, violence, and illegal content are strictly prohibited and will result in permanent hardware device ban.\n\n### 3. Virtual Coins & Diamonds\n- Coins are virtual items used exclusively for entertainment and gifting inside UMI LIVE.\n- Diamonds earned by verified hosts may be cashed out according to platform withdrawal policies.\n\n### 4. Termination\nWe reserve the right to suspend or terminate accounts that violate community safety rules.', 'Public terms of service markdown content'),
+      ('contact_support_email', 'support@umilive.com', 'Official public support email displayed on landing page and legal documents')
       ON DUPLICATE KEY UPDATE description = VALUES(description);
     `);
 

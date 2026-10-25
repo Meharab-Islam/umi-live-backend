@@ -1,0 +1,1351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UMI LIVE — Next-Gen Live Streaming, Voice Party & Creator Community</title>
+  <meta name="description" content="Experience high-definition live video streaming, multi-guest audio parties, 3D animated gifting, and real-time creator communities on UMI LIVE.">
+  <meta name="keywords" content="UMI LIVE, live stream, video streaming, voice party, live pk battle, virtual gifts, creator economy">
+  
+  <!-- Open Graph / Social Media Preview -->
+  <meta property="og:title" content="UMI LIVE — Next-Gen Live Streaming & Voice Community">
+  <meta property="og:description" content="Join thousands of active streamers, send 3D gifts, and connect in real-time on UMI LIVE.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://umilive.com/">
+  <meta name="theme-color" content="#0a0e17">
+
+  <!-- Google Fonts: Outfit & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-dark: #070a12;
+      --bg-surface: #0d121f;
+      --bg-card: rgba(18, 24, 38, 0.75);
+      --bg-card-hover: rgba(26, 34, 52, 0.9);
+      --border-color: rgba(255, 255, 255, 0.08);
+      --border-glow: rgba(0, 242, 254, 0.3);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --primary: #00f2fe;
+      --primary-dark: #4facfe;
+      --accent: #f59e0b;
+      --accent-pink: #ec4899;
+      --accent-purple: #8b5cf6;
+      --success: #10b981;
+      --danger: #ef4444;
+      --gradient-brand: linear-gradient(135deg, #00f2fe 0%, #4facfe 50%, #8b5cf6 100%);
+      --gradient-accent: linear-gradient(135deg, #f59e0b 0%, #ec4899 100%);
+      --gradient-card: linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 100%);
+      --shadow-glow: 0 0 35px rgba(0, 242, 254, 0.25);
+      --shadow-card: 0 16px 40px -10px rgba(0, 0, 0, 0.6);
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 22px;
+      --radius-full: 9999px;
+      --transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      line-height: 1.6;
+      overflow-x: hidden;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    h1, h2, h3, h4, .brand-font {
+      font-family: 'Outfit', sans-serif;
+      letter-spacing: -0.02em;
+    }
+
+    /* Ambient Background Light Mesh */
+    .ambient-mesh {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 0;
+      background: 
+        radial-gradient(circle at 15% 20%, rgba(0, 242, 254, 0.12) 0%, transparent 40%),
+        radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.14) 0%, transparent 45%),
+        radial-gradient(circle at 50% 80%, rgba(236, 72, 153, 0.08) 0%, transparent 50%);
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Header & Navigation */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(7, 10, 18, 0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border-color);
+      transition: var(--transition);
+    }
+
+    .nav-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 76px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--text-main);
+    }
+
+    .brand-logo-badge {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: var(--gradient-brand);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 20px;
+      color: #070a12;
+      box-shadow: 0 0 20px rgba(0, 242, 254, 0.4);
+    }
+
+    .brand-title {
+      font-size: 22px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #fff 40%, var(--primary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-link {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 15px;
+      font-weight: 500;
+      transition: var(--transition);
+      cursor: pointer;
+    }
+
+    .nav-link:hover, .nav-link.active {
+      color: var(--primary);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: var(--radius-full);
+      font-size: 15px;
+      font-weight: 600;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: var(--transition);
+      font-family: inherit;
+    }
+
+    .btn-primary {
+      background: var(--gradient-brand);
+      color: #070a12;
+      font-weight: 700;
+      box-shadow: 0 4px 20px rgba(0, 242, 254, 0.35);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 28px rgba(0, 242, 254, 0.55);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--primary);
+      background: rgba(0, 242, 254, 0.05);
+      color: var(--primary);
+    }
+
+    .btn-sm {
+      padding: 8px 16px;
+      font-size: 13px;
+    }
+
+    /* Hero Section */
+    .hero-section {
+      padding: 90px 0 70px;
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 60px;
+      align-items: center;
+    }
+
+    .live-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #f87171;
+      padding: 6px 14px;
+      border-radius: var(--radius-full);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      margin-bottom: 24px;
+    }
+
+    .live-indicator {
+      width: 8px;
+      height: 8px;
+      background: #ef4444;
+      border-radius: 50%;
+      box-shadow: 0 0 10px #ef4444;
+      animation: pulse 1.8s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      50% { transform: scale(1.3); opacity: 1; }
+      100% { transform: scale(0.95); opacity: 0.8; }
+    }
+
+    .hero-title {
+      font-size: 54px;
+      line-height: 1.12;
+      font-weight: 900;
+      margin-bottom: 24px;
+    }
+
+    .hero-title span {
+      background: var(--gradient-brand);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-subtitle {
+      font-size: 18px;
+      color: var(--text-muted);
+      margin-bottom: 36px;
+      max-width: 540px;
+      line-height: 1.7;
+    }
+
+    .hero-ctas {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 48px;
+    }
+
+    .stats-row {
+      display: flex;
+      gap: 36px;
+      border-top: 1px solid var(--border-color);
+      padding-top: 32px;
+    }
+
+    .stat-item h4 {
+      font-size: 28px;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .stat-item p {
+      font-size: 13px;
+      color: var(--text-dim);
+      font-weight: 500;
+      margin-top: 2px;
+    }
+
+    /* Device Showcase / Preview Card */
+    .device-showcase {
+      position: relative;
+    }
+
+    .mockup-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(24px);
+      border: 1px solid var(--border-color);
+      border-radius: 32px;
+      padding: 24px;
+      box-shadow: var(--shadow-card), 0 0 40px rgba(79, 172, 254, 0.15);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .mockup-inner {
+      border-radius: 20px;
+      background: #000;
+      height: 480px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 20px;
+      background: linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.85) 100%), 
+                  radial-gradient(circle at 50% 40%, #1e293b 0%, #090d16 100%);
+    }
+
+    .mockup-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 2;
+    }
+
+    .host-pill {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(10px);
+      padding: 4px 12px 4px 4px;
+      border-radius: var(--radius-full);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .host-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--gradient-brand);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 13px;
+      color: #070a12;
+    }
+
+    .floating-gift {
+      position: absolute;
+      top: 40%;
+      right: 25px;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      border-radius: 18px;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      animation: float 4s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-12px); }
+    }
+
+    .mockup-chat-stream {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      z-index: 2;
+    }
+
+    .chat-bubble {
+      background: rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(8px);
+      padding: 8px 14px;
+      border-radius: 14px;
+      font-size: 13px;
+      max-width: 85%;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .chat-bubble strong {
+      color: var(--primary);
+      margin-right: 6px;
+    }
+
+    /* Section Headers */
+    .section {
+      padding: 80px 0;
+      position: relative;
+    }
+
+    .section-header {
+      text-align: center;
+      max-width: 680px;
+      margin: 0 auto 60px;
+    }
+
+    .section-tag {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 12px;
+      display: inline-block;
+    }
+
+    .section-title {
+      font-size: 38px;
+      font-weight: 800;
+      margin-bottom: 16px;
+    }
+
+    .section-subtitle {
+      font-size: 16px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* Feature Grid */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 28px;
+    }
+
+    .feature-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 36px 30px;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--border-glow);
+      transform: translateY(-4px);
+      box-shadow: 0 16px 36px -12px rgba(0, 242, 254, 0.2);
+    }
+
+    .feature-icon-wrapper {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      background: rgba(0, 242, 254, 0.1);
+      border: 1px solid rgba(0, 242, 254, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      margin-bottom: 22px;
+    }
+
+    .feature-card h3 {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: #fff;
+    }
+
+    .feature-card p {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.65;
+    }
+
+    /* Document Tabs & Panel (Privacy Policy, Account Deletion, Terms) */
+    .legal-tabs-wrapper {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-card);
+      margin-top: 40px;
+    }
+
+    .legal-tab-nav {
+      display: flex;
+      border-bottom: 1px solid var(--border-color);
+      background: rgba(0, 0, 0, 0.3);
+      padding: 8px 12px 0;
+      gap: 8px;
+      overflow-x: auto;
+    }
+
+    .tab-btn {
+      padding: 14px 24px;
+      border-radius: 12px 12px 0 0;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: var(--transition);
+      white-space: nowrap;
+      font-family: inherit;
+    }
+
+    .tab-btn:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .tab-btn.active {
+      color: var(--primary);
+      background: var(--bg-surface);
+      border-top: 2px solid var(--primary);
+    }
+
+    .tab-content {
+      padding: 40px;
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Privacy Policy Document Styling */
+    .policy-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 30px;
+    }
+
+    .policy-meta {
+      font-size: 14px;
+      color: var(--text-dim);
+    }
+
+    .policy-body {
+      font-size: 15px;
+      line-height: 1.8;
+      color: #cbd5e1;
+    }
+
+    .policy-body h2 {
+      font-size: 24px;
+      color: #fff;
+      margin: 28px 0 12px;
+      font-weight: 700;
+    }
+
+    .policy-body h3 {
+      font-size: 18px;
+      color: var(--primary);
+      margin: 24px 0 10px;
+      font-weight: 700;
+    }
+
+    .policy-body p {
+      margin-bottom: 16px;
+    }
+
+    .policy-body ul {
+      margin: 0 0 20px 24px;
+    }
+
+    .policy-body li {
+      margin-bottom: 8px;
+    }
+
+    /* Account Deletion Request Form */
+    .form-container {
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    .form-header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .form-header h3 {
+      font-size: 26px;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 10px;
+    }
+
+    .form-header p {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .form-group {
+      margin-bottom: 22px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      letter-spacing: 0.3px;
+    }
+
+    .form-label span.req {
+      color: var(--danger);
+      margin-left: 2px;
+    }
+
+    .input-control {
+      width: 100%;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 14px 18px;
+      font-size: 15px;
+      color: #fff;
+      font-family: inherit;
+      transition: var(--transition);
+    }
+
+    .input-control:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 16px rgba(0, 242, 254, 0.2);
+      background: rgba(15, 23, 42, 0.95);
+    }
+
+    textarea.input-control {
+      min-height: 110px;
+      resize: vertical;
+    }
+
+    .checkbox-control {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      cursor: pointer;
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.5;
+      background: rgba(239, 68, 68, 0.05);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+    }
+
+    .checkbox-control input[type="checkbox"] {
+      margin-top: 3px;
+      accent-color: var(--danger);
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+
+    .alert-banner {
+      padding: 18px 22px;
+      border-radius: var(--radius-md);
+      font-size: 14px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      line-height: 1.6;
+    }
+
+    .alert-success {
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      color: #34d399;
+    }
+
+    .alert-error {
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      color: #f87171;
+    }
+
+    /* Footer */
+    footer {
+      background: #05070d;
+      border-top: 1px solid var(--border-color);
+      padding: 60px 0 30px;
+      margin-top: auto;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr 1.2fr;
+      gap: 48px;
+      margin-bottom: 48px;
+    }
+
+    .footer-col h5 {
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 20px;
+    }
+
+    .footer-links {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .footer-links a {
+      color: var(--text-dim);
+      text-decoration: none;
+      font-size: 14px;
+      transition: var(--transition);
+      cursor: pointer;
+    }
+
+    .footer-links a:hover {
+      color: var(--primary);
+    }
+
+    .copyright {
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      padding-top: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      font-size: 13px;
+      color: var(--text-dim);
+    }
+
+    /* Responsive */
+    @media (max-width: 960px) {
+      .hero-section {
+        grid-template-columns: 1fr;
+        padding: 50px 0;
+        gap: 40px;
+      }
+      .hero-title {
+        font-size: 40px;
+      }
+      .footer-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 32px;
+      }
+      .nav-links {
+        display: none;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .hero-title {
+        font-size: 32px;
+      }
+      .stats-row {
+        flex-direction: column;
+        gap: 16px;
+      }
+      .footer-grid {
+        grid-template-columns: 1fr;
+      }
+      .tab-content {
+        padding: 24px 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="ambient-mesh"></div>
+
+  <!-- Main Navigation -->
+  <header>
+    <div class="container nav-wrapper">
+      <a href="/" class="brand">
+        <div class="brand-logo-badge">U</div>
+        <div class="brand-title" id="navBrandName">UMI LIVE</div>
+      </a>
+
+      <ul class="nav-links">
+        <li><a class="nav-link" href="#features">Features</a></li>
+        <li><a class="nav-link" href="#showcase">Showcase</a></li>
+        <li><a class="nav-link" onclick="switchLegalTab('privacy')">Privacy Policy</a></li>
+        <li><a class="nav-link" onclick="switchLegalTab('terms')">Terms</a></li>
+        <li><a class="nav-link" onclick="switchLegalTab('delete')">Delete Account</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <a href="#legal-section" class="btn btn-outline btn-sm" onclick="switchLegalTab('delete')">
+          <span>Security & Rights</span>
+        </a>
+        <a href="#download" class="btn btn-primary btn-sm">
+          <span>Download App 🚀</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero Section -->
+    <section class="container hero-section">
+      <div class="hero-left">
+        <div class="live-badge">
+          <span class="live-indicator"></span>
+          <span>LIVE NOW · 12,400+ Broadcasters</span>
+        </div>
+        <h1 class="hero-title">
+          Stream Your World.<br>
+          <span>Connect in Real-Time.</span>
+        </h1>
+        <p class="hero-subtitle">
+          The next-generation live entertainment platform. Join high-definition multi-guest video rooms, host crystal-clear voice parties, send interactive 3D gifts, and climb global leaderboards.
+        </p>
+
+        <div class="hero-ctas" id="download">
+          <a href="/api/config" class="btn btn-primary">
+            <span>Download for Android (APK) 📱</span>
+          </a>
+          <a href="#features" class="btn btn-outline">
+            <span>Explore Features ↓</span>
+          </a>
+        </div>
+
+        <div class="stats-row">
+          <div class="stat-item">
+            <h4>50M+</h4>
+            <p>Coins Gifted</p>
+          </div>
+          <div class="stat-item">
+            <h4>&lt;300ms</h4>
+            <p>Ultra-Low Latency</p>
+          </div>
+          <div class="stat-item">
+            <h4>100%</h4>
+            <p>Secure Moderation</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- App Device Preview -->
+      <div class="device-showcase" id="showcase">
+        <div class="mockup-card">
+          <div class="mockup-inner">
+            <div class="mockup-header">
+              <div class="host-pill">
+                <div class="host-avatar">U</div>
+                <div>
+                  <div style="font-size: 13px; font-weight: 700; color: #fff;">Maria Host ⭐</div>
+                  <div style="font-size: 11px; color: #38bdf8;">1.4k Watching</div>
+                </div>
+              </div>
+              <div style="background: rgba(239, 68, 68, 0.85); color: #fff; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 20px;">
+                PK BATTLE 4:12
+              </div>
+            </div>
+
+            <!-- Floating animated gift card -->
+            <div class="floating-gift">
+              <span style="font-size: 26px;">🐉</span>
+              <div>
+                <div style="font-size: 12px; font-weight: 800; color: #f59e0b;">Golden Dragon x1</div>
+                <div style="font-size: 11px; color: #94a3b8;">Sent by VIP Royal</div>
+              </div>
+            </div>
+
+            <div class="mockup-chat-stream">
+              <div class="chat-bubble">
+                <strong>David:</strong> Awesome stream tonight! 🔥
+              </div>
+              <div class="chat-bubble">
+                <strong>Sophia_VIP:</strong> Sending Rocket! Let's win this PK 🚀
+              </div>
+              <div class="chat-bubble" style="background: rgba(245, 158, 11, 0.2); border-color: rgba(245, 158, 11, 0.3);">
+                <strong style="color: #f59e0b;">System:</strong> Screen Guard Anti-Leak is Active 🛡️
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Platform Features -->
+    <section class="section" id="features">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag">High Performance Tech</span>
+          <h2 class="section-title">Built for Creators & Communities</h2>
+          <p class="section-subtitle">
+            Powered by modern WebRTC architecture, real-time Socket engine, and production-grade zero-downtime infrastructure.
+          </p>
+        </div>
+
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon-wrapper">🎥</div>
+            <h3>Multi-Guest Video Live</h3>
+            <p>Broadcast in pristine HD with up to 9 simultaneous co-hosts. Low-bandwidth optimization guarantees zero buffering across cellular networks.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon-wrapper">🎙️</div>
+            <h3>Audio Party Lounges</h3>
+            <p>Host group voice chats, chill gaming discussions, and late-night podcasts with customized guest seats and background sound effects.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon-wrapper">🎁</div>
+            <h3>3D Animated Virtual Gifts</h3>
+            <p>From Roses to Golden Dragons and Spaceships. Interactive SVGA/WebP animated gifts fill the screen with sound cues and celebration banners.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon-wrapper">⚔️</div>
+            <h3>Real-Time PK Battles</h3>
+            <p>Challenge creators head-to-head. Audiences send coins to boost popularity bars in intense, live 5-minute showdowns.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon-wrapper">👑</div>
+            <h3>VIP Store & Privileges</h3>
+            <p>Unlock custom royal avatar frames, entrance luxury effects, anti-mute privileges, and exclusive colored chat bubbles.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon-wrapper">🛡️</div>
+            <h3>Screen Guard & Safety</h3>
+            <p>Advanced anti-leak protection prevents screen recording, unauthorized screenshots, and enforces automated device bans for safety.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive Compliance & Legal Hub: Privacy Policy, Account Deletion, Terms -->
+    <section class="section" id="legal-section">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag">Trust & Compliance Hub</span>
+          <h2 class="section-title">Privacy, Security & User Rights</h2>
+          <p class="section-subtitle">
+            Full transparency regarding your personal data, camera/microphone permissions, and easy self-service account deletion.
+          </p>
+        </div>
+
+        <div class="legal-tabs-wrapper">
+          <div class="legal-tab-nav">
+            <button type="button" class="tab-btn active" id="tabBtn-privacy" onclick="switchLegalTab('privacy')">
+              <span>📜 Privacy Policy</span>
+            </button>
+            <button type="button" class="tab-btn" id="tabBtn-delete" onclick="switchLegalTab('delete')">
+              <span>🗑️ Delete Account Request</span>
+            </button>
+            <button type="button" class="tab-btn" id="tabBtn-terms" onclick="switchLegalTab('terms')">
+              <span>⚖️ Terms of Service</span>
+            </button>
+          </div>
+
+          <!-- TAB 1: PRIVACY POLICY -->
+          <div class="tab-content active" id="tabContent-privacy">
+            <div class="policy-header">
+              <div>
+                <h3 id="policyDisplayTitle" style="font-size: 24px; color: #fff;">UMI LIVE — Privacy Policy</h3>
+                <div class="policy-meta">
+                  Last Updated: <span id="policyUpdatedAt">October 26, 2026</span> · Effective Worldwide
+                </div>
+              </div>
+              <button class="btn btn-outline btn-sm" onclick="window.print()">
+                <span>🖨️ Print / Save</span>
+              </button>
+            </div>
+
+            <div class="policy-body" id="policyBodyContainer">
+              <p>Loading active privacy policy from verified platform servers...</p>
+            </div>
+          </div>
+
+          <!-- TAB 2: ACCOUNT DELETION REQUEST FORM (Play Store & App Store Mandatory) -->
+          <div class="tab-content" id="tabContent-delete">
+            <div class="form-container">
+              <div class="form-header">
+                <h3>Submit Account Deletion Request</h3>
+                <p>
+                  In compliance with Google Play Store and Apple App Store user data policies, you have the right to request permanent deletion of your account and all associated personal data.
+                </p>
+              </div>
+
+              <div id="deleteAlertBox"></div>
+
+              <form id="accountDeletionForm" onsubmit="handleDeletionSubmit(event)">
+                <div class="form-group">
+                  <label class="form-label" for="delIdentifier">
+                    Account Identifier (User ID, Email, or Phone)<span class="req">*</span>
+                  </label>
+                  <input 
+                    type="text" 
+                    id="delIdentifier" 
+                    class="input-control" 
+                    placeholder="e.g. User ID #31 or your@email.com or +8801700000000"
+                    required
+                  />
+                  <small style="font-size: 12px; color: var(--text-dim); margin-top: 4px; display: block;">
+                    Provide the ID number or email linked to your Umi Live profile.
+                  </small>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="delFullName">
+                    Full Name (as shown on profile)
+                  </label>
+                  <input 
+                    type="text" 
+                    id="delFullName" 
+                    class="input-control" 
+                    placeholder="e.g. John Doe (Optional)"
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="delReason">
+                    Reason for Deletion<span class="req">*</span>
+                  </label>
+                  <select id="delReason" class="input-control" required style="cursor: pointer;">
+                    <option value="No longer using the application">No longer using the application</option>
+                    <option value="Privacy or data security concerns">Privacy or data security concerns</option>
+                    <option value="Switching to an alternative platform">Switching to an alternative platform</option>
+                    <option value="Temporary break / fresh start">Temporary break / fresh start</option>
+                    <option value="App performance or usability issues">App performance or usability issues</option>
+                    <option value="Other reasons">Other reasons (please specify below)</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="delDetails">
+                    Additional Details / Feedback (Optional)
+                  </label>
+                  <textarea 
+                    id="delDetails" 
+                    class="input-control" 
+                    placeholder="Tell us why you are leaving or any specific data you want verified for erasure..."
+                  ></textarea>
+                </div>
+
+                <div class="form-group">
+                  <label class="checkbox-control">
+                    <input type="checkbox" id="delConsent" required />
+                    <span>
+                      <strong>I confirm my account deletion request.</strong> I understand that this action is irreversible. All my wallet coins, diamonds, stream history, messages, and VIP privileges will be permanently erased within 24 to 48 hours.
+                    </span>
+                  </label>
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="delSubmitBtn" style="width: 100%; padding: 16px;">
+                  <span>Submit Deletion Request 🛡️</span>
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <!-- TAB 3: TERMS OF SERVICE -->
+          <div class="tab-content" id="tabContent-terms">
+            <div class="policy-header">
+              <div>
+                <h3 id="termsDisplayTitle" style="font-size: 24px; color: #fff;">UMI LIVE — Terms of Service</h3>
+                <div class="policy-meta">
+                  Effective: Worldwide · Version 2026.1
+                </div>
+              </div>
+            </div>
+
+            <div class="policy-body" id="termsBodyContainer">
+              <p>Loading terms of service...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <div class="brand" style="margin-bottom: 16px;">
+            <div class="brand-logo-badge">U</div>
+            <div class="brand-title" id="footerBrandName">UMI LIVE</div>
+          </div>
+          <p style="font-size: 14px; color: var(--text-dim); line-height: 1.6; max-width: 320px;">
+            The world's leading real-time live video and social voice entertainment ecosystem. Empowering streamers and fans globally.
+          </p>
+        </div>
+
+        <div class="footer-col">
+          <h5>Platform</h5>
+          <ul class="footer-links">
+            <li><a href="#features">Video Streaming</a></li>
+            <li><a href="#features">Voice Party Rooms</a></li>
+            <li><a href="#features">PK Battles</a></li>
+            <li><a href="#features">Virtual 3D Gifts</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h5>Compliance & Safety</h5>
+          <ul class="footer-links">
+            <li><a onclick="switchLegalTab('privacy')">Privacy Policy</a></li>
+            <li><a onclick="switchLegalTab('terms')">Terms of Service</a></li>
+            <li><a onclick="switchLegalTab('delete')">Delete Account Request</a></li>
+            <li><a href="/api/docs" target="_blank">Developer API Docs</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h5>Support & Contact</h5>
+          <p style="font-size: 13px; color: var(--text-dim); margin-bottom: 12px;">
+            Have questions or need assistance? Reach out to our dedicated support and compliance team:
+          </p>
+          <div style="font-size: 14px; color: var(--primary); font-weight: 600;" id="footerSupportEmail">
+            support@umilive.com
+          </div>
+        </div>
+      </div>
+
+      <div class="copyright">
+        <div>&copy; 2026 UMI LIVE. All rights reserved.</div>
+        <div style="color: var(--text-dim);">Google Play &amp; Apple App Store Compliant</div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Script for Dynamic Content & Account Deletion Form -->
+  <script>
+    // Tab Switching Logic
+    function switchLegalTab(tabName) {
+      const tabs = ['privacy', 'delete', 'terms'];
+      tabs.forEach(t => {
+        const btn = document.getElementById(`tabBtn-${t}`);
+        const content = document.getElementById(`tabContent-${t}`);
+        if (btn) btn.classList.toggle('active', t === tabName);
+        if (content) content.classList.toggle('active', t === tabName);
+      });
+
+      // Scroll to legal section
+      const legalSec = document.getElementById('legal-section');
+      if (legalSec) {
+        legalSec.scrollIntoView({ behavior: 'smooth' });
+      }
+
+      // Update URL hash without reload
+      if (history.pushState) {
+        history.pushState(null, null, `#${tabName}`);
+      }
+    }
+
+    // Markdown-like minimal renderer for headings, lists, bold, and links
+    function formatPolicyContent(raw) {
+      if (!raw) return '<p>No content published yet.</p>';
+      
+      let html = raw
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+
+      // Headings
+      html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>');
+      html = html.replace(/^## (.*$)/gim, '<h2>$1</h2>');
+      html = html.replace(/^# (.*$)/gim, '<h2>$1</h2>');
+
+      // Bold & Italic
+      html = html.replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>');
+      html = html.replace(/\*(.*?)\*/gim, '<em>$1</em>');
+
+      // Links
+      html = html.replace(/\[(.*?)\]\((.*?)\)/gim, '<a href="$2" style="color: var(--primary);">$1</a>');
+
+      // Unordered lists
+      html = html.replace(/^\- (.*$)/gim, '<li>$1</li>');
+      html = html.replace(/(<li>.*<\/li>)/gms, '<ul>$1</ul>');
+
+      // Line breaks into paragraphs
+      html = html.split('\n\n').map(p => {
+        if (p.startsWith('<h2>') || p.startsWith('<h3>') || p.startsWith('<ul>')) return p;
+        return `<p>${p}</p>`;
+      }).join('');
+
+      return html;
+    }
+
+    // Load dynamic privacy policy & terms from server
+    async function fetchLegalData() {
+      try {
+        const res = await fetch('/api/public/privacy-policy');
+        const data = await res.json();
+        if (data && data.success) {
+          if (data.title) document.getElementById('policyDisplayTitle').textContent = data.title;
+          if (data.updated_at) document.getElementById('policyUpdatedAt').textContent = data.updated_at;
+          if (data.content) {
+            document.getElementById('policyBodyContainer').innerHTML = formatPolicyContent(data.content);
+          }
+          if (data.platform_name) {
+            document.getElementById('navBrandName').textContent = data.platform_name;
+            document.getElementById('footerBrandName').textContent = data.platform_name;
+          }
+          if (data.support_email) {
+            document.getElementById('footerSupportEmail').textContent = data.support_email;
+          }
+        }
+      } catch (err) {
+        console.warn('Could not load dynamic privacy policy:', err);
+      }
+
+      try {
+        const res = await fetch('/api/public/terms');
+        const data = await res.json();
+        if (data && data.success) {
+          if (data.title) document.getElementById('termsDisplayTitle').textContent = data.title;
+          if (data.content) {
+            document.getElementById('termsBodyContainer').innerHTML = formatPolicyContent(data.content);
+          }
+        }
+      } catch (err) {
+        console.warn('Could not load terms:', err);
+      }
+    }
+
+    // Handle Account Deletion Request Form Submission
+    async function handleDeletionSubmit(e) {
+      e.preventDefault();
+      const alertBox = document.getElementById('deleteAlertBox');
+      const submitBtn = document.getElementById('delSubmitBtn');
+      alertBox.innerHTML = '';
+
+      const identifier = document.getElementById('delIdentifier').value.trim();
+      const name = document.getElementById('delFullName').value.trim();
+      const reason = document.getElementById('delReason').value;
+      const details = document.getElementById('delDetails').value.trim();
+      const consent = document.getElementById('delConsent').checked;
+
+      if (!identifier) {
+        alertBox.innerHTML = `
+          <div class="alert-banner alert-error">
+            <span>⚠️ Please enter your User ID, registered Email, or Phone number.</span>
+          </div>`;
+        return;
+      }
+
+      if (!consent) {
+        alertBox.innerHTML = `
+          <div class="alert-banner alert-error">
+            <span>⚠️ Please check the acknowledgment box confirming permanent account deletion.</span>
+          </div>`;
+        return;
+      }
+
+      try {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span>Submitting Request... ⏳</span>';
+
+        const res = await fetch('/api/public/account-deletion-request', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ identifier, name, reason, details })
+        });
+
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+          alertBox.innerHTML = `
+            <div class="alert-banner alert-success">
+              <div>
+                <strong style="display: block; font-size: 16px; margin-bottom: 4px;">✅ Deletion Request Registered!</strong>
+                <p>${data.message}</p>
+                <div style="margin-top: 8px; font-weight: 700; color: #fff;">
+                  Ticket Reference ID: <span style="background: rgba(0,0,0,0.3); padding: 2px 8px; border-radius: 6px; font-family: monospace;">${data.reference_id || 'PENDING'}</span>
+                </div>
+              </div>
+            </div>`;
+          document.getElementById('accountDeletionForm').reset();
+        } else {
+          alertBox.innerHTML = `
+            <div class="alert-banner alert-error">
+              <span>❌ ${data.message || 'Failed to submit deletion request. Please try again.'}</span>
+            </div>`;
+        }
+      } catch (err) {
+        alertBox.innerHTML = `
+          <div class="alert-banner alert-error">
+            <span>⚠️ Network error. Please check your connection or contact support@umilive.com.</span>
+          </div>`;
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<span>Submit Deletion Request 🛡️</span>';
+      }
+    }
+
+    // Auto-detect URL path or hash to activate specific tab immediately
+    window.addEventListener('DOMContentLoaded', () => {
+      fetchLegalData();
+
+      const path = window.location.pathname.toLowerCase();
+      const hash = window.location.hash.toLowerCase();
+
+      if (path.includes('privacy') || hash.includes('privacy')) {
+        switchLegalTab('privacy');
+      } else if (path.includes('delete') || hash.includes('delete')) {
+        switchLegalTab('delete');
+      } else if (path.includes('terms') || hash.includes('terms')) {
+        switchLegalTab('terms');
+      }
+    });
+  </script>
+</body>
+</html>

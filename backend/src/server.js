@@ -30,11 +30,13 @@ import packageRoutes from './routes/packageRoutes.js';
 import docsRoutes from './routes/docsRoutes.js';
 import mobileRoutes from './routes/mobile/index.js';
 import configRoutes from './routes/mobile/configRoutes.js';
+import publicRoutes from './routes/publicRoutes.js';
 import { getMaintenanceStatus } from './controllers/mobile/configController.js';
 import { getPublicBanners } from './controllers/bannerController.js';
 import { sqlInjectionGuard } from './middlewares/securityMiddleware.js';
 
 const uploadsDir = path.join(__dirname, '../uploads');
+const publicDir = path.join(__dirname, '../public');
 
 const app = express();
 const server = http.createServer(app);
@@ -102,22 +104,46 @@ app.use((req, res, next) => {
   next();
 });
 
-// Root server landing endpoint
-app.get('/', (req, res) => {
-  res.json({
-    status: 'online',
-    message: '🚀 Umi Live Backend Server is running smoothly!',
-    service: `${PROJECT_NAME}-live-backend`,
-    timestamp: new Date().toISOString(),
-    health_check: '/api/health',
-    endpoints: {
-      health: '/api/health',
-      config: '/api/config',
-      mobile: '/api/mobile',
-      packages: '/api/packages',
-      auth: '/api/auth',
-      docs: '/api/docs',
-    },
+// Serve public assets (landing page styles, images, scripts)
+app.use(express.static(publicDir));
+
+// Public Landing & Compliance Pages (Web Showcase, Privacy Policy, Account Deletion)
+const landingRoutes = [
+  '/',
+  '/privacy',
+  '/privacy-policy',
+  '/delete-account',
+  '/account-deletion',
+  '/terms',
+  '/terms-of-service',
+];
+
+landingRoutes.forEach((route) => {
+  app.get(route, (req, res, next) => {
+    // If request explicitly asks for JSON only (e.g. backend diagnostic monitor), return JSON
+    if (req.headers.accept && req.headers.accept.includes('application/json') && !req.headers.accept.includes('text/html')) {
+      return res.json({
+        status: 'online',
+        message: '🚀 Umi Live Backend Server is running smoothly!',
+        service: `${PROJECT_NAME}-live-backend`,
+        timestamp: new Date().toISOString(),
+        health_check: '/api/health',
+        endpoints: {
+          health: '/api/health',
+          public: '/api/public',
+          mobile: '/api/mobile',
+          packages: '/api/packages',
+          auth: '/api/auth',
+          docs: '/api/docs',
+        },
+      });
+    }
+
+    const landingFile = path.join(publicDir, 'index.html');
+    if (fs.existsSync(landingFile)) {
+      return res.sendFile(landingFile);
+    }
+    next();
   });
 });
 
@@ -255,6 +281,7 @@ app.use('/api/gifts', giftRoutes);
 app.use('/api/wallet', walletRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/packages', packageRoutes);
+app.use('/api/public', publicRoutes);
 app.use('/api/docs', docsRoutes);
 app.get('/api/banners', getPublicBanners);
 app.get(['/api/maintenance', '/api/v1/maintenance'], getMaintenanceStatus);

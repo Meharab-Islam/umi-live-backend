@@ -87,6 +87,12 @@ import {
   getStarSettings,
   updateStarSettings,
   recalculateAllUserStars,
+  getAdminPrivacyPolicy,
+  updateAdminPrivacyPolicy,
+  getAdminDeletionRequests,
+  approveDeletionRequest,
+  rejectDeletionRequest,
+  deleteDeletionRequestRecord,
 } from '../controllers/adminController.js';
 import {
   getPackageCategories,
@@ -355,5 +361,15 @@ router.post('/levels/recalculate-all-stars', recalculateAllUserStars);
 router.post('/wallets/reset-all-coins', resetAllUsersCoins);
 router.post('/wallets/reset-all-diamonds', resetAllUsersDiamonds);
 router.post('/wallets/reset-all-balances', resetAllUsersBalances);
+
+// Legal Policies Management (Privacy Policy & Terms)
+router.get('/privacy-policy', getAdminPrivacyPolicy);
+router.put('/privacy-policy', updateAdminPrivacyPolicy);
+
+// Account Deletion Compliance & Audit
+router.get('/deletion-requests', getAdminDeletionRequests);
+router.post('/deletion-requests/:id/approve', approveDeletionRequest);
+router.post('/deletion-requests/:id/reject', rejectDeletionRequest);
+router.delete('/deletion-requests/:id', deleteDeletionRequestRecord);
 
 export default router;

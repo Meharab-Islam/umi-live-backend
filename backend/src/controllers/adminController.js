@@ -5455,6 +5455,339 @@ export async function updateAdminProfile(req, res) {
   }
 }
 
+/**
+ * ============================================================================
+ * LEGAL POLICIES & ACCOUNT DELETION COMPLIANCE CONTROLLERS
+ * ============================================================================
+ */
+
+export async function getAdminPrivacyPolicy(req, res) {
+  try {
+    const rows = await query(`
+      SELECT key_name, key_value 
+      FROM system_settings 
+      WHERE key_name IN (
+        'privacy_policy_title',
+        'privacy_policy_content',
+        'privacy_policy_updated_at',
+        'terms_of_service_title',
+        'terms_of_service_content',
+        'contact_support_email'
+      )
+    `);
+
+    const map = {};
+    (rows || []).forEach((r) => {
+      map[r.key_name] = r.key_value;
+    });
+
+    return res.json({
+      success: true,
+      privacyPolicy: {
+        title: map['privacy_policy_title'] || 'UMI LIVE - Privacy Policy',
+        content: map['privacy_policy_content'] || '',
+        updatedAt: map['privacy_policy_updated_at'] || '2026-10-26',
+      },
+      termsOfService: {
+        title: map['terms_of_service_title'] || 'UMI LIVE - Terms of Service',
+        content: map['terms_of_service_content'] || '',
+      },
+      supportEmail: map['contact_support_email'] || 'support@umilive.com',
+    });
+  } catch (err) {
+    console.error('getAdminPrivacyPolicy error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to fetch legal policies.', error: err.message });
+  }
+}
+
+export async function updateAdminPrivacyPolicy(req, res) {
+  try {
+    const {
+      privacyTitle,
+      privacyContent,
+      termsTitle,
+      termsContent,
+      supportEmail,
+      updatedAt,
+    } = req.body;
+
+    const updates = [
+      ['privacy_policy_title', privacyTitle || 'UMI LIVE - Privacy Policy'],
+      ['privacy_policy_content', privacyContent || ''],
+      ['privacy_policy_updated_at', updatedAt || new Date().toISOString().split('T')[0]],
+      ['terms_of_service_title', termsTitle || 'UMI LIVE - Terms of Service'],
+      ['terms_of_service_content', termsContent || ''],
+      ['contact_support_email', supportEmail || 'support@umilive.com'],
+    ];
+
+    for (const [k, v] of updates) {
+      await query(
+        `INSERT INTO system_settings (key_name, key_value) 
+         VALUES (?, ?) 
+         ON DUPLICATE KEY UPDATE key_value = VALUES(key_value)`,
+        [k, v]
+      );
+    }
+
+    // Invalidate Redis caches for public legal pages
+    await cache.del('public:privacy_policy');
+    await cache.del('public:terms');
+    await cache.del('public:branding');
+
+    return res.json({
+      success: true,
+      message: 'Privacy policy and legal settings published successfully.',
+    });
+  } catch (err) {
+    console.error('updateAdminPrivacyPolicy error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to update privacy policy.', error: err.message });
+  }
+}
+
+export async function getAdminDeletionRequests(req, res) {
+  try {
+    const { status, search, page = 1, limit = 20 } = req.query;
+    const parsedPage = Math.max(1, parseInt(page, 10) || 1);
+    const parsedLimit = Math.max(1, Math.min(100, parseInt(limit, 10) || 20));
+    const offset = (parsedPage - 1) * parsedLimit;
+
+    const rawSearch = typeof search === 'string' ? search.trim() : '';
+    const cleanSearch = (rawSearch && rawSearch !== 'undefined' && rawSearch !== 'null') ? rawSearch : '';
+    const cleanStatus = (status && status !== 'all' && status !== 'undefined') ? status : null;
+
+    const cacheKey = `admin:deletion_requests:${cleanStatus || 'all'}:${cleanSearch || 'all'}:${parsedPage}:${parsedLimit}`;
+
+    const data = await cache.getOrSet(cacheKey, 30, async () => {
+      const conditions = [];
+      const params = [];
+
+      if (cleanStatus) {
+        conditions.push('r.status = ?');
+        params.push(cleanStatus);
+      }
+
+      if (cleanSearch) {
+        const clean = cleanSearch.replace(/^#/, '');
+        const isNum = !isNaN(clean) && clean !== '';
+        if (isNum) {
+          conditions.push('(r.id = ? OR r.user_id = ?)');
+          const n = parseInt(clean, 10);
+          params.push(n, n);
+        } else {
+          conditions.push('(r.identifier LIKE ? OR r.email LIKE ? OR r.name LIKE ? OR r.reason LIKE ?)');
+          const s = `%${clean}%`;
+          params.push(s, s, s, s);
+        }
+      }
+
+      const whereSql = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+
+      const rows = await query(
+        `SELECT 
+          r.id,
+          r.user_id,
+          r.identifier,
+          r.name,
+          r.email,
+          r.phone,
+          r.reason,
+          r.details,
+          r.status,
+          r.admin_notes,
+          r.reviewed_by,
+          r.ip_address,
+          r.created_at,
+          r.reviewed_at,
+          COALESCE(u.full_name, r.name) as matched_user_name,
+          u.avatar_url as matched_user_avatar,
+          u.coins as matched_user_coins,
+          u.diamonds as matched_user_diamonds,
+          u.role as matched_user_role,
+          admin.full_name as reviewer_name
+         FROM account_deletion_requests r
+         LEFT JOIN users u ON r.user_id = u.id
+         LEFT JOIN users admin ON r.reviewed_by = admin.id
+         ${whereSql}
+         ORDER BY r.created_at DESC, r.id DESC
+         LIMIT ${parsedLimit} OFFSET ${offset}`,
+        params
+      );
+
+      const [totalCount] = await query(
+        `SELECT COUNT(*) as count FROM account_deletion_requests r ${whereSql}`,
+        params
+      );
+
+      const [stats] = await query(`
+        SELECT 
+          COUNT(*) as total_requests,
+          COALESCE(SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END), 0) as pending_count,
+          COALESCE(SUM(CASE WHEN status = 'approved' THEN 1 ELSE 0 END), 0) as approved_count,
+          COALESCE(SUM(CASE WHEN status = 'rejected' THEN 1 ELSE 0 END), 0) as rejected_count
+        FROM account_deletion_requests
+      `);
+
+      return {
+        requests: rows || [],
+        total: totalCount ? totalCount.count : 0,
+        summary: stats || { total_requests: 0, pending_count: 0, approved_count: 0, rejected_count: 0 },
+      };
+    });
+
+    return res.json({
+      success: true,
+      requests: data.requests,
+      summary: data.summary,
+      pagination: {
+        total: data.total,
+        page: parsedPage,
+        limit: parsedLimit,
+      },
+    });
+  } catch (err) {
+    console.error('getAdminDeletionRequests error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to fetch deletion requests.', error: err.message });
+  }
+}
+
+export async function approveDeletionRequest(req, res) {
+  try {
+    const { id } = req.params;
+    const { actionPassword, notes } = req.body;
+
+    // Verify security action password
+    const [settingsRows] = await query("SELECT key_value FROM system_settings WHERE key_name = 'action_security_password'");
+    const configuredPassword = settingsRows?.key_value || 'admin123';
+
+    if (!actionPassword || String(actionPassword).trim() !== String(configuredPassword).trim()) {
+      return res.status(403).json({
+        success: false,
+        message: 'Invalid security action password. You can view or change this in Admin Settings.',
+      });
+    }
+
+    const [reqRow] = await query('SELECT * FROM account_deletion_requests WHERE id = ? LIMIT 1', [id]);
+    if (!reqRow) {
+      return res.status(404).json({ success: false, message: 'Deletion request not found.' });
+    }
+
+    let targetUserId = reqRow.user_id;
+
+    // If user_id wasn't set, try resolving from identifier/email
+    if (!targetUserId) {
+      const isNum = !isNaN(reqRow.identifier) && reqRow.identifier !== '';
+      if (isNum) {
+        const [u] = await query('SELECT id FROM users WHERE id = ? LIMIT 1', [parseInt(reqRow.identifier, 10)]);
+        if (u) targetUserId = u.id;
+      }
+      if (!targetUserId && reqRow.email) {
+        const [u] = await query('SELECT id FROM users WHERE email = ? LIMIT 1', [reqRow.email]);
+        if (u) targetUserId = u.id;
+      }
+    }
+
+    // If matched user exists in database, delete user account and clean up relations
+    let deletedUserName = null;
+    if (targetUserId) {
+      const [user] = await query('SELECT id, full_name, role FROM users WHERE id = ? LIMIT 1', [targetUserId]);
+      if (user) {
+        if (user.role === 'superadmin') {
+          return res.status(403).json({ success: false, message: 'Superadmin account cannot be deleted.' });
+        }
+        deletedUserName = user.full_name;
+
+        // Clean up relations
+        await query('DELETE FROM agency_hosts WHERE user_id = ?', [targetUserId]).catch(() => {});
+        await query('DELETE FROM moderators WHERE user_id = ?', [targetUserId]).catch(() => {});
+        await query('DELETE FROM live_streams WHERE host_id = ?', [targetUserId]).catch(() => {});
+        await query('DELETE FROM users WHERE id = ?', [targetUserId]);
+
+        // Invalidate Redis caches
+        await cache.del(`user:${targetUserId}`);
+        await cache.del(`user:balance:${targetUserId}`);
+        await cache.del(`admin:user:${targetUserId}`);
+        await cache.delByPattern(`user:transactions:${targetUserId}*`);
+        await cache.delByPattern('admin:users*');
+        await cache.delByPattern('admin:dashboard*');
+      }
+    }
+
+    // Update request status to 'approved'
+    await query(
+      `UPDATE account_deletion_requests 
+       SET status = 'approved', 
+           user_id = ?,
+           admin_notes = ?, 
+           reviewed_by = ?, 
+           reviewed_at = NOW() 
+       WHERE id = ?`,
+      [targetUserId, notes || 'Account and data permanently deleted by Admin.', req.user?.id || 1, id]
+    );
+
+    // Invalidate deletion requests cache
+    await cache.delByPattern('admin:deletion_requests*');
+
+    return res.json({
+      success: true,
+      message: targetUserId
+        ? `User #${targetUserId} (${deletedUserName || 'User'}) permanently deleted and request marked as Approved.`
+        : 'Request marked as Approved (No active account found with matching identifier).',
+    });
+  } catch (err) {
+    console.error('approveDeletionRequest error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to approve deletion request.', error: err.message });
+  }
+}
+
+export async function rejectDeletionRequest(req, res) {
+  try {
+    const { id } = req.params;
+    const { notes } = req.body;
+
+    const [reqRow] = await query('SELECT * FROM account_deletion_requests WHERE id = ? LIMIT 1', [id]);
+    if (!reqRow) {
+      return res.status(404).json({ success: false, message: 'Deletion request not found.' });
+    }
+
+    await query(
+      `UPDATE account_deletion_requests 
+       SET status = 'rejected', 
+           admin_notes = ?, 
+           reviewed_by = ?, 
+           reviewed_at = NOW() 
+       WHERE id = ?`,
+      [notes || 'Request rejected by Admin.', req.user?.id || 1, id]
+    );
+
+    await cache.delByPattern('admin:deletion_requests*');
+
+    return res.json({
+      success: true,
+      message: 'Account deletion request has been marked as Rejected.',
+    });
+  } catch (err) {
+    console.error('rejectDeletionRequest error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to reject deletion request.', error: err.message });
+  }
+}
+
+export async function deleteDeletionRequestRecord(req, res) {
+  try {
+    const { id } = req.params;
+    await query('DELETE FROM account_deletion_requests WHERE id = ?', [id]);
+    await cache.delByPattern('admin:deletion_requests*');
+
+    return res.json({
+      success: true,
+      message: 'Deletion request record removed successfully.',
+    });
+  } catch (err) {
+    console.error('deleteDeletionRequestRecord error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to delete record.', error: err.message });
+  }
+}
+
+
 
 
 
