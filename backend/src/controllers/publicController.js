@@ -108,13 +108,15 @@ export async function submitAccountDeletionRequest(req, res) {
   try {
     const { identifier, name, email, phone, reason, details } = req.body;
 
-    const cleanIdentifier = String(identifier || '').trim();
-    if (!cleanIdentifier) {
+    const rawIdentifier = String(identifier || '').trim();
+    if (!rawIdentifier) {
       return res.status(400).json({
         success: false,
         message: 'Please provide your User ID, registered Email, or Phone number.',
       });
     }
+
+    const cleanIdentifier = rawIdentifier.replace(/^#/, '');
 
     // Try finding matching user ID in MySQL
     let matchedUserId = null;
@@ -128,7 +130,7 @@ export async function submitAccountDeletionRequest(req, res) {
         matchedEmail = matchedEmail || users[0].email;
       }
     } else {
-      const users = await query('SELECT id, full_name, email FROM users WHERE email = ? OR phone = ? LIMIT 1', [cleanIdentifier, cleanIdentifier]);
+      const users = await query('SELECT id, full_name, email FROM users WHERE email = ? OR mobile_number = ? LIMIT 1', [cleanIdentifier, cleanIdentifier]);
       if (users && users.length > 0) {
         matchedUserId = users[0].id;
         matchedEmail = matchedEmail || users[0].email;
