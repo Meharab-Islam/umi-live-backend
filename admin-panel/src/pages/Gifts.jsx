@@ -377,22 +377,10 @@ export default function Gifts({ onToast }) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-      {/* Top Header & Main Tab Switcher */}
-      <div className="panel-card" style={{ padding: '1rem 1.25rem' }}>
+      {/* Action Toolbar */}
+      <div className="panel-card" style={{ padding: '0.85rem 1.25rem', marginBottom: '1.25rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-              <span style={{ fontSize: '1.3rem' }}>🎁</span>
-              <h2 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0 }}>
-                Virtual Gift Economy & Contributors
-              </h2>
-            </div>
-            <p style={{ fontSize: '0.82rem', color: 'var(--text-dim)', margin: '0.25rem 0 0' }}>
-              Manage gifts catalog, monitor top gifting supporters, and audit economy transaction flows.
-            </p>
-          </div>
-
-          {/* Navigation Pill Tabs */}
+          {/* Navigation Tabs */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'var(--bg-primary)', padding: '4px', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
             <button
               onClick={() => setActiveTab('catalog')}
@@ -400,7 +388,7 @@ export default function Gifts({ onToast }) {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.45rem',
-                padding: '0.5rem 0.95rem',
+                padding: '0.45rem 0.95rem',
                 borderRadius: '7px',
                 border: 'none',
                 fontSize: '0.84rem',
@@ -421,7 +409,7 @@ export default function Gifts({ onToast }) {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.45rem',
-                padding: '0.5rem 0.95rem',
+                padding: '0.45rem 0.95rem',
                 borderRadius: '7px',
                 border: 'none',
                 fontSize: '0.84rem',
@@ -434,11 +422,29 @@ export default function Gifts({ onToast }) {
             >
               <Trophy size={16} />
               <span>Top Contributors</span>
-              <span style={{ fontSize: '0.7rem', padding: '1px 6px', borderRadius: '10px', background: activeTab === 'contributors' ? 'rgba(0,0,0,0.25)' : 'var(--bg-card-hover)', color: '#fff' }}>
-                HOT
-              </span>
             </button>
           </div>
+
+          {activeTab === 'catalog' && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              {gifts.length > 0 && (
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', fontSize: '0.82rem', color: 'var(--text-main)', margin: 0 }}>
+                  <input
+                    type="checkbox"
+                    checked={selectedGiftIds.length === gifts.length && gifts.length > 0}
+                    onChange={handleToggleSelectAll}
+                    style={{ cursor: 'pointer', width: '16px', height: '16px', accentColor: '#ef4444' }}
+                  />
+                  <span style={{ fontWeight: 600 }}>Select All</span>
+                </label>
+              )}
+
+              <button className="btn btn-primary" onClick={openCreateModal}>
+                <Plus size={16} />
+                <span>Add Gift</span>
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -447,33 +453,6 @@ export default function Gifts({ onToast }) {
       {/* ========================================================= */}
       {activeTab === 'catalog' && (
         <>
-          {/* Action Toolbar */}
-          <div className="panel-card" style={{ padding: '0.75rem 1.25rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
-              <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                Configure items that viewers purchase with coins to send in live broadcasts.
-              </div>
-
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                {gifts.length > 0 && (
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', fontSize: '0.82rem', color: 'var(--text-main)', margin: 0 }}>
-                    <input
-                      type="checkbox"
-                      checked={selectedGiftIds.length === gifts.length && gifts.length > 0}
-                      onChange={handleToggleSelectAll}
-                      style={{ cursor: 'pointer', width: '16px', height: '16px', accentColor: '#ef4444' }}
-                    />
-                    <span style={{ fontWeight: 600 }}>Select All</span>
-                  </label>
-                )}
-
-                <button className="btn btn-primary" onClick={openCreateModal}>
-                  <Plus size={16} />
-                  <span>Create New Gift</span>
-                </button>
-              </div>
-            </div>
-          </div>
 
           {/* Bulk Action Bar */}
           <BulkActionBar

@@ -169,43 +169,12 @@ export default function LiveRewards({ onToast }) {
 
   return (
     <div className="page-container lr-page" style={{ paddingBottom: '3.5rem' }}>
-      {/* Page Header */}
-      <div className="panel-card lr-header-card" style={{ marginBottom: '1.5rem', padding: '1.25rem 1.5rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <div className="lr-header-icon-box">
-              <Award size={26} color="#d97706" />
-            </div>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-                <h1 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-main)', margin: 0 }}>
-                  Live Streaming Rewards
-                </h1>
-                <span className={`lr-status-pill ${settings.is_enabled ? 'active' : 'disabled'}`}>
-                  <span className="lr-status-dot" />
-                  {settings.is_enabled ? 'System Active' : 'System Disabled'}
-                </span>
-              </div>
-              <p style={{ margin: '0.25rem 0 0', fontSize: '0.85rem', color: 'var(--text-dim)' }}>
-                Configure live broadcast duration targets, coin incentives, role criteria, and daily distribution limits.
-              </p>
-            </div>
-          </div>
-
-          <button
-            type="button"
-            className="btn btn-secondary"
-            onClick={() => {
-              loadData();
-              loadHistory();
-            }}
-            disabled={loading || historyLoading}
-            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
-          >
-            <RefreshCw size={15} className={loading || historyLoading ? 'spin' : ''} />
-            <span>Refresh</span>
-          </button>
-        </div>
+      {/* Status Bar */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '1.25rem' }}>
+        <span className={`lr-status-pill ${settings.is_enabled ? 'active' : 'disabled'}`}>
+          <span className="lr-status-dot" />
+          {settings.is_enabled ? 'Rewards Active' : 'Rewards Disabled'}
+        </span>
       </div>
 
       {/* Vibrant Stat Metric Cards */}

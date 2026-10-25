@@ -699,7 +699,7 @@ export default function PackageManagement({ activeTabKey = 'packages', onNavigat
             }}
           >
             <Plus size={15} />
-            <span>+ New Category</span>
+            <span>New Category</span>
           </button>
         </div>
 
@@ -709,7 +709,7 @@ export default function PackageManagement({ activeTabKey = 'packages', onNavigat
             background: 'var(--bg-secondary)',
             border: '1px solid var(--border-color)',
             borderRadius: '16px',
-            padding: '1.25rem 1.5rem',
+            padding: '1.1rem 1.5rem',
             marginBottom: '1.25rem',
             display: 'flex',
             justifyContent: 'space-between',
@@ -723,7 +723,7 @@ export default function PackageManagement({ activeTabKey = 'packages', onNavigat
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <span style={{ fontSize: '1.6rem' }}>{currentCategory.badge_icon || '👑'}</span>
-              <h1 style={{ fontSize: '1.45rem', fontWeight: 800, color: 'var(--text-main)', margin: 0 }}>
+              <h1 style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--text-main)', margin: 0 }}>
                 {currentCategory.name}
               </h1>
               <span
@@ -736,15 +736,11 @@ export default function PackageManagement({ activeTabKey = 'packages', onNavigat
                   fontWeight: 800,
                 }}
               >
-                Live Priority Rank #{currentCategory.display_order}
+                Rank #{currentCategory.display_order}
               </span>
               <span className={`badge ${currentCategory.is_active ? 'badge-success' : 'badge-danger'}`} style={{ fontSize: '0.7rem' }}>
-                {currentCategory.is_active ? 'Active Tier' : 'Disabled'}
+                {currentCategory.is_active ? 'Active' : 'Disabled'}
               </span>
-            </div>
-
-            <div style={{ fontSize: '0.82rem', color: 'var(--text-dim)', marginTop: '6px' }}>
-              Select packages below to subscribe or configure permissions for {currentCategory.name}.
             </div>
           </div>
 
@@ -756,7 +752,7 @@ export default function PackageManagement({ activeTabKey = 'packages', onNavigat
               style={{ borderRadius: '8px', padding: '0.45rem 0.85rem', gap: '5px' }}
             >
               <Edit2 size={13} />
-              <span>Edit Privileges</span>
+              <span>Privileges</span>
             </button>
 
             <button
@@ -766,7 +762,7 @@ export default function PackageManagement({ activeTabKey = 'packages', onNavigat
               style={{ borderRadius: '8px', padding: '0.45rem 1rem', gap: '5px' }}
             >
               <Plus size={14} />
-              <span>+ Add Package</span>
+              <span>Add Package</span>
             </button>
 
             <button

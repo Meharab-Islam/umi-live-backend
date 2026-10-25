@@ -398,60 +398,20 @@ export default function Resellers({ onToast }) {
 
   return (
     <div className="page-container" style={{ paddingBottom: '3rem' }}>
-      {/* Top Header Banner */}
-      <div
-        style={{
-          padding: '1.75rem',
-          borderRadius: '16px',
-          background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.08) 0%, rgba(245, 158, 11, 0.08) 50%, rgba(16, 185, 129, 0.08) 100%)',
-          border: '1px solid rgba(124, 58, 237, 0.2)',
-          marginBottom: '1.75rem',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '1.25rem',
-          boxShadow: '0 4px 20px -2px rgba(124, 58, 237, 0.08)',
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <div
-            style={{
-              width: '56px',
-              height: '56px',
-              borderRadius: '16px',
-              background: 'linear-gradient(135deg, #7c3aed 0%, #f59e0b 100%)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '1.75rem',
-              boxShadow: '0 8px 16px rgba(124, 58, 237, 0.3)',
-            }}
-          >
-            🏪
+      {/* Action Toolbar */}
+      <div className="panel-card" style={{ padding: '0.85rem 1.25rem', marginBottom: '1.25rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+          <div style={{ fontSize: '0.88rem', fontWeight: 600, color: 'var(--text-main)' }}>
+            Resellers Directory ({resellers.length})
           </div>
-          <div>
-            <h1 style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--text-main)', margin: 0, letterSpacing: '-0.5px' }}>
-              Official Resellers & Coin Distribution
-            </h1>
-            <p style={{ margin: '4px 0 0 0', color: 'var(--text-dim)', fontSize: '0.88rem' }}>
-              Authorize coin distributors, track sales per customer user, and audit transaction records.
-            </p>
-          </div>
-        </div>
 
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
           <button
             className="btn btn-primary"
             onClick={() => setAssignModalOpen(true)}
-            style={{
-              borderRadius: '10px',
-              padding: '0.55rem 1.15rem',
-              boxShadow: '0 4px 14px rgba(124, 58, 237, 0.35)',
-            }}
+            style={{ borderRadius: '8px', padding: '0.45rem 1rem' }}
           >
             <Plus size={16} />
-            <span>Assign / Add Reseller</span>
+            <span>Add Reseller</span>
           </button>
         </div>
       </div>

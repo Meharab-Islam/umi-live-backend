@@ -180,32 +180,24 @@ export default function AccountMerge({ onToast }) {
   return (
     <div className="page-container" style={{ paddingBottom: '3.5rem' }}>
       {/* Top Banner */}
+      {/* Action Toolbar */}
       <div
         style={{
           background: 'var(--bg-secondary)',
           border: '1px solid var(--border-color)',
-          borderRadius: '16px',
-          padding: '1.25rem 1.5rem',
-          marginBottom: '1.5rem',
+          borderRadius: '14px',
+          padding: '0.85rem 1.25rem',
+          marginBottom: '1.25rem',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
           flexWrap: 'wrap',
           gap: '1rem',
           boxShadow: 'var(--shadow-sm)',
-          borderLeft: '5px solid #8b5cf6',
         }}
       >
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <GitMerge size={22} color="#8b5cf6" />
-            <h1 style={{ fontSize: '1.45rem', fontWeight: 800, color: 'var(--text-main)', margin: 0 }}>
-              Account Merge & Email Recovery
-            </h1>
-          </div>
-          <p style={{ margin: '4px 0 0', fontSize: '0.84rem', color: 'var(--text-dim)' }}>
-            Recover lost email accounts by linking all original account data, User ID, VIP perks, coins, and host status to the user's new login email.
-          </p>
+        <div style={{ fontSize: '0.88rem', fontWeight: 600, color: 'var(--text-main)' }}>
+          Account Merge & Recovery
         </div>
 
         {/* Tab Buttons */}
@@ -214,16 +206,16 @@ export default function AccountMerge({ onToast }) {
             type="button"
             className={`btn ${activeTab === 'merge' ? 'btn-primary' : 'btn-secondary'} btn-sm`}
             onClick={() => setActiveTab('merge')}
-            style={{ borderRadius: '8px', padding: '0.45rem 1rem', fontWeight: 700 }}
+            style={{ borderRadius: '8px', padding: '0.45rem 1rem' }}
           >
             <GitMerge size={14} />
-            <span>Merge Accounts</span>
+            <span>Merge</span>
           </button>
           <button
             type="button"
             className={`btn ${activeTab === 'history' ? 'btn-primary' : 'btn-secondary'} btn-sm`}
             onClick={() => setActiveTab('history')}
-            style={{ borderRadius: '8px', padding: '0.45rem 1rem', fontWeight: 700 }}
+            style={{ borderRadius: '8px', padding: '0.45rem 1rem' }}
           >
             <History size={14} />
             <span>Audit History</span>
@@ -233,27 +225,6 @@ export default function AccountMerge({ onToast }) {
 
       {activeTab === 'merge' && (
         <>
-          {/* Explanation Banner */}
-          <div
-            style={{
-              background: 'rgba(139, 92, 246, 0.08)',
-              border: '1px solid rgba(139, 92, 246, 0.25)',
-              borderRadius: '14px',
-              padding: '1rem 1.25rem',
-              marginBottom: '1.5rem',
-              display: 'flex',
-              alignItems: 'flex-start',
-              gap: '12px',
-            }}
-          >
-            <HelpCircle size={22} color="#8b5cf6" style={{ flexShrink: 0, marginTop: '2px' }} />
-            <div style={{ fontSize: '0.85rem', color: 'var(--text-main)', lineHeight: 1.5 }}>
-              <strong>How Account Merge Works:</strong>
-              <div style={{ color: 'var(--text-dim)', marginTop: '4px' }}>
-                When a user loses access to their registered email, they create a new account in the app. Use this tool to select their <strong>Old Account</strong> (which holds their ID, coins, {isDiamondMode ? 'diamonds, ' : ''}and VIP role) and their <strong>New Account</strong> (which has their new working login email and password). After merging, the old account is updated with the new email and password, keeping their original ID and all assets!
-              </div>
-            </div>
-          </div>
 
           {/* 2 Account Selection Columns */}
           <div

@@ -128,45 +128,7 @@ export default function CreateCategory({ onNavigate, onToast }) {
         </span>
       </div>
 
-      {/* Header Banner */}
-      <div
-        style={{
-          background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.12) 0%, rgba(59, 130, 246, 0.08) 100%)',
-          border: '1px solid rgba(124, 58, 237, 0.25)',
-          borderRadius: '16px',
-          padding: '1.5rem 1.75rem',
-          marginBottom: '2rem',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '1.25rem',
-          boxShadow: 'var(--shadow-sm)',
-        }}
-      >
-        <div
-          style={{
-            width: '54px',
-            height: '54px',
-            borderRadius: '14px',
-            background: 'linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#fff',
-            boxShadow: '0 6px 16px rgba(124, 58, 237, 0.3)',
-            flexShrink: 0,
-          }}
-        >
-          <Crown size={28} />
-        </div>
-        <div>
-          <h1 style={{ fontSize: '1.45rem', fontWeight: 800, color: 'var(--text-main)', margin: 0 }}>
-            Create VIP Category
-          </h1>
-          <p style={{ margin: '4px 0 0', fontSize: '0.86rem', color: 'var(--text-dim)' }}>
-            Configure a new VIP tier with exclusive live room privileges, explore ranking priorities, and immunity perks.
-          </p>
-        </div>
-      </div>
+
 
       {/* Two Column Layout */}
       <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.4fr) minmax(0, 1fr)', gap: '1.75rem', alignItems: 'flex-start' }}>

@@ -259,9 +259,9 @@ export default function Users({ onToast }) {
       {/* 5 User Statistics Cards */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
         gap: '1rem',
-        marginBottom: '1.5rem',
+        marginBottom: '1.25rem',
       }}>
         {/* Total Users */}
         <div
@@ -272,13 +272,10 @@ export default function Users({ onToast }) {
           <div className="stat-top">
             <span className="stat-label">Total Users</span>
             <div className="stat-icon-wrap" style={{ background: 'rgba(139, 92, 246, 0.15)', color: '#8b5cf6' }}>
-              <UsersIcon size={20} />
+              <UsersIcon size={18} />
             </div>
           </div>
           <div className="stat-value">{summary.total_users}</div>
-          <div className="stat-sub" style={{ color: '#c4b5fd' }}>
-            <span>Registered members</span>
-          </div>
         </div>
 
         {/* Certified Hosts */}
@@ -288,15 +285,12 @@ export default function Users({ onToast }) {
           style={{ cursor: 'pointer', border: roleFilter === 'host' ? '1px solid #ec4899' : undefined }}
         >
           <div className="stat-top">
-            <span className="stat-label">Verified Hosts</span>
+            <span className="stat-label">Hosts</span>
             <div className="stat-icon-wrap" style={{ background: 'rgba(236, 72, 153, 0.15)', color: '#ec4899' }}>
-              <Radio size={20} />
+              <Radio size={18} />
             </div>
           </div>
           <div className="stat-value">{summary.total_hosts}</div>
-          <div className="stat-sub" style={{ color: '#f472b6' }}>
-            <span>Live broadcasters</span>
-          </div>
         </div>
 
         {/* Partner Agencies */}
@@ -308,13 +302,10 @@ export default function Users({ onToast }) {
           <div className="stat-top">
             <span className="stat-label">Agencies</span>
             <div className="stat-icon-wrap" style={{ background: 'rgba(139, 92, 246, 0.15)', color: '#a78bfa' }}>
-              <Building2 size={20} />
+              <Building2 size={18} />
             </div>
           </div>
           <div className="stat-value">{summary.total_agencies}</div>
-          <div className="stat-sub" style={{ color: '#c4b5fd' }}>
-            <span>Agency managers</span>
-          </div>
         </div>
 
         {/* Regular Members */}
@@ -324,127 +315,85 @@ export default function Users({ onToast }) {
           style={{ cursor: 'pointer', border: roleFilter === 'user' ? '1px solid #06b6d4' : undefined }}
         >
           <div className="stat-top">
-            <span className="stat-label">Standard Viewers</span>
+            <span className="stat-label">Viewers</span>
             <div className="stat-icon-wrap" style={{ background: 'rgba(6, 182, 212, 0.15)', color: '#06b6d4' }}>
-              <UserCheck size={20} />
+              <UserCheck size={18} />
             </div>
           </div>
           <div className="stat-value">{summary.total_regular}</div>
-          <div className="stat-sub" style={{ color: '#38bdf8' }}>
-            <span>Audience & coin buyers</span>
-          </div>
         </div>
 
         {/* Banned Accounts */}
         <div
           className="stat-card"
-          onClick={() => { setBannedFilter('1'); }}
+          onClick={() => { setBannedFilter(bannedFilter === '1' ? 'all' : '1'); }}
           style={{ cursor: 'pointer', border: bannedFilter === '1' ? '1px solid #f43f5e' : undefined }}
         >
           <div className="stat-top">
-            <span className="stat-label">Banned Users</span>
+            <span className="stat-label">Banned</span>
             <div className="stat-icon-wrap" style={{ background: 'rgba(244, 63, 94, 0.15)', color: '#f43f5e' }}>
-              <ShieldAlert size={20} />
+              <ShieldAlert size={18} />
             </div>
           </div>
           <div className="stat-value">{summary.total_banned}</div>
-          <div className="stat-sub" style={{ color: '#fda4af' }}>
-            <span>Restricted accounts</span>
-          </div>
         </div>
       </div>
 
-      {/* Quick Filter Buttons & Search Toolbar */}
-      <div className="panel-card" style={{ padding: '1rem 1.25rem' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          {/* Quick Segment Filter Pills */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-            <button
-              className={`btn btn-sm ${roleFilter === 'all' && bannedFilter === 'all' ? 'btn-primary' : 'btn-secondary'}`}
-              onClick={() => { setRoleFilter('all'); setBannedFilter('all'); }}
-            >
-              All Users ({summary.total_users})
-            </button>
+      {/* Search & Filter Toolbar */}
+      <div className="panel-card" style={{ padding: '0.85rem 1.25rem', marginBottom: '1.25rem' }}>
+        <form onSubmit={handleSearchSubmit} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: '8px', flex: 1, minWidth: '280px', alignItems: 'center' }}>
+            <div className="search-input-wrap" style={{ flex: 1 }}>
+              <Search size={16} />
+              <input
+                type="text"
+                className="input-field"
+                placeholder="Search by User ID, Name, or Email..."
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+              />
+            </div>
 
-            <button
-              className={`btn btn-sm ${roleFilter === 'host' ? 'btn-primary' : 'btn-secondary'}`}
-              onClick={() => { setRoleFilter('host'); setBannedFilter('all'); }}
+            <select
+              className="select-field"
+              value={roleFilter}
+              onChange={(e) => setRoleFilter(e.target.value)}
+              style={{ width: 'auto', minWidth: '130px' }}
             >
-              Hosts ({summary.total_hosts})
-            </button>
+              <option value="all">All Roles</option>
+              <option value="user">Viewers</option>
+              <option value="host">Hosts</option>
+              <option value="agency">Agencies</option>
+              <option value="moderator">Moderators</option>
+              <option value="reseller">Resellers</option>
+              <option value="admin">Admins</option>
+            </select>
 
-            <button
-              className={`btn btn-sm ${roleFilter === 'agency' ? 'btn-primary' : 'btn-secondary'}`}
-              onClick={() => { setRoleFilter('agency'); setBannedFilter('all'); }}
+            <select
+              className="select-field"
+              value={bannedFilter}
+              onChange={(e) => setBannedFilter(e.target.value)}
+              style={{ width: 'auto', minWidth: '120px' }}
             >
-              Agencies ({summary.total_agencies})
-            </button>
+              <option value="all">All Status</option>
+              <option value="0">Active</option>
+              <option value="1">Banned</option>
+            </select>
 
-            <button
-              className={`btn btn-sm ${roleFilter === 'user' ? 'btn-primary' : 'btn-secondary'}`}
-              onClick={() => { setRoleFilter('user'); setBannedFilter('all'); }}
-            >
-              Standard Viewers ({summary.total_regular})
+            <button type="submit" className="btn btn-primary" style={{ whiteSpace: 'nowrap' }}>
+              Search
             </button>
-
-            <button
-              className={`btn btn-sm ${roleFilter === 'moderator' ? 'btn-primary' : 'btn-secondary'}`}
-              onClick={() => { setRoleFilter('moderator'); setBannedFilter('all'); }}
-            >
-              Moderators ({summary.total_moderators})
-            </button>
-
-            <button
-              className={`btn btn-sm ${roleFilter === 'reseller' ? 'btn-primary' : 'btn-secondary'}`}
-              onClick={() => { setRoleFilter('reseller'); setBannedFilter('all'); }}
-            >
-              Resellers ({summary.total_resellers || 0})
-            </button>
-
-            <button
-              className={`btn btn-sm ${roleFilter === 'admin' ? 'btn-primary' : 'btn-secondary'}`}
-              onClick={() => { setRoleFilter('admin'); setBannedFilter('all'); }}
-            >
-              Admins ({summary.total_admins})
-            </button>
-
-            <button
-              className={`btn btn-sm ${bannedFilter === '1' ? 'btn-danger' : 'btn-secondary'}`}
-              onClick={() => { setBannedFilter(bannedFilter === '1' ? 'all' : '1'); }}
-            >
-              Banned ({summary.total_banned})
-            </button>
+            {activeSearch && (
+              <button type="button" className="btn btn-secondary" onClick={handleClearSearch} style={{ whiteSpace: 'nowrap' }}>
+                Clear
+              </button>
+            )}
           </div>
 
-          {/* Explicit Search Bar (Form submit / Enter key) */}
-          <form onSubmit={handleSearchSubmit} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
-            <div style={{ display: 'flex', gap: '8px', flex: 1, minWidth: '280px' }}>
-              <div className="search-input-wrap" style={{ flex: 1 }}>
-                <Search size={16} />
-                <input
-                  type="text"
-                  className="input-field"
-                  placeholder="Enter unique User ID (e.g. 5, up to 5 digits: 10243)..."
-                  value={searchInput}
-                  onChange={(e) => setSearchInput(e.target.value)}
-                />
-              </div>
-              <button type="submit" className="btn btn-primary" style={{ whiteSpace: 'nowrap' }}>
-                Search
-              </button>
-              {activeSearch && (
-                <button type="button" className="btn btn-secondary" onClick={handleClearSearch} style={{ whiteSpace: 'nowrap' }}>
-                  Clear
-                </button>
-              )}
-            </div>
-
-            <div style={{ fontSize: '0.8rem', color: 'var(--text-dim)' }}>
-              {activeSearch && <span style={{ color: '#c4b5fd', marginRight: '8px' }}>Filtered by: "{activeSearch}" •</span>}
-              Showing {users.length} of {summary.total_users} registered users
-            </div>
-          </form>
-        </div>
+          <div style={{ fontSize: '0.82rem', color: 'var(--text-dim)' }}>
+            Showing {users.length} users
+          </div>
+        </form>
       </div>
 
       {/* Bulk Action Bar */}

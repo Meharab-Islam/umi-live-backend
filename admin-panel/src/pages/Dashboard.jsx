@@ -72,7 +72,7 @@ export default function Dashboard({ stats: initialStats, onNavigate, onTerminate
   };
 
   if (loading && !stats) {
-    return <Loader text={`Analyzing ${brandName} real-time telemetry...`} size="lg" />;
+    return <Loader text="Loading dashboard metrics..." size="lg" />;
   }
 
   const usersStats = stats?.users || {
@@ -179,19 +179,7 @@ export default function Dashboard({ stats: initialStats, onNavigate, onTerminate
           </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-          <button
-            type="button"
-            className="btn btn-secondary btn-sm"
-            onClick={() => fetchFilteredStats()}
-            disabled={isRefreshing}
-            style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
-            title="Refresh metrics"
-          >
-            <RefreshCw size={14} className={isRefreshing ? 'animate-spin' : ''} />
-            <span>{isRefreshing ? 'Updating...' : 'Refresh'}</span>
-          </button>
-        </div>
+
 
         {/* Custom Date Pickers Drawer */}
         {period === 'custom' && (

@@ -399,57 +399,30 @@ export default function Levels({ onToast }) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-      {/* Top Banner & Quick Actions */}
-      <div
-        className="panel-card"
-        style={{
-          background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.12) 0%, rgba(124, 58, 237, 0.1) 100%)',
-          border: '1px solid rgba(245, 158, 11, 0.3)',
-        }}
-      >
+      {/* Action Toolbar */}
+      <div className="panel-card" style={{ padding: '0.85rem 1.25rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <div style={{ padding: '10px', borderRadius: '12px', background: 'rgba(245, 158, 11, 0.2)', color: '#f59e0b' }}>
-                <TrendingUp size={26} />
-              </div>
-              <div>
-                <h2 style={{ margin: 0, fontSize: '1.45rem', fontWeight: 800, color: 'var(--text-main)' }}>
-                  User Levels & Progression Rewards
-                </h2>
-                <p style={{ margin: 0, fontSize: '0.84rem', color: 'var(--text-dim)', marginTop: '2px' }}>
-                  Define spending milestones, automatic level-ups, and rewards (Coins, Diamonds, Entry Effects, Special Thumbnails, and VIP Packages with validity durations).
-                </p>
-              </div>
-            </div>
+          <div style={{ fontSize: '0.88rem', fontWeight: 600, color: 'var(--text-main)' }}>
+            Levels Directory ({totalLevels})
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
             <button
-              className="btn btn-secondary"
+              className="btn btn-secondary btn-sm"
               onClick={handleSeedDefaults}
-              style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.84rem' }}
+              style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
               title="Populate standard 20 level tiers"
             >
-              <Sparkles size={15} color="#f59e0b" />
+              <Sparkles size={14} color="#f59e0b" />
               <span>Seed 20 Levels</span>
             </button>
             <button
-              className="btn btn-secondary"
-              onClick={fetchData}
-              disabled={loading}
-              style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.84rem' }}
-            >
-              <RefreshCw size={15} className={loading ? 'spin' : ''} />
-              <span>Refresh</span>
-            </button>
-            <button
-              className="btn btn-primary"
+              className="btn btn-primary btn-sm"
               onClick={() => handleOpenModal()}
-              style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.84rem', background: '#f59e0b', borderColor: '#f59e0b', color: '#000' }}
+              style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#f59e0b', borderColor: '#f59e0b', color: '#000' }}
             >
-              <Plus size={16} />
-              <span>Add New Level</span>
+              <Plus size={15} />
+              <span>Add Level</span>
             </button>
           </div>
         </div>

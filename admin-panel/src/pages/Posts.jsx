@@ -155,45 +155,7 @@ export default function Posts({ onToast }) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-      {/* 1. Header & Quick Refresh */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-            <div
-              style={{
-                width: 40,
-                height: 40,
-                borderRadius: '12px',
-                background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.15) 0%, rgba(168, 85, 247, 0.25) 100%)',
-                color: '#7c3aed',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <Newspaper size={22} />
-            </div>
-            <div>
-              <h2 style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--text-main)', margin: 0, lineHeight: 1.2 }}>
-                Community Posts & Feed
-              </h2>
-              <div style={{ fontSize: '0.8rem', color: 'var(--text-dim)' }}>
-                Monitor user posts, multimedia attachments, and moderation actions
-              </div>
-            </div>
-          </div>
-        </div>
 
-        <button
-          className="btn btn-secondary"
-          onClick={() => fetchPosts(true)}
-          disabled={refreshing}
-          style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.85rem' }}
-        >
-          <RefreshCw size={15} style={{ animation: refreshing ? 'spin 1s linear infinite' : 'none' }} />
-          <span>Refresh</span>
-        </button>
-      </div>
 
       {/* 2. Top Stats KPIs */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.85rem' }}>

@@ -233,63 +233,24 @@ export default function AppThemes({ onToast }) {
 
   return (
     <div className="themes-management-page" style={{ padding: '1.5rem', maxWidth: '1400px', margin: '0 auto' }}>
-      {/* Page Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div style={{
-              width: '42px',
-              height: '42px',
-              borderRadius: '12px',
-              background: 'linear-gradient(135deg, #7c3aed 0%, #06b6d4 100%)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#fff',
-              boxShadow: '0 4px 14px rgba(124, 58, 237, 0.35)',
-            }}>
-              <Palette size={24} />
-            </div>
-            <div>
-              <h1 style={{ fontSize: '1.65rem', fontWeight: 800, margin: 0, color: 'var(--text-main)', letterSpacing: '-0.02em' }}>
-                App Theme Studio
-              </h1>
-              <p style={{ margin: '4px 0 0', fontSize: '0.86rem', color: 'var(--text-dim)' }}>
-                Upload wallpapers, customize bottom sheets & configure live color schemes with custom coin pricing.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <button
-            type="button"
-            className="btn btn-secondary"
-            onClick={fetchData}
-            style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
-            title="Refresh Catalog"
-          >
-            <RefreshCw size={15} />
-            <span>Sync</span>
-          </button>
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={handleOpenCreate}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              background: 'linear-gradient(135deg, #7c3aed 0%, #9333ea 100%)',
-              borderColor: '#7c3aed',
-              fontWeight: 600,
-              padding: '0.6rem 1.25rem',
-            }}
-          >
-            <Plus size={18} />
-            <span>Add New {activeTab === 'page_image' ? 'Page Image' : activeTab === 'bottom_sheet_image' ? 'Bottom Sheet' : 'Theme Color'}</span>
-          </button>
-        </div>
+      {/* Action Toolbar */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '1.25rem', gap: '10px' }}>
+        <button
+          type="button"
+          className="btn btn-primary"
+          onClick={handleOpenCreate}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            fontWeight: 600,
+            padding: '0.5rem 1.15rem',
+            borderRadius: '8px',
+          }}
+        >
+          <Plus size={16} />
+          <span>Add {activeTab === 'page_image' ? 'Page Image' : activeTab === 'bottom_sheet_image' ? 'Bottom Sheet' : 'Theme Color'}</span>
+        </button>
       </div>
 
       {/* ACTIVE DEFAULT THEME SHOWCASE BANNER */}

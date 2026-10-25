@@ -407,44 +407,24 @@ export default function Thumbnails({ onToast, embedded = false }) {
 
   return (
     <div className={embedded ? '' : 'page-container'} style={{ paddingBottom: embedded ? 0 : '3.5rem' }}>
-      {/* Page Header */}
+      {/* Action Toolbar */}
       <div
         style={{
           background: 'var(--bg-secondary)',
           border: '1px solid var(--border-color)',
-          borderRadius: '16px',
-          padding: '1.25rem 1.5rem',
-          marginBottom: '1.5rem',
+          borderRadius: '14px',
+          padding: '0.85rem 1.25rem',
+          marginBottom: '1.25rem',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
           flexWrap: 'wrap',
           gap: '1rem',
           boxShadow: 'var(--shadow-sm)',
-          borderLeft: '5px solid #06b6d4',
         }}
       >
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <h1 style={{ fontSize: '1.45rem', fontWeight: 800, color: 'var(--text-main)', margin: 0 }}>
-              Live Room Thumbnails
-            </h1>
-            <span
-              style={{
-                fontSize: '0.75rem',
-                padding: '3px 9px',
-                borderRadius: '8px',
-                background: 'rgba(6, 182, 212, 0.1)',
-                color: '#06b6d4',
-                fontWeight: 800,
-              }}
-            >
-              {thumbnails.length} Items Available
-            </span>
-          </div>
-          <p style={{ margin: '4px 0 0', fontSize: '0.84rem', color: 'var(--text-dim)' }}>
-            Special broadcast image frames and profile thumbnails with validity duration and coin prices.
-          </p>
+        <div style={{ fontSize: '0.88rem', fontWeight: 600, color: 'var(--text-main)' }}>
+          Thumbnails ({thumbnails.length})
         </div>
 
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
@@ -452,17 +432,17 @@ export default function Thumbnails({ onToast, embedded = false }) {
             type="button"
             className="btn btn-secondary btn-sm"
             onClick={() => setPricingModalOpen(true)}
-            style={{ borderRadius: '8px', padding: '0.45rem 0.95rem', gap: '6px', fontWeight: 700 }}
-            title="Configure user custom thumbnail upload duration & coins"
+            style={{ borderRadius: '8px', padding: '0.45rem 0.95rem', gap: '6px' }}
+            title="Configure pricing plans"
           >
             <Sliders size={14} color="#ec4899" />
-            <span>Upload Pricing Plans</span>
+            <span>Pricing Plans</span>
           </button>
           <button
             type="button"
             className="btn btn-secondary btn-sm"
             onClick={() => handleOpenAssignModal()}
-            style={{ borderRadius: '8px', padding: '0.45rem 0.95rem', gap: '6px', fontWeight: 700 }}
+            style={{ borderRadius: '8px', padding: '0.45rem 0.95rem', gap: '6px' }}
           >
             <Gift size={14} color="#06b6d4" />
             <span>Assign to User</span>
@@ -471,10 +451,10 @@ export default function Thumbnails({ onToast, embedded = false }) {
             type="button"
             className="btn btn-primary btn-sm"
             onClick={handleOpenCreate}
-            style={{ borderRadius: '8px', padding: '0.45rem 1rem', gap: '6px', fontWeight: 700 }}
+            style={{ borderRadius: '8px', padding: '0.45rem 1rem', gap: '6px' }}
           >
             <Plus size={14} />
-            <span>+ Add Thumbnail</span>
+            <span>Add Thumbnail</span>
           </button>
         </div>
       </div>

@@ -453,14 +453,14 @@ export default function HostManagement({ onToast }) {
 
         {/* Card 2: Video Hosts */}
         <div className="panel-card" style={{
-          padding: '1.35rem',
+          padding: '1.25rem',
           borderRadius: '14px',
           borderLeft: '4px solid #0284c7',
           boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
             <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-              Video Live Hosts
+              Video Hosts
             </span>
             <div style={{ padding: '6px', borderRadius: '8px', background: 'rgba(2, 132, 199, 0.1)', color: '#0284c7' }}>
               <Video size={18} />
@@ -469,21 +469,18 @@ export default function HostManagement({ onToast }) {
           <div style={{ fontSize: '1.85rem', fontWeight: 800, color: '#0284c7' }}>
             {hostSummary?.video_hosts?.toLocaleString() || 0}
           </div>
-          <div style={{ fontSize: '0.78rem', color: 'var(--text-dim)', marginTop: '6px' }}>
-            Live Camera Streaming Talents
-          </div>
         </div>
 
         {/* Card 3: Audio Hosts */}
         <div className="panel-card" style={{
-          padding: '1.35rem',
+          padding: '1.25rem',
           borderRadius: '14px',
           borderLeft: '4px solid #10b981',
           boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
             <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-              Audio Voice Hosts
+              Audio Hosts
             </span>
             <div style={{ padding: '6px', borderRadius: '8px', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981' }}>
               <Mic size={18} />
@@ -492,21 +489,18 @@ export default function HostManagement({ onToast }) {
           <div style={{ fontSize: '1.85rem', fontWeight: 800, color: '#10b981' }}>
             {hostSummary?.audio_hosts?.toLocaleString() || 0}
           </div>
-          <div style={{ fontSize: '0.78rem', color: 'var(--text-dim)', marginTop: '6px' }}>
-            Voice Rooms & Audio Podcasters
-          </div>
         </div>
 
         {/* Card 4: Agency Affiliated */}
         <div className="panel-card" style={{
-          padding: '1.35rem',
+          padding: '1.25rem',
           borderRadius: '14px',
           borderLeft: '4px solid #f59e0b',
           boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
             <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-              Agency Talents
+              Agency Hosts
             </span>
             <div style={{ padding: '6px', borderRadius: '8px', background: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b' }}>
               <Building2 size={18} />
@@ -514,9 +508,6 @@ export default function HostManagement({ onToast }) {
           </div>
           <div style={{ fontSize: '1.85rem', fontWeight: 800, color: '#f59e0b' }}>
             {hostSummary?.agency_hosts?.toLocaleString() || 0}
-          </div>
-          <div style={{ fontSize: '0.78rem', color: 'var(--text-dim)', marginTop: '6px' }}>
-            {hostSummary?.independent_hosts || 0} Independent Broadcasters
           </div>
         </div>
       </div>
@@ -541,7 +532,7 @@ export default function HostManagement({ onToast }) {
             style={{ borderRadius: '8px', padding: '0.55rem 1.15rem', fontSize: '0.88rem' }}
           >
             <Users size={16} />
-            <span>All Hosts List</span>
+            <span>Hosts</span>
             {hostSummary && (
               <span style={{
                 marginLeft: 6,
@@ -562,7 +553,7 @@ export default function HostManagement({ onToast }) {
             style={{ borderRadius: '8px', padding: '0.55rem 1.15rem', fontSize: '0.88rem' }}
           >
             <Clock size={16} />
-            <span>Host Applications & Requests</span>
+            <span>Applications</span>
             {requestSummary && requestSummary.pending_requests > 0 && (
               <span style={{
                 marginLeft: 6,
@@ -585,25 +576,11 @@ export default function HostManagement({ onToast }) {
             style={{ borderRadius: '8px', padding: '0.55rem 1.15rem', fontSize: '0.88rem' }}
           >
             <Calculator size={16} />
-            <span>Withdrawal Ratios & Payout Desk</span>
+            <span>Payout Ratios</span>
           </button>
         </div>
 
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-          <button
-            className="btn btn-secondary btn-sm"
-            onClick={() => {
-              if (activeTab === 'hosts') fetchHosts();
-              else if (activeTab === 'requests') fetchRequests();
-              else { fetchRatios(); fetchWithdrawals(); }
-            }}
-            style={{ borderRadius: '8px', padding: '0.45rem 0.85rem' }}
-            title="Refresh current tab data"
-          >
-            <RefreshCw size={14} className={loading ? 'spin' : ''} />
-            <span>Refresh</span>
-          </button>
-
           <button
             className="btn btn-primary btn-sm"
             onClick={() => setCreateRequestModal(true)}
@@ -615,7 +592,7 @@ export default function HostManagement({ onToast }) {
             }}
           >
             <Plus size={15} />
-            <span>Apply / Add New Host</span>
+            <span>Add Host</span>
           </button>
         </div>
       </div>

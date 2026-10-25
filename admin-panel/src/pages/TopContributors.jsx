@@ -115,50 +115,50 @@ export default function TopContributors({ onToast }) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-      {/* Header Banner */}
-      <div className="panel-card" style={{ padding: '1.25rem' }}>
+      {/* Action & Filter Toolbar */}
+      <div className="panel-card" style={{ padding: '0.85rem 1.25rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-              <div
+          {/* Period Filter Buttons */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+            {[
+              { id: 'month', label: 'This Month' },
+              { id: '30days', label: '30 Days' },
+              { id: 'today', label: 'Today' },
+              { id: 'all', label: 'All Time' },
+            ].map((p) => (
+              <button
+                key={p.id}
+                onClick={() => setPeriod(p.id)}
                 style={{
-                  width: '38px',
-                  height: '38px',
-                  borderRadius: '10px',
-                  background: 'linear-gradient(135deg, #f59e0b, #d97706)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  boxShadow: '0 4px 12px rgba(245, 158, 11, 0.35)',
+                  padding: '0.4rem 0.85rem',
+                  borderRadius: '8px',
+                  border: period === p.id ? '1px solid #f59e0b' : '1px solid var(--border-color)',
+                  background: period === p.id ? 'rgba(245, 158, 11, 0.18)' : 'var(--bg-primary)',
+                  color: period === p.id ? '#f59e0b' : 'var(--text-muted)',
+                  fontSize: '0.82rem',
+                  fontWeight: period === p.id ? 700 : 500,
+                  cursor: 'pointer',
+                  transition: 'all 0.15s',
                 }}
               >
-                <Trophy size={20} color="#fff" />
-              </div>
-              <div>
-                <h2 style={{ fontSize: '1.3rem', fontWeight: 800, margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <span>Top Gifting Contributors</span>
-                  <span style={{ fontSize: '0.7rem', padding: '2px 8px', borderRadius: '12px', background: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b', fontWeight: 700, border: '1px solid rgba(245, 158, 11, 0.3)' }}>
-                    LEADERBOARD
-                  </span>
-                </h2>
-                <p style={{ fontSize: '0.82rem', color: 'var(--text-dim)', margin: '0.2rem 0 0' }}>
-                  Live ranking of users who spent the most coins gifting broadcasters this month.
-                </p>
-              </div>
-            </div>
+                {p.label}
+              </button>
+            ))}
           </div>
 
-          {/* Action Toolbar */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-            <button
-              className="btn btn-secondary btn-sm"
-              onClick={fetchContributors}
-              disabled={loading}
-              title="Refresh Leaderboard"
-            >
-              <RefreshCw size={14} className={loading ? 'spin' : ''} />
-              <span>Refresh</span>
-            </button>
+            {/* Search Input */}
+            <div style={{ position: 'relative', width: '240px' }}>
+              <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-dim)' }} />
+              <input
+                type="text"
+                placeholder="Search contributor..."
+                className="input-field"
+                style={{ paddingLeft: '32px', fontSize: '0.82rem', height: '34px' }}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
 
             {/* Clear History Button (Admin Purge) */}
             <button
@@ -170,63 +170,14 @@ export default function TopContributors({ onToast }) {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.4rem',
-                fontWeight: 700,
+                fontWeight: 600,
               }}
               onClick={() => setClearModalOpen(true)}
               title="Reset or Clear gift records"
             >
               <Trash2 size={14} />
-              <span>Clear Gift History</span>
+              <span>Clear History</span>
             </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Filter Pills & Search Bar */}
-      <div className="panel-card" style={{ padding: '0.9rem 1.25rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
-          {/* Period Filter Buttons */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
-            <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-dim)', marginRight: '0.35rem' }}>
-              Filter:
-            </span>
-            {[
-              { id: 'month', label: '📅 This Month' },
-              { id: '30days', label: '⏳ Last 30 Days' },
-              { id: 'today', label: '⚡ Today' },
-              { id: 'all', label: '🌟 All Time' },
-            ].map((p) => (
-              <button
-                key={p.id}
-                onClick={() => setPeriod(p.id)}
-                style={{
-                  padding: '0.45rem 0.85rem',
-                  borderRadius: '8px',
-                  border: period === p.id ? '1px solid #f59e0b' : '1px solid var(--border-color)',
-                  background: period === p.id ? 'rgba(245, 158, 11, 0.18)' : 'var(--bg-primary)',
-                  color: period === p.id ? '#f59e0b' : 'var(--text-muted)',
-                  fontSize: '0.82rem',
-                  fontWeight: period === p.id ? 800 : 500,
-                  cursor: 'pointer',
-                  transition: 'all 0.15s',
-                }}
-              >
-                {p.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Search Input */}
-          <div style={{ position: 'relative', width: '260px' }}>
-            <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-dim)' }} />
-            <input
-              type="text"
-              placeholder="Search by name, ID, email..."
-              className="input-field"
-              style={{ paddingLeft: '32px', fontSize: '0.82rem', height: '34px' }}
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
           </div>
         </div>
       </div>

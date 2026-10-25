@@ -1,16 +1,16 @@
 # Graph Report - umi_backend  (2026-10-25)
 
 ## Corpus Check
-- 185 files · ~1,098,119 words
+- 185 files · ~1,096,028 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1008 nodes · 2784 edges · 75 communities (55 shown, 20 thin omitted)
+- 1008 nodes · 2784 edges · 74 communities (55 shown, 19 thin omitted)
 - Extraction: 86% EXTRACTED · 14% INFERRED · 0% AMBIGUOUS · INFERRED: 401 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `701a2a99`
+- Built from commit: `6ed755b8`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -78,7 +78,6 @@
 - db.js
 - levelController.js
 - Posts.jsx
-- LiveRewards.jsx
 - authMiddleware.js
 - AppThemes.jsx
 - test_audio_live_seats.mjs
@@ -112,7 +111,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (75 total, 20 thin omitted)
+## Communities (74 total, 19 thin omitted)
 
 ### Community 0 - "controllers/packageController.js"
 Cohesion: 0.14
@@ -235,8 +234,8 @@ Cohesion: 0.11
 Nodes (38): __dirname, __filename, signToken(), verifyToken(), cache, getMe(), login(), register() (+30 more)
 
 ### Community 47 - "Loader.jsx"
-Cohesion: 0.24
-Nodes (15): agencyApi, userApi, withdrawalApi, Loader(), Pagination(), MODERATOR_POWER_LABELS, UserDetailsModal(), EconomyContext (+7 more)
+Cohesion: 0.20
+Nodes (17): agencyApi, liveRewardApi, userApi, withdrawalApi, Loader(), Pagination(), MODERATOR_POWER_LABELS, UserDetailsModal() (+9 more)
 
 ### Community 48 - "specialItemController.js"
 Cohesion: 0.13
@@ -313,7 +312,7 @@ Nodes (3): themeApi, AppThemes(), TAB_TYPES
 ## Knowledge Gaps
 - **172 isolated node(s):** `$schema`, `oxc`, `react/rules-of-hooks`, `warn`, `name` (+167 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **20 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **19 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
@@ -322,7 +321,7 @@ _Questions this graph is uniquely positioned to answer:_
   _High betweenness centrality (0.177) - this node is a cross-community bridge._
 - **Why does `getPool()` connect `getPool` to `db.js`, `query`, `server.js`, `authMiddleware.js`, `callController.js`, `resellerController.js`, `cache`, `firebase.js`, `mobile/walletRoutes.js`, `chatController.js`?**
   _High betweenness centrality (0.012) - this node is a cross-community bridge._
-- **Why does `react` connect `react` to `Posts.jsx`, `ApiDocs.jsx`, `App.jsx`, `AppThemes.jsx`, `.oxlintrc.json`, `LiveRewards.jsx`, `client.js`, `Loader.jsx`, `Gifts.jsx`, `PackageManagement.jsx`, `Moderators.jsx`?**
+- **Why does `react` connect `react` to `Posts.jsx`, `ApiDocs.jsx`, `App.jsx`, `AppThemes.jsx`, `.oxlintrc.json`, `client.js`, `Loader.jsx`, `Gifts.jsx`, `PackageManagement.jsx`, `Moderators.jsx`?**
   _High betweenness centrality (0.009) - this node is a cross-community bridge._
 - **What connects `$schema`, `oxc`, `react/rules-of-hooks` to the rest of the system?**
   _172 weakly-connected nodes found - possible documentation gaps or missing edges._

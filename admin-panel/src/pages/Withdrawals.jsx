@@ -179,17 +179,11 @@ export default function Withdrawals({ onToast }) {
 
   return (
     <div>
-      {/* Top Controls: Filter & Settings Header */}
-      <div className="panel-card" style={{ padding: '1.25rem' }}>
+      {/* Top Controls: Filter & Settings Toolbar */}
+      <div className="panel-card" style={{ padding: '0.85rem 1.25rem', marginBottom: '1.25rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
-          <div>
-            <h3 style={{ fontSize: '1.15rem', fontWeight: 700, margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <CreditCard size={20} color="#8b5cf6" />
-              <span>Host Payout & Cashout Requests</span>
-            </h3>
-            <p style={{ fontSize: '0.8rem', color: 'var(--text-dim)', margin: '4px 0 0 0' }}>
-              Manage host {isDiamondMode ? 'diamond' : 'coin'} cashout requests, minimum withdrawal thresholds, and preset cashout options.
-            </p>
+          <div style={{ fontSize: '0.88rem', fontWeight: 600, color: 'var(--text-main)' }}>
+            Payout Requests ({withdrawals.length})
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
@@ -200,7 +194,7 @@ export default function Withdrawals({ onToast }) {
               style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
             >
               <Sliders size={15} color="#8b5cf6" />
-              <span>Withdrawal Rules & Presets</span>
+              <span>Rules & Presets</span>
               {showConfig ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
             </button>
 

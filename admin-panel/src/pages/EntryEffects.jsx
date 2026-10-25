@@ -385,44 +385,24 @@ export default function EntryEffects({ onToast, embedded = false }) {
 
   return (
     <div className={embedded ? '' : 'page-container'} style={{ paddingBottom: embedded ? 0 : '3.5rem' }}>
-      {/* Header */}
+      {/* Action Toolbar */}
       <div
         style={{
           background: 'var(--bg-secondary)',
           border: '1px solid var(--border-color)',
-          borderRadius: '16px',
-          padding: '1.25rem 1.5rem',
-          marginBottom: '1.5rem',
+          borderRadius: '14px',
+          padding: '0.85rem 1.25rem',
+          marginBottom: '1.25rem',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
           flexWrap: 'wrap',
           gap: '1rem',
           boxShadow: 'var(--shadow-sm)',
-          borderLeft: '5px solid #ec4899',
         }}
       >
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <h1 style={{ fontSize: '1.45rem', fontWeight: 800, color: 'var(--text-main)', margin: 0 }}>
-              Entry Effects
-            </h1>
-            <span
-              style={{
-                fontSize: '0.75rem',
-                padding: '3px 9px',
-                borderRadius: '8px',
-                background: 'rgba(236, 72, 153, 0.1)',
-                color: '#ec4899',
-                fontWeight: 800,
-              }}
-            >
-              {effects.length} Available Effects
-            </span>
-          </div>
-          <p style={{ margin: '4px 0 0', fontSize: '0.84rem', color: 'var(--text-dim)' }}>
-            Exclusive room entrance animations with SVGA vector animations or GIF animations + audio sound effects.
-          </p>
+        <div style={{ fontSize: '0.88rem', fontWeight: 600, color: 'var(--text-main)' }}>
+          Entry Effects ({effects.length})
         </div>
 
         <div style={{ display: 'flex', gap: '8px' }}>
@@ -430,7 +410,7 @@ export default function EntryEffects({ onToast, embedded = false }) {
             type="button"
             className="btn btn-secondary btn-sm"
             onClick={() => handleOpenAssignModal()}
-            style={{ borderRadius: '8px', padding: '0.45rem 0.95rem', gap: '6px', fontWeight: 700 }}
+            style={{ borderRadius: '8px', padding: '0.45rem 0.95rem', gap: '6px' }}
           >
             <Gift size={14} color="#ec4899" />
             <span>Assign to User</span>
@@ -439,10 +419,10 @@ export default function EntryEffects({ onToast, embedded = false }) {
             type="button"
             className="btn btn-primary btn-sm"
             onClick={handleOpenCreate}
-            style={{ borderRadius: '8px', padding: '0.45rem 1rem', gap: '6px', fontWeight: 700 }}
+            style={{ borderRadius: '8px', padding: '0.45rem 1rem', gap: '6px' }}
           >
             <Plus size={14} />
-            <span>+ Add Entry Effect</span>
+            <span>Add Effect</span>
           </button>
         </div>
       </div>

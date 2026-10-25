@@ -501,7 +501,7 @@ export default function CoinRecharge({ onToast }) {
             style={{ borderRadius: '8px', padding: '0.55rem 1.25rem', fontSize: '0.88rem', gap: '8px' }}
           >
             <Layers size={16} />
-            <span>Recharge Presets & Packages</span>
+            <span>Presets</span>
             <span
               style={{
                 marginLeft: 4,
@@ -517,17 +517,6 @@ export default function CoinRecharge({ onToast }) {
             </span>
           </button>
         </div>
-
-        <button
-          type="button"
-          className="btn btn-secondary btn-sm"
-          onClick={fetchHistory}
-          title="Refresh History"
-          style={{ gap: '6px' }}
-        >
-          <RefreshCw size={14} className={historyLoading ? 'spin' : ''} />
-          <span>Refresh Logs</span>
-        </button>
       </div>
 
       {/* TAB 1: RECHARGE DESK */}

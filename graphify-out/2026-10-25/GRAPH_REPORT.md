@@ -1,7 +1,7 @@
 # Graph Report - umi_backend  (2026-10-25)
 
 ## Corpus Check
-- 185 files · ~1,098,114 words
+- 185 files · ~1,098,119 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary

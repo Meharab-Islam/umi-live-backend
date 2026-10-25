@@ -327,7 +327,7 @@ export default function Agencies({ onToast }) {
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
         gap: '1.25rem',
-        marginBottom: '1.5rem',
+        marginBottom: '1.25rem',
       }}>
         <div className="stat-card">
           <div className="stat-top">
@@ -337,9 +337,6 @@ export default function Agencies({ onToast }) {
             </div>
           </div>
           <div className="stat-value">{totalAgencies}</div>
-          <div className="stat-sub" style={{ color: '#c4b5fd' }}>
-            <span>Verified partner agencies</span>
-          </div>
         </div>
 
         <div className="stat-card">
@@ -350,9 +347,6 @@ export default function Agencies({ onToast }) {
             </div>
           </div>
           <div className="stat-value">{totalRecruitedHosts}</div>
-          <div className="stat-sub" style={{ color: '#f472b6' }}>
-            <span>Broadcasters under agencies</span>
-          </div>
         </div>
 
         {isDiamondMode && (
@@ -364,23 +358,15 @@ export default function Agencies({ onToast }) {
               </div>
             </div>
             <div className="stat-value">💎 {totalAgencyDiamonds.toLocaleString()}</div>
-            <div className="stat-sub" style={{ color: '#38bdf8' }}>
-              <span>Combined host revenue</span>
-            </div>
           </div>
         )}
       </div>
 
-      {/* Action Header */}
-      <div className="panel-card" style={{ padding: '1rem 1.25rem', marginBottom: '1.25rem' }}>
+      {/* Action Toolbar */}
+      <div className="panel-card" style={{ padding: '0.85rem 1.25rem', marginBottom: '1.25rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
-          <div>
-            <h2 style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '0.2rem' }}>
-              Official Partner Agencies
-            </h2>
-            <p style={{ fontSize: '0.8rem', color: 'var(--text-dim)' }}>
-              Manage talent agencies, assign agency roles, and recruit broadcasters.
-            </p>
+          <div style={{ fontSize: '0.88rem', fontWeight: 600, color: 'var(--text-main)' }}>
+            All Agencies ({agencies.length})
           </div>
 
           <button
@@ -393,7 +379,7 @@ export default function Agencies({ onToast }) {
             }}
           >
             <Plus size={16} />
-            <span>Create New Agency</span>
+            <span>Create Agency</span>
           </button>
         </div>
       </div>

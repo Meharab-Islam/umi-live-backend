@@ -93,7 +93,7 @@ export default function LiveStreams({ onToast }) {
 
       {/* Stream Cards Grid */}
       {loading ? (
-        <Loader text="Monitoring live video streams radar..." size="lg" />
+        <Loader text="Loading live streams..." size="lg" />
       ) : filteredStreams.length === 0 ? (
         <div className="panel-card" style={{ textAlign: 'center', padding: '3rem' }}>
           <Radio size={40} style={{ margin: '0 auto 1rem', opacity: 0.3 }} />

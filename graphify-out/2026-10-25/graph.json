@@ -19139,7 +19139,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/sockets/liveSocket.js",
-      "source_location": "L1473",
+      "source_location": "L1476",
       "weight": 1.0
     },
     {
@@ -19199,7 +19199,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/sockets/liveSocket.js",
-      "source_location": "L716",
+      "source_location": "L719",
       "weight": 1.0
     },
     {
