@@ -26,6 +26,7 @@ async function cleanFreshSystem() {
     const tablesToTruncate = [
       'agencies',
       'agency_host_requests',
+      'app_theme_items',
       'banners',
       'chat_message_media',
       'chat_messages',
@@ -35,6 +36,7 @@ async function cleanFreshSystem() {
       'gift_transactions',
       'gifts',
       'host_requests',
+      'level_configs',
       'live_duration_reward_history',
       'live_room_admins',
       'live_room_kicks',

@@ -514,32 +514,7 @@ export async function initializeDatabase() {
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
     `);
 
-    // Seed default theme items if table is empty
-    try {
-      const [themeRows] = await connection.query('SELECT COUNT(*) as count FROM app_theme_items');
-      if (!themeRows || themeRows[0]?.count === 0) {
-        await connection.query(`
-          INSERT INTO app_theme_items (type, name, value, secondary_value, price, validity_days, is_default, is_active, sort_order) VALUES
-          -- Colors
-          ('color', 'Royal Violet (Default)', '#7C3AED', '#A78BFA', 0, 0, 1, 1, 1),
-          ('color', 'Cyber Neon Cyan', '#06B6D4', '#22D3EE', 100, 30, 0, 1, 2),
-          ('color', 'Sunset Rose Gold', '#F43F5E', '#FB7185', 200, 30, 0, 1, 3),
-          ('color', 'Emerald Glow', '#10B981', '#34D399', 150, 30, 0, 1, 4),
-          ('color', 'Midnight Obsidian', '#0F172A', '#334155', 0, 0, 0, 1, 5),
-          -- Page Background Images
-          ('page_image', 'Default Dark Nebula', 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=1200&q=80', NULL, 0, 0, 1, 1, 1),
-          ('page_image', 'Cyberpunk City Grid', 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=1200&q=80', NULL, 300, 30, 0, 1, 2),
-          ('page_image', 'Deep Space Aurora', 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=1200&q=80', NULL, 500, 30, 0, 1, 3),
-          -- Bottom Sheet Images
-          ('bottom_sheet_image', 'Default Frosted Glass', 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=800&q=80', NULL, 0, 0, 1, 1, 1),
-          ('bottom_sheet_image', 'Dark Wave Texture', 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80', NULL, 250, 30, 0, 1, 2),
-          ('bottom_sheet_image', 'Golden Velvet Shimmer', 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=800&q=80', NULL, 400, 30, 0, 1, 3);
-        `);
-        console.log('✅ [DB Init] App Theme initial seeds created.');
-      }
-    } catch (e) {
-      console.error('Seed theme error:', e.message);
-    }
+    // Note: app_theme_items table created empty; items configured via Admin Panel
 
     // Live Continuous & Cumulative Streaming Duration Rewards Configuration & History
     await connection.query(`
@@ -693,40 +668,7 @@ export async function initializeDatabase() {
       // Ignore if exists
     }
 
-    // Seed default progression levels (1 - 20) if empty
-    try {
-      const [levelRows] = await connection.query('SELECT COUNT(*) as count FROM level_configs');
-      if (!levelRows || levelRows[0]?.count === 0) {
-        await connection.query(`
-          INSERT INTO level_configs 
-            (level_number, level_name, min_coins_spent, badge_color, reward_coins, reward_diamonds, reward_validity_days, description)
-          VALUES 
-            (1, 'Bronze Novice', 0, '#cd7f32', 0, 0, 7, 'Welcome tier for every new member.'),
-            (2, 'Silver Explorer', 500, '#94a3b8', 25, 0, 7, 'Unlocked after spending 500 coins.'),
-            (3, 'Gold Adventurer', 1500, '#eab308', 50, 0, 7, 'Unlocked after spending 1,500 coins.'),
-            (4, 'Emerald Scout', 5000, '#10b981', 150, 0, 7, 'Unlocked after spending 5,000 coins.'),
-            (5, 'Ruby Pioneer', 15000, '#ef4444', 350, 50, 7, 'Unlocked after spending 15,000 coins.'),
-            (6, 'Sapphire Veteran', 40000, '#3b82f6', 750, 100, 7, 'Unlocked after spending 40,000 coins.'),
-            (7, 'Amethyst Warrior', 100000, '#8b5cf6', 1500, 250, 15, 'Unlocked after spending 100,000 coins.'),
-            (8, 'Diamond Champion', 250000, '#06b6d4', 3500, 500, 15, 'Unlocked after spending 250,000 coins.'),
-            (9, 'Master Guardian', 600000, '#ec4899', 7500, 1000, 15, 'Unlocked after spending 600,000 coins.'),
-            (10, 'Royal Conqueror', 1500000, '#f59e0b', 15000, 2500, 30, 'Unlocked after spending 1,500,000 coins.'),
-            (11, 'Imperial Warlord', 3000000, '#6366f1', 30000, 5000, 30, 'Unlocked after spending 3,000,000 coins.'),
-            (12, 'Grand Monarch', 6000000, '#14b8a6', 60000, 10000, 30, 'Unlocked after spending 6,000,000 coins.'),
-            (13, 'Supreme Overlord', 12000000, '#d946ef', 120000, 20000, 30, 'Unlocked after spending 12,000,000 coins.'),
-            (14, 'Celestial Titan', 25000000, '#84cc16', 250000, 40000, 30, 'Unlocked after spending 25,000,000 coins.'),
-            (15, 'Mythic Sovereign', 50000000, '#f43f5e', 500000, 80000, 30, 'Unlocked after spending 50,000,000 coins.'),
-            (16, 'Divine Immortal', 100000000, '#a855f7', 1000000, 150000, 60, 'Unlocked after spending 100,000,000 coins.'),
-            (17, 'Galactic Emperor', 200000000, '#0ea5e9', 2000000, 300000, 60, 'Unlocked after spending 200,000,000 coins.'),
-            (18, 'Cosmic Ruler', 400000000, '#e11d48', 4000000, 600000, 60, 'Unlocked after spending 400,000,000 coins.'),
-            (19, 'Eternal Legend', 750000000, '#f97316', 7500000, 1200000, 90, 'Unlocked after spending 750,000,000 coins.'),
-            (20, 'Omnipotent Deity', 1500000000, '#fbbf24', 15000000, 2500000, 365, 'The highest honor in Umi Live.');
-        `);
-        console.log('✅ [DB Init] Level Progression default seeds (Levels 1 - 20) created.');
-      }
-    } catch (lvlErr) {
-      console.error('Seed level configs error:', lvlErr.message);
-    }
+    // Note: level_configs table created empty; levels configured via Admin Panel
 
     // Ensure google_id exists in users table
     try {
