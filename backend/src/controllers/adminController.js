@@ -408,9 +408,12 @@ export async function adjustBalance(req, res) {
     // Database write succeeded -> Invalidate Redis cache
     await cache.del(`user:${id}`);
     await cache.del(`user:balance:${id}`);
+    await cache.del(`user:transactions:${id}`);
+    await cache.delByPattern(`user:transactions:${id}*`);
     await cache.del(`admin:user:${id}`);
     await cache.delByPattern('admin:users*');
     await cache.delByPattern('admin:dashboard*');
+    await cache.delByPattern('admin:recharge*');
 
     const [user] = await connection.execute('SELECT id, full_name, coins, diamonds FROM users WHERE id = ?', [id]);
 
@@ -477,6 +480,8 @@ export async function rechargeCoins(req, res) {
     // Database write succeeded -> Invalidate Redis cache
     await cache.del(`user:${userId}`);
     await cache.del(`user:balance:${userId}`);
+    await cache.del(`user:transactions:${userId}`);
+    await cache.delByPattern(`user:transactions:${userId}*`);
     await cache.del(`admin:user:${userId}`);
     await cache.delByPattern('admin:users*');
     await cache.delByPattern('admin:dashboard*');
@@ -501,79 +506,96 @@ export async function rechargeCoins(req, res) {
 export async function getRechargeHistory(req, res) {
   try {
     const { userId, search, page = 1, limit = 15 } = req.query;
-    const offset = (parseInt(page, 10) - 1) * parseInt(limit, 10);
+    const parsedPage = Math.max(1, parseInt(page, 10) || 1);
+    const parsedLimit = Math.max(1, Math.min(100, parseInt(limit, 10) || 15));
+    const offset = (parsedPage - 1) * parsedLimit;
 
-    const conditions = ["(t.type = 'coin_purchase' OR t.description LIKE '[Recharge]%')"];
-    const params = [];
+    // Filter out literal "undefined", "null", or empty search queries
+    const rawSearch = typeof search === 'string' ? search.trim() : '';
+    const cleanSearch = (rawSearch && rawSearch !== 'undefined' && rawSearch !== 'null') ? rawSearch : '';
+    const cleanUserId = (userId && userId !== 'undefined' && userId !== 'null') ? parseInt(userId, 10) : null;
 
-    if (userId) {
-      conditions.push('t.user_id = ?');
-      params.push(parseInt(userId, 10));
-    }
+    const cacheKey = `admin:recharge:history:${cleanUserId || 'all'}:${cleanSearch || 'all'}:${parsedPage}:${parsedLimit}`;
 
-    if (search) {
-      const clean = String(search).trim().replace(/^#/, '');
-      const isNum = !isNaN(clean) && clean !== '';
-      if (isNum) {
-        conditions.push('(t.id = ? OR t.user_id = ?)');
-        const n = parseInt(clean, 10);
-        params.push(n, n);
-      } else {
-        conditions.push('(u.full_name LIKE ? OR u.email LIKE ? OR t.description LIKE ?)');
-        const s = `%${clean}%`;
-        params.push(s, s, s);
+    const cachedData = await cache.getOrSet(cacheKey, 30, async () => {
+      const conditions = ["(t.type IN ('coin_purchase', 'admin_adjustment', 'reseller_transfer') OR t.description LIKE '%Recharge%' OR t.description LIKE '%[Admin]%+%')"];
+      const params = [];
+
+      if (cleanUserId) {
+        conditions.push('t.user_id = ?');
+        params.push(cleanUserId);
       }
-    }
 
-    const whereSql = `WHERE ${conditions.join(' AND ')}`;
+      if (cleanSearch) {
+        const clean = cleanSearch.replace(/^#/, '');
+        const isNum = !isNaN(clean) && clean !== '';
+        if (isNum) {
+          conditions.push('(t.id = ? OR t.user_id = ?)');
+          const n = parseInt(clean, 10);
+          params.push(n, n);
+        } else {
+          conditions.push('(u.full_name LIKE ? OR u.email LIKE ? OR t.description LIKE ?)');
+          const s = `%${clean}%`;
+          params.push(s, s, s);
+        }
+      }
 
-    const recharges = await query(
-      `SELECT 
-        t.id,
-        t.user_id,
-        t.type,
-        t.amount,
-        t.description,
-        t.status,
-        t.created_at,
-        u.full_name as user_name,
-        u.email as user_email,
-        u.avatar_url as user_avatar,
-        u.coins as current_coins
-       FROM transactions t
-       JOIN users u ON t.user_id = u.id
-       ${whereSql}
-       ORDER BY t.created_at DESC, t.id DESC
-       LIMIT ${parseInt(limit, 10)} OFFSET ${parseInt(offset, 10)}`,
-      params
-    );
+      const whereSql = `WHERE ${conditions.join(' AND ')}`;
 
-    const [totalRows] = await query(
-      `SELECT COUNT(*) as count 
-       FROM transactions t
-       JOIN users u ON t.user_id = u.id
-       ${whereSql}`,
-      params
-    );
+      const recharges = await query(
+        `SELECT 
+          t.id,
+          t.user_id,
+          t.type,
+          t.amount,
+          t.description,
+          t.status,
+          t.created_at,
+          COALESCE(u.full_name, CONCAT('User #', t.user_id)) as user_name,
+          u.email as user_email,
+          u.avatar_url as user_avatar,
+          COALESCE(u.coins, 0) as current_coins
+         FROM transactions t
+         LEFT JOIN users u ON t.user_id = u.id
+         ${whereSql}
+         ORDER BY t.created_at DESC, t.id DESC
+         LIMIT ${parsedLimit} OFFSET ${offset}`,
+        params
+      );
 
-    const [stats] = await query(`
-      SELECT 
-        COUNT(*) as total_recharges,
-        COALESCE(SUM(amount), 0) as total_recharged_coins,
-        COALESCE(SUM(CASE WHEN created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) THEN amount ELSE 0 END), 0) as month_recharged_coins,
-        COALESCE(SUM(CASE WHEN created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) THEN amount ELSE 0 END), 0) as week_recharged_coins
-      FROM transactions
-      WHERE (type = 'coin_purchase' OR description LIKE '[Recharge]%')
-    `);
+      const [totalRows] = await query(
+        `SELECT COUNT(*) as count 
+         FROM transactions t
+         LEFT JOIN users u ON t.user_id = u.id
+         ${whereSql}`,
+        params
+      );
+
+      const [stats] = await query(`
+        SELECT 
+          COUNT(*) as total_recharges,
+          COALESCE(SUM(amount), 0) as total_recharged_coins,
+          COALESCE(SUM(CASE WHEN created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) THEN amount ELSE 0 END), 0) as month_recharged_coins,
+          COALESCE(SUM(CASE WHEN created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) THEN amount ELSE 0 END), 0) as week_recharged_coins
+        FROM transactions
+        WHERE (type IN ('coin_purchase', 'admin_adjustment', 'reseller_transfer') OR description LIKE '%Recharge%' OR description LIKE '%[Admin]%+%')
+      `);
+
+      return {
+        history: recharges || [],
+        summary: stats || { total_recharges: 0, total_recharged_coins: 0, month_recharged_coins: 0, week_recharged_coins: 0 },
+        total: totalRows ? totalRows.count : 0,
+      };
+    });
 
     return res.json({
       success: true,
-      history: recharges,
-      summary: stats || { total_recharges: 0, total_recharged_coins: 0, month_recharged_coins: 0, week_recharged_coins: 0 },
+      history: cachedData.history,
+      summary: cachedData.summary,
       pagination: {
-        total: totalRows.count,
-        page: parseInt(page, 10),
-        limit: parseInt(limit, 10),
+        total: cachedData.total,
+        page: parsedPage,
+        limit: parsedLimit,
       },
     });
   } catch (err) {

@@ -2,8 +2,11 @@ import { request } from './client';
 
 export const userApi = {
   getUsers: async (params = {}) => {
-    const query = new URLSearchParams(params).toString();
-    return await request(`/admin/users?${query}`);
+    const cleanParams = Object.fromEntries(
+      Object.entries(params).filter(([_, v]) => v !== undefined && v !== null && v !== '')
+    );
+    const query = new URLSearchParams(cleanParams).toString();
+    return await request(`/admin/users${query ? `?${query}` : ''}`);
   },
 
   updateUser: async (id, data) => {
@@ -28,8 +31,11 @@ export const userApi = {
   },
 
   getRechargeHistory: async (params = {}) => {
-    const query = new URLSearchParams(params).toString();
-    return await request(`/admin/recharge-history?${query}`);
+    const cleanParams = Object.fromEntries(
+      Object.entries(params).filter(([_, v]) => v !== undefined && v !== null && v !== '')
+    );
+    const query = new URLSearchParams(cleanParams).toString();
+    return await request(`/admin/recharge-history${query ? `?${query}` : ''}`);
   },
 
   getUserDetails: async (id) => {

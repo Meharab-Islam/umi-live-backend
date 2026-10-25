@@ -226,15 +226,18 @@ export default function CoinRecharge({ onToast }) {
     }
   };
 
-  // Fetch recharge history
   const fetchHistory = useCallback(async () => {
     try {
       setHistoryLoading(true);
-      const res = await userApi.getRechargeHistory({
+      const cleanSearch = historySearch.trim();
+      const params = {
         page: historyPage,
         limit: historyPageSize,
-        search: historySearch.trim() || undefined,
-      });
+      };
+      if (cleanSearch) {
+        params.search = cleanSearch;
+      }
+      const res = await userApi.getRechargeHistory(params);
 
       if (res.success) {
         setHistoryList(res.history || []);
@@ -258,7 +261,7 @@ export default function CoinRecharge({ onToast }) {
   useEffect(() => {
     fetchHistory();
     fetchCoinPackages();
-  }, [fetchHistory, fetchCoinPackages]);
+  }, [fetchHistory, fetchCoinPackages, activeTab]);
 
   // Search user by User ID for recharge
   const handleSearchUser = async (e) => {
