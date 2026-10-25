@@ -23,9 +23,36 @@ const REDIS_KEY_PREFIX = process.env.REDIS_KEY_PREFIX !== undefined
 const REDIS_CONNECT_TIMEOUT = parseInt(process.env.REDIS_CONNECT_TIMEOUT || '10000', 10);
 const REDIS_COMMAND_TIMEOUT = parseInt(process.env.REDIS_COMMAND_TIMEOUT || '2500', 10);
 const REDIS_DEFAULT_TTL = parseInt(process.env.REDIS_DEFAULT_TTL || '300', 10);
+const REDIS_MIN_TTL = parseInt(process.env.REDIS_MIN_TTL || '5', 10);
+const REDIS_MAX_TTL = parseInt(process.env.REDIS_MAX_TTL || '3600', 10); // Safe 1-hour max ceiling to protect RAM
 
 let redisClient = null;
 let isRedisConnected = false;
+
+// In-flight fetch deduplication map (Singleflight / Mutex)
+// Eliminates Cache Stampede (Thundering Herd): if multiple concurrent requests ask for the same missing key,
+// only ONE query hits MySQL, while all other requests await that exact same promise.
+const inFlightFetches = new Map();
+
+/**
+ * Calculate jittered TTL to prevent Cache Expiration Avalanche (Thundering Herd)
+ * Applies a random ±10% to ±15% jitter to the base TTL so multiple keys
+ * never expire at the exact same second and overwhelm MySQL.
+ */
+export function calculateJitteredTtl(rawTtlSeconds = REDIS_DEFAULT_TTL) {
+  let baseTtl = parseInt(rawTtlSeconds, 10);
+  if (isNaN(baseTtl) || baseTtl <= 0) {
+    baseTtl = REDIS_DEFAULT_TTL;
+  }
+  // Enforce memory-safe bounds to guarantee RAM is protected
+  baseTtl = Math.max(REDIS_MIN_TTL, Math.min(baseTtl, REDIS_MAX_TTL));
+
+  // Add random jitter (±12%) to smooth out expiration curves
+  const jitterRange = Math.max(2, Math.floor(baseTtl * 0.12));
+  const jitter = Math.floor(Math.random() * (jitterRange * 2 + 1)) - jitterRange;
+
+  return Math.max(REDIS_MIN_TTL, baseTtl + jitter);
+}
 
 // Format key with project namespace prefix (prevents collisions in shared Redis or cloned apps)
 export function formatKey(key) {
@@ -137,7 +164,7 @@ export const cache = {
    * Get parsed value from Redis
    */
   async get(key) {
-    if (!this.isConnected()) return null;
+    if (!this.isConnected() || !key) return null;
     try {
       const fullKey = formatKey(key);
       const data = await withTimeout(redisClient.get(fullKey));
@@ -153,15 +180,16 @@ export const cache = {
   },
 
   /**
-   * Set value in Redis with TTL in seconds (default: REDIS_DEFAULT_TTL)
+   * Set value in Redis with safe, bounded, jittered TTL in seconds.
+   * GUARANTEE: ALWAYS uses EX with a bounded TTL so Redis RAM never grows unboundedly.
    */
   async set(key, value, ttlSeconds = REDIS_DEFAULT_TTL) {
-    if (!this.isConnected()) return false;
+    if (!this.isConnected() || !key) return false;
     try {
       const fullKey = formatKey(key);
       const serialized = typeof value === 'string' ? value : JSON.stringify(value);
-      const ttl = ttlSeconds && ttlSeconds > 0 ? ttlSeconds : REDIS_DEFAULT_TTL;
-      await withTimeout(redisClient.set(fullKey, serialized, 'EX', ttl));
+      const safeTtl = calculateJitteredTtl(ttlSeconds);
+      await withTimeout(redisClient.set(fullKey, serialized, 'EX', safeTtl));
       return true;
     } catch (err) {
       return false;
@@ -169,13 +197,16 @@ export const cache = {
   },
 
   /**
-   * Delete one or more keys
+   * Delete one or more keys using UNLINK (non-blocking background memory reclamation)
    */
   async del(...keys) {
     if (!this.isConnected() || keys.length === 0) return 0;
     try {
       const flatKeys = keys.flat().filter(Boolean).map(formatKey);
       if (flatKeys.length === 0) return 0;
+      if (typeof redisClient.unlink === 'function') {
+        return await withTimeout(redisClient.unlink(...flatKeys));
+      }
       return await withTimeout(redisClient.del(...flatKeys));
     } catch (err) {
       return 0;
@@ -183,24 +214,41 @@ export const cache = {
   },
 
   /**
-   * Non-blocking scan and delete matching key patterns (e.g. "banners:*", "users:*")
+   * Non-blocking scan and unlink matching key patterns.
+   * - Uses Redis UNLINK (asynchronous memory reclamation) instead of blocking DEL.
+   * - Scans in chunks of 100 keys with cursor iteration.
+   * - Safeguards against accidental global nukes (e.g. '*' or '').
    */
   async delByPattern(pattern) {
-    if (!this.isConnected()) return 0;
+    if (!this.isConnected() || !pattern) return 0;
     try {
-      const fullPattern = formatKey(pattern);
+      const trimmed = String(pattern).trim();
+      // Guard against accidental whole-database nukes that spike database load
+      if (trimmed === '*' || trimmed === `${REDIS_KEY_PREFIX}*`) {
+        console.warn(`⚠️ [Redis Guard] Broad pattern "${pattern}" blocked in delByPattern. Use cache.flush() if intentional.`);
+        return 0;
+      }
+
+      const fullPattern = formatKey(trimmed);
       let cursor = '0';
       let totalDeleted = 0;
+
       do {
         const [nextCursor, matchingKeys] = await withTimeout(
           redisClient.scan(cursor, 'MATCH', fullPattern, 'COUNT', 100)
         );
         cursor = nextCursor;
+
         if (matchingKeys && matchingKeys.length > 0) {
-          await withTimeout(redisClient.del(...matchingKeys));
+          if (typeof redisClient.unlink === 'function') {
+            await withTimeout(redisClient.unlink(...matchingKeys));
+          } else {
+            await withTimeout(redisClient.del(...matchingKeys));
+          }
           totalDeleted += matchingKeys.length;
         }
       } while (cursor !== '0');
+
       return totalDeleted;
     } catch (err) {
       return 0;
@@ -208,23 +256,50 @@ export const cache = {
   },
 
   /**
-   * Cache-Aside Fetcher:
-   * 1. Try to read from Redis (Cache Hit)
-   * 2. If Miss or Redis Offline -> Execute fetchFn(), save to Redis with TTL, and return
+   * Production Cache-Aside Fetcher with:
+   * 1. Cache hit -> immediate return
+   * 2. Singleflight Deduplication -> If 50 requests miss simultaneously, only 1 DB query runs
+   * 3. Safe jittered TTL -> Prevents synchronized future expirations
+   * 4. Zero-downtime MySQL fallback on any Redis error
    */
   async getOrSet(key, ttlSeconds, fetchFn) {
+    if (typeof fetchFn !== 'function') {
+      return this.get(key);
+    }
+
+    // 1. Try cache hit first
     const cached = await this.get(key);
     if (cached !== null && cached !== undefined) {
       return cached;
     }
 
-    // Cache Miss or Redis Offline -> Execute DB Query
-    const freshData = await fetchFn();
-    if (freshData !== null && freshData !== undefined) {
-      // Background cache set so client response is never delayed
-      this.set(key, freshData, ttlSeconds).catch(() => {});
+    const fullKey = formatKey(key);
+
+    // 2. Singleflight: If this exact key is already being fetched by an active DB query, join it!
+    if (inFlightFetches.has(fullKey)) {
+      try {
+        return await inFlightFetches.get(fullKey);
+      } catch (err) {
+        // Fall through to retry if in-flight failed
+      }
     }
-    return freshData;
+
+    // 3. Register single-flight promise
+    const fetchPromise = (async () => {
+      try {
+        const freshData = await fetchFn();
+        if (freshData !== null && freshData !== undefined) {
+          // Asynchronously cache with safe jittered TTL without blocking return
+          this.set(key, freshData, ttlSeconds).catch(() => {});
+        }
+        return freshData;
+      } finally {
+        inFlightFetches.delete(fullKey);
+      }
+    })();
+
+    inFlightFetches.set(fullKey, fetchPromise);
+    return await fetchPromise;
   },
 
   /**
@@ -234,7 +309,20 @@ export const cache = {
     if (!this.isConnected()) return false;
     try {
       if (REDIS_KEY_PREFIX) {
-        await this.delByPattern('*');
+        let cursor = '0';
+        do {
+          const [nextCursor, matchingKeys] = await withTimeout(
+            redisClient.scan(cursor, 'MATCH', `${REDIS_KEY_PREFIX}*`, 'COUNT', 200)
+          );
+          cursor = nextCursor;
+          if (matchingKeys && matchingKeys.length > 0) {
+            if (typeof redisClient.unlink === 'function') {
+              await withTimeout(redisClient.unlink(...matchingKeys));
+            } else {
+              await withTimeout(redisClient.del(...matchingKeys));
+            }
+          }
+        } while (cursor !== '0');
         return true;
       }
       await withTimeout(redisClient.flushdb());

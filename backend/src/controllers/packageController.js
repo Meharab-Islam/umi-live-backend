@@ -450,7 +450,7 @@ export async function deletePackageCategory(req, res) {
 
     // Database write succeeded -> Invalidate Redis cache
     await cache.delByPattern('packages:*');
-    await cache.delByPattern('user:*');
+    await cache.delByPattern('user:privileges:*');
     await cache.delByPattern('admin:users*');
 
     return res.json({
@@ -738,7 +738,7 @@ export async function deletePackage(req, res) {
 
     // Database write succeeded -> Invalidate Redis cache
     await cache.delByPattern('packages:*');
-    await cache.delByPattern('user:*');
+    await cache.delByPattern('user:privileges:*');
     await cache.delByPattern('admin:users*');
 
     return res.json({

@@ -426,7 +426,8 @@ export async function fetchFreshWithdrawalConfig() {
 
 export async function invalidateWalletWithdrawalCache(io = null) {
   try {
-    // 1. Delete all related cache keys
+    // 1. Delete ONLY the specific affected withdrawal and economy configuration keys
+    // (Never perform wholesale wildcard sweeps like wallet:* or config:* to prevent database spikes)
     await cache.del(
       'wallet:withdrawal:config',
       'host_ratios:all',
@@ -434,20 +435,22 @@ export async function invalidateWalletWithdrawalCache(io = null) {
       'settings:all',
       'setting:is_convert_to_diamond',
       'setting:coin_to_diamond_ratio',
-      'config:call_rates',
-      'config:screen_guard',
-      'system:maintenance:status'
+      'setting:diamond_to_usd_rate',
+      'setting:coin_to_usd_rate',
+      'setting:min_withdrawal_diamonds',
+      'setting:withdrawal_presets',
+      'setting:allow_manual_withdrawal_input',
+      'admin:withdrawals:config'
     );
-    await cache.delByPattern('wallet:*');
-    await cache.delByPattern('withdrawal:*');
-    await cache.delByPattern('setting*');
-    await cache.delByPattern('settings:*');
-    await cache.delByPattern('config:*');
+    // Delete only admin-specific withdrawal report patterns
     await cache.delByPattern('admin:withdrawals*');
 
-    // 2. Pre-warm cache with fresh data from database
+    // 2. Pre-warm cache immediately with fresh data from database
     const freshConfig = await fetchFreshWithdrawalConfig();
-    await cache.set('wallet:withdrawal:config', freshConfig, 15);
+    await cache.set('wallet:withdrawal:config', freshConfig, 30);
+    if (freshConfig.rates) {
+      await cache.set('host_ratios:all', freshConfig.rates, 30);
+    }
 
     // 3. Real-time broadcast if socket.io is available
     if (io) {
@@ -475,7 +478,7 @@ export async function getWithdrawalConfig(req, res) {
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');
 
-    const config = await cache.getOrSet('wallet:withdrawal:config', 15, async () => {
+    const config = await cache.getOrSet('wallet:withdrawal:config', 30, async () => {
       return await fetchFreshWithdrawalConfig();
     });
 

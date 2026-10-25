@@ -274,11 +274,21 @@ export async function grantThumbnailToUser(req, res) {
 export async function revokeThumbnailSubscription(req, res) {
   try {
     const { id } = req.params;
+    const subRows = await query('SELECT user_id FROM user_thumbnails WHERE id = ? LIMIT 1', [id]);
+    const userId = subRows[0]?.user_id;
+
     await query("UPDATE user_thumbnails SET status = 'cancelled' WHERE id = ?", [id]);
     await cache.delByPattern('thumbnails:*');
-    await cache.delByPattern('user:thumbnails:*');
-    await cache.delByPattern('mobile:user:profile:*');
-    await cache.delByPattern('user:*');
+    if (userId) {
+      await cache.del(
+        `user:${userId}`,
+        `user:thumbnails:${userId}`,
+        `mobile:user:profile:${userId}`
+      );
+    } else {
+      await cache.delByPattern('user:thumbnails:*');
+      await cache.delByPattern('mobile:user:profile:*');
+    }
     return res.json({ success: true, message: 'Thumbnail assignment revoked.' });
   } catch (err) {
     console.error('revokeThumbnailSubscription error:', err);
@@ -611,11 +621,21 @@ export async function grantEntryEffectToUser(req, res) {
 export async function revokeEntryEffectSubscription(req, res) {
   try {
     const { id } = req.params;
+    const subRows = await query('SELECT user_id FROM user_entry_effects WHERE id = ? LIMIT 1', [id]);
+    const userId = subRows[0]?.user_id;
+
     await query("UPDATE user_entry_effects SET status = 'cancelled' WHERE id = ?", [id]);
     await cache.delByPattern('entry_effects:*');
-    await cache.delByPattern('user:entry_effects:*');
-    await cache.delByPattern('mobile:user:profile:*');
-    await cache.delByPattern('user:*');
+    if (userId) {
+      await cache.del(
+        `user:${userId}`,
+        `user:entry_effects:${userId}`,
+        `mobile:user:profile:${userId}`
+      );
+    } else {
+      await cache.delByPattern('user:entry_effects:*');
+      await cache.delByPattern('mobile:user:profile:*');
+    }
     return res.json({ success: true, message: 'Entry effect assignment revoked.' });
   } catch (err) {
     console.error('revokeEntryEffectSubscription error:', err);

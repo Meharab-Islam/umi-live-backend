@@ -327,13 +327,16 @@ export async function executeMerge(req, res) {
     conn.release();
 
     // Database write succeeded -> Invalidate Redis cache
-    await cache.del(`user:${oldUser.id}`);
-    await cache.del(`user:${newUser.id}`);
-    await cache.del(`user:balance:${oldUser.id}`);
-    await cache.del(`user:balance:${newUser.id}`);
-    await cache.del(`user:privileges:${oldUser.id}`);
-    await cache.del(`user:privileges:${newUser.id}`);
-    await cache.delByPattern('user:*');
+    await cache.del(
+      `user:${oldUser.id}`,
+      `user:${newUser.id}`,
+      `user:balance:${oldUser.id}`,
+      `user:balance:${newUser.id}`,
+      `user:privileges:${oldUser.id}`,
+      `user:privileges:${newUser.id}`,
+      `mobile:user:profile:${oldUser.id}`,
+      `mobile:user:profile:${newUser.id}`
+    );
     await cache.delByPattern('admin:users*');
     await cache.delByPattern('admin:dashboard*');
     await cache.delByPattern('merges:*');
