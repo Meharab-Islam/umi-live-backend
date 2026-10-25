@@ -229,6 +229,19 @@ export default function PackageManagement({ activeTabKey = 'packages', onNavigat
     is_active: true,
   });
   const [savingPackage, setSavingPackage] = useState(false);
+  const [isNameManuallyEdited, setIsNameManuallyEdited] = useState(false);
+
+  const handleValidityChange = (days) => {
+    const numDays = parseInt(days, 10) || 1;
+    const activeCat = categories.find((c) => String(c.id) === String(packageForm.category_id));
+    const catName = activeCat?.name || '';
+    
+    setPackageForm((prev) => ({
+      ...prev,
+      validity_days: numDays,
+      name: !isNameManuallyEdited && catName ? `${catName} ${numDays} Days` : prev.name,
+    }));
+  };
 
   // Delete confirmation
   const [deleteConfirm, setDeleteConfirm] = useState(null); // { type, id, name }
@@ -440,15 +453,22 @@ export default function PackageManagement({ activeTabKey = 'packages', onNavigat
   // ==========================================
   const handleOpenCreatePackage = (targetCatId = '') => {
     setEditingPackage(null);
+    setIsNameManuallyEdited(false);
+    const catId = targetCatId || selectedCategoryId || (categories[0]?.id || '');
+    const activeCat = categories.find((c) => String(c.id) === String(catId)) || categories[0];
+    const catName = activeCat?.name || '';
+    const initialDays = 30;
+    const defaultName = catName ? `${catName} ${initialDays} Days` : '';
+
     setPackageForm({
-      category_id: targetCatId || selectedCategoryId || (categories[0]?.id || ''),
-      name: '',
+      category_id: catId,
+      name: defaultName,
       image_url: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=200',
-      validity_days: 30,
+      validity_days: initialDays,
       price: 10000,
       currency: 'coins',
       description: '',
-      color: '#8b5cf6',
+      color: activeCat?.color_code || '#8b5cf6',
       is_active: true,
     });
     setPackageModalOpen(true);
@@ -456,6 +476,7 @@ export default function PackageManagement({ activeTabKey = 'packages', onNavigat
 
   const handleOpenEditPackage = (pkg) => {
     setEditingPackage(pkg);
+    setIsNameManuallyEdited(true); // Don't auto-overwrite existing custom name on edit
     setPackageForm({
       category_id: pkg.category_id,
       name: pkg.name,
@@ -2138,35 +2159,82 @@ export default function PackageManagement({ activeTabKey = 'packages', onNavigat
                     gap: '1.1rem',
                   }}
                 >
+                  {/* Pre-selected Category (No extra selecting needed) */}
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '0.35rem' }}>
-                      Category: *
+                    <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '0.35rem' }}>
+                      <span>VIP Category:</span>
+                      <span style={{ fontSize: '0.72rem', color: '#10b981', fontWeight: 600 }}>
+                        ✓ Auto-selected for this category
+                      </span>
                     </label>
-                    <select
-                      className="input-field"
-                      value={packageForm.category_id}
-                      onChange={(e) => setPackageForm({ ...packageForm, category_id: e.target.value })}
-                      required
-                    >
-                      <option value="">-- Choose Category --</option>
-                      {categories.map((c) => (
-                        <option key={c.id} value={c.id}>
-                          {c.name} (Rank #{c.display_order})
-                        </option>
-                      ))}
-                    </select>
+                    {(() => {
+                      const selectedCat = categories.find((c) => String(c.id) === String(packageForm.category_id)) || categories[0];
+                      return (
+                        <div
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            padding: '0.65rem 0.95rem',
+                            borderRadius: '10px',
+                            background: 'var(--bg-secondary)',
+                            border: `1px solid ${selectedCat?.color_code ? `${selectedCat.color_code}40` : 'var(--border-color)'}`,
+                            borderLeft: `4px solid ${selectedCat?.color_code || '#7c3aed'}`,
+                          }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span
+                              style={{
+                                width: '12px',
+                                height: '12px',
+                                borderRadius: '50%',
+                                background: selectedCat?.color_code || '#7c3aed',
+                                boxShadow: `0 0 8px ${(selectedCat?.color_code || '#7c3aed')}80`,
+                              }}
+                            />
+                            <strong style={{ fontSize: '0.92rem', color: 'var(--text-main)' }}>
+                              {selectedCat?.name || 'Selected Category'}
+                            </strong>
+                            <span style={{ fontSize: '0.74rem', color: 'var(--text-dim)' }}>
+                              (Rank #{selectedCat?.display_order || 1})
+                            </span>
+                          </div>
+
+                          <span
+                            style={{
+                              fontSize: '0.7rem',
+                              padding: '2px 8px',
+                              borderRadius: '6px',
+                              background: `${selectedCat?.color_code || '#7c3aed'}18`,
+                              color: selectedCat?.color_code || '#7c3aed',
+                              fontWeight: 800,
+                              fontFamily: 'monospace',
+                            }}
+                          >
+                            {selectedCat?.color_code || '#7c3aed'}
+                          </span>
+                        </div>
+                      );
+                    })()}
                   </div>
 
+                  {/* Package Name (Auto-generated: [Category] [Days]) */}
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '0.35rem' }}>
-                      Package Name: *
+                    <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '0.35rem' }}>
+                      <span>Package Name: *</span>
+                      <span style={{ fontSize: '0.72rem', color: 'var(--text-dim)', fontWeight: 500 }}>
+                        Auto-generated: {packageForm.name || 'e.g. Royal 30 Days'}
+                      </span>
                     </label>
                     <input
                       type="text"
                       className="input-field"
-                      placeholder="e.g. King Monthly Pass, Duke 7-Day"
+                      placeholder="e.g. Royal 30 Days"
                       value={packageForm.name}
-                      onChange={(e) => setPackageForm({ ...packageForm, name: e.target.value })}
+                      onChange={(e) => {
+                        setIsNameManuallyEdited(true);
+                        setPackageForm({ ...packageForm, name: e.target.value });
+                      }}
                       required
                     />
                   </div>
@@ -2185,8 +2253,8 @@ export default function PackageManagement({ activeTabKey = 'packages', onNavigat
 
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                     <div>
-                      <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '0.35rem' }}>
-                        Validity Time (Days): *
+                      <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '0.35rem' }}>
+                        <span>Validity Time (Days): *</span>
                       </label>
                       <input
                         type="number"
@@ -2194,9 +2262,32 @@ export default function PackageManagement({ activeTabKey = 'packages', onNavigat
                         className="input-field"
                         placeholder="e.g. 30"
                         value={packageForm.validity_days}
-                        onChange={(e) => setPackageForm({ ...packageForm, validity_days: parseInt(e.target.value, 10) || 1 })}
+                        onChange={(e) => handleValidityChange(e.target.value)}
                         required
                       />
+                      {/* 1-Click Quick Validity Presets */}
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', marginTop: '6px' }}>
+                        {[7, 15, 30, 60, 90, 180, 365].map((d) => (
+                          <button
+                            key={d}
+                            type="button"
+                            onClick={() => handleValidityChange(d)}
+                            style={{
+                              padding: '2px 8px',
+                              fontSize: '0.72rem',
+                              borderRadius: '6px',
+                              border: packageForm.validity_days === d ? '1px solid #7c3aed' : '1px solid var(--border-color)',
+                              background: packageForm.validity_days === d ? 'rgba(124, 58, 237, 0.12)' : 'var(--bg-card)',
+                              color: packageForm.validity_days === d ? '#7c3aed' : 'var(--text-dim)',
+                              fontWeight: packageForm.validity_days === d ? 700 : 500,
+                              cursor: 'pointer',
+                              transition: 'all 0.15s ease',
+                            }}
+                          >
+                            {d}d
+                          </button>
+                        ))}
+                      </div>
                     </div>
 
                     <div>

@@ -384,9 +384,9 @@
     "semantic_hash": ""
   },
   "admin-panel/src/pages/PackageManagement.jsx": {
-    "mtime": 1792930195.6545768,
-    "seen": 1792930224.994095,
-    "ast_hash": "d4961b5a4fc3b22561623fa03854586d",
+    "mtime": 1792930461.9884603,
+    "seen": 1792930474.654073,
+    "ast_hash": "6fba23e12a5025ff0cd805b897e08a05",
     "semantic_hash": ""
   },
   "backend/src/controllers/packageController.js": {
