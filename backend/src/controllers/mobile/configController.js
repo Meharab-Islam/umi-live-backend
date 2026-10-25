@@ -27,8 +27,12 @@ export async function getAppConfig(req, res) {
     const socketPingTimeout = parseInt(process.env.SOCKET_PING_TIMEOUT || '30000', 10);
     const agoraAppId = process.env.AGORA_APP_ID || '';
 
-    // 2. Fetch and Cache Platform Settings using Cache-Aside (TTL: 120s)
-    const configData = await cache.getOrSet('config:mobile:app', 120, async () => {
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+
+    // 2. Fetch and Cache Platform Settings using Cache-Aside (TTL: 15s)
+    const configData = await cache.getOrSet('config:mobile:app', 15, async () => {
       const rows = await query('SELECT key_name, key_value FROM system_settings');
       const settingsMap = {};
       for (const row of rows) {

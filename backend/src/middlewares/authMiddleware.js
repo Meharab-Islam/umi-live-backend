@@ -18,7 +18,7 @@ export async function requireAuth(req, res, next) {
 
     // Fetch user from Redis cache first; fall back to DB on miss
     const user = await cache.getOrSet(`user:${decoded.id}`, 60, async () => {
-      const users = await query('SELECT id, email, full_name, avatar_url, role, coins, diamonds, level, is_banned FROM users WHERE id = ?', [decoded.id]);
+      const users = await query('SELECT id, email, full_name, avatar_url, role, host_type, coins, diamonds, level, is_banned FROM users WHERE id = ?', [decoded.id]);
       return users && users.length > 0 ? users[0] : null;
     });
 
@@ -122,7 +122,7 @@ export async function optionalAuth(req, res, next) {
       const token = authHeader.split(' ')[1];
       const decoded = verifyToken(token);
       if (decoded && decoded.id) {
-        const users = await query('SELECT id, email, full_name, avatar_url, role, coins, diamonds, level, is_banned FROM users WHERE id = ?', [decoded.id]);
+        const users = await query('SELECT id, email, full_name, avatar_url, role, host_type, coins, diamonds, level, is_banned FROM users WHERE id = ?', [decoded.id]);
         if (users && users.length > 0 && !users[0].is_banned) {
           req.user = users[0];
         }

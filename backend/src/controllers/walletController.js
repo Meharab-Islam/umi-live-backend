@@ -371,59 +371,112 @@ function parseRoleRate(map, prefix, defaultName, defaultBase, defaultTaka, defau
   };
 }
 
+export async function fetchFreshWithdrawalConfig() {
+  const rows = await query(
+    `SELECT key_name, key_value FROM system_settings WHERE key_name IN (
+      'is_convert_to_diamond', 'diamond_to_usd_rate', 'min_withdrawal_diamonds', 'withdrawal_presets', 'allow_manual_withdrawal_input',
+      'video_host_withdrawal_enabled', 'video_host_diamond_base', 'video_host_taka_amount', 'video_host_min_withdrawal',
+      'audio_host_withdrawal_enabled', 'audio_host_diamond_base', 'audio_host_taka_amount', 'audio_host_min_withdrawal',
+      'user_withdrawal_enabled', 'user_diamond_base', 'user_taka_amount', 'user_min_withdrawal',
+      'agency_withdrawal_enabled', 'agency_diamond_base', 'agency_taka_amount', 'agency_min_withdrawal',
+      'reseller_withdrawal_enabled', 'reseller_diamond_base', 'reseller_taka_amount', 'reseller_min_withdrawal',
+      'moderator_withdrawal_enabled', 'moderator_diamond_base', 'moderator_taka_amount', 'moderator_min_withdrawal'
+    )`
+  );
+  const map = {};
+  rows.forEach((r) => { map[r.key_name] = r.key_value; });
+
+  const isDiamondMode = map['is_convert_to_diamond'] === 'true' || map['is_convert_to_diamond'] === '1';
+  const minWithdrawal = parseInt(map['min_withdrawal_diamonds'] || '1000', 10);
+  const allowManualInput = map['allow_manual_withdrawal_input'] !== 'false';
+  let presets = [1000, 2000, 5000, 10000, 25000, 50000];
+  try {
+    const rawP = map['withdrawal_presets'];
+    if (rawP) {
+      presets = typeof rawP === 'string' && rawP.startsWith('[')
+        ? JSON.parse(rawP)
+        : rawP.split(',').map((s) => parseInt(s.trim(), 10)).filter((n) => !isNaN(n));
+    }
+  } catch (e) {}
+
+  const usdRate = parseFloat(map['diamond_to_usd_rate'] || '0.005');
+
+  const rates = {
+    video: parseRoleRate(map, 'video_host', 'Video Host', 100000, 5000, minWithdrawal, true),
+    audio: parseRoleRate(map, 'audio_host', 'Audio Host', 100000, 3500, minWithdrawal, true),
+    user: parseRoleRate(map, 'user', 'Normal User', 100000, 4000, minWithdrawal, true),
+    agency: parseRoleRate(map, 'agency', 'Agency Partner', 100000, 6000, 5000, true),
+    reseller: parseRoleRate(map, 'reseller', 'Coin / Diamond Reseller', 100000, 5500, 5000, true),
+    moderator: parseRoleRate(map, 'moderator', 'Platform Moderator', 100000, 4500, minWithdrawal, true),
+  };
+
+  return {
+    is_convert_to_diamond: isDiamondMode,
+    withdrawal_currency: isDiamondMode ? 'diamonds' : 'coins',
+    min_withdrawal_amount: minWithdrawal,
+    min_withdrawal_diamonds: minWithdrawal,
+    min_withdrawal_coins: minWithdrawal,
+    withdrawal_presets: presets,
+    allow_manual_withdrawal_input: allowManualInput,
+    diamond_to_usd_rate: usdRate,
+    coin_to_usd_rate: usdRate,
+    rates,
+  };
+}
+
+export async function invalidateWalletWithdrawalCache(io = null) {
+  try {
+    // 1. Delete all related cache keys
+    await cache.del(
+      'wallet:withdrawal:config',
+      'host_ratios:all',
+      'config:mobile:app',
+      'settings:all',
+      'setting:is_convert_to_diamond',
+      'setting:coin_to_diamond_ratio',
+      'config:call_rates',
+      'config:screen_guard',
+      'system:maintenance:status'
+    );
+    await cache.delByPattern('wallet:*');
+    await cache.delByPattern('withdrawal:*');
+    await cache.delByPattern('setting*');
+    await cache.delByPattern('settings:*');
+    await cache.delByPattern('config:*');
+    await cache.delByPattern('admin:withdrawals*');
+
+    // 2. Pre-warm cache with fresh data from database
+    const freshConfig = await fetchFreshWithdrawalConfig();
+    await cache.set('wallet:withdrawal:config', freshConfig, 15);
+
+    // 3. Real-time broadcast if socket.io is available
+    if (io) {
+      io.emit('wallet:withdrawal_config_updated', {
+        success: true,
+        config: freshConfig,
+        updated_at: new Date().toISOString(),
+      });
+      io.emit('config:economy_updated', {
+        is_convert_to_diamond: freshConfig.is_convert_to_diamond,
+        withdrawal_currency: freshConfig.withdrawal_currency,
+        updated_at: new Date().toISOString(),
+      });
+    }
+
+    return freshConfig;
+  } catch (err) {
+    console.warn('invalidateWalletWithdrawalCache error:', err.message);
+  }
+}
+
 export async function getWithdrawalConfig(req, res) {
   try {
-    const config = await cache.getOrSet('wallet:withdrawal:config', 60, async () => {
-      const rows = await query(
-        `SELECT key_name, key_value FROM system_settings WHERE key_name IN (
-          'is_convert_to_diamond', 'diamond_to_usd_rate', 'min_withdrawal_diamonds', 'withdrawal_presets', 'allow_manual_withdrawal_input',
-          'video_host_withdrawal_enabled', 'video_host_diamond_base', 'video_host_taka_amount', 'video_host_min_withdrawal',
-          'audio_host_withdrawal_enabled', 'audio_host_diamond_base', 'audio_host_taka_amount', 'audio_host_min_withdrawal',
-          'user_withdrawal_enabled', 'user_diamond_base', 'user_taka_amount', 'user_min_withdrawal',
-          'agency_withdrawal_enabled', 'agency_diamond_base', 'agency_taka_amount', 'agency_min_withdrawal',
-          'reseller_withdrawal_enabled', 'reseller_diamond_base', 'reseller_taka_amount', 'reseller_min_withdrawal',
-          'moderator_withdrawal_enabled', 'moderator_diamond_base', 'moderator_taka_amount', 'moderator_min_withdrawal'
-        )`
-      );
-      const map = {};
-      rows.forEach((r) => { map[r.key_name] = r.key_value; });
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
 
-      const isDiamondMode = map['is_convert_to_diamond'] === 'true' || map['is_convert_to_diamond'] === '1';
-      const minWithdrawal = parseInt(map['min_withdrawal_diamonds'] || '1000', 10);
-      const allowManualInput = map['allow_manual_withdrawal_input'] !== 'false';
-      let presets = [1000, 2000, 5000, 10000, 25000, 50000];
-      try {
-        const rawP = map['withdrawal_presets'];
-        if (rawP) {
-          presets = typeof rawP === 'string' && rawP.startsWith('[')
-            ? JSON.parse(rawP)
-            : rawP.split(',').map((s) => parseInt(s.trim(), 10)).filter((n) => !isNaN(n));
-        }
-      } catch (e) {}
-
-      const usdRate = parseFloat(map['diamond_to_usd_rate'] || '0.005');
-
-      const rates = {
-        video: parseRoleRate(map, 'video_host', 'Video Host', 100000, 5000, minWithdrawal, true),
-        audio: parseRoleRate(map, 'audio_host', 'Audio Host', 100000, 3500, minWithdrawal, true),
-        user: parseRoleRate(map, 'user', 'Normal User', 100000, 4000, minWithdrawal, true),
-        agency: parseRoleRate(map, 'agency', 'Agency Partner', 100000, 6000, 5000, true),
-        reseller: parseRoleRate(map, 'reseller', 'Coin / Diamond Reseller', 100000, 5500, 5000, true),
-        moderator: parseRoleRate(map, 'moderator', 'Platform Moderator', 100000, 4500, minWithdrawal, true),
-      };
-
-      return {
-        is_convert_to_diamond: isDiamondMode,
-        withdrawal_currency: isDiamondMode ? 'diamonds' : 'coins',
-        min_withdrawal_amount: minWithdrawal,
-        min_withdrawal_diamonds: minWithdrawal,
-        min_withdrawal_coins: minWithdrawal,
-        withdrawal_presets: presets,
-        allow_manual_withdrawal_input: allowManualInput,
-        diamond_to_usd_rate: usdRate,
-        coin_to_usd_rate: usdRate,
-        rates,
-      };
+    const config = await cache.getOrSet('wallet:withdrawal:config', 15, async () => {
+      return await fetchFreshWithdrawalConfig();
     });
 
     // If caller is authenticated, compute their personalized withdrawal rule & live limits

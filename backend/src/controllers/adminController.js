@@ -10,6 +10,7 @@ import {
   getLiveDurationRewardStats,
 } from '../services/liveRewardService.js';
 import { getStarProgressionConfig, calculateUserStars } from '../services/systemService.js';
+import { invalidateWalletWithdrawalCache } from './walletController.js';
 
 export async function getDashboardStats(req, res) {
   try {
@@ -1171,21 +1172,13 @@ export async function updateSetting(req, res) {
       [key, String(finalValue), description || '']
     );
 
-    // Database write succeeded -> Invalidate Redis cache
+    // Database write succeeded -> Invalidate Redis cache & immediately pre-warm with fresh DB state
+    await invalidateWalletWithdrawalCache(req.io);
     await cache.del('settings:all');
-    await cache.del('config:mobile:app');
     await cache.del('config:livekit');
-    await cache.delByPattern('setting*');
-    await cache.delByPattern('config:*');
     await cache.delByPattern('admin:dashboard*');
     await cache.delByPattern('mobile:user:profile*');
-    await cache.del('host_ratios:all');
-    await cache.del('wallet:withdrawal:config');
-    await cache.del('config:call_rates');
-    await cache.del('config:screen_guard');
     await cache.del('system:maintenance:status');
-    await cache.delByPattern('wallet:*');
-    await cache.delByPattern('withdrawal:*');
 
     // Broadcast real-time branding changes
     if (req.io && (key.includes('platform_') || key.includes('app_name') || key.includes('logo'))) {
@@ -2970,12 +2963,8 @@ export async function updateHostWithdrawalRatios(req, res) {
       );
     }
 
-    // Database write succeeded -> Invalidate Redis cache
-    await cache.del('host_ratios:all');
-    await cache.del('wallet:withdrawal:config');
-    await cache.del('config:mobile:app');
-    await cache.del('settings:all');
-    await cache.delByPattern('settings:*');
+    // Database write succeeded -> Invalidate Redis cache & immediately pre-warm with fresh DB state
+    await invalidateWalletWithdrawalCache(req.io);
 
     return res.json({
       success: true,
@@ -3707,6 +3696,10 @@ export async function updateRechargePresetsAdmin(req, res) {
 
 export async function getWithdrawalConfigAdmin(req, res) {
   try {
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+
     const rows = await query(
       `SELECT key_name, key_value, description FROM system_settings WHERE key_name IN (
         'is_convert_to_diamond', 'diamond_to_usd_rate', 'min_withdrawal_diamonds', 'withdrawal_presets', 'allow_manual_withdrawal_input',
@@ -3947,15 +3940,8 @@ export async function updateWithdrawalConfigAdmin(req, res) {
       }
     }
 
-    // Database write succeeded -> Invalidate Redis cache
-    await cache.del('setting:is_convert_to_diamond');
-    await cache.del('wallet:withdrawal:config');
-    await cache.del('host_ratios:all');
-    await cache.del('config:mobile:app');
-    await cache.del('settings:all');
-    await cache.delByPattern('settings:*');
-    await cache.delByPattern('admin:withdrawals*');
-    await cache.delByPattern('withdrawal:*');
+    // Database write succeeded -> Invalidate Redis cache & immediately pre-warm with fresh DB state
+    await invalidateWalletWithdrawalCache(req.io);
 
     return res.json({
       success: true,
