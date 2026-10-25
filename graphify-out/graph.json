@@ -3675,7 +3675,7 @@
       "file_type": "code",
       "norm_label": "calculatejitteredttl()",
       "source_file": "backend/src/config/redis.js",
-      "source_location": "L178"
+      "source_location": "L196"
     },
     {
       "id": "backend_src_config_redis_formatkey",
@@ -3687,7 +3687,7 @@
       "file_type": "code",
       "norm_label": "formatkey()",
       "source_file": "backend/src/config/redis.js",
-      "source_location": "L196"
+      "source_location": "L214"
     },
     {
       "id": "backend_src_config_redis_reconnectonerror",
@@ -3699,7 +3699,7 @@
       "file_type": "code",
       "norm_label": "reconnectonerror()",
       "source_file": "backend/src/config/redis.js",
-      "source_location": "L242"
+      "source_location": "L260"
     },
     {
       "id": "backend_src_config_redis_resolvesectionforkey",
@@ -3711,7 +3711,7 @@
       "file_type": "code",
       "norm_label": "resolvesectionforkey()",
       "source_file": "backend/src/config/redis.js",
-      "source_location": "L158"
+      "source_location": "L176"
     },
     {
       "id": "backend_src_config_redis_retrystrategy",
@@ -3723,7 +3723,7 @@
       "file_type": "code",
       "norm_label": "retrystrategy()",
       "source_file": "backend/src/config/redis.js",
-      "source_location": "L236"
+      "source_location": "L254"
     },
     {
       "id": "backend_src_config_redis_stripkeyprefix",
@@ -3735,7 +3735,7 @@
       "file_type": "code",
       "norm_label": "stripkeyprefix()",
       "source_file": "backend/src/config/redis.js",
-      "source_location": "L205"
+      "source_location": "L223"
     },
     {
       "id": "backend_src_config_redis_withtimeout",
@@ -3747,7 +3747,7 @@
       "file_type": "code",
       "norm_label": "withtimeout()",
       "source_file": "backend/src/config/redis.js",
-      "source_location": "L214"
+      "source_location": "L232"
     },
     {
       "id": "scratch_test_redis_hit_and_freshness_getredisraw",
@@ -8973,7 +8973,7 @@
       "file_type": "code",
       "norm_label": "inflightfetches",
       "source_file": "backend/src/config/redis.js",
-      "source_location": "L147"
+      "source_location": "L165"
     },
     {
       "id": "backend_src_config_redis_redis_command_timeout",
@@ -9028,7 +9028,7 @@
       "file_type": "code",
       "norm_label": "sorted_prefix_entries",
       "source_file": "backend/src/config/redis.js",
-      "source_location": "L151"
+      "source_location": "L169"
     },
     {
       "id": "scratch_test_redis_hit_and_freshness",
@@ -11593,7 +11593,7 @@
       "file_type": "code",
       "norm_label": "cache",
       "source_file": "backend/src/config/redis.js",
-      "source_location": "L294"
+      "source_location": "L312"
     },
     {
       "id": "backend_src_controllers_mobile_levelcontroller",
@@ -13378,7 +13378,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/config/redis.js",
-      "source_location": "L179",
+      "source_location": "L197",
       "weight": 1.0
     },
     {
@@ -13390,7 +13390,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/config/redis.js",
-      "source_location": "L160",
+      "source_location": "L178",
       "weight": 1.0
     },
     {
@@ -34702,13 +34702,24 @@
     },
     {
       "source": "backend_src_config_redis",
+      "target": "backend_src_config_redis_redis_port",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/src/config/redis.js",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_src_config_redis",
       "target": "backend_src_config_redis_inflightfetches",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/config/redis.js",
-      "source_location": "L147",
+      "source_location": "L165",
       "weight": 1.0
     },
     {
@@ -34719,18 +34730,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/config/redis.js",
-      "source_location": "L151",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_src_config_redis",
-      "target": "backend_src_config_redis_redis_port",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/src/config/redis.js",
-      "source_location": "L16",
+      "source_location": "L169",
       "weight": 1.0
     },
     {
@@ -34752,7 +34752,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/config/redis.js",
-      "source_location": "L196",
+      "source_location": "L214",
       "weight": 1.0
     },
     {
@@ -34763,18 +34763,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/config/redis.js",
-      "source_location": "L205",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_src_config_redis",
-      "target": "backend_src_config_redis_withtimeout",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/src/config/redis.js",
-      "source_location": "L214",
+      "source_location": "L223",
       "weight": 1.0
     },
     {
@@ -34790,13 +34779,13 @@
     },
     {
       "source": "backend_src_config_redis",
-      "target": "backend_src_config_redis_retrystrategy",
+      "target": "backend_src_config_redis_withtimeout",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/config/redis.js",
-      "source_location": "L236",
+      "source_location": "L232",
       "weight": 1.0
     },
     {
@@ -34812,24 +34801,24 @@
     },
     {
       "source": "backend_src_config_redis",
+      "target": "backend_src_config_redis_retrystrategy",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/src/config/redis.js",
+      "source_location": "L254",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_src_config_redis",
       "target": "backend_src_config_redis_reconnectonerror",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/config/redis.js",
-      "source_location": "L242",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_src_config_redis",
-      "target": "backend_src_config_redis_cache",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/src/config/redis.js",
-      "source_location": "L294",
+      "source_location": "L260",
       "weight": 1.0
     },
     {
@@ -34841,6 +34830,17 @@
       "confidence_score": 1.0,
       "source_file": "backend/src/config/redis.js",
       "source_location": "L31",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_src_config_redis",
+      "target": "backend_src_config_redis_cache",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/src/config/redis.js",
+      "source_location": "L312",
       "weight": 1.0
     },
     {
@@ -46273,7 +46273,7 @@
       "confidence_score": 0.85,
       "context": "collection",
       "source_file": "backend/src/config/redis.js",
-      "source_location": "L459",
+      "source_location": "L477",
       "weight": 1.0
     },
     {
@@ -46285,7 +46285,7 @@
       "confidence_score": 0.85,
       "context": "collection",
       "source_file": "backend/src/config/redis.js",
-      "source_location": "L460",
+      "source_location": "L478",
       "weight": 1.0
     },
     {
@@ -46338,5 +46338,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "45ddacad73ea03c3bbbb184feb4b2d51c3f2eb20"
+  "built_at_commit": "960743f02b30dd49dac6b91a91c2586efa8527cb"
 }

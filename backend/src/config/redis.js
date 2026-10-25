@@ -128,7 +128,25 @@ export const CACHE_SECTIONS = {
     prefixes: ['device:banned:', 'security:banned:', 'ip:banned:'],
   },
 
-  // 12. General Default Fallback
+  // 12. Real-Time Chat & Private Messages (15s - 30s)
+  CHAT: {
+    name: 'CHAT',
+    defaultTtl: parseInt(process.env.REDIS_TTL_CHAT || '20', 10),
+    minTtl: 5,
+    maxTtl: 60,
+    prefixes: ['chat:', 'chat:conversations:', 'chat:messages:', 'chat:conv:'],
+  },
+
+  // 13. Social Feed, Moments & Posts (30s - 60s)
+  FEED: {
+    name: 'FEED',
+    defaultTtl: parseInt(process.env.REDIS_TTL_FEED || '45', 10),
+    minTtl: 10,
+    maxTtl: 120,
+    prefixes: ['feed:', 'feed:list:', 'feed:post:', 'feed:comments:', 'feed:reactions:'],
+  },
+
+  // 14. General Default Fallback
   DEFAULT: {
     name: 'DEFAULT',
     defaultTtl: parseInt(process.env.REDIS_DEFAULT_TTL || '180', 10),
