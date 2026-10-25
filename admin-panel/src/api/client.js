@@ -99,6 +99,15 @@ export async function request(endpoint, options = {}) {
     }
 
     if (!res.ok) {
+      if (res.status === 401) {
+        setToken('');
+        setCurrentUser(null);
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('admin_auth_expired', {
+            detail: data.message || 'Session expired or authentication required. Please log in again.'
+          }));
+        }
+      }
       throw new Error(data.message || `API request failed with status ${res.status}`);
     }
     return data;

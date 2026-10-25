@@ -138,8 +138,18 @@ export default function App() {
     const handleProfileUpdate = () => {
       setUser(getCurrentUser());
     };
+    const handleAuthExpired = (e) => {
+      setUser(null);
+      if (e?.detail) {
+        addToast(e.detail, 'error');
+      }
+    };
     window.addEventListener('user-profile-updated', handleProfileUpdate);
-    return () => window.removeEventListener('user-profile-updated', handleProfileUpdate);
+    window.addEventListener('admin_auth_expired', handleAuthExpired);
+    return () => {
+      window.removeEventListener('user-profile-updated', handleProfileUpdate);
+      window.removeEventListener('admin_auth_expired', handleAuthExpired);
+    };
   }, []);
 
   useEffect(() => {

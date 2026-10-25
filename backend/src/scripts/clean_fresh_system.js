@@ -11,6 +11,11 @@ import { pool } from '../config/db.js';
 import cache from '../config/redis.js';
 
 async function cleanFreshSystem() {
+  if (!process.argv.includes('--confirm-wipe-all')) {
+    console.error('⛔ [SAFETY GUARD] clean_fresh_system.js wipes database tables! To run it, you must explicitly provide: --confirm-wipe-all');
+    console.error('Aborting execution to protect production data.');
+    process.exit(1);
+  }
   console.log('====================================================');
   console.log('🚀 [CLEAN FRESH SYSTEM] Purging all dummy records...');
   console.log(`Database target: ${process.env.DB_NAME || 'umi_db'} on ${process.env.DB_HOST || 'localhost'}`);

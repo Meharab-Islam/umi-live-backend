@@ -29,6 +29,7 @@ export default function Banners({ onToast }) {
   }, [onToast]);
   const [banners, setBanners] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
 
@@ -90,14 +91,15 @@ export default function Banners({ onToast }) {
   const fetchBanners = useCallback(async () => {
     try {
       setLoading(true);
+      setErrorMsg(null);
       const res = await bannerApi.getBanners({
         q: searchQuery,
         status: statusFilter !== 'all' ? statusFilter : undefined,
       });
-      if (res.success) {
-        setBanners(res.banners || []);
-      }
+      const list = res?.banners || res?.data?.banners || (Array.isArray(res?.data) ? res.data : (Array.isArray(res) ? res : []));
+      setBanners(list);
     } catch (err) {
+      setErrorMsg(err.message || 'Failed to fetch banners');
       if (onToastRef.current) onToastRef.current(err.message || 'Failed to fetch banners', 'error');
     } finally {
       setLoading(false);
@@ -354,6 +356,24 @@ export default function Banners({ onToast }) {
         <div style={{ textAlign: 'center', padding: '3.5rem' }}>
           <Loader inline />
           <p style={{ marginTop: '0.75rem', color: 'var(--text-dim)', fontSize: '0.85rem' }}>Loading banners...</p>
+        </div>
+      ) : errorMsg ? (
+        <div
+          className="panel-card"
+          style={{
+            padding: '2.5rem 1.5rem',
+            textAlign: 'center',
+            borderRadius: '16px',
+            border: '1px solid #fecaca',
+            background: '#fff5f5',
+          }}
+        >
+          <AlertTriangle size={36} color="#ef4444" style={{ margin: '0 auto 0.75rem' }} />
+          <h3 style={{ margin: '0 0 6px', color: '#b91c1c', fontSize: '1.1rem' }}>Failed to Load Banners</h3>
+          <p style={{ margin: '0 0 1.25rem', fontSize: '0.86rem', color: '#7f1d1d' }}>{errorMsg}</p>
+          <button type="button" className="btn btn-secondary btn-sm" onClick={fetchBanners}>
+            Retry
+          </button>
         </div>
       ) : banners.length === 0 ? (
         <div

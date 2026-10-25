@@ -34,6 +34,7 @@ export default function AppThemes({ onToast }) {
   const [items, setItems] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
 
@@ -59,20 +60,23 @@ export default function AppThemes({ onToast }) {
   // Fetch Items & Stats
   const fetchData = useCallback(async () => {
     setLoading(true);
+    setErrorMsg(null);
     try {
       const [itemsRes, statsRes] = await Promise.all([
         themeApi.getThemeItems({ type: activeTab, q: searchQuery, status: statusFilter }),
         themeApi.getStats(),
       ]);
 
-      if (itemsRes?.success) {
-        setItems(itemsRes.items || []);
-      }
-      if (statsRes?.success) {
-        setStats(statsRes);
+      const itemList = itemsRes?.items || itemsRes?.data?.items || (Array.isArray(itemsRes?.data) ? itemsRes.data : (Array.isArray(itemsRes) ? itemsRes : []));
+      setItems(itemList);
+
+      const statsObj = statsRes?.summary ? statsRes : statsRes?.data?.summary ? statsRes.data : statsRes;
+      if (statsObj) {
+        setStats(statsObj);
       }
     } catch (err) {
       console.error('Fetch themes error:', err);
+      setErrorMsg(err.message || 'Failed to load theme items.');
       if (onToast) onToast(err.message || 'Failed to load theme items.', 'error');
     } finally {
       setLoading(false);
@@ -490,6 +494,15 @@ export default function AppThemes({ onToast }) {
       {/* MAIN CARDS LIST */}
       {loading ? (
         <Loader message="Loading theme items..." />
+      ) : errorMsg ? (
+        <div className="panel-card" style={{ textAlign: 'center', padding: '3rem 1rem', border: '1px solid #fecaca', background: '#fff5f5', borderRadius: '16px' }}>
+          <AlertCircle size={40} color="#ef4444" style={{ margin: '0 auto 0.75rem' }} />
+          <h3 style={{ fontSize: '1.1rem', color: '#b91c1c', margin: '0 0 0.5rem' }}>Failed to Load Themes</h3>
+          <p style={{ color: '#7f1d1d', fontSize: '0.86rem', maxWidth: '400px', margin: '0 auto 1.25rem' }}>{errorMsg}</p>
+          <button type="button" className="btn btn-secondary btn-sm" onClick={fetchData}>
+            Retry
+          </button>
+        </div>
       ) : items.length === 0 ? (
         <div className="panel-card" style={{ textAlign: 'center', padding: '4rem 1rem' }}>
           <Palette size={48} style={{ color: 'var(--text-dim)', opacity: 0.4, margin: '0 auto 1rem' }} />
