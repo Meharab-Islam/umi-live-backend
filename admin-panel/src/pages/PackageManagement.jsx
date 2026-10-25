@@ -347,7 +347,7 @@ export default function PackageManagement({ activeTabKey = 'packages', onNavigat
     const nextOrder = categories.length > 0 ? Math.max(...categories.map((c) => c.display_order || 0)) + 1 : 1;
     setCategoryForm({
       name: '',
-      badge_icon: '👑',
+      badge_icon: '',
       color_code: '#7c3aed',
       display_order: nextOrder,
       cant_be_removed: true,
@@ -365,7 +365,7 @@ export default function PackageManagement({ activeTabKey = 'packages', onNavigat
     setEditingCategory(cat);
     setCategoryForm({
       name: cat.name,
-      badge_icon: cat.badge_icon || '👑',
+      badge_icon: cat.badge_icon || '',
       color_code: cat.color_code || '#7c3aed',
       display_order: cat.display_order || 1,
       cant_be_removed: Boolean(cat.cant_be_removed),
@@ -662,7 +662,18 @@ export default function PackageManagement({ activeTabKey = 'packages', onNavigat
                   boxShadow: isSelected ? '0 4px 12px rgba(124, 58, 237, 0.15)' : 'none',
                 }}
               >
-                <span style={{ fontSize: '1.2rem' }}>{cat.badge_icon || '👑'}</span>
+                <span
+                  style={{
+                    width: '12px',
+                    height: '12px',
+                    borderRadius: '50%',
+                    background: cat.color_code || '#7c3aed',
+                    boxShadow: `0 0 8px ${(cat.color_code || '#7c3aed')}80`,
+                    flexShrink: 0,
+                    display: 'inline-block',
+                  }}
+                  title={cat.color_code || '#7c3aed'}
+                />
                 <span style={{ fontSize: '0.95rem' }}>{cat.name}</span>
                 <span
                   style={{
@@ -722,10 +733,39 @@ export default function PackageManagement({ activeTabKey = 'packages', onNavigat
         >
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <span style={{ fontSize: '1.6rem' }}>{currentCategory.badge_icon || '👑'}</span>
+              <span
+                style={{
+                  width: '18px',
+                  height: '18px',
+                  borderRadius: '50%',
+                  background: currentCategory.color_code || '#7c3aed',
+                  boxShadow: `0 0 10px ${(currentCategory.color_code || '#7c3aed')}80`,
+                  border: '2px solid rgba(255,255,255,0.7)',
+                  flexShrink: 0,
+                  display: 'inline-block',
+                }}
+                title={`Category Color: ${currentCategory.color_code || '#7c3aed'}`}
+              />
               <h1 style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--text-main)', margin: 0 }}>
                 {currentCategory.name}
               </h1>
+              <span
+                style={{
+                  fontSize: '0.72rem',
+                  padding: '2px 8px',
+                  borderRadius: '6px',
+                  background: `${currentCategory.color_code || '#7c3aed'}18`,
+                  color: currentCategory.color_code || '#7c3aed',
+                  fontWeight: 800,
+                  fontFamily: 'monospace',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                }}
+              >
+                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: currentCategory.color_code || '#7c3aed' }} />
+                {currentCategory.color_code || '#7c3aed'}
+              </span>
               <span
                 style={{
                   fontSize: '0.75rem',
@@ -1782,55 +1822,103 @@ export default function PackageManagement({ activeTabKey = 'packages', onNavigat
                   </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '0.35rem' }}>
-                      Badge Icon:
-                    </label>
-                    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                      {['👑', '💎', '⚔️', '🛡️', '🌟', '🎖️', '⚡', '🔥'].map((emoji) => (
-                        <button
-                          key={emoji}
-                          type="button"
-                          onClick={() => setCategoryForm({ ...categoryForm, badge_icon: emoji })}
-                          style={{
-                            fontSize: '1.2rem',
-                            padding: '4px 8px',
-                            borderRadius: '8px',
-                            border: categoryForm.badge_icon === emoji ? '2px solid #7c3aed' : '1px solid var(--border-color)',
-                            background: categoryForm.badge_icon === emoji ? 'rgba(124, 58, 237, 0.15)' : 'var(--bg-secondary)',
-                            cursor: 'pointer',
-                          }}
-                        >
-                          {emoji}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
+                {/* Category Color / Accent Theme (Custom Color Picker + Preset Swatches) */}
+                <div style={{ background: 'var(--bg-secondary)', padding: '0.85rem', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '0.45rem' }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      🎨 Category Color / Accent Theme: *
+                    </span>
+                    <span
+                      style={{
+                        fontSize: '0.74rem',
+                        color: categoryForm.color_code || '#7c3aed',
+                        fontWeight: 800,
+                        fontFamily: 'monospace',
+                        background: `${categoryForm.color_code || '#7c3aed'}18`,
+                        padding: '2px 8px',
+                        borderRadius: '6px',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                      }}
+                    >
+                      <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: categoryForm.color_code || '#7c3aed' }} />
+                      {categoryForm.color_code || '#7c3aed'}
+                    </span>
+                  </label>
 
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '0.35rem' }}>
-                      Color Accent:
-                    </label>
-                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '6px' }}>
-                      {['#7c3aed', '#f59e0b', '#06b6d4', '#10b981', '#ec4899', '#ef4444'].map((c) => (
+                  {/* Preset Swatches */}
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '7px', marginBottom: '0.65rem' }}>
+                    {PACKAGE_COLOR_PRESETS.map((p) => {
+                      const isSelected = (categoryForm.color_code || '').toLowerCase() === p.hex.toLowerCase();
+                      return (
                         <button
-                          key={c}
+                          key={p.hex}
                           type="button"
-                          onClick={() => setCategoryForm({ ...categoryForm, color_code: c })}
+                          onClick={() => setCategoryForm({ ...categoryForm, color_code: p.hex })}
                           style={{
                             width: '26px',
                             height: '26px',
-                            borderRadius: '50%',
-                            background: c,
-                            border: categoryForm.color_code === c ? '3px solid #ffffff' : 'none',
-                            outline: categoryForm.color_code === c ? `2px solid ${c}` : 'none',
+                            borderRadius: '7px',
+                            background: p.hex,
+                            border: isSelected ? '2px solid #ffffff' : '2px solid transparent',
+                            boxShadow: isSelected ? `0 0 0 2px ${p.hex}, 0 2px 6px ${p.hex}80` : 'none',
                             cursor: 'pointer',
+                            transition: 'transform 0.15s, box-shadow 0.15s',
+                            transform: isSelected ? 'scale(1.15)' : 'scale(1)',
+                            padding: 0,
                           }}
+                          title={`${p.name} (${p.hex})`}
                         />
-                      ))}
-                    </div>
+                      );
+                    })}
                   </div>
+
+                  {/* Custom Color Wheel Picker + Hex Input */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div
+                      style={{
+                        position: 'relative',
+                        width: '38px',
+                        height: '36px',
+                        borderRadius: '8px',
+                        background: categoryForm.color_code || '#7c3aed',
+                        border: '1px solid var(--border-color)',
+                        overflow: 'hidden',
+                        cursor: 'pointer',
+                        boxShadow: `0 0 10px ${(categoryForm.color_code || '#7c3aed')}50`,
+                        flexShrink: 0,
+                      }}
+                      title="Click to open custom color picker"
+                    >
+                      <input
+                        type="color"
+                        value={categoryForm.color_code?.startsWith('#') && categoryForm.color_code.length === 7 ? categoryForm.color_code : '#7c3aed'}
+                        onChange={(e) => setCategoryForm({ ...categoryForm, color_code: e.target.value })}
+                        style={{
+                          position: 'absolute',
+                          top: '-10px',
+                          left: '-10px',
+                          width: '60px',
+                          height: '60px',
+                          cursor: 'pointer',
+                          opacity: 0,
+                        }}
+                      />
+                    </div>
+                    <input
+                      type="text"
+                      className="input-field"
+                      placeholder="#7c3aed"
+                      value={categoryForm.color_code}
+                      onChange={(e) => setCategoryForm({ ...categoryForm, color_code: e.target.value })}
+                      style={{ flex: 1, fontFamily: 'monospace', fontWeight: 600, padding: '0.4rem 0.65rem', fontSize: '0.85rem' }}
+                      required
+                    />
+                  </div>
+                  <span style={{ fontSize: '0.7rem', color: 'var(--text-dim)', display: 'block', marginTop: '5px' }}>
+                    Pick any custom color for this VIP category tier using the color box or entering a hex code.
+                  </span>
                 </div>
 
                 {/* Privileges Configuration */}

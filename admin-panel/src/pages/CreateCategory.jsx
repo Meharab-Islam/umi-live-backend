@@ -16,6 +16,21 @@ import {
 import packageApi from '../api/packageApi';
 import Loader from '../components/Loader';
 
+const PACKAGE_COLOR_PRESETS = [
+  { name: 'Royal Violet', hex: '#8b5cf6' },
+  { name: 'Hot Pink', hex: '#ec4899' },
+  { name: 'Amber Gold', hex: '#f59e0b' },
+  { name: 'Emerald', hex: '#10b981' },
+  { name: 'Sky Blue', hex: '#3b82f6' },
+  { name: 'Crimson', hex: '#ef4444' },
+  { name: 'Cyan Neon', hex: '#06b6d4' },
+  { name: 'Indigo Glow', hex: '#6366f1' },
+  { name: 'Sunset Orange', hex: '#f97316' },
+  { name: 'Teal Gem', hex: '#14b8a6' },
+  { name: 'Fuchsia', hex: '#d946ef' },
+  { name: 'Ruby Dark', hex: '#e11d48' },
+];
+
 export default function CreateCategory({ onNavigate, onToast }) {
   const [categories, setCategories] = useState([]);
   const [loadingCategories, setLoadingCategories] = useState(false);
@@ -24,6 +39,8 @@ export default function CreateCategory({ onNavigate, onToast }) {
   // Form state
   const [formData, setFormData] = useState({
     name: '',
+    color_code: '#7c3aed',
+    badge_icon: '',
     display_order: 1,
     cant_be_removed: true,
     cant_be_banned: true,
@@ -178,6 +195,105 @@ export default function CreateCategory({ onNavigate, onToast }) {
                     Rank 1 displays first on Live list.
                   </span>
                 </div>
+              </div>
+
+              {/* Category Color / Accent Theme (Custom Color Picker + Preset Swatches) */}
+              <div style={{ marginTop: '1.1rem', background: 'var(--bg-secondary)', padding: '0.85rem', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+                <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '0.45rem' }}>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    🎨 Category Color / Accent Theme: *
+                  </span>
+                  <span
+                    style={{
+                      fontSize: '0.74rem',
+                      color: formData.color_code || '#7c3aed',
+                      fontWeight: 800,
+                      fontFamily: 'monospace',
+                      background: `${formData.color_code || '#7c3aed'}18`,
+                      padding: '2px 8px',
+                      borderRadius: '6px',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                    }}
+                  >
+                    <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: formData.color_code || '#7c3aed' }} />
+                    {formData.color_code || '#7c3aed'}
+                  </span>
+                </label>
+
+                {/* Preset Swatches */}
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '7px', marginBottom: '0.65rem' }}>
+                  {PACKAGE_COLOR_PRESETS.map((p) => {
+                    const isSelected = (formData.color_code || '').toLowerCase() === p.hex.toLowerCase();
+                    return (
+                      <button
+                        key={p.hex}
+                        type="button"
+                        onClick={() => setFormData({ ...formData, color_code: p.hex })}
+                        style={{
+                          width: '26px',
+                          height: '26px',
+                          borderRadius: '7px',
+                          background: p.hex,
+                          border: isSelected ? '2px solid #ffffff' : '2px solid transparent',
+                          boxShadow: isSelected ? `0 0 0 2px ${p.hex}, 0 2px 6px ${p.hex}80` : 'none',
+                          cursor: 'pointer',
+                          transition: 'transform 0.15s, box-shadow 0.15s',
+                          transform: isSelected ? 'scale(1.15)' : 'scale(1)',
+                          padding: 0,
+                        }}
+                        title={`${p.name} (${p.hex})`}
+                      />
+                    );
+                  })}
+                </div>
+
+                {/* Custom Color Wheel Picker + Hex Input */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div
+                    style={{
+                      position: 'relative',
+                      width: '38px',
+                      height: '36px',
+                      borderRadius: '8px',
+                      background: formData.color_code || '#7c3aed',
+                      border: '1px solid var(--border-color)',
+                      overflow: 'hidden',
+                      cursor: 'pointer',
+                      boxShadow: `0 0 10px ${(formData.color_code || '#7c3aed')}50`,
+                      flexShrink: 0,
+                    }}
+                    title="Click to open custom color picker"
+                  >
+                    <input
+                      type="color"
+                      value={formData.color_code?.startsWith('#') && formData.color_code.length === 7 ? formData.color_code : '#7c3aed'}
+                      onChange={(e) => setFormData({ ...formData, color_code: e.target.value })}
+                      style={{
+                        position: 'absolute',
+                        top: '-10px',
+                        left: '-10px',
+                        width: '60px',
+                        height: '60px',
+                        cursor: 'pointer',
+                        opacity: 0,
+                      }}
+                    />
+                  </div>
+                  <input
+                    type="text"
+                    className="input-field"
+                    placeholder="#7c3aed"
+                    value={formData.color_code}
+                    onChange={(e) => setFormData({ ...formData, color_code: e.target.value })}
+                    style={{ flex: 1, fontFamily: 'monospace', fontWeight: 600, padding: '0.4rem 0.65rem', fontSize: '0.85rem' }}
+                    required
+                  />
+                </div>
+                <span style={{ fontSize: '0.7rem', color: 'var(--text-dim)', display: 'block', marginTop: '5px' }}>
+                  Pick any custom color for this VIP category tier using the color box or entering a hex code.
+                </span>
               </div>
             </div>
 
@@ -508,25 +624,52 @@ export default function CreateCategory({ onNavigate, onToast }) {
                 border: '1px solid var(--border-color)',
                 borderRadius: '12px',
                 padding: '1rem',
-                borderLeft: '4px solid #7c3aed',
+                borderLeft: `4px solid ${formData.color_code || '#7c3aed'}`,
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <strong style={{ fontSize: '1rem', color: 'var(--text-main)' }}>
-                  {formData.name.trim() || 'New Category Name'}
-                </strong>
-                <span
-                  style={{
-                    fontSize: '0.72rem',
-                    padding: '2px 8px',
-                    borderRadius: '8px',
-                    background: 'rgba(124, 58, 237, 0.1)',
-                    color: '#7c3aed',
-                    fontWeight: 800,
-                  }}
-                >
-                  Rank #{formData.display_order}
-                </span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span
+                    style={{
+                      width: '14px',
+                      height: '14px',
+                      borderRadius: '50%',
+                      background: formData.color_code || '#7c3aed',
+                      boxShadow: `0 0 8px ${(formData.color_code || '#7c3aed')}80`,
+                      flexShrink: 0,
+                    }}
+                  />
+                  <strong style={{ fontSize: '1rem', color: 'var(--text-main)' }}>
+                    {formData.name.trim() || 'New Category Name'}
+                  </strong>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span
+                    style={{
+                      fontSize: '0.72rem',
+                      padding: '2px 8px',
+                      borderRadius: '6px',
+                      background: `${formData.color_code || '#7c3aed'}18`,
+                      color: formData.color_code || '#7c3aed',
+                      fontWeight: 800,
+                      fontFamily: 'monospace',
+                    }}
+                  >
+                    {formData.color_code || '#7c3aed'}
+                  </span>
+                  <span
+                    style={{
+                      fontSize: '0.72rem',
+                      padding: '2px 8px',
+                      borderRadius: '8px',
+                      background: 'rgba(124, 58, 237, 0.1)',
+                      color: '#7c3aed',
+                      fontWeight: 800,
+                    }}
+                  >
+                    Rank #{formData.display_order}
+                  </span>
+                </div>
               </div>
 
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', marginTop: '0.65rem' }}>

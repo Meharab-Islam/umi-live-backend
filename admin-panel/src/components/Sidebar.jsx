@@ -386,10 +386,11 @@ export default function Sidebar({
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
                                   <span
                                     style={{
-                                      width: '6px',
-                                      height: '6px',
+                                      width: '7px',
+                                      height: '7px',
                                       borderRadius: '50%',
-                                      background: isCatActive ? '#7c3aed' : 'var(--text-dim)',
+                                      background: cat.color_code || (isCatActive ? '#7c3aed' : 'var(--text-dim)'),
+                                      boxShadow: isCatActive ? `0 0 6px ${cat.color_code || '#7c3aed'}` : 'none',
                                       flexShrink: 0,
                                     }}
                                   />

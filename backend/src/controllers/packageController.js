@@ -263,7 +263,7 @@ export async function createPackageCategory(req, res) {
   try {
     const {
       name,
-      badge_icon = '👑',
+      badge_icon = '',
       color_code = '#f59e0b',
       display_order = 1,
       cant_be_removed = true,
@@ -287,7 +287,7 @@ export async function createPackageCategory(req, res) {
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         name.trim(),
-        badge_icon || '👑',
+        badge_icon || '',
         color_code || '#f59e0b',
         parseInt(display_order, 10) || 1,
         cant_be_removed ? 1 : 0,
