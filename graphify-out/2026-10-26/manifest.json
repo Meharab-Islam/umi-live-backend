@@ -12,9 +12,9 @@
     "semantic_hash": ""
   },
   "admin-panel/src/App.jsx": {
-    "mtime": 1792955873.4218614,
-    "seen": 1792956088.7563672,
-    "ast_hash": "2c9667e93b22636041b90db344ac02bb",
+    "mtime": 1792957897.9985619,
+    "seen": 1792957918.753396,
+    "ast_hash": "ed8bb4e1eb98f8abd9d083212eb882cf",
     "semantic_hash": ""
   },
   "admin-panel/src/api.js": {
@@ -24,9 +24,9 @@
     "semantic_hash": ""
   },
   "admin-panel/src/components/Header.jsx": {
-    "mtime": 1792927448.9953597,
-    "seen": 1792927597.1342568,
-    "ast_hash": "358b4d73fa9f6021713940c7546a70e1",
+    "mtime": 1792956634.9514682,
+    "seen": 1792957918.7540119,
+    "ast_hash": "62d164d9bc59bf53379eaf2609bd5fbf",
     "semantic_hash": ""
   },
   "admin-panel/src/components/Sidebar.jsx": {
@@ -66,9 +66,9 @@
     "semantic_hash": ""
   },
   "admin-panel/src/pages/Login.jsx": {
-    "mtime": 1792866397.7880142,
-    "seen": 1792866768.23898,
-    "ast_hash": "8d4392a4907619e51591a2633612b28b",
+    "mtime": 1792956598.9672294,
+    "seen": 1792957918.754496,
+    "ast_hash": "95a24be8743309f1cd90c8cd837ffb7d",
     "semantic_hash": ""
   },
   "admin-panel/src/pages/Settings.jsx": {
@@ -114,9 +114,9 @@
     "semantic_hash": ""
   },
   "backend/src/controllers/adminController.js": {
-    "mtime": 1792955495.437062,
-    "seen": 1792956088.7578392,
-    "ast_hash": "2cc635f1eb43e74406f14cf7a7fae1a1",
+    "mtime": 1792957803.0704405,
+    "seen": 1792957918.754907,
+    "ast_hash": "52002fe7ae847fd8a49d57094faa04f1",
     "semantic_hash": ""
   },
   "backend/src/controllers/authController.js": {
@@ -1452,9 +1452,9 @@
     "semantic_hash": ""
   },
   "admin-panel/src/pages/AccountDeletionRequests.jsx": {
-    "mtime": 1792955777.6852734,
-    "seen": 1792956088.757159,
-    "ast_hash": "fe7531486c3f1c6983196fa57aa03bea",
+    "mtime": 1792957864.2913566,
+    "seen": 1792957918.754215,
+    "ast_hash": "fc56004d9ff5ba3c2f40a4d662558db0",
     "semantic_hash": ""
   },
   "admin-panel/src/pages/LegalPolicies.jsx": {
@@ -1479,6 +1479,12 @@
     "mtime": 1792955707.8776329,
     "seen": 1792956088.7597098,
     "ast_hash": "74e1c7f2987829ba871e4393863ceea8",
+    "semantic_hash": ""
+  },
+  "admin-panel/src/pages/LandingPage.jsx": {
+    "mtime": 1792956576.5151622,
+    "seen": 1792957918.7544188,
+    "ast_hash": "83183c02791177a58d92a20a88519206",
     "semantic_hash": ""
   }
 }

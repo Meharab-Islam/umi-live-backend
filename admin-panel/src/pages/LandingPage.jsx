@@ -1,708 +1,816 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Video,
-  Mic,
-  Coins,
-  Crown,
+  Gift,
   ShieldCheck,
-  Trophy,
+  Smartphone,
   Sparkles,
-  Download,
-  ArrowRight,
-  ExternalLink,
-  Users,
-  Eye,
-  Heart,
-  Flame,
-  Radio,
   Lock,
   ChevronRight,
-  Smartphone,
-  Star,
-  Zap,
+  ExternalLink,
+  Menu,
+  X,
+  FileText,
+  AlertTriangle,
+  UserX,
+  HelpCircle,
+  Mail,
+  Calendar,
+  CheckCircle2,
+  Download,
+  Flame,
+  Radio,
+  Award,
 } from 'lucide-react';
+import MarkdownRenderer from '../components/MarkdownRenderer';
 import { useBranding } from '../context/BrandingContext';
 import './LandingPage.css';
 
-export default function LandingPage({ onNavigateToAdmin, user, onLogout }) {
+export default function LandingPage({ onNavigateToAdmin, activePage = 'home', onPageChange }) {
   const { brandName, resolvedLogoUrl, brandTagline } = useBranding();
-  const [mockMode, setMockMode] = useState('video'); // 'video' | 'audio'
-  const [activeShowcaseTab, setActiveShowcaseTab] = useState('video');
-  const [activeFaq, setActiveFaq] = useState(null);
 
-  const toggleFaq = (index) => {
-    setActiveFaq(activeFaq === index ? null : index);
+  // Multi-page state: 'home' | 'privacy' | 'terms' | 'delete-account' | 'contact'
+  const [currentPage, setCurrentPage] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const p = window.location.pathname.toLowerCase();
+      const h = window.location.hash.toLowerCase().replace(/^#\/?/, '');
+      if (p === '/privacy' || h === 'privacy') return 'privacy';
+      if (p === '/terms' || h === 'terms') return 'terms';
+      if (p === '/delete-account' || h === 'delete-account') return 'delete-account';
+      if (p === '/contact' || h === 'contact') return 'contact';
+    }
+    return activePage || 'home';
+  });
+
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Policy Content Loaded from Backend API
+  const [privacyData, setPrivacyData] = useState({
+    title: 'Privacy Policy',
+    content: '',
+    updatedAt: '2026-10-26',
+  });
+  const [termsData, setTermsData] = useState({
+    title: 'Terms of Service',
+    content: '',
+    updatedAt: '2026-10-26',
+  });
+  const [supportEmail, setSupportEmail] = useState('support@umilive.com');
+  const [loadingPolicies, setLoadingPolicies] = useState(true);
+
+  // Account Deletion Form State
+  const [deleteForm, setDeleteForm] = useState({
+    identifier: '',
+    name: '',
+    email: '',
+    reason: 'Personal Decision / No Longer Using App',
+    details: '',
+    confirmed: false,
+  });
+  const [deleteSubmitting, setDeleteSubmitting] = useState(false);
+  const [deleteResult, setDeleteResult] = useState(null);
+
+  // Synchronize Browser History & URL
+  const navigateToPage = (pageName) => {
+    setCurrentPage(pageName);
+    setMobileMenuOpen(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    if (typeof window !== 'undefined') {
+      const urlPath = pageName === 'home' ? '/' : `/${pageName}`;
+      window.history.pushState(null, '', urlPath);
+    }
+    if (onPageChange) onPageChange(pageName);
   };
 
-  const showcaseData = {
-    video: {
-      badge: 'WebRTC Ultra HD Streaming',
-      title: 'Real-Time Video Broadcast with DeepAR AI Filters',
-      desc: 'Experience 1080p 60FPS zero-lag live video broadcasting powered by LiveKit SFU infrastructure. Enhance streams with real-time AR beauty filters, dynamic virtual gifts, multi-guest stage calls, and interactive audience comments.',
-      highlights: [
-        'Sub-150ms glass-to-glass global latency',
-        'DeepAR AI face beauty, smoothing & 3D stickers',
-        'Multi-host co-streaming & PK battle challenges',
-        'Real-time animated gift notifications & SVGA overlays',
-      ],
-      icon: <Video size={24} />,
-      color: '#1E88E5',
-    },
-    audio: {
-      badge: 'Dynamic Multi-Guest Party',
-      title: 'Interactive 20-Seat Voice Party Rooms',
-      desc: 'Create vibrant community party rooms supporting up to 20 voice seats with dynamic host expansions. Includes animated speaking rings, host seat locking, background wallpapers, sound effects, and private host whispers.',
-      highlights: [
-        'Dynamic seat expansion from 6 up to 20 seats',
-        'Live animated soundwave rings on active speakers',
-        'Custom 4K room themes & animated wallpapers',
-        'Host controls: kick, mute, invite, lock & VIP priority',
-      ],
-      icon: <Mic size={24} />,
-      color: '#1565C0',
-    },
-    economy: {
-      badge: 'Creator Monetization',
-      title: 'Seamless Coin Economy & Virtual Gift System',
-      desc: 'Empower creators with instant monetized virtual gifts. Users recharge Coins, send animated 3D gifts during streams, and broadcasters convert received gifts to withdrawal earnings directly via local gateways.',
-      highlights: [
-        '100+ customized animated SVGA and 3D gifts',
-        'Transparent Coin-to-Diamond conversion formulas',
-        'Instant agency earnings & commission splitting',
-        'Secure multi-gateway recharge & automated cash-out',
-      ],
-      icon: <Coins size={24} />,
-      color: '#F59E0B',
-    },
-    vip: {
-      badge: 'Exclusive Privilege Suite',
-      title: 'Tiered VIP Packages & Custom Badges',
-      desc: 'Reward elite community members with King, Queen, Crown, and VIP tier memberships. Enjoy exclusive entrance flash banners, anti-kick protection, auto-call seat privileges, and custom avatar rings.',
-      highlights: [
-        'King, Queen, Crown & VIP membership tiers',
-        'Full-screen SVGA room entrance animations',
-        'Auto-call queue acceptance privilege for stage seats',
-        'Custom chat nameplate colors & 3D avatar frames',
-      ],
-      icon: <Crown size={24} />,
-      color: '#8B5CF6',
-    },
-    pk: {
-      badge: 'Live Battle Arena',
-      title: 'Host vs Host PK Battles with Real-Time Scoring',
-      desc: 'Ignite viewer enthusiasm with thrilling live PK battles. Two hosts compete head-to-head while audiences send gifts to drive their champion’s score bar to victory in real-time.',
-      highlights: [
-        'Side-by-side synchronized dual video streams',
-        'Dynamic real-time progress bar powered by live gifts',
-        'Victory celebrations, punishments & leaderboards',
-        'Automatic winner detection and MVP gifter rewards',
-      ],
-      icon: <Trophy size={24} />,
-      color: '#EF4444',
-    },
-  };
+  useEffect(() => {
+    const handlePopState = () => {
+      const p = window.location.pathname.toLowerCase();
+      const h = window.location.hash.toLowerCase().replace(/^#\/?/, '');
+      if (p === '/privacy' || h === 'privacy') setCurrentPage('privacy');
+      else if (p === '/terms' || h === 'terms') setCurrentPage('terms');
+      else if (p === '/delete-account' || h === 'delete-account') setCurrentPage('delete-account');
+      else if (p === '/contact' || h === 'contact') setCurrentPage('contact');
+      else setCurrentPage('home');
+    };
 
-  const faqs = [
-    {
-      q: 'How do I start broadcasting on Umi Live?',
-      a: 'Simply download the Umi Live mobile app on Android or iOS, sign in via Google, Facebook, or Phone OTP, tap the central "Go Live" button, choose between Video Live or Audio Party mode, and start streaming to millions of viewers instantly.',
-    },
-    {
-      q: 'How does the Coin recharge and creator cash-out work?',
-      a: 'Viewers purchase Coins securely through in-app recharges or authorized local Resellers. When viewers gift streamers, coins convert into creator wallet balances that hosts can withdraw anytime to their bank accounts or mobile wallets based on agency rates.',
-    },
-    {
-      q: 'What privileges do VIP packages provide?',
-      a: 'VIP subscribers enjoy exclusive privileges including custom badge colors, full-screen entrance SVGA animations, auto-seat access privileges, VIP chat nameplates, and immunity from unauthorized room kicks.',
-    },
-    {
-      q: 'How can agencies and managers oversee their hosts?',
-      a: 'Agencies get full access to dedicated agency dashboards to recruit audio/video hosts, track monthly live stream targets, view host coin earnings, and monitor performance in real-time.',
-    },
-  ];
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  // Fetch Public Policies & Content
+  useEffect(() => {
+    const fetchContent = async () => {
+      try {
+        setLoadingPolicies(true);
+        const [pRes, tRes] = await Promise.all([
+          fetch('/api/public/privacy-policy').then((r) => (r.ok ? r.json() : null)),
+          fetch('/api/public/terms').then((r) => (r.ok ? r.json() : null)),
+        ]);
+
+        if (pRes && pRes.success) {
+          setPrivacyData({
+            title: pRes.title || pRes.policy?.title || 'Privacy Policy',
+            content: pRes.content || pRes.policy?.content || '',
+            updatedAt: pRes.updated_at || pRes.policy?.updatedAt || '2026-10-26',
+          });
+          if (pRes.support_email || pRes.policy?.supportEmail) {
+            setSupportEmail(pRes.support_email || pRes.policy?.supportEmail);
+          }
+        }
+        if (tRes && tRes.success) {
+          setTermsData({
+            title: tRes.title || tRes.terms?.title || 'Terms of Service',
+            content: tRes.content || tRes.terms?.content || '',
+            updatedAt: tRes.updated_at || tRes.terms?.updatedAt || '2026-10-26',
+          });
+        }
+      } catch (err) {
+        console.error('Failed to load public policies:', err);
+      } finally {
+        setLoadingPolicies(false);
+      }
+    };
+
+    fetchContent();
+  }, []);
+
+  // Handle Account Deletion Form Submission
+  const handleDeleteSubmit = async (e) => {
+    e.preventDefault();
+    if (!deleteForm.identifier.trim()) {
+      alert('Please provide your registered User ID, Email, or Phone number.');
+      return;
+    }
+    if (!deleteForm.confirmed) {
+      alert('Please confirm that you understand this action is permanent.');
+      return;
+    }
+
+    try {
+      setDeleteSubmitting(true);
+      setDeleteResult(null);
+
+      const res = await fetch('/api/public/account-deletion-request', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          identifier: deleteForm.identifier.trim(),
+          name: deleteForm.name.trim() || undefined,
+          email: deleteForm.email.trim() || undefined,
+          reason: deleteForm.reason,
+          details: deleteForm.details.trim() || undefined,
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setDeleteResult({
+          success: true,
+          message:
+            data.message ||
+            'Your account deletion request has been registered. Our safety team will review and process it within 24-48 hours.',
+          referenceId: data.reference_id || `REQ-${Date.now().toString().slice(-4)}`,
+        });
+        setDeleteForm({
+          identifier: '',
+          name: '',
+          email: '',
+          reason: 'Personal Decision / No Longer Using App',
+          details: '',
+          confirmed: false,
+        });
+      } else {
+        setDeleteResult({
+          success: false,
+          message: data.message || 'Failed to submit request. Please try again or email support.',
+        });
+      }
+    } catch (err) {
+      setDeleteResult({
+        success: false,
+        message: 'Network connection error. Please try again later.',
+      });
+    } finally {
+      setDeleteSubmitting(false);
+    }
+  };
 
   return (
     <div className="umi-landing-wrapper">
-      {/* Background Ambient Glows */}
+      {/* Background Glowing Ambient Orbs */}
       <div className="umi-landing-bg-orb umi-landing-bg-orb-1" />
       <div className="umi-landing-bg-orb umi-landing-bg-orb-2" />
+      <div className="umi-landing-bg-orb umi-landing-bg-orb-3" />
 
-      {/* Sticky Top Navigation */}
+      {/* ====================================================================
+          1. HEADER NAVBAR (Multi-Page Navigation)
+         ==================================================================== */}
       <header className="umi-navbar">
-        <div className="umi-navbar-container">
-          <div className="umi-brand-logo" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-            <div className="umi-brand-icon-box">
+        <div className="umi-container umi-navbar-inner">
+          {/* Brand Logo & Name */}
+          <div className="umi-brand" onClick={() => navigateToPage('home')}>
+            <div className="umi-brand-icon">
               {resolvedLogoUrl ? (
                 <img
                   src={resolvedLogoUrl}
                   alt={brandName}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                  className="umi-brand-logo-img"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                  }}
                 />
               ) : (
-                <Zap size={22} fill="#FFFFFF" color="#FFFFFF" />
+                <Radio size={22} color="#ffffff" />
               )}
             </div>
-            <span className="umi-brand-text">
-              {brandName.split(' ')[0]} <span>{brandName.split(' ').slice(1).join(' ') || 'Live'}</span>
-            </span>
+            <div>
+              <span className="umi-brand-title">
+                {brandName}
+                <Sparkles size={16} color="#ff80ee" />
+              </span>
+              <span className="umi-brand-tagline">
+                {brandTagline || 'Broadcasting & Live Community'}
+              </span>
+            </div>
           </div>
 
-          <ul className="umi-nav-links">
-            <li><a href="#features" className="umi-nav-link">Features</a></li>
-            <li><a href="#live-experience" className="umi-nav-link">Live Studio</a></li>
-            <li><a href="#vip-economy" className="umi-nav-link">VIP & Coins</a></li>
-            <li><a href="#download" className="umi-nav-link">Download App</a></li>
-            <li><a href="#faq" className="umi-nav-link">FAQ</a></li>
-          </ul>
+          {/* Desktop Navigation Links */}
+          <nav>
+            <ul className="umi-nav-links">
+              <li className={`umi-nav-item ${currentPage === 'home' ? 'active' : ''}`}>
+                <button type="button" onClick={() => navigateToPage('home')}>
+                  Home
+                </button>
+              </li>
+              <li className={`umi-nav-item ${currentPage === 'privacy' ? 'active' : ''}`}>
+                <button type="button" onClick={() => navigateToPage('privacy')}>
+                  Privacy Policy
+                </button>
+              </li>
+              <li className={`umi-nav-item ${currentPage === 'terms' ? 'active' : ''}`}>
+                <button type="button" onClick={() => navigateToPage('terms')}>
+                  Terms of Service
+                </button>
+              </li>
+              <li className={`umi-nav-item ${currentPage === 'delete-account' ? 'active' : ''}`}>
+                <button type="button" onClick={() => navigateToPage('delete-account')}>
+                  Delete Account
+                </button>
+              </li>
+              <li className={`umi-nav-item ${currentPage === 'contact' ? 'active' : ''}`}>
+                <button type="button" onClick={() => navigateToPage('contact')}>
+                  Contact
+                </button>
+              </li>
+            </ul>
+          </nav>
 
+          {/* Right Header Actions */}
           <div className="umi-nav-actions">
-            {user ? (
-              <>
-                <button
-                  type="button"
-                  className="umi-btn umi-btn-primary"
-                  onClick={onNavigateToAdmin}
-                >
-                  <ShieldCheck size={16} />
-                  <span>Admin Dashboard</span>
-                </button>
-                <button
-                  type="button"
-                  className="umi-btn umi-btn-outline"
-                  onClick={onLogout}
-                  title="Sign Out"
-                >
-                  Logout
-                </button>
-              </>
-            ) : (
-              <>
-                <button
-                  type="button"
-                  className="umi-btn umi-btn-secondary"
-                  onClick={onNavigateToAdmin}
-                >
-                  <Lock size={15} />
-                  <span>Admin Console</span>
-                </button>
-                <a href="#download" className="umi-btn umi-btn-primary">
-                  <Download size={15} />
-                  <span>Get App</span>
-                </a>
-              </>
-            )}
-          </div>
-        </div>
-      </header>
-
-      {/* Hero Section */}
-      <section className="umi-hero">
-        <div className="umi-hero-content">
-          <div className="umi-live-badge">
-            <span className="umi-live-pulse-dot" />
-            <span>Next-Gen Live Broadcasting Platform</span>
-          </div>
-
-          <h1 className="umi-hero-title">
-            Connect, Stream & <br />
-            <span className="umi-hero-title-highlight">Shine in Real-Time</span>
-          </h1>
-
-          <p className="umi-hero-description">
-            Experience ultra low-latency WebRTC video streaming with DeepAR face filters, 20-seat interactive voice party rooms, real-time virtual coin gifting, and dynamic VIP privileges — all in a clean, high-performance experience.
-          </p>
-
-          <div className="umi-hero-cta-group">
-            <a href="#download" className="umi-btn umi-btn-primary" style={{ padding: '0.85rem 1.75rem', fontSize: '1rem' }}>
-              <Download size={18} />
-              <span>Download Umi Live</span>
-              <ArrowRight size={16} />
-            </a>
             <button
               type="button"
-              className="umi-btn umi-btn-secondary"
-              style={{ padding: '0.85rem 1.5rem', fontSize: '1rem' }}
+              className="umi-btn-admin"
               onClick={onNavigateToAdmin}
+              title="Admin Console Login"
             >
-              <ShieldCheck size={18} />
-              <span>{user ? 'Open Admin Console' : 'Admin Portal Login'}</span>
+              <Lock size={14} />
+              <span>Admin Portal</span>
             </button>
-          </div>
 
-          <div className="umi-hero-stats">
-            <div className="umi-hero-stat-item">
-              <span className="umi-hero-stat-value">100K+</span>
-              <span className="umi-hero-stat-label">Active Users</span>
-            </div>
-            <div className="umi-hero-stat-item">
-              <span className="umi-hero-stat-value">50M+</span>
-              <span className="umi-hero-stat-label">Coins Gifted</span>
-            </div>
-            <div className="umi-hero-stat-item">
-              <span className="umi-hero-stat-value">&lt; 150ms</span>
-              <span className="umi-hero-stat-label">Ultra Latency</span>
-            </div>
-            <div className="umi-hero-stat-item">
-              <span className="umi-hero-stat-value">99.9%</span>
-              <span className="umi-hero-stat-label">Stream Uptime</span>
-            </div>
+            {/* Mobile Hamburger Button */}
+            <button
+              type="button"
+              className="umi-mobile-menu-btn"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label="Toggle Navigation Menu"
+            >
+              {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+            </button>
           </div>
         </div>
 
-        {/* Hero Interactive Phone Mockup */}
-        <div className="umi-phone-preview-wrap">
-          {/* Top Floating Card */}
-          <div className="umi-floating-card-1">
-            <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: '#FEF3C7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem' }}>
-              🎁
-            </div>
-            <div>
-              <div style={{ fontSize: '0.78rem', fontWeight: 800, color: '#0F172A' }}>Rocket Blast Gift!</div>
-              <div style={{ fontSize: '0.7rem', color: '#D97706', fontWeight: 700 }}>+5,000 Coins 🪙</div>
-            </div>
+        {/* Mobile Navigation Drawer */}
+        {mobileMenuOpen && (
+          <div
+            style={{
+              background: 'rgba(7, 10, 20, 0.98)',
+              borderBottom: '1px solid var(--umi-border)',
+              padding: '1rem 1.5rem',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '8px',
+            }}
+          >
+            {[
+              { id: 'home', label: 'Home' },
+              { id: 'privacy', label: 'Privacy Policy' },
+              { id: 'terms', label: 'Terms of Service' },
+              { id: 'delete-account', label: 'Delete Account Request' },
+              { id: 'contact', label: 'Contact Support' },
+            ].map((nav) => (
+              <button
+                key={nav.id}
+                type="button"
+                onClick={() => navigateToPage(nav.id)}
+                style={{
+                  textAlign: 'left',
+                  padding: '10px 14px',
+                  borderRadius: '8px',
+                  background: currentPage === nav.id ? 'rgba(255, 128, 238, 0.15)' : 'transparent',
+                  color: currentPage === nav.id ? '#fff' : '#94a3b8',
+                  border: 'none',
+                  fontSize: '0.95rem',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                }}
+              >
+                {nav.label}
+              </button>
+            ))}
           </div>
+        )}
+      </header>
 
-          {/* Bottom Floating Card */}
-          <div className="umi-floating-card-2">
-            <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: '#DBEAFE', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#1E88E5' }}>
-              <Crown size={20} />
-            </div>
-            <div>
-              <div style={{ fontSize: '0.78rem', fontWeight: 800, color: '#0F172A' }}>King VIP Joined 👑</div>
-              <div style={{ fontSize: '0.7rem', color: '#1E88E5', fontWeight: 700 }}>Auto-Seat Privilege Enabled</div>
-            </div>
-          </div>
-
-          {/* Phone Shell */}
-          <div className="umi-phone-container">
-            <div className="umi-phone-notch" />
-
-            <div className="umi-phone-screen">
-              {/* Header inside phone */}
-              <div className="umi-phone-top-bar">
-                <div className="umi-phone-host-pill">
-                  <div className="umi-phone-host-avatar" style={{ background: '#1E88E5', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '0.7rem', fontWeight: 800 }}>
-                    👑
-                  </div>
-                  <div>
-                    <div className="umi-phone-host-name">Sarah Live 📹</div>
-                    <div style={{ fontSize: '0.62rem', color: '#64748B' }}>1.4k viewers</div>
-                  </div>
-                </div>
-
-                <div className="umi-phone-coins-pill">
-                  <span>🪙</span>
-                  <span>94,200</span>
-                </div>
+      {/* ====================================================================
+          2. PAGE ROUTER VIEWS
+         ==================================================================== */}
+      <main className="umi-page-body">
+        {/* ================================================================
+            PAGE: HOME
+           ================================================================ */}
+        {currentPage === 'home' && (
+          <div className="umi-container">
+            {/* Hero Section */}
+            <section className="umi-hero-section">
+              <div className="umi-page-badge">
+                <Flame size={14} />
+                <span>Next-Gen Live Broadcasting Platform</span>
               </div>
+              <h1 className="umi-hero-title">
+                Experience Real-Time <br />
+                <span className="umi-hero-gradient-text">Interactive Live Streaming</span>
+              </h1>
+              <p className="umi-hero-desc">
+                Join millions of global creators, broadcast in ultra-low latency HD video &amp; audio,
+                send exclusive 3D animated virtual gifts, and climb the progression leaderboards.
+              </p>
 
-              {/* Mode Switcher */}
-              <div className="umi-phone-tab-bar">
+              {/* Action Buttons */}
+              <div className="umi-hero-cta-group">
+                <a
+                  href="#download"
+                  className="umi-btn-primary"
+                  onClick={() => alert('App Store & Google Play links are live! Download the app from your store.')}
+                >
+                  <Download size={18} />
+                  <span>Download Mobile App</span>
+                </a>
                 <button
                   type="button"
-                  className={`umi-phone-tab-btn ${mockMode === 'video' ? 'active' : ''}`}
-                  onClick={() => setMockMode('video')}
+                  className="umi-btn-secondary"
+                  onClick={() => navigateToPage('privacy')}
                 >
-                  Video Live 📹
+                  <FileText size={18} />
+                  <span>View Privacy Policy</span>
                 </button>
                 <button
                   type="button"
-                  className={`umi-phone-tab-btn ${mockMode === 'audio' ? 'active' : ''}`}
-                  onClick={() => setMockMode('audio')}
+                  className="umi-btn-secondary"
+                  onClick={() => navigateToPage('delete-account')}
                 >
-                  Voice Party 🎙️
+                  <UserX size={18} />
+                  <span>Data Deletion Request</span>
                 </button>
               </div>
 
-              {/* Mode View: Video Live */}
-              {mockMode === 'video' && (
-                <div className="umi-phone-video-view">
-                  <div className="umi-phone-floating-badge">
-                    <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#EF4444' }} />
-                    <span>LIVE • DeepAR Beauty On ✨</span>
-                  </div>
-
-                  <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <div style={{ textAlign: 'center', color: '#FFFFFF' }}>
-                      <div style={{ fontSize: '3rem', filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.3))' }}>👩‍🎤</div>
-                      <div style={{ fontSize: '0.8rem', fontWeight: 800, marginTop: '4px', textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>@sarah_music</div>
-                    </div>
-                  </div>
-
-                  <div className="umi-phone-chat-feed">
-                    <div className="umi-phone-chat-bubble">
-                      <span className="umi-phone-chat-user">Alex:</span>
-                      <span>Sing that new acoustic song! 🔥</span>
-                    </div>
-                    <div className="umi-phone-chat-bubble" style={{ background: 'rgba(254, 243, 199, 0.95)', border: '1px solid #FCD34D' }}>
-                      <span style={{ color: '#D97706', fontWeight: 800 }}>VIP Liam 👑:</span>
-                      <span>Sent 5x Super Cars 🏎️💨</span>
-                    </div>
-                  </div>
+              {/* Statistics Highlights */}
+              <div className="umi-stats-bar">
+                <div className="umi-stat-item">
+                  <div className="umi-stat-num">10M+</div>
+                  <div className="umi-stat-lbl">Active Viewers</div>
                 </div>
-              )}
+                <div className="umi-stat-item">
+                  <div className="umi-stat-num">&lt;200ms</div>
+                  <div className="umi-stat-lbl">Ultra Low Latency</div>
+                </div>
+                <div className="umi-stat-item">
+                  <div className="umi-stat-num">500+</div>
+                  <div className="umi-stat-lbl">3D Virtual Gifts</div>
+                </div>
+                <div className="umi-stat-item">
+                  <div className="umi-stat-num">99.99%</div>
+                  <div className="umi-stat-lbl">Uptime SLA</div>
+                </div>
+              </div>
+            </section>
 
-              {/* Mode View: Audio Party Room */}
-              {mockMode === 'audio' && (
-                <div className="umi-phone-audio-grid">
-                  <div className="umi-phone-seat-item" style={{ borderColor: '#1E88E5', background: '#F0F9FF' }}>
-                    <div className="umi-phone-seat-avatar" style={{ background: '#1E88E5', color: '#fff' }}>
-                      👑
-                      <div className="umi-phone-speaking-ring" />
-                    </div>
-                    <span className="umi-phone-seat-name">Host Sarah</span>
-                    <span style={{ fontSize: '0.58rem', color: '#1E88E5', fontWeight: 800 }}>Seat 1 🎙️</span>
+            {/* Core Features Showcase */}
+            <section style={{ marginBottom: '60px' }}>
+              <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+                <h2 style={{ fontSize: '2rem', fontWeight: 800, color: '#fff', marginBottom: '10px' }}>
+                  Engineered for Creators &amp; Superfans
+                </h2>
+                <p style={{ color: '#94a3b8', fontSize: '1rem', maxWidth: '600px', margin: '0 auto' }}>
+                  Industry-leading broadcasting tools with state-of-the-art privacy protection and real-time moderation.
+                </p>
+              </div>
+
+              <div className="umi-features-grid">
+                <div className="umi-feature-card">
+                  <div className="umi-feature-icon" style={{ background: 'rgba(255, 128, 238, 0.1)', color: '#ff80ee' }}>
+                    <Video size={26} />
                   </div>
-
-                  {[2, 3, 4, 5, 6].map((s) => (
-                    <div key={s} className="umi-phone-seat-item">
-                      <div className="umi-phone-seat-avatar" style={{ background: '#E2E8F0', color: '#475569' }}>
-                        {s === 2 ? '🎧' : s === 3 ? '🎤' : s === 4 ? '⭐️' : s === 5 ? '😎' : '💎'}
-                        {s === 2 && <div className="umi-phone-speaking-ring" style={{ borderColor: '#10B981' }} />}
-                      </div>
-                      <span className="umi-phone-seat-name">Speaker {s}</span>
-                      <span style={{ fontSize: '0.58rem', color: '#64748B' }}>Seat #{s}</span>
-                    </div>
-                  ))}
+                  <h3>Multi-Guest Live Streaming</h3>
+                  <p>
+                    Host 9-seat interactive audio and video parties. Invite co-hosts, take live questions, and entertain fans seamlessly.
+                  </p>
                 </div>
-              )}
 
-              {/* Bottom Phone Action Bar */}
-              <div style={{ padding: '8px 12px', background: '#FFFFFF', borderTop: '1px solid #EEF2F6', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <div style={{ display: 'flex', gap: '6px' }}>
-                  <button type="button" style={{ border: 'none', background: '#F1F5F9', borderRadius: '50%', width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem' }}>🎙️</button>
-                  <button type="button" style={{ border: 'none', background: '#F1F5F9', borderRadius: '50%', width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem' }}>💬</button>
+                <div className="umi-feature-card">
+                  <div className="umi-feature-icon" style={{ background: 'rgba(124, 58, 237, 0.15)', color: '#a855f7' }}>
+                    <Gift size={26} />
+                  </div>
+                  <h3>Special Effects &amp; Gifting</h3>
+                  <p>
+                    Send animated SVGA &amp; GIF gifts with screen-wide effects, fire dragons, luxury supercars, and VIP entry banners.
+                  </p>
                 </div>
-                <div style={{ display: 'flex', gap: '6px' }}>
-                  <button type="button" style={{ border: 'none', background: 'linear-gradient(135deg, #F59E0B, #D97706)', color: '#fff', borderRadius: '16px', padding: '4px 10px', fontSize: '0.68rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '3px' }}>
-                    <span>🎁 Send Gift</span>
+
+                <div className="umi-feature-card">
+                  <div className="umi-feature-icon" style={{ background: 'rgba(6, 182, 212, 0.15)', color: '#06b6d4' }}>
+                    <ShieldCheck size={26} />
+                  </div>
+                  <h3>Hardware Screen Guard</h3>
+                  <p>
+                    Built-in privacy protection prevents unauthorized screenshots and stream screen recordings to safeguard creators.
+                  </p>
+                </div>
+
+                <div className="umi-feature-card">
+                  <div className="umi-feature-icon" style={{ background: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b' }}>
+                    <Award size={26} />
+                  </div>
+                  <h3>VIP Tiers &amp; Progression</h3>
+                  <p>
+                    Level up from Bronze to Royal Deity, earning custom avatar frames, floating profile badges, and cashout rewards.
+                  </p>
+                </div>
+
+                <div className="umi-feature-card">
+                  <div className="umi-feature-icon" style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#10b981' }}>
+                    <Smartphone size={26} />
+                  </div>
+                  <h3>Cross-Platform Mobile</h3>
+                  <p>
+                    Optimized for Android &amp; iOS devices with adaptive bitrate streaming that works smoothly on all mobile networks.
+                  </p>
+                </div>
+
+                <div className="umi-feature-card">
+                  <div className="umi-feature-icon" style={{ background: 'rgba(239, 68, 68, 0.15)', color: '#ef4444' }}>
+                    <UserX size={26} />
+                  </div>
+                  <h3>Complete Data Control</h3>
+                  <p>
+                    Self-service account deletion and complete data removal compliance meeting Google Play and Apple App Store mandates.
+                  </p>
+                </div>
+              </div>
+            </section>
+          </div>
+        )}
+
+        {/* ================================================================
+            PAGE: PRIVACY POLICY
+           ================================================================ */}
+        {currentPage === 'privacy' && (
+          <div className="umi-container">
+            <div className="umi-page-header">
+              <div className="umi-page-badge">
+                <FileText size={14} />
+                <span>Legal &amp; Compliance</span>
+              </div>
+              <h1 className="umi-page-title">{privacyData.title}</h1>
+              <p className="umi-page-subtitle">
+                We are dedicated to safeguarding your personal data, rights, and account security.
+              </p>
+            </div>
+
+            <div className="umi-doc-card">
+              <div className="umi-doc-meta">
+                <div className="umi-doc-date">
+                  <Calendar size={15} color="#ff80ee" />
+                  <span>Effective Date: {privacyData.updatedAt || 'October 26, 2026'}</span>
+                </div>
+                <div className="umi-doc-actions">
+                  <button
+                    type="button"
+                    className="umi-btn-secondary"
+                    style={{ padding: '8px 16px', fontSize: '0.82rem' }}
+                    onClick={() => navigateToPage('delete-account')}
+                  >
+                    <UserX size={14} />
+                    <span>Delete Account Request</span>
                   </button>
                 </div>
               </div>
+
+              {loadingPolicies ? (
+                <div style={{ padding: '3rem', textAlign: 'center', color: '#94a3b8' }}>
+                  Loading latest privacy documentation...
+                </div>
+              ) : (
+                <MarkdownRenderer content={privacyData.content} />
+              )}
             </div>
           </div>
-        </div>
-      </section>
+        )}
 
-      {/* Core Platform Features Grid */}
-      <section id="features" className="umi-features-section">
-        <div className="umi-section-header">
-          <span className="umi-section-badge">Next-Generation Architecture</span>
-          <h2 className="umi-section-title">Engineered for World-Class Live Social Experiences</h2>
-          <p className="umi-section-subtitle">
-            From high-definition interactive video to 20-seat audio party rooms, Umi Live delivers blazing speed, zero frame drops, and rich monetization for creators worldwide.
-          </p>
-        </div>
-
-        <div className="umi-features-grid">
-          <div className="umi-feature-card">
-            <div className="umi-feature-icon-box">
-              <Video size={26} />
-            </div>
-            <h3 className="umi-feature-title">Ultra HD Video & DeepAR</h3>
-            <p className="umi-feature-desc">
-              WebRTC streaming powered by LiveKit SFU. Instant face retouching, dynamic skin smoothing, and interactive 3D AR filters.
-            </p>
-          </div>
-
-          <div className="umi-feature-card">
-            <div className="umi-feature-icon-box">
-              <Mic size={26} />
-            </div>
-            <h3 className="umi-feature-title">20-Seat Voice Parties</h3>
-            <p className="umi-feature-desc">
-              Expandable voice party rooms for up to 20 seats. Includes animated soundwaves, speaking rings, and host reservation management.
-            </p>
-          </div>
-
-          <div className="umi-feature-card">
-            <div className="umi-feature-icon-box">
-              <Coins size={26} />
-            </div>
-            <h3 className="umi-feature-title">Coin Economy & Gifts</h3>
-            <p className="umi-feature-desc">
-              Over 100 animated virtual gifts with sound effects. Real-time coin deductions, agency splits, and instant creator cash-outs.
-            </p>
-          </div>
-
-          <div className="umi-feature-card">
-            <div className="umi-feature-icon-box">
-              <Crown size={26} />
-            </div>
-            <h3 className="umi-feature-title">Tiered VIP Privilege Club</h3>
-            <p className="umi-feature-desc">
-              King, Queen, Crown, and VIP packages with exclusive badges, screen entrance animations, anti-kick guards, and auto-call seats.
-            </p>
-          </div>
-
-          <div className="umi-feature-card">
-            <div className="umi-feature-icon-box">
-              <Trophy size={26} />
-            </div>
-            <h3 className="umi-feature-title">Live PK Battles & 3D Podium</h3>
-            <p className="umi-feature-desc">
-              Streamer vs Streamer competitions with synchronized score bars, live countdowns, top gifter podiums, and victory animations.
-            </p>
-          </div>
-
-          <div className="umi-feature-card">
-            <div className="umi-feature-icon-box">
-              <ShieldCheck size={26} />
-            </div>
-            <h3 className="umi-feature-title">Privacy & Moderator Guard</h3>
-            <p className="umi-feature-desc">
-              Anti-screenshot screen guards, keyword chat filters, real-time socket bans, and multi-tier role delegation (Host, Agency, Reseller, Mod).
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Interactive Feature Showcase Section */}
-      <section id="live-experience" className="umi-showcase-section">
-        <div className="umi-showcase-container">
-          <div className="umi-section-header" style={{ marginBottom: '2.5rem' }}>
-            <span className="umi-section-badge">Interactive Capabilities</span>
-            <h2 className="umi-section-title">Explore the Live Streaming Ecosystem</h2>
-            <p className="umi-section-subtitle">
-              Select a category below to see how our broadcasting infrastructure powers creators and audiences.
-            </p>
-          </div>
-
-          <div className="umi-showcase-tabs">
-            {Object.keys(showcaseData).map((key) => {
-              const item = showcaseData[key];
-              const isActive = activeShowcaseTab === key;
-              return (
-                <button
-                  key={key}
-                  type="button"
-                  className={`umi-showcase-tab-btn ${isActive ? 'active' : ''}`}
-                  onClick={() => setActiveShowcaseTab(key)}
-                >
-                  {item.icon}
-                  <span>{key === 'video' ? 'Video Live' : key === 'audio' ? 'Voice Parties' : key === 'economy' ? 'Gifting & Coins' : key === 'vip' ? 'VIP Privileges' : 'PK Battles'}</span>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Tab Content Box */}
-          <div className="umi-showcase-content-box">
-            <div>
-              <div style={{ display: 'inline-block', padding: '4px 12px', borderRadius: '8px', background: 'rgba(30, 136, 229, 0.1)', color: '#1E88E5', fontWeight: 800, fontSize: '0.8rem', marginBottom: '0.8rem' }}>
-                {showcaseData[activeShowcaseTab].badge}
+        {/* ================================================================
+            PAGE: TERMS OF SERVICE
+           ================================================================ */}
+        {currentPage === 'terms' && (
+          <div className="umi-container">
+            <div className="umi-page-header">
+              <div className="umi-page-badge">
+                <ShieldCheck size={14} />
+                <span>User Agreement</span>
               </div>
-              <h3 style={{ fontSize: '1.9rem', fontWeight: 850, letterSpacing: '-0.02em', color: '#0F172A', marginBottom: '1rem', lineHeight: 1.25 }}>
-                {showcaseData[activeShowcaseTab].title}
-              </h3>
-              <p style={{ fontSize: '1.02rem', color: '#475569', lineHeight: 1.65, marginBottom: '1.8rem' }}>
-                {showcaseData[activeShowcaseTab].desc}
+              <h1 className="umi-page-title">{termsData.title}</h1>
+              <p className="umi-page-subtitle">
+                Please review our terms and community rules before participating in live rooms or purchasing virtual items.
               </p>
+            </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-                {showcaseData[activeShowcaseTab].highlights.map((h, i) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <div style={{ width: '20px', height: '20px', borderRadius: '50%', background: '#10B981', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '0.75rem', fontWeight: 900 }}>
-                      ✓
+            <div className="umi-doc-card">
+              <div className="umi-doc-meta">
+                <div className="umi-doc-date">
+                  <Calendar size={15} color="#ff80ee" />
+                  <span>Effective Date: {termsData.updatedAt || 'October 26, 2026'}</span>
+                </div>
+              </div>
+
+              {loadingPolicies ? (
+                <div style={{ padding: '3rem', textAlign: 'center', color: '#94a3b8' }}>
+                  Loading terms of service...
+                </div>
+              ) : (
+                <MarkdownRenderer content={termsData.content} />
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ================================================================
+            PAGE: DELETE ACCOUNT REQUEST
+           ================================================================ */}
+        {currentPage === 'delete-account' && (
+          <div className="umi-container">
+            <div className="umi-page-header">
+              <div className="umi-page-badge" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.3)' }}>
+                <UserX size={14} />
+                <span>Account Deletion &amp; Data Erasure</span>
+              </div>
+              <h1 className="umi-page-title">Request Account Deletion</h1>
+              <p className="umi-page-subtitle">
+                In compliance with Google Play Store &amp; Apple App Store guidelines, you can request permanent deletion of your account and personal data here.
+              </p>
+            </div>
+
+            <div className="umi-form-card">
+              {deleteResult && (
+                <div className={deleteResult.success ? 'umi-alert umi-alert-success' : 'umi-alert umi-alert-error'}>
+                  {deleteResult.success ? <CheckCircle2 size={20} /> : <AlertTriangle size={20} />}
+                  <div>
+                    <div style={{ fontWeight: 700, marginBottom: '2px' }}>
+                      {deleteResult.success ? 'Request Registered Successfully' : 'Submission Failed'}
                     </div>
-                    <span style={{ fontSize: '0.92rem', fontWeight: 600, color: '#1E293B' }}>{h}</span>
+                    <div>{deleteResult.message}</div>
+                    {deleteResult.referenceId && (
+                      <div style={{ marginTop: '8px', fontSize: '0.85rem', fontWeight: 600 }}>
+                        Ticket Reference ID: <span style={{ color: '#fff' }}>{deleteResult.referenceId}</span>
+                      </div>
+                    )}
                   </div>
-                ))}
-              </div>
-            </div>
+                </div>
+              )}
 
-            <div style={{ background: '#FFFFFF', borderRadius: '20px', padding: '2rem', border: '1px solid #E0E6ED', boxShadow: 'var(--umi-shadow-md)', textAlign: 'center' }}>
-              <div style={{ width: '80px', height: '80px', borderRadius: '24px', background: 'linear-gradient(135deg, #1E88E5 0%, #1565C0 100%)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '2.5rem', marginBottom: '1.5rem', boxShadow: '0 8px 24px rgba(30, 136, 229, 0.3)' }}>
-                {activeShowcaseTab === 'video' ? '📹' : activeShowcaseTab === 'audio' ? '🎙️' : activeShowcaseTab === 'economy' ? '🪙' : activeShowcaseTab === 'vip' ? '👑' : '⚔️'}
+              <form onSubmit={handleDeleteSubmit}>
+                <div className="umi-form-group">
+                  <label className="umi-form-label">
+                    User ID, Registered Email, or Phone Number <span className="req">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    className="umi-input"
+                    placeholder="e.g. 10042 or user@example.com"
+                    value={deleteForm.identifier}
+                    onChange={(e) => setDeleteForm({ ...deleteForm, identifier: e.target.value })}
+                    required
+                  />
+                  <small style={{ color: 'var(--umi-text-dim)', fontSize: '0.78rem', marginTop: '4px', display: 'block' }}>
+                    Enter the User ID or credentials associated with your account.
+                  </small>
+                </div>
+
+                <div className="umi-form-group">
+                  <label className="umi-form-label">Full Name or In-App Profile Nickname</label>
+                  <input
+                    type="text"
+                    className="umi-input"
+                    placeholder="Your profile display name"
+                    value={deleteForm.name}
+                    onChange={(e) => setDeleteForm({ ...deleteForm, name: e.target.value })}
+                  />
+                </div>
+
+                <div className="umi-form-group">
+                  <label className="umi-form-label">Contact Email for Confirmation</label>
+                  <input
+                    type="email"
+                    className="umi-input"
+                    placeholder="email@example.com"
+                    value={deleteForm.email}
+                    onChange={(e) => setDeleteForm({ ...deleteForm, email: e.target.value })}
+                  />
+                </div>
+
+                <div className="umi-form-group">
+                  <label className="umi-form-label">Reason for Deletion</label>
+                  <select
+                    className="umi-input"
+                    value={deleteForm.reason}
+                    onChange={(e) => setDeleteForm({ ...deleteForm, reason: e.target.value })}
+                  >
+                    <option value="Personal Decision / No Longer Using App">Personal Decision / No Longer Using App</option>
+                    <option value="Privacy or Data Security Concerns">Privacy or Data Security Concerns</option>
+                    <option value="Creating a New Account">Creating a New Account</option>
+                    <option value="App Performance or Device Storage">App Performance or Device Storage</option>
+                    <option value="Other">Other Reasons</option>
+                  </select>
+                </div>
+
+                <div className="umi-form-group">
+                  <label className="umi-form-label">Additional Feedback (Optional)</label>
+                  <textarea
+                    className="umi-input"
+                    placeholder="Tell us what we could have improved..."
+                    value={deleteForm.details}
+                    onChange={(e) => setDeleteForm({ ...deleteForm, details: e.target.value })}
+                  ></textarea>
+                </div>
+
+                <div className="umi-form-group">
+                  <label className="umi-checkbox-label">
+                    <input
+                      type="checkbox"
+                      checked={deleteForm.confirmed}
+                      onChange={(e) => setDeleteForm({ ...deleteForm, confirmed: e.target.checked })}
+                      required
+                    />
+                    <span>
+                      I understand that deleting my account is irreversible. All virtual coins, diamonds, VIP memberships, and chat histories will be permanently destroyed.
+                    </span>
+                  </label>
+                </div>
+
+                <button
+                  type="submit"
+                  className="umi-btn-primary"
+                  style={{ width: '100%', justifyContent: 'center', marginTop: '10px' }}
+                  disabled={deleteSubmitting}
+                >
+                  <UserX size={18} />
+                  <span>{deleteSubmitting ? 'Submitting Request...' : 'Submit Account Deletion Request'}</span>
+                </button>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* ================================================================
+            PAGE: CONTACT & SUPPORT
+           ================================================================ */}
+        {currentPage === 'contact' && (
+          <div className="umi-container">
+            <div className="umi-page-header">
+              <div className="umi-page-badge">
+                <HelpCircle size={14} />
+                <span>Help &amp; Inquiries</span>
               </div>
-              <h4 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0F172A', marginBottom: '0.5rem' }}>
-                Enterprise Broadcasting Pipeline
-              </h4>
-              <p style={{ fontSize: '0.88rem', color: '#64748B', lineHeight: 1.55, maxWidth: '360px', margin: '0 auto 1.5rem' }}>
-                Optimized for Android and iOS using Flutter ScreenUtil, hardware-accelerated shaders, and zero frame drops.
+              <h1 className="umi-page-title">Contact &amp; Customer Support</h1>
+              <p className="umi-page-subtitle">
+                Have questions regarding your account, agency registration, coin top-ups, or privacy rights? We are here to assist.
               </p>
-              <button
-                type="button"
-                className="umi-btn umi-btn-secondary"
-                style={{ width: '100%' }}
-                onClick={onNavigateToAdmin}
-              >
-                <span>Manage in Admin Console</span>
-                <ChevronRight size={16} />
-              </button>
             </div>
-          </div>
-        </div>
-      </section>
 
-      {/* Download App Section */}
-      <section id="download" className="umi-download-section">
-        <div className="umi-download-banner">
-          <div>
-            <div className="umi-download-badge">
-              <Smartphone size={15} />
-              <span>Available on Android & iOS</span>
-            </div>
-            <h2 className="umi-download-title">Download Umi Live Today</h2>
-            <p className="umi-download-desc">
-              Join thousands of creators and fans in real-time broadcasts. Stream, chat, play, and send gifts on the go with zero delay.
-            </p>
-
-            <div className="umi-download-store-row">
-              <a href="#download" className="umi-store-badge-btn">
-                <span style={{ fontSize: '1.4rem' }}>🤖</span>
-                <div style={{ textAlign: 'left' }}>
-                  <div style={{ fontSize: '0.65rem', textTransform: 'uppercase', opacity: 0.8 }}>Get it on</div>
-                  <div style={{ fontSize: '0.95rem', fontWeight: 800 }}>Google Play</div>
+            <div style={{ maxWidth: '720px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
+              <div className="umi-feature-card" style={{ textAlign: 'center' }}>
+                <div className="umi-feature-icon" style={{ margin: '0 auto 16px', background: 'rgba(255, 128, 238, 0.1)', color: '#ff80ee' }}>
+                  <Mail size={24} />
                 </div>
-              </a>
-
-              <a href="#download" className="umi-store-badge-btn">
-                <span style={{ fontSize: '1.4rem' }}>🍏</span>
-                <div style={{ textAlign: 'left' }}>
-                  <div style={{ fontSize: '0.65rem', textTransform: 'uppercase', opacity: 0.8 }}>Download on</div>
-                  <div style={{ fontSize: '0.95rem', fontWeight: 800 }}>App Store</div>
-                </div>
-              </a>
-
-              <a href="#download" className="umi-store-badge-btn">
-                <span style={{ fontSize: '1.4rem' }}>📦</span>
-                <div style={{ textAlign: 'left' }}>
-                  <div style={{ fontSize: '0.65rem', textTransform: 'uppercase', opacity: 0.8 }}>Direct Install</div>
-                  <div style={{ fontSize: '0.95rem', fontWeight: 800 }}>Download APK</div>
-                </div>
-              </a>
-            </div>
-          </div>
-
-          <div style={{ display: 'flex', justifyContent: 'center' }}>
-            <div style={{ background: '#FFFFFF', padding: '1.5rem', borderRadius: '24px', boxShadow: '0 12px 32px rgba(0,0,0,0.2)', textAlign: 'center', width: '220px' }}>
-              <div style={{ width: '160px', height: '160px', margin: '0 auto', background: '#F8FAFC', border: '2px dashed #CBD5E1', borderRadius: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#1E88E5' }}>
-                <span style={{ fontSize: '3rem' }}>📱</span>
-                <span style={{ fontSize: '0.72rem', fontWeight: 700, marginTop: '4px' }}>Scan to Install</span>
+                <h3>Official Support Email</h3>
+                <p style={{ marginBottom: '14px' }}>
+                  For general inquiries, account assistance, and agency partnerships.
+                </p>
+                <a
+                  href={`mailto:${supportEmail}`}
+                  style={{ color: '#ff80ee', fontWeight: 700, textDecoration: 'none', fontSize: '1rem' }}
+                >
+                  {supportEmail}
+                </a>
               </div>
-              <div style={{ fontSize: '0.78rem', fontWeight: 800, color: '#0F172A', marginTop: '0.75rem' }}>
-                Scan with Camera
-              </div>
-              <div style={{ fontSize: '0.7rem', color: '#64748B' }}>
-                Fast direct download
+
+              <div className="umi-feature-card" style={{ textAlign: 'center' }}>
+                <div className="umi-feature-icon" style={{ margin: '0 auto 16px', background: 'rgba(6, 182, 212, 0.1)', color: '#06b6d4' }}>
+                  <ShieldCheck size={24} />
+                </div>
+                <h3>Data Protection Officer</h3>
+                <p style={{ marginBottom: '14px' }}>
+                  For GDPR/CCPA inquiries, data export, or deletion inquiries.
+                </p>
+                <button
+                  type="button"
+                  className="umi-btn-secondary"
+                  style={{ padding: '8px 18px', fontSize: '0.85rem' }}
+                  onClick={() => navigateToPage('delete-account')}
+                >
+                  <span>Submit Data Request</span>
+                </button>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        )}
+      </main>
 
-      {/* FAQ Accordion Section */}
-      <section id="faq" style={{ maxWidth: '860px', margin: '0 auto 5rem', padding: '0 1.5rem' }}>
-        <div className="umi-section-header">
-          <span className="umi-section-badge">Got Questions?</span>
-          <h2 className="umi-section-title">Frequently Asked Questions</h2>
-          <p className="umi-section-subtitle">
-            Everything you need to know about broadcasting, agency management, and coin rewards.
-          </p>
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
-          {faqs.map((faq, i) => {
-            const isOpen = activeFaq === i;
-            return (
-              <div
-                key={i}
-                style={{
-                  background: '#FFFFFF',
-                  border: `1px solid ${isOpen ? '#1E88E5' : '#E0E6ED'}`,
-                  borderRadius: '16px',
-                  padding: '1.25rem 1.5rem',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  boxShadow: isOpen ? 'var(--umi-shadow-md)' : 'var(--umi-shadow-sm)',
-                }}
-                onClick={() => toggleFaq(i)}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontWeight: 750, color: '#0F172A', fontSize: '1.02rem' }}>
-                  <span>{faq.q}</span>
-                  <span style={{ color: '#1E88E5', fontSize: '1.2rem', transition: 'transform 0.2s ease', transform: isOpen ? 'rotate(90deg)' : 'none' }}>
-                    ›
-                  </span>
-                </div>
-                {isOpen && (
-                  <p style={{ marginTop: '0.85rem', color: '#475569', fontSize: '0.92rem', lineHeight: 1.6, borderTop: '1px solid #F1F5F9', paddingTop: '0.75rem' }}>
-                    {faq.a}
-                  </p>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* Modern Footer */}
+      {/* ====================================================================
+          3. FOOTER
+         ==================================================================== */}
       <footer className="umi-footer">
-        <div className="umi-footer-container">
-          <div className="umi-footer-top">
-            <div>
-              <div className="umi-brand-logo" style={{ marginBottom: '1rem' }} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-                <div className="umi-brand-icon-box" style={{ width: '36px', height: '36px', borderRadius: '10px' }}>
-                  <Zap size={18} fill="#FFFFFF" color="#FFFFFF" />
+        <div className="umi-container">
+          <div className="umi-footer-grid">
+            <div className="umi-footer-col">
+              <div className="umi-brand" style={{ marginBottom: '14px' }} onClick={() => navigateToPage('home')}>
+                <div className="umi-brand-icon" style={{ width: '36px', height: '36px' }}>
+                  {resolvedLogoUrl ? (
+                    <img src={resolvedLogoUrl} alt={brandName} className="umi-brand-logo-img" />
+                  ) : (
+                    <Radio size={18} color="#ffffff" />
+                  )}
                 </div>
-                <span className="umi-brand-text" style={{ fontSize: '1.2rem' }}>
+                <span className="umi-brand-title" style={{ fontSize: '1.2rem' }}>
                   {brandName}
                 </span>
               </div>
-              <p style={{ fontSize: '0.88rem', color: '#64748B', lineHeight: 1.6, maxWidth: '300px', marginBottom: '1.25rem' }}>
-                {brandTagline || 'Broadcasting & Live Streaming Next-Gen Social Entertainment App.'}
+              <p style={{ color: 'var(--umi-text-dim)', fontSize: '0.85rem', lineHeight: 1.6, maxWidth: '280px' }}>
+                {brandTagline || 'Ultra-low latency live streaming and real-time social community.'}
+              </p>
+            </div>
+
+            <div className="umi-footer-col">
+              <h5>Navigation</h5>
+              <ul className="umi-footer-links">
+                <li><button type="button" onClick={() => navigateToPage('home')}>Home</button></li>
+                <li><button type="button" onClick={() => navigateToPage('privacy')}>Privacy Policy</button></li>
+                <li><button type="button" onClick={() => navigateToPage('terms')}>Terms of Service</button></li>
+                <li><button type="button" onClick={() => navigateToPage('delete-account')}>Delete Account</button></li>
+              </ul>
+            </div>
+
+            <div className="umi-footer-col">
+              <h5>Compliance</h5>
+              <ul className="umi-footer-links">
+                <li><button type="button" onClick={() => navigateToPage('privacy')}>Data Protection Policy</button></li>
+                <li><button type="button" onClick={() => navigateToPage('delete-account')}>User Rights &amp; Erasure</button></li>
+                <li><button type="button" onClick={() => navigateToPage('terms')}>Community Guidelines</button></li>
+                <li><button type="button" onClick={() => navigateToPage('contact')}>Contact Support</button></li>
+              </ul>
+            </div>
+
+            <div className="umi-footer-col">
+              <h5>Platform Administration</h5>
+              <p style={{ color: 'var(--umi-text-dim)', fontSize: '0.82rem', marginBottom: '14px', lineHeight: 1.5 }}>
+                Authorized admin &amp; moderation portal for operations team.
               </p>
               <button
                 type="button"
-                className="umi-btn umi-btn-secondary"
-                style={{ fontSize: '0.82rem', padding: '0.5rem 1rem' }}
+                className="umi-btn-admin"
                 onClick={onNavigateToAdmin}
+                style={{ width: 'fit-content' }}
               >
-                <Lock size={14} />
-                <span>Admin Console Portal</span>
+                <Lock size={13} />
+                <span>Admin Console</span>
               </button>
-            </div>
-
-            <div className="umi-footer-col">
-              <h4>Platform</h4>
-              <ul>
-                <li><a href="#features">Video Broadcast</a></li>
-                <li><a href="#live-experience">Voice Party Rooms</a></li>
-                <li><a href="#vip-economy">VIP Packages</a></li>
-                <li><a href="#features">PK Battle Arena</a></li>
-              </ul>
-            </div>
-
-            <div className="umi-footer-col">
-              <h4>Ecosystem</h4>
-              <ul>
-                <li><a href="#vip-economy">Coin Recharge</a></li>
-                <li><a href="#features">Virtual Gifts</a></li>
-                <li><a href="#faq">Agency Directory</a></li>
-                <li><a href="#faq">Creator Cashout</a></li>
-              </ul>
-            </div>
-
-            <div className="umi-footer-col">
-              <h4>Administration</h4>
-              <ul>
-                <li><a href="#admin" onClick={(e) => { e.preventDefault(); onNavigateToAdmin(); }}>Staff & Admin Login</a></li>
-                <li><a href="#admin" onClick={(e) => { e.preventDefault(); onNavigateToAdmin(); }}>Moderation Shield</a></li>
-                <li><a href="#admin" onClick={(e) => { e.preventDefault(); onNavigateToAdmin(); }}>Stream Monitoring</a></li>
-                <li><a href="#admin" onClick={(e) => { e.preventDefault(); onNavigateToAdmin(); }}>System Health</a></li>
-              </ul>
             </div>
           </div>
 
           <div className="umi-footer-bottom">
-            <span>© {new Date().getFullYear()} {brandName}. All rights reserved. Clean Blue & White Edition.</span>
-            <div style={{ display: 'flex', gap: '1.5rem' }}>
-              <span style={{ cursor: 'pointer', color: '#64748B' }}>Privacy Policy</span>
-              <span style={{ cursor: 'pointer', color: '#64748B' }}>Terms of Service</span>
-              <span style={{ cursor: 'pointer', color: '#1E88E5', fontWeight: 700 }} onClick={onNavigateToAdmin}>
-                Admin Access 🔐
-              </span>
+            <div>
+              &copy; {new Date().getFullYear()} {brandName}. All rights reserved.
+            </div>
+            <div>
+              Compliant with Google Play Store &amp; Apple App Store Data Safety Standards.
             </div>
           </div>
         </div>

@@ -1,881 +1,830 @@
 /* ==========================================================================
-   UMI LIVE - Premium Clean Blue & White Landing Page Stylesheet
-   Theme: Royal & Electric Blue (#1E88E5, #1565C0, #2196F3) + White (#FFFFFF)
+   UMI LIVE / BM PRO - Official Multi-Page Web Portal Stylesheet
+   Theme: App's Signature Streaming Dark Theme
+   Accents: Sunset Rose Gold (#FF80EE, #FB7185) + Royal Violet (#7C3AED) +
+            Electric Cyan (#06B6D4, #00F2FE) + Deep Space Canvas (#070A14)
    ========================================================================== */
 
 :root {
-  --umi-blue-primary: #1E88E5;
-  --umi-blue-dark: #1565C0;
-  --umi-blue-deep: #0D47A1;
-  --umi-blue-light: #64B5F6;
-  --umi-blue-subtle: #E3F2FD;
-  --umi-blue-accent: #2196F3;
-  --umi-bg-light: #F4F6F9;
-  --umi-surface: #FFFFFF;
-  --umi-text-dark: #0F172A;
-  --umi-text-muted: #475569;
-  --umi-text-dim: #64748B;
-  --umi-border: #E0E6ED;
-  --umi-shadow-sm: 0 2px 8px rgba(30, 136, 229, 0.06);
-  --umi-shadow-md: 0 8px 24px -4px rgba(30, 136, 229, 0.12), 0 2px 6px rgba(0, 0, 0, 0.04);
-  --umi-shadow-lg: 0 16px 36px -6px rgba(30, 136, 229, 0.18), 0 4px 12px rgba(0, 0, 0, 0.05);
+  /* App's Signature Theme Colors */
+  --umi-bg-canvas: #070a14;
+  --umi-bg-surface: #0e1424;
+  --umi-bg-card: rgba(17, 24, 39, 0.78);
+  --umi-bg-card-hover: rgba(24, 33, 53, 0.92);
+  --umi-bg-glass: rgba(14, 20, 36, 0.85);
+
+  --umi-border: rgba(255, 255, 255, 0.08);
+  --umi-border-glow: rgba(255, 128, 238, 0.35);
+  --umi-border-hover: rgba(124, 58, 237, 0.4);
+
+  /* Primary Theme Accents (Matches App's Default Theme) */
+  --umi-pink: #ff80ee;
+  --umi-rose: #fb7185;
+  --umi-violet: #7c3aed;
+  --umi-purple: #a855f7;
+  --umi-cyan: #06b6d4;
+  --umi-blue: #1e88e5;
+  --umi-gold: #f59e0b;
+  --umi-emerald: #10b981;
+  --umi-danger: #ef4444;
+
+  /* Gradients */
+  --umi-grad-hero: linear-gradient(135deg, #ff80ee 0%, #a855f7 40%, #1e88e5 100%);
+  --umi-grad-accent: linear-gradient(135deg, #ff80ee 0%, #fb7185 100%);
+  --umi-grad-cyan: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+  --umi-grad-card: linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 100%);
+  --umi-grad-btn: linear-gradient(135deg, #ff80ee 0%, #7c3aed 100%);
+
+  /* Typography Colors */
+  --umi-text-white: #ffffff;
+  --umi-text-main: #f8fafc;
+  --umi-text-muted: #94a3b8;
+  --umi-text-dim: #64748b;
+
+  /* Shadows */
+  --umi-glow-hero: 0 0 50px rgba(255, 128, 238, 0.25);
+  --umi-glow-btn: 0 8px 24px -4px rgba(255, 128, 238, 0.38);
+  --umi-shadow-card: 0 20px 45px -10px rgba(0, 0, 0, 0.65);
 }
 
+/* Base Wrapper */
 .umi-landing-wrapper {
   min-height: 100vh;
-  background-color: var(--umi-bg-light);
-  color: var(--umi-text-dark);
+  background-color: var(--umi-bg-canvas);
+  color: var(--umi-text-main);
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   overflow-x: hidden;
   position: relative;
+  display: flex;
+  flex-direction: column;
 }
 
-/* Background Glowing Ambient Orbs */
+/* Ambient Ambient Glowing Lights */
 .umi-landing-bg-orb {
-  position: absolute;
+  position: fixed;
   border-radius: 50%;
-  filter: blur(90px);
+  filter: blur(120px);
   pointer-events: none;
   z-index: 0;
-  opacity: 0.6;
+  opacity: 0.55;
 }
 
 .umi-landing-bg-orb-1 {
-  top: -100px;
+  top: -120px;
   right: -50px;
-  width: 500px;
-  height: 500px;
-  background: radial-gradient(circle, rgba(30, 136, 229, 0.22) 0%, rgba(33, 150, 243, 0.05) 70%, transparent 100%);
+  width: 550px;
+  height: 550px;
+  background: radial-gradient(circle, rgba(255, 128, 238, 0.2) 0%, rgba(124, 58, 237, 0.1) 70%, transparent 100%);
 }
 
 .umi-landing-bg-orb-2 {
-  top: 450px;
-  left: -120px;
-  width: 480px;
-  height: 480px;
-  background: radial-gradient(circle, rgba(100, 181, 246, 0.18) 0%, rgba(30, 136, 229, 0.03) 70%, transparent 100%);
+  top: 400px;
+  left: -100px;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(6, 182, 212, 0.18) 0%, rgba(30, 136, 229, 0.05) 70%, transparent 100%);
 }
 
-/* Header Navbar */
+.umi-landing-bg-orb-3 {
+  bottom: 100px;
+  right: 15%;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(124, 58, 237, 0.14) 0%, rgba(255, 128, 238, 0.04) 70%, transparent 100%);
+}
+
+.umi-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  position: relative;
+  z-index: 2;
+}
+
+/* ==========================================================================
+   Header Navbar (Multi-Page Navigation)
+   ========================================================================== */
 .umi-navbar {
   position: sticky;
   top: 0;
   z-index: 100;
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  background: rgba(7, 10, 20, 0.88);
+  backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--umi-border);
   transition: all 0.25s ease;
 }
 
-.umi-navbar-container {
-  max-width: 1240px;
-  margin: 0 auto;
-  padding: 0.9rem 1.5rem;
+.umi-navbar-inner {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  height: 76px;
 }
 
-.umi-brand-logo {
+.umi-brand {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   text-decoration: none;
   cursor: pointer;
 }
 
-.umi-brand-icon-box {
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, var(--umi-blue-primary) 0%, var(--umi-blue-dark) 100%);
+.umi-brand-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: var(--umi-grad-btn);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
-  font-size: 1.3rem;
-  box-shadow: 0 4px 12px rgba(30, 136, 229, 0.35);
+  box-shadow: 0 4px 18px rgba(255, 128, 238, 0.35);
   overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.umi-brand-text {
+.umi-brand-logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.umi-brand-title {
   font-size: 1.35rem;
   font-weight: 800;
+  color: var(--umi-text-white);
   letter-spacing: -0.02em;
-  color: var(--umi-text-dark);
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
-.umi-brand-text span {
-  color: var(--umi-blue-primary);
+.umi-brand-tagline {
+  font-size: 0.72rem;
+  color: var(--umi-text-dim);
+  font-weight: 500;
+  display: block;
 }
 
+/* Nav Menu Links */
 .umi-nav-links {
   display: flex;
   align-items: center;
-  gap: 1.8rem;
+  gap: 4px;
   list-style: none;
-  margin: 0;
-  padding: 0;
 }
 
-.umi-nav-link {
+.umi-nav-item button,
+.umi-nav-item a {
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  font-weight: 600;
   color: var(--umi-text-muted);
   text-decoration: none;
-  font-size: 0.92rem;
-  font-weight: 600;
-  transition: color 0.2s ease;
+  background: transparent;
+  border: none;
   cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
-.umi-nav-link:hover {
-  color: var(--umi-blue-primary);
+.umi-nav-item button:hover,
+.umi-nav-item a:hover {
+  color: var(--umi-text-white);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.umi-nav-item.active button,
+.umi-nav-item.active a {
+  color: #fff;
+  background: rgba(255, 128, 238, 0.12);
+  border: 1px solid rgba(255, 128, 238, 0.28);
 }
 
 .umi-nav-actions {
   display: flex;
   align-items: center;
-  gap: 0.8rem;
+  gap: 12px;
 }
 
-.umi-btn {
+.umi-btn-admin {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
   gap: 8px;
-  padding: 0.65rem 1.25rem;
-  font-size: 0.9rem;
-  font-weight: 700;
+  padding: 8px 18px;
   border-radius: 12px;
-  border: 1px solid transparent;
+  font-size: 0.85rem;
+  font-weight: 700;
+  background: rgba(124, 58, 237, 0.15);
+  color: #c4b5fd;
+  border: 1px solid rgba(124, 58, 237, 0.35);
   cursor: pointer;
-  text-decoration: none;
   transition: all 0.2s ease;
-  line-height: 1.2;
+  text-decoration: none;
 }
 
-.umi-btn-primary {
-  background: linear-gradient(135deg, var(--umi-blue-primary) 0%, var(--umi-blue-dark) 100%);
-  color: #FFFFFF;
-  box-shadow: 0 4px 14px rgba(30, 136, 229, 0.3);
-}
-
-.umi-btn-primary:hover {
-  background: linear-gradient(135deg, #2196F3 0%, var(--umi-blue-primary) 100%);
-  box-shadow: 0 6px 18px rgba(30, 136, 229, 0.42);
+.umi-btn-admin:hover {
+  background: var(--umi-violet);
+  color: #ffffff;
+  border-color: var(--umi-violet);
   transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(124, 58, 237, 0.4);
 }
 
-.umi-btn-secondary {
-  background: #FFFFFF;
-  color: var(--umi-blue-primary);
-  border-color: #D4E2F2;
-  box-shadow: var(--umi-shadow-sm);
-}
-
-.umi-btn-secondary:hover {
-  background: var(--umi-blue-subtle);
-  border-color: var(--umi-blue-primary);
-  transform: translateY(-1px);
-}
-
-.umi-btn-outline {
+.umi-mobile-menu-btn {
+  display: none;
   background: transparent;
-  color: var(--umi-text-dark);
-  border-color: var(--umi-border);
+  border: 1px solid var(--umi-border);
+  color: var(--umi-text-white);
+  padding: 8px;
+  border-radius: 10px;
+  cursor: pointer;
 }
 
-.umi-btn-outline:hover {
-  background: #FFFFFF;
-  border-color: var(--umi-blue-primary);
-  color: var(--umi-blue-primary);
+/* ==========================================================================
+   Page Content Area
+   ========================================================================== */
+.umi-page-body {
+  flex: 1;
+  padding: 40px 0 80px;
 }
 
-/* Hero Section */
-.umi-hero {
-  position: relative;
-  z-index: 1;
-  max-width: 1240px;
-  margin: 0 auto;
-  padding: 4.5rem 1.5rem 3.5rem;
-  display: grid;
-  grid-template-columns: 1.15fr 0.85fr;
-  align-items: center;
-  gap: 3.5rem;
+/* Page Header Banner */
+.umi-page-header {
+  text-align: center;
+  margin-bottom: 40px;
 }
 
-.umi-hero-content {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-}
-
-.umi-live-badge {
+.umi-page-badge {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 0.4rem 0.9rem;
-  border-radius: 999px;
-  background: rgba(30, 136, 229, 0.08);
-  border: 1px solid rgba(30, 136, 229, 0.25);
-  color: var(--umi-blue-primary);
-  font-size: 0.82rem;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  background: rgba(255, 128, 238, 0.1);
+  border: 1px solid rgba(255, 128, 238, 0.25);
+  color: var(--umi-pink);
+  font-size: 0.78rem;
   font-weight: 700;
-  margin-bottom: 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 14px;
 }
 
-.umi-live-pulse-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background-color: #EF4444;
-  box-shadow: 0 0 8px #EF4444;
-  animation: umiPulse 1.8s infinite;
+.umi-page-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--umi-text-white);
+  letter-spacing: -0.03em;
+  margin-bottom: 12px;
 }
 
-@keyframes umiPulse {
-  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-  70% { transform: scale(1.1); box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
-  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+.umi-page-subtitle {
+  font-size: 1.05rem;
+  color: var(--umi-text-muted);
+  max-width: 680px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* ==========================================================================
+   HOME PAGE: Hero & Features
+   ========================================================================== */
+.umi-hero-section {
+  padding: 40px 0 60px;
+  text-align: center;
 }
 
 .umi-hero-title {
-  font-size: 3.4rem;
-  line-height: 1.12;
-  font-weight: 850;
+  font-size: clamp(2.4rem, 5vw, 4rem);
+  font-weight: 800;
+  line-height: 1.15;
   letter-spacing: -0.03em;
-  color: var(--umi-text-dark);
-  margin-bottom: 1.25rem;
+  margin-bottom: 20px;
+  color: #fff;
 }
 
-.umi-hero-title-highlight {
-  background: linear-gradient(135deg, var(--umi-blue-primary) 0%, #1565C0 60%, #0D47A1 100%);
+.umi-hero-gradient-text {
+  background: var(--umi-grad-hero);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  display: inline-block;
 }
 
-.umi-hero-description {
-  font-size: 1.12rem;
-  line-height: 1.6;
+.umi-hero-desc {
+  font-size: 1.15rem;
   color: var(--umi-text-muted);
-  margin-bottom: 2.2rem;
-  max-width: 580px;
+  max-width: 720px;
+  margin: 0 auto 36px;
+  line-height: 1.7;
 }
 
 .umi-hero-cta-group {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  flex-wrap: wrap;
-  margin-bottom: 2.5rem;
-}
-
-.umi-hero-stats {
-  display: flex;
-  align-items: center;
-  gap: 2rem;
-  padding-top: 1.8rem;
-  border-top: 1px solid var(--umi-border);
-  width: 100%;
-}
-
-.umi-hero-stat-item {
-  display: flex;
-  flex-direction: column;
-}
-
-.umi-hero-stat-value {
-  font-size: 1.55rem;
-  font-weight: 800;
-  color: var(--umi-text-dark);
-  letter-spacing: -0.02em;
-}
-
-.umi-hero-stat-label {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--umi-text-dim);
-}
-
-/* Phone Mockup Frame */
-.umi-phone-preview-wrap {
-  position: relative;
-  display: flex;
   justify-content: center;
-  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 50px;
 }
 
-.umi-phone-container {
-  width: 320px;
-  height: 620px;
-  background: #FFFFFF;
-  border-radius: 40px;
-  border: 7px solid #1E293B;
-  box-shadow: 0 25px 50px -12px rgba(30, 136, 229, 0.25), 0 0 0 1px rgba(0,0,0,0.05);
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
-.umi-phone-notch {
-  width: 120px;
-  height: 20px;
-  background: #1E293B;
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  border-bottom-left-radius: 14px;
-  border-bottom-right-radius: 14px;
-  z-index: 20;
-}
-
-.umi-phone-screen {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  background: linear-gradient(180deg, #F8FAFD 0%, #FFFFFF 100%);
-  position: relative;
-  padding-top: 24px;
-}
-
-/* Phone Screen Header */
-.umi-phone-top-bar {
-  padding: 8px 12px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: #FFFFFF;
-  border-bottom: 1px solid #EEF2F6;
-}
-
-.umi-phone-host-pill {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: #F1F5F9;
-  padding: 3px 8px 3px 4px;
-  border-radius: 20px;
-}
-
-.umi-phone-host-avatar {
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  border: 1.5px solid var(--umi-blue-primary);
-}
-
-.umi-phone-host-name {
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: var(--umi-text-dark);
-}
-
-.umi-phone-coins-pill {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  background: rgba(245, 158, 11, 0.12);
-  color: #B45309;
-  font-size: 0.7rem;
-  font-weight: 800;
-  padding: 4px 8px;
-  border-radius: 12px;
-}
-
-/* Stream Mode Switcher Inside Mockup */
-.umi-phone-tab-bar {
-  display: flex;
-  margin: 8px 12px;
-  background: #EEF2F6;
-  border-radius: 10px;
-  padding: 3px;
-}
-
-.umi-phone-tab-btn {
-  flex: 1;
-  padding: 5px 0;
-  font-size: 0.72rem;
-  font-weight: 700;
-  text-align: center;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  color: var(--umi-text-dim);
-  background: transparent;
-}
-
-.umi-phone-tab-btn.active {
-  background: #FFFFFF;
-  color: var(--umi-blue-primary);
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-}
-
-/* Video Stage Mockup */
-.umi-phone-video-view {
-  flex: 1;
-  margin: 0 12px;
-  border-radius: 16px;
-  background: linear-gradient(145deg, #1E88E5 0%, #0D47A1 100%);
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: 10px;
-  box-shadow: inset 0 0 20px rgba(0,0,0,0.2);
-}
-
-.umi-phone-floating-badge {
+.umi-btn-primary {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  background: rgba(0,0,0,0.5);
-  backdrop-filter: blur(4px);
-  color: #fff;
-  font-size: 0.65rem;
+  gap: 10px;
+  padding: 14px 30px;
+  border-radius: 14px;
+  font-size: 1rem;
   font-weight: 700;
-  padding: 3px 8px;
-  border-radius: 8px;
-  align-self: flex-start;
+  background: var(--umi-grad-btn);
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: var(--umi-glow-btn);
+  text-decoration: none;
 }
 
-.umi-phone-chat-feed {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  max-width: 85%;
+.umi-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px -4px rgba(255, 128, 238, 0.5);
+  color: #ffffff;
 }
 
-.umi-phone-chat-bubble {
-  background: rgba(255, 255, 255, 0.95);
-  color: #0F172A;
-  padding: 4px 8px;
-  border-radius: 8px;
-  font-size: 0.68rem;
-  display: flex;
+.umi-btn-secondary {
+  display: inline-flex;
   align-items: center;
-  gap: 5px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  gap: 10px;
+  padding: 14px 26px;
+  border-radius: 14px;
+  font-size: 1rem;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--umi-text-white);
+  border: 1px solid var(--umi-border);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  text-decoration: none;
 }
 
-.umi-phone-chat-user {
-  font-weight: 800;
-  color: var(--umi-blue-primary);
+.umi-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
 }
 
-/* Audio Party Mockup */
-.umi-phone-audio-grid {
-  flex: 1;
-  margin: 0 12px;
+/* Hero Stats Bar */
+.umi-stats-bar {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  align-content: start;
-  padding: 10px 0;
-}
-
-.umi-phone-seat-item {
-  background: #FFFFFF;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  padding: 24px;
+  background: var(--umi-bg-card);
+  backdrop-filter: blur(16px);
   border: 1px solid var(--umi-border);
-  border-radius: 12px;
-  padding: 8px 4px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  position: relative;
-  box-shadow: var(--umi-shadow-sm);
+  border-radius: 20px;
+  margin-bottom: 70px;
+  box-shadow: var(--umi-shadow-card);
 }
 
-.umi-phone-seat-avatar {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.1rem;
-  position: relative;
-}
-
-.umi-phone-speaking-ring {
-  position: absolute;
-  inset: -3px;
-  border-radius: 50%;
-  border: 2px solid var(--umi-blue-primary);
-  animation: umiRingPulse 1.4s infinite;
-}
-
-@keyframes umiRingPulse {
-  0% { transform: scale(0.96); opacity: 1; }
-  100% { transform: scale(1.18); opacity: 0; }
-}
-
-.umi-phone-seat-name {
-  font-size: 0.65rem;
-  font-weight: 700;
-  margin-top: 4px;
-  color: var(--umi-text-dark);
-}
-
-/* Floating Badges outside Phone */
-.umi-floating-card-1 {
-  position: absolute;
-  top: 70px;
-  right: -25px;
-  background: #FFFFFF;
-  border: 1px solid var(--umi-border);
-  border-radius: 16px;
-  padding: 10px 14px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  box-shadow: var(--umi-shadow-lg);
-  z-index: 30;
-  animation: umiFloat 3.5s ease-in-out infinite alternate;
-}
-
-.umi-floating-card-2 {
-  position: absolute;
-  bottom: 80px;
-  left: -35px;
-  background: #FFFFFF;
-  border: 1px solid var(--umi-border);
-  border-radius: 16px;
-  padding: 10px 14px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  box-shadow: var(--umi-shadow-lg);
-  z-index: 30;
-  animation: umiFloat 3.8s ease-in-out infinite alternate-reverse;
-}
-
-@keyframes umiFloat {
-  0% { transform: translateY(0); }
-  100% { transform: translateY(-10px); }
-}
-
-/* Section Header */
-.umi-section-header {
+.umi-stat-item {
   text-align: center;
-  max-width: 680px;
-  margin: 0 auto 3.5rem;
 }
 
-.umi-section-badge {
-  display: inline-block;
-  font-size: 0.8rem;
+.umi-stat-num {
+  font-size: 1.85rem;
   font-weight: 800;
-  color: var(--umi-blue-primary);
+  color: #fff;
+  margin-bottom: 4px;
+  background: var(--umi-grad-hero);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.umi-stat-lbl {
+  font-size: 0.82rem;
+  color: var(--umi-text-dim);
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-bottom: 0.6rem;
+  letter-spacing: 0.5px;
 }
 
-.umi-section-title {
-  font-size: 2.35rem;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  color: var(--umi-text-dark);
-  margin-bottom: 0.8rem;
-}
-
-.umi-section-subtitle {
-  font-size: 1.05rem;
-  color: var(--umi-text-muted);
-  line-height: 1.55;
-}
-
-/* Feature Cards Grid */
-.umi-features-section {
-  max-width: 1240px;
-  margin: 0 auto;
-  padding: 4.5rem 1.5rem;
-  position: relative;
-  z-index: 1;
-}
-
+/* Feature Grid */
 .umi-features-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.8rem;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 24px;
+  margin-bottom: 60px;
 }
 
 .umi-feature-card {
-  background: #FFFFFF;
+  background: var(--umi-bg-card);
   border: 1px solid var(--umi-border);
   border-radius: 20px;
-  padding: 2rem;
-  display: flex;
-  flex-direction: column;
-  transition: all 0.25s ease;
-  box-shadow: var(--umi-shadow-sm);
+  padding: 32px 28px;
+  transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
 }
 
 .umi-feature-card:hover {
-  transform: translateY(-5px);
-  border-color: rgba(30, 136, 229, 0.4);
-  box-shadow: var(--umi-shadow-md);
+  background: var(--umi-bg-card-hover);
+  border-color: var(--umi-border-glow);
+  transform: translateY(-4px);
+  box-shadow: 0 16px 36px -10px rgba(255, 128, 238, 0.18);
 }
 
-.umi-feature-icon-box {
-  width: 52px;
-  height: 52px;
-  border-radius: 14px;
-  background: var(--umi-blue-subtle);
-  color: var(--umi-blue-primary);
+.umi-feature-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 1.25rem;
-  transition: all 0.25s ease;
+  margin-bottom: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.umi-feature-card:hover .umi-feature-icon-box {
-  background: linear-gradient(135deg, var(--umi-blue-primary) 0%, var(--umi-blue-dark) 100%);
-  color: #FFFFFF;
-  box-shadow: 0 4px 12px rgba(30, 136, 229, 0.3);
-}
-
-.umi-feature-title {
+.umi-feature-card h3 {
   font-size: 1.25rem;
-  font-weight: 750;
-  color: var(--umi-text-dark);
-  margin-bottom: 0.65rem;
-}
-
-.umi-feature-desc {
-  font-size: 0.92rem;
-  line-height: 1.6;
-  color: var(--umi-text-muted);
-}
-
-/* Interactive Tabs Section */
-.umi-showcase-section {
-  background: #FFFFFF;
-  border-top: 1px solid var(--umi-border);
-  border-bottom: 1px solid var(--umi-border);
-  padding: 5rem 1.5rem;
-}
-
-.umi-showcase-container {
-  max-width: 1240px;
-  margin: 0 auto;
-}
-
-.umi-showcase-tabs {
-  display: flex;
-  justify-content: center;
-  gap: 0.6rem;
-  margin-bottom: 2.8rem;
-  flex-wrap: wrap;
-}
-
-.umi-showcase-tab-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 0.65rem 1.4rem;
-  border-radius: 14px;
-  border: 1px solid var(--umi-border);
-  background: #FFFFFF;
-  color: var(--umi-text-muted);
-  font-size: 0.92rem;
   font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s ease;
+  color: #fff;
+  margin-bottom: 10px;
 }
 
-.umi-showcase-tab-btn:hover {
-  border-color: var(--umi-blue-primary);
-  color: var(--umi-blue-primary);
+.umi-feature-card p {
+  font-size: 0.92rem;
+  color: var(--umi-text-muted);
+  line-height: 1.65;
 }
 
-.umi-showcase-tab-btn.active {
-  background: var(--umi-blue-primary);
-  border-color: var(--umi-blue-primary);
-  color: #FFFFFF;
-  box-shadow: 0 4px 12px rgba(30, 136, 229, 0.25);
-}
-
-.umi-showcase-content-box {
-  background: var(--umi-bg-light);
+/* ==========================================================================
+   MARKDOWN DOCUMENT VIEWER (Privacy Policy & Terms)
+   ========================================================================== */
+.umi-doc-card {
+  background: var(--umi-bg-card);
+  backdrop-filter: blur(20px);
   border: 1px solid var(--umi-border);
   border-radius: 24px;
-  padding: 3rem;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  align-items: center;
-  gap: 3rem;
-}
-
-/* Download App CTA Section */
-.umi-download-section {
-  max-width: 1240px;
-  margin: 4.5rem auto;
-  padding: 0 1.5rem;
-}
-
-.umi-download-banner {
-  background: linear-gradient(135deg, var(--umi-blue-primary) 0%, #1565C0 60%, #0D47A1 100%);
-  border-radius: 28px;
-  padding: 3.5rem 3rem;
-  color: #FFFFFF;
-  display: grid;
-  grid-template-columns: 1.3fr 0.7fr;
-  align-items: center;
-  gap: 2.5rem;
-  box-shadow: 0 20px 40px -10px rgba(30, 136, 229, 0.4);
-  position: relative;
-  overflow: hidden;
-}
-
-.umi-download-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: rgba(255, 255, 255, 0.16);
-  backdrop-filter: blur(6px);
-  padding: 0.35rem 0.85rem;
-  border-radius: 999px;
-  font-size: 0.8rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
-}
-
-.umi-download-title {
-  font-size: 2.6rem;
-  font-weight: 850;
-  letter-spacing: -0.02em;
-  margin-bottom: 0.8rem;
-}
-
-.umi-download-desc {
-  font-size: 1.05rem;
-  opacity: 0.9;
-  line-height: 1.6;
-  margin-bottom: 2rem;
-  max-width: 500px;
-}
-
-.umi-download-store-row {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-.umi-store-badge-btn {
-  background: #FFFFFF;
-  color: var(--umi-text-dark);
-  border-radius: 12px;
-  padding: 0.65rem 1.25rem;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  text-decoration: none;
-  font-weight: 700;
-  font-size: 0.9rem;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-}
-
-.umi-store-badge-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0,0,0,0.2);
-}
-
-/* Footer */
-.umi-footer {
-  background: #FFFFFF;
-  border-top: 1px solid var(--umi-border);
-  padding: 3.5rem 1.5rem 2rem;
-}
-
-.umi-footer-container {
-  max-width: 1240px;
+  padding: 48px;
+  box-shadow: var(--umi-shadow-card);
+  max-width: 900px;
   margin: 0 auto;
 }
 
-.umi-footer-top {
-  display: grid;
-  grid-template-columns: 1.5fr repeat(3, 1fr);
-  gap: 2.5rem;
-  margin-bottom: 3rem;
-}
-
-.umi-footer-col h4 {
-  font-size: 0.95rem;
-  font-weight: 800;
-  color: var(--umi-text-dark);
-  margin-bottom: 1.1rem;
-}
-
-.umi-footer-col ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.7rem;
-}
-
-.umi-footer-col a {
-  color: var(--umi-text-muted);
-  text-decoration: none;
-  font-size: 0.88rem;
-  transition: color 0.2s ease;
-}
-
-.umi-footer-col a:hover {
-  color: var(--umi-blue-primary);
-}
-
-.umi-footer-bottom {
+.umi-doc-meta {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-top: 2rem;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--umi-border);
+  margin-bottom: 32px;
+}
+
+.umi-doc-date {
+  font-size: 0.85rem;
+  color: var(--umi-text-dim);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.umi-doc-actions {
+  display: flex;
+  gap: 10px;
+}
+
+/* Markdown Semantic Typography */
+.markdown-body {
+  color: #cbd5e1;
+  font-size: 0.96rem;
+  line-height: 1.85;
+}
+
+.markdown-body .md-h1 {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0 0 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--umi-border);
+  letter-spacing: -0.02em;
+}
+
+.markdown-body .md-h2 {
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 2.25rem 0 0.85rem;
+  letter-spacing: -0.01em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.markdown-body .md-h2::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 1.2rem;
+  border-radius: 2px;
+  background: var(--umi-pink);
+}
+
+.markdown-body .md-h3 {
+  font-size: 1.18rem;
+  font-weight: 700;
+  color: var(--umi-pink);
+  margin: 1.75rem 0 0.65rem;
+}
+
+.markdown-body .md-h4 {
+  font-size: 1.02rem;
+  font-weight: 600;
+  color: var(--umi-cyan);
+  margin: 1.4rem 0 0.5rem;
+}
+
+.markdown-body .md-p {
+  margin-bottom: 1.25rem;
+  color: #cbd5e1;
+}
+
+.markdown-body .md-bold {
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.markdown-body .md-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.5rem 0;
+}
+
+.markdown-body .md-list-item {
+  position: relative;
+  padding-left: 24px;
+  margin-bottom: 8px;
+  color: #e2e8f0;
+}
+
+.markdown-body .md-list-item::before {
+  content: '✦';
+  position: absolute;
+  left: 4px;
+  color: var(--umi-pink);
+  font-size: 0.75rem;
+  top: 1px;
+}
+
+.markdown-body .md-ordered-list {
+  padding-left: 24px;
+  margin: 0 0 1.5rem 0;
+}
+
+.markdown-body .md-ordered-item {
+  margin-bottom: 8px;
+  color: #e2e8f0;
+}
+
+.markdown-body .md-link {
+  color: var(--umi-pink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color 0.2s;
+}
+
+.markdown-body .md-link:hover {
+  color: #fff;
+}
+
+.markdown-body .md-blockquote {
+  border-left: 4px solid var(--umi-violet);
+  padding: 12px 20px;
+  margin: 1.5rem 0;
+  background: rgba(124, 58, 237, 0.08);
+  border-radius: 0 12px 12px 0;
+  color: #cbd5e1;
+  font-style: italic;
+}
+
+.markdown-body .md-hr {
+  border: none;
   border-top: 1px solid var(--umi-border);
-  font-size: 0.84rem;
+  margin: 2.5rem 0;
+}
+
+.markdown-body .md-inline-code {
+  background: rgba(255, 255, 255, 0.08);
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-family: monospace;
+  font-size: 0.88rem;
+  color: var(--umi-cyan);
+}
+
+/* ==========================================================================
+   ACCOUNT DELETION REQUEST FORM
+   ========================================================================== */
+.umi-form-card {
+  background: var(--umi-bg-card);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--umi-border);
+  border-radius: 24px;
+  padding: 40px;
+  box-shadow: var(--umi-shadow-card);
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.umi-form-group {
+  margin-bottom: 22px;
+}
+
+.umi-form-label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--umi-text-muted);
+  margin-bottom: 8px;
+}
+
+.umi-form-label span.req {
+  color: var(--umi-danger);
+  margin-left: 3px;
+}
+
+.umi-input {
+  width: 100%;
+  background: rgba(10, 15, 28, 0.85);
+  border: 1px solid var(--umi-border);
+  border-radius: 12px;
+  padding: 14px 18px;
+  font-size: 0.95rem;
+  color: #ffffff;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.umi-input:focus {
+  outline: none;
+  border-color: var(--umi-pink);
+  box-shadow: 0 0 18px rgba(255, 128, 238, 0.22);
+  background: rgba(14, 20, 36, 0.95);
+}
+
+textarea.umi-input {
+  min-height: 110px;
+  resize: vertical;
+}
+
+.umi-checkbox-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--umi-text-muted);
+  line-height: 1.5;
+  background: rgba(239, 68, 68, 0.05);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+
+.umi-checkbox-label input[type="checkbox"] {
+  margin-top: 3px;
+  accent-color: var(--umi-danger);
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.umi-alert {
+  padding: 16px 20px;
+  border-radius: 14px;
+  font-size: 0.9rem;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  line-height: 1.55;
+}
+
+.umi-alert-success {
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #34d399;
+}
+
+.umi-alert-error {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #f87171;
+}
+
+/* ==========================================================================
+   Footer
+   ========================================================================== */
+.umi-footer {
+  background: #04060c;
+  border-top: 1px solid var(--umi-border);
+  padding: 60px 0 30px;
+  margin-top: auto;
+}
+
+.umi-footer-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr 1.2fr;
+  gap: 40px;
+  margin-bottom: 40px;
+}
+
+.umi-footer-col h5 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 18px;
+}
+
+.umi-footer-links {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.umi-footer-links button,
+.umi-footer-links a {
+  background: transparent;
+  border: none;
+  color: var(--umi-text-dim);
+  text-decoration: none;
+  font-size: 0.88rem;
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+  transition: color 0.2s;
+}
+
+.umi-footer-links button:hover,
+.umi-footer-links a:hover {
+  color: var(--umi-pink);
+}
+
+.umi-footer-bottom {
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding-top: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  font-size: 0.82rem;
   color: var(--umi-text-dim);
 }
 
-/* Responsive Breakpoints */
-@media (max-width: 960px) {
-  .umi-hero {
-    grid-template-columns: 1fr;
-    text-align: center;
-    padding-top: 2.5rem;
-  }
-  .umi-hero-content {
-    align-items: center;
-  }
-  .umi-hero-stats {
-    justify-content: center;
-  }
-  .umi-features-grid {
-    grid-template-columns: 1fr;
-  }
-  .umi-showcase-content-box {
-    grid-template-columns: 1fr;
-  }
-  .umi-download-banner {
-    grid-template-columns: 1fr;
-    text-align: center;
-  }
-  .umi-download-store-row {
-    justify-content: center;
-  }
-  .umi-footer-top {
-    grid-template-columns: 1fr 1fr;
-  }
+/* ==========================================================================
+   Responsive Breakpoints
+   ========================================================================== */
+@media (max-width: 900px) {
   .umi-nav-links {
     display: none;
+  }
+
+  .umi-mobile-menu-btn {
+    display: block;
+  }
+
+  .umi-stats-bar {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .umi-footer-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .umi-doc-card {
+    padding: 28px 20px;
+  }
+}
+
+@media (max-width: 600px) {
+  .umi-footer-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .umi-stats-bar {
+    grid-template-columns: 1fr;
+  }
+
+  .umi-form-card {
+    padding: 24px 18px;
   }
 }

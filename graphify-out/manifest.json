@@ -1452,15 +1452,15 @@
     "semantic_hash": ""
   },
   "admin-panel/src/pages/AccountDeletionRequests.jsx": {
-    "mtime": 1792957864.2913566,
-    "seen": 1792957918.754215,
-    "ast_hash": "fc56004d9ff5ba3c2f40a4d662558db0",
+    "mtime": 1792958395.193882,
+    "seen": 1792958495.153918,
+    "ast_hash": "3a82640364b47c0d0776e22c0946b47f",
     "semantic_hash": ""
   },
   "admin-panel/src/pages/LegalPolicies.jsx": {
-    "mtime": 1792955806.71449,
-    "seen": 1792956088.757362,
-    "ast_hash": "6c5b7e4591ade82718246b8d4ccc2de1",
+    "mtime": 1792958418.3039546,
+    "seen": 1792958495.1541178,
+    "ast_hash": "23b392b544390f56f3692a01648f9e80",
     "semantic_hash": ""
   },
   "backend/src/controllers/publicController.js": {
@@ -1482,9 +1482,15 @@
     "semantic_hash": ""
   },
   "admin-panel/src/pages/LandingPage.jsx": {
-    "mtime": 1792956576.5151622,
-    "seen": 1792957918.7544188,
-    "ast_hash": "83183c02791177a58d92a20a88519206",
+    "mtime": 1792958473.8015933,
+    "seen": 1792958495.1541178,
+    "ast_hash": "843b8fb986dd2441144d2fb57a0f9a26",
+    "semantic_hash": ""
+  },
+  "admin-panel/src/components/MarkdownRenderer.jsx": {
+    "mtime": 1792958233.4363787,
+    "seen": 1792958495.153731,
+    "ast_hash": "d4e017761e60f6fb1c20c54c6d6b990e",
     "semantic_hash": ""
   }
 }
