@@ -2924,6 +2924,42 @@ export const API_SPEC = {
       ]
     },
     {
+      "id": "app-maintenance-status",
+      "category": "config",
+      "method": "GET",
+      "path": "/api/mobile/maintenance",
+      "summary": "Check Mobile Maintenance Mode & Reason",
+      "description": "Public endpoint polled by mobile apps on launch to determine if the platform is undergoing maintenance. Returns explicit boolean flag (is_maintenance), maintenance headline (maintenance_title), root reason (maintenance_reason), comprehensive notice message (maintenance_message), and estimated time of return (maintenance_eta). Backed by Redis Cache-Aside with instant invalidation upon Admin toggle.",
+      "requiresAuth": false,
+      "requestHeaders": [],
+      "parameters": [],
+      "requestBody": null,
+      "responses": [
+        {
+          "status": 200,
+          "description": "Maintenance status retrieved successfully.",
+          "example": {
+            "success": true,
+            "is_maintenance": false,
+            "maintenance_mode": false,
+            "status": "operational",
+            "maintenance_title": "Under Scheduled Maintenance",
+            "maintenance_reason": "System upgrade and security enhancements in progress",
+            "maintenance_message": "We are currently upgrading server systems to deliver a smoother and faster live streaming experience. Please check back shortly.",
+            "maintenance_eta": "1 hour",
+            "estimated_recovery_time": "1 hour",
+            "app_name": "UMI LIVE",
+            "platform_name": "UMI LIVE",
+            "app_logo_url": "http://localhost:5050/uploads/logo.png",
+            "app_version": "1.0.0",
+            "min_supported_version": "1.0.0",
+            "contact_email": "support@umi.live",
+            "checked_at": "2026-10-25T14:00:00.000Z"
+          }
+        }
+      ]
+    },
+    {
       "id": "livekit-config",
       "category": "config",
       "method": "GET",

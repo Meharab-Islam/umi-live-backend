@@ -74,6 +74,10 @@ export async function getAppConfig(req, res) {
       const maintenanceMode = settingsMap['maintenance_mode'] === 'true';
 
       const hostCoinShare = Math.max(0, 100 - adminGiftCommission - agencyGiftCommission);
+      const maintenanceTitle = settingsMap['maintenance_title'] || 'Under Scheduled Maintenance';
+      const maintenanceReason = settingsMap['maintenance_reason'] || 'System upgrade and security enhancements in progress';
+      const maintenanceMessage = settingsMap['maintenance_message'] || 'Platform is under scheduled maintenance. Please check back shortly.';
+      const maintenanceEta = settingsMap['maintenance_eta'] || 'Soon';
 
       return {
         app_name: platformName,
@@ -83,8 +87,23 @@ export async function getAppConfig(req, res) {
         admin_title: settingsMap['admin_title'] || 'Broadcasting & Live Streaming Admin Console',
         app_version: settingsMap['app_version'] || '1.0.0',
         min_supported_version: settingsMap['min_supported_version'] || '1.0.0',
+        is_maintenance: maintenanceMode,
         maintenance_mode: maintenanceMode,
-        maintenance_message: settingsMap['maintenance_message'] || 'Platform is under scheduled maintenance. Please check back shortly.',
+        maintenance_status: maintenanceMode ? 'maintenance' : 'operational',
+        maintenance_title: maintenanceTitle,
+        maintenance_reason: maintenanceReason,
+        maintenance_message: maintenanceMessage,
+        maintenance_eta: maintenanceEta,
+        estimated_recovery_time: maintenanceEta,
+        maintenance: {
+          is_active: maintenanceMode,
+          status: maintenanceMode ? 'maintenance' : 'operational',
+          title: maintenanceTitle,
+          reason: maintenanceReason,
+          message: maintenanceMessage,
+          eta: maintenanceEta,
+          estimated_recovery_time: maintenanceEta,
+        },
 
         // Economy & Currency Configuration
         economy: {
@@ -257,3 +276,85 @@ export async function getScreenGuardConfig(req, res) {
     return res.status(500).json({ success: false, message: 'Failed to retrieve screen guard configuration.', error: err.message });
   }
 }
+
+/**
+ * Dedicated Public Mobile & Web Maintenance Status Endpoint
+ * GET /api/mobile/maintenance
+ * GET /api/mobile/config/maintenance
+ * GET /api/v1/maintenance
+ * GET /api/maintenance
+ * 
+ * Cached with Redis Cache-Aside (TTL: 15s) and instantly invalidated on Admin Panel toggle.
+ * Returns explicit status, title, reason, detailed message, and estimated recovery time.
+ */
+export async function getMaintenanceStatus(req, res) {
+  try {
+    const data = await cache.getOrSet('system:maintenance:status', 15, async () => {
+      const rows = await query(
+        `SELECT key_name, key_value FROM system_settings 
+         WHERE key_name IN (
+           'maintenance_mode', 
+           'maintenance_title', 
+           'maintenance_reason', 
+           'maintenance_message', 
+           'maintenance_eta',
+           'platform_name',
+           'app_name',
+           'platform_logo_url',
+           'app_logo_url',
+           'app_version',
+           'min_supported_version',
+           'contact_email'
+         )`
+      );
+      const map = {};
+      for (const r of rows) {
+        map[r.key_name] = r.key_value;
+      }
+
+      const projectName = process.env.PROJECT_NAME || 'umi';
+      const isMaintenance = map['maintenance_mode'] === 'true';
+      const platformName = map['platform_name'] || map['app_name'] || `${projectName.toUpperCase()} Live`;
+      const platformLogoUrl = map['platform_logo_url'] || map['app_logo_url'] || '';
+      const maintenanceTitle = map['maintenance_title'] || 'Under Scheduled Maintenance';
+      const maintenanceReason = map['maintenance_reason'] || 'System upgrade and security enhancements in progress';
+      const maintenanceMessage = map['maintenance_message'] || 'Platform is under scheduled maintenance. Please check back shortly.';
+      const maintenanceEta = map['maintenance_eta'] || 'Soon';
+
+      return {
+        is_maintenance: isMaintenance,
+        maintenance_mode: isMaintenance,
+        status: isMaintenance ? 'maintenance' : 'operational',
+        maintenance_title: maintenanceTitle,
+        maintenance_reason: maintenanceReason,
+        maintenance_message: maintenanceMessage,
+        maintenance_eta: maintenanceEta,
+        estimated_recovery_time: maintenanceEta,
+        app_name: platformName,
+        platform_name: platformName,
+        app_logo_url: platformLogoUrl,
+        platform_logo_url: platformLogoUrl,
+        app_version: map['app_version'] || '1.0.0',
+        min_supported_version: map['min_supported_version'] || '1.0.0',
+        contact_email: map['contact_email'] || 'support@umi.live',
+      };
+    });
+
+    return res.json({
+      success: true,
+      ...data,
+      checked_at: new Date().toISOString(),
+    });
+  } catch (err) {
+    console.error('getMaintenanceStatus error:', err);
+    return res.status(500).json({
+      success: false,
+      is_maintenance: false,
+      maintenance_mode: false,
+      status: 'operational',
+      message: 'Failed to retrieve maintenance status.',
+      error: err.message,
+    });
+  }
+}
+

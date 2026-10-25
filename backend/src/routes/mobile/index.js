@@ -1,5 +1,6 @@
 import express from 'express';
 import configRoutes from './configRoutes.js';
+import { getMaintenanceStatus } from '../../controllers/mobile/configController.js';
 import authRoutes from './authRoutes.js';
 import liveRoutes from './liveRoutes.js';
 import giftRoutes from './giftRoutes.js';
@@ -45,6 +46,7 @@ const router = express.Router();
  * - /api/mobile/agency        -> agencyRoutes (top agencies, overview, hosts, broadcast ban/unban, join requests)
  * - /api/mobile/notifications -> notificationRoutes (FCM specs, token registration, multi-device routing)
  */
+router.get('/maintenance', getMaintenanceStatus);
 router.use('/config', configRoutes);
 router.use('/banners', bannerRoutes);
 router.use('/leaderboard', leaderboardRoutes);

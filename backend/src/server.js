@@ -30,6 +30,7 @@ import packageRoutes from './routes/packageRoutes.js';
 import docsRoutes from './routes/docsRoutes.js';
 import mobileRoutes from './routes/mobile/index.js';
 import configRoutes from './routes/mobile/configRoutes.js';
+import { getMaintenanceStatus } from './controllers/mobile/configController.js';
 import { getPublicBanners } from './controllers/bannerController.js';
 import { sqlInjectionGuard } from './middlewares/securityMiddleware.js';
 
@@ -256,6 +257,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/packages', packageRoutes);
 app.use('/api/docs', docsRoutes);
 app.get('/api/banners', getPublicBanners);
+app.get(['/api/maintenance', '/api/v1/maintenance'], getMaintenanceStatus);
 
 // 404 handler
 app.use((req, res) => {

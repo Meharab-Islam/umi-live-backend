@@ -1183,6 +1183,7 @@ export async function updateSetting(req, res) {
     await cache.del('wallet:withdrawal:config');
     await cache.del('config:call_rates');
     await cache.del('config:screen_guard');
+    await cache.del('system:maintenance:status');
     await cache.delByPattern('wallet:*');
     await cache.delByPattern('withdrawal:*');
 
@@ -1198,6 +1199,15 @@ export async function updateSetting(req, res) {
     // Broadcast real-time screen guard change to connected mobile clients
     if (req.io && (key.includes('screen_') || key.includes('guard_'))) {
       req.io.emit('security:screen_guard_updated', {
+        key,
+        value: String(finalValue),
+        updated_at: new Date().toISOString(),
+      });
+    }
+
+    // Broadcast real-time maintenance status updates to mobile apps and admin panels
+    if (req.io && key.includes('maintenance')) {
+      req.io.emit('system:maintenance_updated', {
         key,
         value: String(finalValue),
         updated_at: new Date().toISOString(),

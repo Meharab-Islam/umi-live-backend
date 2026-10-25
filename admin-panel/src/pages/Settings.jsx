@@ -52,6 +52,10 @@ import {
   StarHalf,
   Crown,
   Upload,
+  Wrench,
+  Smartphone,
+  ExternalLink,
+  AlertCircle,
 } from 'lucide-react';
 import settingsApi from '../api/settingsApi';
 import authApi from '../api/authApi';
@@ -627,7 +631,10 @@ export default function Settings({ onToast, targetSection }) {
 
       await Promise.all([
         settingsApi.updateSetting('maintenance_mode', settings.maintenance_mode || 'false', 'Platform maintenance mode flag'),
+        settingsApi.updateSetting('maintenance_title', settings.maintenance_title || 'Under Scheduled Maintenance', 'Maintenance screen headline title'),
+        settingsApi.updateSetting('maintenance_reason', settings.maintenance_reason || 'System upgrade and security enhancements in progress', 'Maintenance core reason'),
         settingsApi.updateSetting('maintenance_message', settings.maintenance_message || 'Platform is under scheduled maintenance. Please check back shortly.', 'Platform maintenance message'),
+        settingsApi.updateSetting('maintenance_eta', settings.maintenance_eta || 'Soon', 'Estimated maintenance completion time'),
         settingsApi.updateSetting('platform_name', finalName, 'Platform display name'),
         settingsApi.updateSetting('app_name', finalName, 'Mobile app display name'),
         settingsApi.updateSetting('platform_logo_url', finalLogo, 'Platform and Admin Logo URL'),
@@ -3713,76 +3720,346 @@ export default function Settings({ onToast, targetSection }) {
             </div>
           </div>
 
-          {/* Card 2: Platform Maintenance Mode */}
-          <div className="panel-card" style={{ border: '1px solid rgba(59, 130, 246, 0.35)' }}>
-            <div className="panel-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div className="panel-title">
-                <Shield size={22} color="#3b82f6" />
-                <span>Platform Maintenance Mode & Application Rules</span>
+          {/* Card 2: Platform Maintenance Mode & Mobile API Integration */}
+          <div className="panel-card" style={{ border: settings.maintenance_mode === 'true' ? '1px solid rgba(239, 68, 68, 0.45)' : '1px solid rgba(59, 130, 246, 0.35)', background: settings.maintenance_mode === 'true' ? 'linear-gradient(180deg, rgba(239, 68, 68, 0.04) 0%, rgba(20, 20, 30, 0.6) 100%)' : undefined }}>
+            <div className="panel-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+              <div className="panel-title" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{ padding: '8px', borderRadius: '10px', background: settings.maintenance_mode === 'true' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(59, 130, 246, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Wrench size={22} color={settings.maintenance_mode === 'true' ? '#ef4444' : '#3b82f6'} />
+                </div>
+                <div>
+                  <span style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--text-main)' }}>Platform Maintenance Mode & Live Mobile API</span>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--text-dim)', marginTop: '2px' }}>
+                    Controls global mobile app accessibility, maintenance reasons, and <code>/api/mobile/maintenance</code> response
+                  </div>
+                </div>
               </div>
-              <span
-                style={{
-                  fontSize: '0.75rem',
-                  fontWeight: 700,
-                  padding: '4px 10px',
-                  borderRadius: '20px',
-                  background: settings.maintenance_mode === 'true' ? 'rgba(239, 68, 68, 0.12)' : 'rgba(16, 185, 129, 0.12)',
-                  color: settings.maintenance_mode === 'true' ? '#ef4444' : '#10b981',
-                  border: settings.maintenance_mode === 'true' ? '1px solid rgba(239, 68, 68, 0.3)' : '1px solid rgba(16, 185, 129, 0.3)',
-                }}
-              >
-                {settings.maintenance_mode === 'true' ? 'Maintenance Active' : 'Normal Operations'}
-              </span>
+              
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <a
+                  href="/api/mobile/maintenance"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn"
+                  style={{
+                    fontSize: '0.78rem',
+                    padding: '6px 12px',
+                    borderRadius: '8px',
+                    background: 'rgba(99, 102, 241, 0.12)',
+                    color: '#818cf8',
+                    border: '1px solid rgba(99, 102, 241, 0.3)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    textDecoration: 'none',
+                  }}
+                  title="Test Live Mobile API JSON Endpoint"
+                >
+                  <ExternalLink size={14} />
+                  <span>Test API: /api/mobile/maintenance</span>
+                </a>
+
+                <span
+                  style={{
+                    fontSize: '0.75rem',
+                    fontWeight: 700,
+                    padding: '6px 12px',
+                    borderRadius: '20px',
+                    background: settings.maintenance_mode === 'true' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(16, 185, 129, 0.15)',
+                    color: settings.maintenance_mode === 'true' ? '#f87171' : '#34d399',
+                    border: settings.maintenance_mode === 'true' ? '1px solid rgba(239, 68, 68, 0.5)' : '1px solid rgba(16, 185, 129, 0.4)',
+                    boxShadow: settings.maintenance_mode === 'true' ? '0 0 12px rgba(239, 68, 68, 0.25)' : 'none',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                  }}
+                >
+                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: settings.maintenance_mode === 'true' ? '#ef4444' : '#10b981', display: 'inline-block' }} />
+                  {settings.maintenance_mode === 'true' ? 'MAINTENANCE MODE ACTIVE' : 'NORMAL LIVE OPERATIONS'}
+                </span>
+              </div>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.35rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', borderRadius: '10px', background: 'var(--bg-primary)' }}>
+            {settings.maintenance_mode === 'true' && (
+              <div style={{ padding: '0.85rem 1.15rem', borderRadius: '10px', background: 'rgba(239, 68, 68, 0.12)', border: '1px solid rgba(239, 68, 68, 0.35)', display: 'flex', alignItems: 'center', gap: '10px', marginTop: '1rem', color: '#fca5a5', fontSize: '0.85rem' }}>
+                <AlertTriangle size={20} color="#ef4444" style={{ flexShrink: 0 }} />
                 <div>
-                  <div style={{ fontWeight: 700, color: 'var(--text-main)', fontSize: '0.92rem' }}>
-                    Emergency / Scheduled Maintenance Mode
+                  <strong>Attention:</strong> Maintenance mode is currently <strong>ACTIVE</strong>. Regular mobile clients and web guests will be shown the maintenance notice screen and will not be able to join broadcasts or make transactions until normal operations are restored.
+                </div>
+              </div>
+            )}
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem', marginTop: '1.35rem' }}>
+              {/* Left Column: Form Controls */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                <div style={{ padding: '1rem', borderRadius: '10px', background: 'var(--bg-primary)', border: '1px solid var(--border-color)' }}>
+                  <label style={{ display: 'block', fontWeight: 700, color: 'var(--text-main)', fontSize: '0.9rem', marginBottom: '4px' }}>
+                    Emergency / Scheduled Maintenance Status
+                  </label>
+                  <div style={{ fontSize: '0.78rem', color: 'var(--text-dim)', marginBottom: '10px' }}>
+                    When enabled, the API returns <code>is_maintenance: true</code> and mobile apps immediately present the notice screen.
                   </div>
-                  <div style={{ fontSize: '0.8rem', color: 'var(--text-dim)' }}>
-                    When activated, regular client mobile apps and web viewers display a scheduled maintenance screen.
+
+                  <select
+                    className="select-field"
+                    style={{ width: '100%', fontWeight: 600, background: settings.maintenance_mode === 'true' ? 'rgba(239, 68, 68, 0.1)' : undefined }}
+                    value={settings.maintenance_mode || 'false'}
+                    onChange={(e) => handleChange('maintenance_mode', e.target.value)}
+                  >
+                    <option value="false">🟢 Disabled (Normal Live Operations - All Users Allowed)</option>
+                    <option value="true">🔴 Enabled (Maintenance Mode - Lock App & Show Notice)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '0.35rem' }}>
+                    Maintenance Screen Headline Title (শিরোনাম)
+                  </label>
+                  <input
+                    type="text"
+                    className="input-field"
+                    style={{ width: '100%' }}
+                    value={settings.maintenance_title || ''}
+                    onChange={(e) => handleChange('maintenance_title', e.target.value)}
+                    placeholder="e.g. Under Scheduled Maintenance / সিস্টেম সাময়িক রক্ষণাবেক্ষণে আছে"
+                  />
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: '4px' }}>
+                    Displayed as the primary bold heading on mobile devices.
                   </div>
                 </div>
 
-                <select
-                  className="select-field"
-                  style={{ minWidth: '180px' }}
-                  value={settings.maintenance_mode || 'false'}
-                  onChange={(e) => handleChange('maintenance_mode', e.target.value)}
-                >
-                  <option value="false">Disabled (Normal Operations)</option>
-                  <option value="true">Enabled (Maintenance On)</option>
-                </select>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '0.35rem' }}>
+                    Maintenance Reason / Cause (রক্ষণাবেক্ষণের কারণ)
+                  </label>
+                  <input
+                    type="text"
+                    className="input-field"
+                    style={{ width: '100%' }}
+                    value={settings.maintenance_reason || ''}
+                    onChange={(e) => handleChange('maintenance_reason', e.target.value)}
+                    placeholder="e.g. System upgrade and security enhancements in progress / সার্ভার অপ্টিমাইজেশন ও আপডেট চলছে"
+                  />
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: '4px' }}>
+                    Returned via <code>maintenance_reason</code> in API responses and highlighted as a cause badge.
+                  </div>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '0.35rem' }}>
+                    Estimated Completion Time / ETA (আনুমানিক সময়)
+                  </label>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <input
+                      type="text"
+                      className="input-field"
+                      style={{ flex: 1 }}
+                      value={settings.maintenance_eta || ''}
+                      onChange={(e) => handleChange('maintenance_eta', e.target.value)}
+                      placeholder="e.g. 30 Minutes, 1 Hour, or 10:30 PM UTC"
+                    />
+                    {['30 mins', '1 hour', '2 hours', 'Soon'].map((preset) => (
+                      <button
+                        key={preset}
+                        type="button"
+                        onClick={() => handleChange('maintenance_eta', preset)}
+                        className="btn"
+                        style={{ fontSize: '0.72rem', padding: '4px 8px', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', color: 'var(--text-dim)', borderRadius: '6px' }}
+                      >
+                        {preset}
+                      </button>
+                    ))}
+                  </div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: '4px' }}>
+                    Gives users an estimated recovery timeline.
+                  </div>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '0.35rem' }}>
+                    Comprehensive Notice Message (ব্যবহারকারীদের জন্য বিস্তারিত বার্তা)
+                  </label>
+                  <textarea
+                    className="input-field"
+                    rows={4}
+                    style={{ width: '100%', resize: 'vertical' }}
+                    value={settings.maintenance_message || ''}
+                    onChange={(e) => handleChange('maintenance_message', e.target.value)}
+                    placeholder="Enter comprehensive notice message explaining the maintenance work to mobile users..."
+                  />
+                </div>
               </div>
 
-              <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '0.35rem' }}>
-                  Maintenance Notice Message
-                </label>
-                <textarea
-                  className="input-field"
-                  rows={3}
-                  style={{ width: '100%', resize: 'vertical' }}
-                  value={settings.maintenance_message || 'Platform is under scheduled maintenance. Please check back shortly.'}
-                  onChange={(e) => handleChange('maintenance_message', e.target.value)}
-                  placeholder="Enter notice message to display on mobile apps during maintenance..."
-                />
-              </div>
+              {/* Right Column: Live Mobile App Screen Mockup & Preview */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.88rem', fontWeight: 700, color: 'var(--text-main)' }}>
+                    <Smartphone size={18} color="#a855f7" />
+                    <span>Live Mobile App Maintenance Screen Preview</span>
+                  </div>
+                  <span style={{ fontSize: '0.72rem', color: 'var(--text-dim)', background: 'var(--bg-primary)', padding: '2px 8px', borderRadius: '4px' }}>
+                    Real-Time Dynamic
+                  </span>
+                </div>
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: '0.75rem', borderTop: '1px solid var(--border-color)' }}>
-                <button
-                  type="button"
-                  className="btn btn-primary"
-                  onClick={handleSaveSystem}
-                  disabled={savingSystem || saving}
-                  style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#7c3aed', borderColor: '#6d28d9', padding: '0.65rem 1.4rem' }}
+                <div
+                  style={{
+                    background: '#0d1117',
+                    border: '2px solid rgba(255, 255, 255, 0.1)',
+                    borderRadius: '24px',
+                    padding: '24px 20px',
+                    boxShadow: '0 20px 40px rgba(0, 0, 0, 0.4)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    textAlign: 'center',
+                    minHeight: '440px',
+                    position: 'relative',
+                    overflow: 'hidden',
+                  }}
                 >
-                  <Save size={16} />
-                  <span>{savingSystem ? 'Saving...' : 'Save Branding & System Settings'}</span>
-                </button>
+                  {/* Top Mobile Notch Bar */}
+                  <div style={{ width: '120px', height: '14px', background: 'rgba(255, 255, 255, 0.12)', borderRadius: '0 0 10px 10px', position: 'absolute', top: 0 }} />
+
+                  {/* App Brand Header */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '14px', marginBottom: '24px' }}>
+                    {settings.platform_logo_url ? (
+                      <img
+                        src={resolveAssetUrl(settings.platform_logo_url)}
+                        alt="Logo"
+                        style={{ width: '28px', height: '28px', borderRadius: '8px', objectFit: 'contain' }}
+                      />
+                    ) : (
+                      <div style={{ width: '28px', height: '28px', borderRadius: '8px', background: 'linear-gradient(135deg, #a855f7, #6366f1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '12px', fontWeight: 'bold' }}>
+                        U
+                      </div>
+                    )}
+                    <span style={{ fontWeight: 800, fontSize: '0.95rem', color: '#fff', letterSpacing: '0.5px' }}>
+                      {settings.platform_name || 'UMI LIVE'}
+                    </span>
+                  </div>
+
+                  {/* Central Maintenance Visual */}
+                  <div
+                    style={{
+                      width: '84px',
+                      height: '84px',
+                      borderRadius: '50%',
+                      background: settings.maintenance_mode === 'true' ? 'radial-gradient(circle, rgba(239, 68, 68, 0.25) 0%, rgba(239, 68, 68, 0.05) 70%)' : 'radial-gradient(circle, rgba(16, 185, 129, 0.25) 0%, rgba(16, 185, 129, 0.05) 70%)',
+                      border: settings.maintenance_mode === 'true' ? '2px dashed rgba(239, 68, 68, 0.5)' : '2px dashed rgba(16, 185, 129, 0.5)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginBottom: '16px',
+                    }}
+                  >
+                    {settings.maintenance_mode === 'true' ? (
+                      <Wrench size={38} color="#ef4444" />
+                    ) : (
+                      <CheckCircle2 size={38} color="#10b981" />
+                    )}
+                  </div>
+
+                  {/* Title */}
+                  <h3 style={{ margin: '0 0 8px 0', fontSize: '1.15rem', fontWeight: 800, color: '#f8fafc', lineHeight: 1.3 }}>
+                    {settings.maintenance_mode === 'true'
+                      ? (settings.maintenance_title || 'Under Scheduled Maintenance')
+                      : 'Systems Operational'}
+                  </h3>
+
+                  {/* Reason Pill */}
+                  {settings.maintenance_mode === 'true' && (
+                    <div
+                      style={{
+                        fontSize: '0.75rem',
+                        fontWeight: 700,
+                        color: '#f87171',
+                        background: 'rgba(239, 68, 68, 0.15)',
+                        border: '1px solid rgba(239, 68, 68, 0.3)',
+                        borderRadius: '20px',
+                        padding: '4px 12px',
+                        marginBottom: '14px',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                      }}
+                    >
+                      <AlertCircle size={13} />
+                      <span>{settings.maintenance_reason || 'System Upgrade & Security Improvements'}</span>
+                    </div>
+                  )}
+
+                  {/* Message */}
+                  <p style={{ margin: '0 0 20px 0', fontSize: '0.82rem', color: '#94a3b8', lineHeight: 1.5, maxWidth: '280px' }}>
+                    {settings.maintenance_mode === 'true'
+                      ? (settings.maintenance_message || 'We are currently upgrading server systems to deliver a smoother live streaming experience. Please check back shortly.')
+                      : 'All live streaming, gifting, agency management, and wallet services are running smoothly.'}
+                  </p>
+
+                  {/* ETA Box */}
+                  {settings.maintenance_mode === 'true' && (
+                    <div
+                      style={{
+                        background: 'rgba(255, 255, 255, 0.04)',
+                        border: '1px solid rgba(255, 255, 255, 0.08)',
+                        borderRadius: '12px',
+                        padding: '10px 16px',
+                        marginBottom: '20px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        fontSize: '0.8rem',
+                        color: '#cbd5e1',
+                      }}
+                    >
+                      <Clock size={16} color="#fbbf24" />
+                      <span>Estimated Return: <strong style={{ color: '#fbbf24' }}>{settings.maintenance_eta || 'Soon'}</strong></span>
+                    </div>
+                  )}
+
+                  {/* Action Button */}
+                  <button
+                    type="button"
+                    style={{
+                      marginTop: 'auto',
+                      width: '100%',
+                      maxWidth: '240px',
+                      padding: '10px 0',
+                      borderRadius: '12px',
+                      background: settings.maintenance_mode === 'true' ? '#334155' : 'linear-gradient(135deg, #10b981, #059669)',
+                      color: '#fff',
+                      fontSize: '0.82rem',
+                      fontWeight: 700,
+                      border: 'none',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px',
+                    }}
+                  >
+                    <RefreshCw size={14} />
+                    <span>{settings.maintenance_mode === 'true' ? 'Refresh Status' : 'Enter Application'}</span>
+                  </button>
+                </div>
+
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', textAlign: 'center', padding: '6px' }}>
+                  Mobile apps poll <code>/api/mobile/maintenance</code> on startup and subscribe to Socket.IO event <code>system:maintenance_updated</code>.
+                </div>
               </div>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: '1.25rem', marginTop: '1.25rem', borderTop: '1px solid var(--border-color)' }}>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={handleSaveSystem}
+                disabled={savingSystem || saving}
+                style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#7c3aed', borderColor: '#6d28d9', padding: '0.75rem 1.6rem', fontSize: '0.9rem', fontWeight: 700 }}
+              >
+                <Save size={18} />
+                <span>{savingSystem ? 'Saving Configuration...' : 'Save Maintenance & System Settings'}</span>
+              </button>
             </div>
           </div>
         </div>
