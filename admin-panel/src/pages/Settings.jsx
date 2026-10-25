@@ -58,13 +58,31 @@ import Loader from '../components/Loader';
 import { uploadFile, resolveAssetUrl } from '../api/client';
 import { useBranding } from '../context/BrandingContext';
 
-export default function Settings({ onToast }) {
+export default function Settings({ onToast, targetSection }) {
   const { updateBranding } = useBranding();
   const [settings, setSettings] = useState({});
   const [loading, setLoading] = useState(true);
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState('economy');
+
+  const getInitialTab = () => {
+    if (targetSection === 'economy') return 'economy';
+    if (targetSection === 'calls') return 'calls';
+    if (targetSection === 'streaming') return 'streaming';
+    if (targetSection === 'screen_guard') return 'screen_guard';
+    if (targetSection === 'stars') return 'stars';
+    if (targetSection === 'monetization') return 'monetization';
+    return 'security';
+  };
+
+  const [activeTab, setActiveTab] = useState(getInitialTab);
+
+  useEffect(() => {
+    if (targetSection) {
+      setActiveTab(getInitialTab());
+    }
+  }, [targetSection]);
+
   const [showActionPassword, setShowActionPassword] = useState(false);
   const [showLivekitSecret, setShowLivekitSecret] = useState(false);
   const [savingLivekit, setSavingLivekit] = useState(false);
@@ -672,36 +690,7 @@ export default function Settings({ onToast }) {
   const simVideoPayout = (simHostDiamonds * videoRate).toFixed(2);
   const simAudioPayout = (simHostDiamonds * audioRate).toFixed(2);
 
-  const tabs = [
-    {
-      id: 'economy',
-      name: 'Platform Economy',
-      icon: Database,
-      badge: isDiamondMode ? '💎 Diamond Mode' : '🪙 Direct Coins',
-      badgeColor: isDiamondMode ? '#8b5cf6' : '#f59e0b',
-      accent: '#8b5cf6',
-      description: isDiamondMode
-        ? 'Diamond conversion, host cashout exchange rates, and revenue sharing rules.'
-        : 'Direct Coin split, host cashout exchange rates, and revenue sharing rules.',
-    },
-    {
-      id: 'streaming',
-      name: 'LiveKit & WebRTC',
-      icon: Server,
-      badge: settings.livekit_url && settings.livekit_api_key ? 'Active' : 'Setup Needed',
-      badgeColor: settings.livekit_url && settings.livekit_api_key ? '#10b981' : '#ef4444',
-      accent: '#06b6d4',
-      description: 'LiveKit cloud websocket mesh, project API credentials, and dynamic mobile discovery.',
-    },
-    {
-      id: 'monetization',
-      name: 'Room Thumbnails',
-      icon: ImageIcon,
-      badge: `${pricingTiers.length} Plans`,
-      badgeColor: '#ec4899',
-      accent: '#ec4899',
-      description: 'Dynamic duration pricing tiers for user-uploaded custom live room background wallpapers.',
-    },
+  const adminTabs = [
     {
       id: 'security',
       name: 'Financial Security',
@@ -710,33 +699,6 @@ export default function Settings({ onToast }) {
       badgeColor: '#7c3aed',
       accent: '#7c3aed',
       description: 'Authorization passwords for coin recharges and administrative balance adjustments.',
-    },
-    {
-      id: 'calls',
-      name: '1-to-1 Calls & Rates',
-      icon: PhoneCall,
-      badge: settings.call_is_enabled === 'false' ? 'Disabled' : `${settings.call_video_rate_per_minute || '50'}c / ${settings.call_audio_rate_per_minute || '20'}c`,
-      badgeColor: settings.call_is_enabled === 'false' ? '#ef4444' : '#10b981',
-      accent: '#10b981',
-      description: 'P2P Audio & Video Call per-minute coin costs, receiver revenue share, and live call logs.',
-    },
-    {
-      id: 'screen_guard',
-      name: 'Screen Guard',
-      icon: Camera,
-      badge: settings.app_screen_guard_enabled === 'false' ? 'Guard Off' : settings.live_screen_guard_enabled === 'false' ? 'App Only' : 'Full Guard',
-      badgeColor: settings.app_screen_guard_enabled === 'false' ? '#ef4444' : '#7c3aed',
-      accent: '#7c3aed',
-      description: 'Control screenshot, screen recording, screen share permissions for live rooms and the entire app.',
-    },
-    {
-      id: 'stars',
-      name: 'Star Progression System',
-      icon: Star,
-      badge: starConfig?.is_enabled ? `1⭐ = ${(Number(starConfig?.coins_per_unit || 100000) / 1000).toFixed(0)}k` : 'Disabled',
-      badgeColor: starConfig?.is_enabled ? '#f59e0b' : '#ef4444',
-      accent: '#f59e0b',
-      description: 'Configure star formula (100k = 1.0⭐, 120k = 1.2⭐, 200k = 2.0⭐), live simulator, and bulk star recalculation.',
     },
     {
       id: 'system',
@@ -748,6 +710,75 @@ export default function Settings({ onToast }) {
       description: 'Platform maintenance mode, scheduled downtime notices, and global application branding.',
     },
   ];
+
+  const getHeaderMeta = () => {
+    if (targetSection === 'economy') {
+      return {
+        title: 'Platform Economy & Currency Engine',
+        subtitle: isDiamondMode
+          ? 'Diamond conversion, host cashout exchange rates, and revenue sharing rules.'
+          : 'Direct Coin split, host cashout exchange rates, and revenue sharing rules.',
+        icon: Database,
+        badge: isDiamondMode ? '💎 Diamond Mode' : '🪙 Direct Coins',
+        badgeColor: isDiamondMode ? '#8b5cf6' : '#f59e0b',
+      };
+    }
+    if (targetSection === 'calls') {
+      return {
+        title: '1-to-1 Calls & Rates',
+        subtitle: 'P2P Audio & Video Call per-minute coin costs, host revenue split, and live call logs.',
+        icon: PhoneCall,
+        badge: settings.call_is_enabled === 'false' ? 'Disabled' : `${settings.call_video_rate_per_minute || '50'}c / ${settings.call_audio_rate_per_minute || '20'}c`,
+        badgeColor: settings.call_is_enabled === 'false' ? '#ef4444' : '#10b981',
+      };
+    }
+    if (targetSection === 'streaming') {
+      return {
+        title: 'LiveKit & WebRTC Engine',
+        subtitle: 'LiveKit cloud websocket mesh, project API credentials, and dynamic mobile discovery.',
+        icon: Server,
+        badge: settings.livekit_url && settings.livekit_api_key ? 'Active' : 'Setup Needed',
+        badgeColor: settings.livekit_url && settings.livekit_api_key ? '#10b981' : '#ef4444',
+      };
+    }
+    if (targetSection === 'screen_guard') {
+      return {
+        title: 'Screen Guard Policy',
+        subtitle: 'Control screenshot, screen recording, screen share permissions for live rooms and app.',
+        icon: Camera,
+        badge: settings.app_screen_guard_enabled === 'false' ? 'Guard Off' : settings.live_screen_guard_enabled === 'false' ? 'App Only' : 'Full Guard',
+        badgeColor: settings.app_screen_guard_enabled === 'false' ? '#ef4444' : '#7c3aed',
+      };
+    }
+    if (targetSection === 'stars') {
+      return {
+        title: 'Star Progression System',
+        subtitle: 'Configure star formula (100k = 1.0⭐), live simulator, and bulk star recalculation.',
+        icon: Star,
+        badge: starConfig?.is_enabled ? `1⭐ = ${(Number(starConfig?.coins_per_unit || 100000) / 1000).toFixed(0)}k` : 'Disabled',
+        badgeColor: starConfig?.is_enabled ? '#f59e0b' : '#ef4444',
+      };
+    }
+    if (targetSection === 'monetization') {
+      return {
+        title: 'Room Wallpaper Duration Pricing',
+        subtitle: 'Dynamic duration pricing tiers for user-uploaded custom live room background wallpapers.',
+        icon: ImageIcon,
+        badge: `${pricingTiers.length} Plans`,
+        badgeColor: '#ec4899',
+      };
+    }
+    return {
+      title: 'Admin Console Settings',
+      subtitle: 'Manage administrative authorization passwords, maintenance modes, and brand identity.',
+      icon: SettingsIcon,
+      badge: 'Admin Console',
+      badgeColor: '#7c3aed',
+    };
+  };
+
+  const headerMeta = getHeaderMeta();
+  const HeaderIcon = headerMeta.icon;
 
   return (
     <div style={{ maxWidth: '1080px', margin: '0 auto', paddingBottom: '3rem' }}>
@@ -781,12 +812,12 @@ export default function Settings({ onToast }) {
               boxShadow: '0 4px 14px rgba(124, 58, 237, 0.35)',
             }}
           >
-            <SettingsIcon size={26} />
+            <HeaderIcon size={26} />
           </div>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <h1 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-main)', margin: 0, letterSpacing: '-0.02em' }}>
-                Global Platform Settings
+                {headerMeta.title}
               </h1>
               <span
                 style={{
@@ -795,16 +826,16 @@ export default function Settings({ onToast }) {
                   textTransform: 'uppercase',
                   padding: '2px 8px',
                   borderRadius: '6px',
-                  background: 'rgba(124, 58, 237, 0.15)',
-                  color: '#7c3aed',
-                  border: '1px solid rgba(124, 58, 237, 0.3)',
+                  background: `${headerMeta.badgeColor}18`,
+                  color: headerMeta.badgeColor,
+                  border: `1px solid ${headerMeta.badgeColor}33`,
                 }}
               >
-                v1.0 Production
+                {headerMeta.badge}
               </span>
             </div>
             <p style={{ fontSize: '0.86rem', color: 'var(--text-dim)', margin: '4px 0 0 0' }}>
-              Manage real-time economy systems, LiveKit WebRTC mesh, pricing rules, security keys, and maintenance modes.
+              {headerMeta.subtitle}
             </p>
           </div>
         </div>
@@ -836,92 +867,94 @@ export default function Settings({ onToast }) {
             }}
           >
             <Save size={16} />
-            <span>{saving ? 'Saving All Changes...' : 'Save All Settings'}</span>
+            <span>{saving ? 'Saving Changes...' : 'Save Settings'}</span>
           </button>
         </div>
       </div>
 
-      {/* Modern Navigation Tabs Bar */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-          gap: '0.65rem',
-          marginBottom: '1.5rem',
-        }}
-      >
-        {tabs.map((tab) => {
-          const Icon = tab.icon;
-          const isActive = activeTab === tab.id;
-          return (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => setActiveTab(tab.id)}
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'flex-start',
-                padding: '0.9rem 1rem',
-                borderRadius: '12px',
-                border: isActive ? `2px solid ${tab.accent}` : '1px solid var(--border-color)',
-                background: isActive ? 'var(--bg-secondary)' : 'var(--bg-card)',
-                boxShadow: isActive ? `0 4px 16px -2px ${tab.accent}33` : 'var(--shadow-sm)',
-                cursor: 'pointer',
-                transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-                textAlign: 'left',
-                position: 'relative',
-                overflow: 'hidden',
-              }}
-            >
-              {isActive && (
-                <div
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    height: '3px',
-                    background: tab.accent,
-                  }}
-                />
-              )}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginBottom: '0.4rem' }}>
-                <div
-                  style={{
-                    width: '32px',
-                    height: '32px',
-                    borderRadius: '8px',
-                    background: isActive ? `${tab.accent}20` : 'var(--bg-primary)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: isActive ? tab.accent : 'var(--text-dim)',
-                  }}
-                >
-                  <Icon size={18} />
+      {/* Modern Navigation Tabs Bar (Rendered only in Admin Settings) */}
+      {(!targetSection || targetSection === 'admin') && (
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+            gap: '0.65rem',
+            marginBottom: '1.5rem',
+          }}
+        >
+          {adminTabs.map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setActiveTab(tab.id)}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'flex-start',
+                  padding: '0.9rem 1rem',
+                  borderRadius: '12px',
+                  border: isActive ? `2px solid ${tab.accent}` : '1px solid var(--border-color)',
+                  background: isActive ? 'var(--bg-secondary)' : 'var(--bg-card)',
+                  boxShadow: isActive ? `0 4px 16px -2px ${tab.accent}33` : 'var(--shadow-sm)',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                  textAlign: 'left',
+                  position: 'relative',
+                  overflow: 'hidden',
+                }}
+              >
+                {isActive && (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      height: '3px',
+                      background: tab.accent,
+                    }}
+                  />
+                )}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginBottom: '0.4rem' }}>
+                  <div
+                    style={{
+                      width: '32px',
+                      height: '32px',
+                      borderRadius: '8px',
+                      background: isActive ? `${tab.accent}20` : 'var(--bg-primary)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: isActive ? tab.accent : 'var(--text-dim)',
+                    }}
+                  >
+                    <Icon size={18} />
+                  </div>
+                  <span
+                    style={{
+                      fontSize: '0.68rem',
+                      fontWeight: 700,
+                      padding: '2px 6px',
+                      borderRadius: '6px',
+                      background: `${tab.badgeColor}18`,
+                      color: tab.badgeColor,
+                      border: `1px solid ${tab.badgeColor}33`,
+                    }}
+                  >
+                    {tab.badge}
+                  </span>
                 </div>
-                <span
-                  style={{
-                    fontSize: '0.68rem',
-                    fontWeight: 700,
-                    padding: '2px 6px',
-                    borderRadius: '6px',
-                    background: `${tab.badgeColor}18`,
-                    color: tab.badgeColor,
-                    border: `1px solid ${tab.badgeColor}33`,
-                  }}
-                >
-                  {tab.badge}
-                </span>
-              </div>
-              <div style={{ fontSize: '0.88rem', fontWeight: 700, color: isActive ? 'var(--text-main)' : 'var(--text-muted)' }}>
-                {tab.name}
-              </div>
-            </button>
-          );
-        })}
-      </div>
+                <div style={{ fontSize: '0.88rem', fontWeight: 700, color: isActive ? 'var(--text-main)' : 'var(--text-muted)' }}>
+                  {tab.name}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       {/* TAB CONTENT 1: PLATFORM ECONOMY & CURRENCY ENGINE */}
       {activeTab === 'economy' && (

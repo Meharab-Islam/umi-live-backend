@@ -58,6 +58,12 @@ const VALID_TABS = [
   'gifts',
   'top-contributors',
   'withdrawals',
+  'app-economy',
+  'call-config',
+  'livekit-config',
+  'screen-guard',
+  'star-system',
+  'wallpaper-pricing',
   'api-docs',
   'settings',
 ];
@@ -244,9 +250,15 @@ export default function App() {
     gifts: 'Gifts',
     'top-contributors': 'Top Contributors',
     withdrawals: 'Withdrawals',
+    'app-economy': 'Economy Configuration',
+    'call-config': '1-to-1 Calls & Rates',
+    'livekit-config': 'LiveKit & WebRTC',
+    'screen-guard': 'Screen Guard & Privacy',
+    'star-system': 'Star Progression System',
+    'wallpaper-pricing': 'Wallpaper Duration Pricing',
     'chat-tester': 'Chat Tester',
     'api-docs': 'API Docs',
-    settings: 'Settings',
+    settings: 'Admin Settings',
   };
 
   return (
@@ -397,8 +409,32 @@ export default function App() {
             <ApiDocs onToast={addToast} />
           )}
 
+          {activeTab === 'app-economy' && (
+            <Settings onToast={addToast} targetSection="economy" />
+          )}
+
+          {activeTab === 'call-config' && (
+            <Settings onToast={addToast} targetSection="calls" />
+          )}
+
+          {activeTab === 'livekit-config' && (
+            <Settings onToast={addToast} targetSection="streaming" />
+          )}
+
+          {activeTab === 'screen-guard' && (
+            <Settings onToast={addToast} targetSection="screen_guard" />
+          )}
+
+          {activeTab === 'star-system' && (
+            <Settings onToast={addToast} targetSection="stars" />
+          )}
+
+          {activeTab === 'wallpaper-pricing' && (
+            <Settings onToast={addToast} targetSection="monetization" />
+          )}
+
           {activeTab === 'settings' && (
-            <Settings onToast={addToast} />
+            <Settings onToast={addToast} targetSection="admin" />
           )}
           </ErrorBoundary>
         </main>

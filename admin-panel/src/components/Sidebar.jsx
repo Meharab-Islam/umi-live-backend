@@ -30,6 +30,10 @@ import {
   Award,
   TrendingUp,
   Search,
+  PhoneCall,
+  Server,
+  Camera,
+  Star,
 } from 'lucide-react';
 import packageApi from '../api/packageApi';
 import { useBranding } from '../context/BrandingContext';
@@ -125,10 +129,21 @@ export default function Sidebar({
         ],
       },
       {
-        title: 'System & API',
+        title: 'App Configuration',
+        items: [
+          { id: 'app-economy', label: 'Economy Config', icon: Coins },
+          { id: 'call-config', label: '1-to-1 Calls', icon: PhoneCall },
+          { id: 'livekit-config', label: 'LiveKit WebRTC', icon: Server },
+          { id: 'screen-guard', label: 'Screen Guard', icon: Camera },
+          { id: 'star-system', label: 'Star System', icon: Star },
+          { id: 'wallpaper-pricing', label: 'Wallpaper Pricing', icon: ImageIcon },
+        ],
+      },
+      {
+        title: 'System & Security',
         items: [
           { id: 'api-docs', label: 'API Docs', icon: Terminal },
-          { id: 'settings', label: 'Settings', icon: Settings },
+          { id: 'settings', label: 'Admin Settings', icon: Settings },
         ],
       },
     ],
