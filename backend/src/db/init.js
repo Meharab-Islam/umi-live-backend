@@ -593,18 +593,7 @@ export async function initializeDatabase() {
       // Ignore if already present
     }
 
-    // Seed default settings row if missing
-    try {
-      await connection.query(`
-        INSERT IGNORE INTO live_duration_reward_settings 
-          (id, is_enabled, target_role, session_type, min_sessions, required_minutes, reward_coins, target_audience, max_rewards_per_day, title, description)
-        VALUES 
-          (1, 1, 'host', 'single_continuous', 1, 60, 300, 'all_hosts', 1, 'Continuous Streaming Reward', 'Reward hosts for streaming continuously in a single live session.');
-      `);
-      console.log('✅ [DB Init] Live Duration Reward settings table and default seed verified.');
-    } catch (e) {
-      console.error('Seed live duration settings error:', e.message);
-    }
+    // Note: live_duration_reward_settings table created empty; configured via Admin Panel
 
     // Level Progression Configuration & User Level-Up Rewards Engine
     await connection.query(`

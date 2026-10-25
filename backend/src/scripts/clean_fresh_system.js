@@ -38,6 +38,7 @@ async function cleanFreshSystem() {
       'host_requests',
       'level_configs',
       'live_duration_reward_history',
+      'live_duration_reward_settings',
       'live_room_admins',
       'live_room_kicks',
       'live_room_messages',
