@@ -1,16 +1,16 @@
 # Graph Report - umi_backend  (2026-10-25)
 
 ## Corpus Check
-- 189 files · ~1,113,715 words
+- 189 files · ~1,113,984 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1040 nodes · 2897 edges · 68 communities (51 shown, 17 thin omitted)
+- 1040 nodes · 2899 edges · 68 communities (50 shown, 18 thin omitted)
 - Extraction: 86% EXTRACTED · 14% INFERRED · 0% AMBIGUOUS · INFERRED: 414 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `9cb7a373`
+- Built from commit: `1f2a9c1d`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -56,7 +56,7 @@
 - App.jsx
 - dev.js
 - test_google_token_flow.mjs
-- Gifts.jsx
+- AccountMerge.jsx
 - restore_all_admin_data.js
 - redis.js
 - react
@@ -83,7 +83,7 @@
 2. `react` - 46 edges
 3. `getPool()` - 44 edges
 4. `cache` - 40 edges
-5. `request()` - 34 edges
+5. `request()` - 36 edges
 6. `Loader()` - 27 edges
 7. `requireAuth()` - 27 edges
 8. `useEconomy()` - 21 edges
@@ -105,7 +105,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (68 total, 17 thin omitted)
+## Communities (68 total, 18 thin omitted)
 
 ### Community 0 - "controllers/packageController.js"
 Cohesion: 0.14
@@ -116,8 +116,8 @@ Cohesion: 0.08
 Nodes (73): query(), bulkDelete(), bulkDeleteReports(), clearGiftHistoryAdmin(), clearResellerSales(), createCoinPackageAdmin(), createGift(), createHostRequest() (+65 more)
 
 ### Community 2 - "server.js"
-Cohesion: 0.06
-Nodes (36): createRoom(), endRoom(), getRoomDetails(), getRooms(), getBalances(), getPackages(), getRechargeConfig(), getTransactions() (+28 more)
+Cohesion: 0.07
+Nodes (35): createRoom(), endRoom(), getRoomDetails(), getRooms(), getBalances(), getPackages(), getRechargeConfig(), getTransactions() (+27 more)
 
 ### Community 3 - "admin-panel/package.json"
 Cohesion: 0.06
@@ -208,16 +208,12 @@ Cohesion: 0.18
 Nodes (7): API_SPEC, getToken(), SocketDocsView(), ApiDocs(), EndpointErrorBoundary, extractMediaItems(), copyToClipboard()
 
 ### Community 38 - "App.jsx"
-Cohesion: 0.10
-Nodes (25): accountMergeApi, checkHealth(), levelApi, liveRewardApi, streamApi, App(), getInitialTab(), isTabValid() (+17 more)
+Cohesion: 0.09
+Nodes (28): checkHealth(), giftApi, levelApi, liveRewardApi, streamApi, App(), getInitialTab(), isTabValid() (+20 more)
 
 ### Community 41 - "dev.js"
 Cohesion: 0.33
 Nodes (3): children, __dirname, __filename
-
-### Community 43 - "Gifts.jsx"
-Cohesion: 0.39
-Nodes (5): giftApi, Gifts(), isMediaUrl(), resolveMediaUrl(), TopContributors()
 
 ### Community 45 - "redis.js"
 Cohesion: 0.06
@@ -244,8 +240,8 @@ Cohesion: 0.43
 Nodes (6): getEntryEffectCatalog(), getMyEntryEffects(), getUserActiveEntryEffectsMap(), purchaseEntryEffect(), toggleEntryEffect(), router
 
 ### Community 54 - "mobile/index.js"
-Cohesion: 0.15
-Nodes (12): getMobileBanners(), router, router, router, router, router, router, router (+4 more)
+Cohesion: 0.14
+Nodes (13): getMobileBanners(), router, router, router, router, router, router, router (+5 more)
 
 ### Community 55 - "getPool"
 Cohesion: 0.12
@@ -290,7 +286,7 @@ Nodes (7): getGifts(), getUserGiftContributions(), sendGift(), getTopAgencies(),
 ## Knowledge Gaps
 - **179 isolated node(s):** `$schema`, `oxc`, `react/rules-of-hooks`, `warn`, `name` (+174 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **17 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **18 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
@@ -299,7 +295,7 @@ _Questions this graph is uniquely positioned to answer:_
   _High betweenness centrality (0.206) - this node is a cross-community bridge._
 - **Why does `getPool()` connect `getPool` to `callController.js`, `query`, `server.js`, `mobile/giftController.js`, `redis.js`, `feedController.js`, `db.js`, `mobile/walletRoutes.js`, `chatController.js`?**
   _High betweenness centrality (0.013) - this node is a cross-community bridge._
-- **Why does `react` connect `react` to `ApiDocs.jsx`, `App.jsx`, `.oxlintrc.json`, `Gifts.jsx`, `client.js`, `CreateCategory.jsx`, `Settings.jsx`, `UserLivePortal.jsx`?**
+- **Why does `react` connect `react` to `ApiDocs.jsx`, `App.jsx`, `.oxlintrc.json`, `AccountMerge.jsx`, `client.js`, `CreateCategory.jsx`, `Settings.jsx`, `UserLivePortal.jsx`?**
   _High betweenness centrality (0.010) - this node is a cross-community bridge._
 - **What connects `$schema`, `oxc`, `react/rules-of-hooks` to the rest of the system?**
   _179 weakly-connected nodes found - possible documentation gaps or missing edges._
@@ -308,4 +304,4 @@ _Questions this graph is uniquely positioned to answer:_
 - **Should `query` be split into smaller, more focused modules?**
   _Cohesion score 0.07719298245614035 - nodes in this community are weakly interconnected._
 - **Should `server.js` be split into smaller, more focused modules?**
-  _Cohesion score 0.06448202959830866 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.0664451827242525 - nodes in this community are weakly interconnected._

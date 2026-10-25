@@ -12,9 +12,9 @@
     "semantic_hash": ""
   },
   "admin-panel/src/App.jsx": {
-    "mtime": 1792930935.471684,
-    "seen": 1792931313.825272,
-    "ast_hash": "37af1b822fdc309abf37b67c664add2d",
+    "mtime": 1792948480.9375973,
+    "seen": 1792948614.34636,
+    "ast_hash": "b66a8bcfb17e8fbc0992db7848d04569",
     "semantic_hash": ""
   },
   "admin-panel/src/api.js": {
@@ -270,9 +270,9 @@
     "semantic_hash": ""
   },
   "admin-panel/src/api/client.js": {
-    "mtime": 1792860948.8106296,
-    "seen": 1792861011.4614668,
-    "ast_hash": "19c1d42f2d9bc80591cce19fe370c939",
+    "mtime": 1792948459.826697,
+    "seen": 1792948614.346499,
+    "ast_hash": "f037264bafb709d810178a775f2f1b63",
     "semantic_hash": ""
   },
   "admin-panel/src/api/dashboardApi.js": {
@@ -468,9 +468,9 @@
     "semantic_hash": ""
   },
   "admin-panel/src/pages/Banners.jsx": {
-    "mtime": 1792926165.4567168,
-    "seen": 1792926489.487943,
-    "ast_hash": "690da78518792400354e776cd3c9d26d",
+    "mtime": 1792948535.7917478,
+    "seen": 1792948614.347235,
+    "ast_hash": "5c838504b0545eda66e20e185603b7c0",
     "semantic_hash": ""
   },
   "backend/src/controllers/bannerController.js": {
@@ -1302,9 +1302,9 @@
     "semantic_hash": ""
   },
   "admin-panel/src/pages/AppThemes.jsx": {
-    "mtime": 1792926360.204447,
-    "seen": 1792926489.487942,
-    "ast_hash": "437a761d142b05abc1cfe765a57471f8",
+    "mtime": 1792948568.9417455,
+    "seen": 1792948614.347234,
+    "ast_hash": "01219682069f01a66c66065bf6724cf1",
     "semantic_hash": ""
   },
   "backend/src/controllers/adminThemeController.js": {
@@ -1428,9 +1428,9 @@
     "semantic_hash": ""
   },
   "backend/src/scripts/clean_fresh_system.js": {
-    "mtime": 1792934703.770982,
-    "seen": 1792934735.8370502,
-    "ast_hash": "a13f98cea497fb1818aeced18a27ded7",
+    "mtime": 1792948583.5965314,
+    "seen": 1792948614.349107,
+    "ast_hash": "aa51ad3fdeca04f1f52c9f4669b88334",
     "semantic_hash": ""
   },
   "backend/src/scripts/restore_all_admin_data.js": {
