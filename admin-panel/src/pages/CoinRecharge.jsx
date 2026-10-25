@@ -1241,7 +1241,7 @@ export default function CoinRecharge({ onToast }) {
                 <input
                   type="text"
                   className="input-field"
-                  placeholder="Search by User ID (#5), User Name, or Note..."
+                  placeholder="Search by User ID (#5) or User Name..."
                   value={historySearch}
                   onChange={(e) => {
                     setHistorySearch(e.target.value);
@@ -1310,7 +1310,6 @@ export default function CoinRecharge({ onToast }) {
                     <th style={{ minWidth: '220px' }}>Recipient User</th>
                     <th style={{ minWidth: '150px' }}>Recharged Amount</th>
                     <th style={{ minWidth: '140px' }}>Current Balance</th>
-                    <th style={{ minWidth: '220px' }}>Reason / Note</th>
                     <th style={{ width: '110px' }}>Status</th>
                     <th style={{ minWidth: '160px' }}>Date & Time</th>
                     <th style={{ width: '130px', textAlign: 'center' }}>Actions</th>
@@ -1319,7 +1318,7 @@ export default function CoinRecharge({ onToast }) {
                 <tbody>
                   {historyLoading ? (
                     <tr>
-                      <td colSpan="8" style={{ textAlign: 'center', padding: '3.5rem' }}>
+                      <td colSpan="7" style={{ textAlign: 'center', padding: '3.5rem' }}>
                         <Loader inline />
                         <div style={{ marginTop: '0.75rem', color: 'var(--text-dim)', fontSize: '0.88rem' }}>
                           Loading recharge history...
@@ -1328,7 +1327,7 @@ export default function CoinRecharge({ onToast }) {
                     </tr>
                   ) : historyList.length === 0 ? (
                     <tr>
-                      <td colSpan="8" style={{ textAlign: 'center', padding: '3.5rem' }}>
+                      <td colSpan="7" style={{ textAlign: 'center', padding: '3.5rem' }}>
                         <History size={40} style={{ opacity: 0.3, margin: '0 auto 0.75rem' }} />
                         <div style={{ fontWeight: 600, color: 'var(--text-muted)' }}>
                           No Recharge Records Found
@@ -1441,21 +1440,6 @@ export default function CoinRecharge({ onToast }) {
                         <td>
                           <div style={{ fontSize: '0.88rem', fontWeight: 700, color: 'var(--text-main)' }}>
                             🪙 {Number(tx.current_coins || 0).toLocaleString()}
-                          </div>
-                        </td>
-
-                        {/* Description / Reason */}
-                        <td>
-                          <div
-                            style={{
-                              fontSize: '0.82rem',
-                              color: 'var(--text-muted)',
-                              lineHeight: 1.4,
-                              maxWidth: '240px',
-                              wordBreak: 'break-word',
-                            }}
-                          >
-                            {tx.description || 'Admin Coin Recharge'}
                           </div>
                         </td>
 
