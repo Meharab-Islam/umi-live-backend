@@ -25,6 +25,8 @@ import {
   processWithdrawal,
   getSettings,
   updateSetting,
+  getAdminProfile,
+  updateAdminProfile,
   getAgencies,
   createAgency,
   updateAgency,
@@ -247,6 +249,10 @@ router.get('/moderators', getModerators);
 router.post('/moderators', addModerator);
 router.put('/moderators/:id', updateModerator);
 router.delete('/moderators/:id', deleteModerator);
+
+// Super Admin Profile Management
+router.get('/profile', getAdminProfile);
+router.put('/profile', updateAdminProfile);
 
 // Platform System Settings
 router.get('/settings', getSettings);

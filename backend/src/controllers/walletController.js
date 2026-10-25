@@ -105,9 +105,17 @@ export async function requestWithdrawal(req, res) {
       return res.status(400).json({ success: false, message: 'Payment method and account details are required.' });
     }
 
-    // Fetch system settings & conversion ratios
+    // Fetch system settings & conversion ratios for all roles
     const [settingsRows] = await connection.execute(
-      "SELECT key_name, key_value FROM system_settings WHERE key_name IN ('is_convert_to_diamond', 'diamond_to_usd_rate', 'min_withdrawal_diamonds', 'withdrawal_presets', 'allow_manual_withdrawal_input', 'video_host_diamond_base', 'video_host_taka_amount', 'audio_host_diamond_base', 'audio_host_taka_amount')"
+      `SELECT key_name, key_value FROM system_settings WHERE key_name IN (
+        'is_convert_to_diamond', 'diamond_to_usd_rate', 'min_withdrawal_diamonds', 'withdrawal_presets', 'allow_manual_withdrawal_input',
+        'video_host_withdrawal_enabled', 'video_host_diamond_base', 'video_host_taka_amount', 'video_host_min_withdrawal',
+        'audio_host_withdrawal_enabled', 'audio_host_diamond_base', 'audio_host_taka_amount', 'audio_host_min_withdrawal',
+        'user_withdrawal_enabled', 'user_diamond_base', 'user_taka_amount', 'user_min_withdrawal',
+        'agency_withdrawal_enabled', 'agency_diamond_base', 'agency_taka_amount', 'agency_min_withdrawal',
+        'reseller_withdrawal_enabled', 'reseller_diamond_base', 'reseller_taka_amount', 'reseller_min_withdrawal',
+        'moderator_withdrawal_enabled', 'moderator_diamond_base', 'moderator_taka_amount', 'moderator_min_withdrawal'
+      )`
     );
     const settingsMap = {};
     settingsRows.forEach((r) => { settingsMap[r.key_name] = r.key_value; });
@@ -115,17 +123,73 @@ export async function requestWithdrawal(req, res) {
     const isDiamondMode = settingsMap['is_convert_to_diamond'] === 'true' || settingsMap['is_convert_to_diamond'] === '1';
     const currencyName = isDiamondMode ? 'diamonds' : 'coins';
 
-    // 1. Minimum withdrawal check (admin configurable)
-    const minWithdrawal = parseInt(settingsMap['min_withdrawal_diamonds'] || '1000', 10);
-    if (amount < minWithdrawal) {
-      return res.status(400).json({
+    // Fetch user info including role and host_type
+    const [users] = await connection.execute('SELECT id, full_name, role, host_type, coins, diamonds, is_banned FROM users WHERE id = ?', [userId]);
+    if (!users || users.length === 0) {
+      return res.status(404).json({ success: false, message: 'User account not found.' });
+    }
+    const currentUser = users[0];
+
+    // Determine user's role and cashout profile
+    const userRole = currentUser.role || 'user';
+    let roleKey = 'user';
+    let roleSettingPrefix = 'user';
+    let roleLabel = 'Normal User';
+
+    if (userRole === 'host') {
+      if (currentUser.host_type === 'audio') {
+        roleKey = 'audio';
+        roleSettingPrefix = 'audio_host';
+        roleLabel = 'Audio Host';
+      } else {
+        roleKey = 'video';
+        roleSettingPrefix = 'video_host';
+        roleLabel = 'Video Host';
+      }
+    } else if (userRole === 'agency') {
+      roleKey = 'agency';
+      roleSettingPrefix = 'agency';
+      roleLabel = 'Agency Partner';
+    } else if (userRole === 'reseller') {
+      roleKey = 'reseller';
+      roleSettingPrefix = 'reseller';
+      roleLabel = 'Diamond / Coin Reseller';
+    } else if (userRole === 'moderator') {
+      roleKey = 'moderator';
+      roleSettingPrefix = 'moderator';
+      roleLabel = 'Platform Moderator';
+    } else {
+      roleKey = 'user';
+      roleSettingPrefix = 'user';
+      roleLabel = 'Normal User';
+    }
+
+    // 1. Check if cashout is enabled for this role
+    const isRoleWithdrawalEnabled = settingsMap[`${roleSettingPrefix}_withdrawal_enabled`] !== 'false';
+    if (!isRoleWithdrawalEnabled) {
+      return res.status(403).json({
         success: false,
-        message: `Minimum withdrawal is ${minWithdrawal.toLocaleString()} ${currencyName}.`,
-        minWithdrawal,
+        message: `Cashout is currently disabled for ${roleLabel} accounts. Please contact support.`,
+        role: userRole,
+        role_label: roleLabel,
       });
     }
 
-    // 2. Preset & manual input restriction check
+    // 2. Minimum withdrawal check for this specific role
+    const globalMin = parseInt(settingsMap['min_withdrawal_diamonds'] || '1000', 10);
+    const roleMin = parseInt(settingsMap[`${roleSettingPrefix}_min_withdrawal`] || String(globalMin), 10);
+    const minWithdrawal = Math.max(1, roleMin);
+
+    if (amount < minWithdrawal) {
+      return res.status(400).json({
+        success: false,
+        message: `Minimum cashout for ${roleLabel} is ${minWithdrawal.toLocaleString()} ${currencyName}.`,
+        minWithdrawal,
+        role_label: roleLabel,
+      });
+    }
+
+    // 3. Preset & manual input restriction check
     const allowManualInput = settingsMap['allow_manual_withdrawal_input'] !== 'false';
     let presets = [];
     try {
@@ -149,30 +213,32 @@ export async function requestWithdrawal(req, res) {
       }
     }
 
-    // Check user balance and host_type
-    const [users] = await connection.execute('SELECT coins, diamonds, host_type FROM users WHERE id = ?', [userId]);
-    const userBalance = isDiamondMode ? (users[0]?.diamonds || 0) : (users[0]?.coins || 0);
-
-    if (users.length === 0 || userBalance < amount) {
+    // 4. Check user balance
+    const userBalance = isDiamondMode ? (currentUser.diamonds || 0) : (currentUser.coins || 0);
+    if (userBalance < amount) {
       return res.status(400).json({
         success: false,
-        message: `Insufficient ${currencyName}. You have ${userBalance} ${currencyName}.`,
+        message: `Insufficient ${currencyName}. You have ${userBalance.toLocaleString()} ${currencyName}.`,
+        balance: userBalance,
       });
     }
 
-    const hostType = users[0].host_type === 'audio' ? 'audio' : 'video';
+    // 5. Calculate payout based on this role's specific exchange rate
+    const usdRate = settingsMap['diamond_to_usd_rate'] ? parseFloat(settingsMap['diamond_to_usd_rate']) : 0.005;
+    const usdAmount = (amount * usdRate).toFixed(2);
 
-    const rate = settingsMap['diamond_to_usd_rate'] ? parseFloat(settingsMap['diamond_to_usd_rate']) : 0.005;
-    const usdAmount = (amount * rate).toFixed(2);
+    let defaultBase = 100000;
+    let defaultTaka = 4000;
+    if (roleKey === 'video') { defaultBase = 100000; defaultTaka = 5000; }
+    else if (roleKey === 'audio') { defaultBase = 100000; defaultTaka = 3500; }
+    else if (roleKey === 'agency') { defaultBase = 100000; defaultTaka = 6000; }
+    else if (roleKey === 'reseller') { defaultBase = 100000; defaultTaka = 5500; }
+    else if (roleKey === 'moderator') { defaultBase = 100000; defaultTaka = 4500; }
 
-    let baseUnits = hostType === 'audio' 
-      ? parseFloat(settingsMap['audio_host_diamond_base'] || '100000') 
-      : parseFloat(settingsMap['video_host_diamond_base'] || '100000');
-    let takaAmount = hostType === 'audio' 
-      ? parseFloat(settingsMap['audio_host_taka_amount'] || '3500') 
-      : parseFloat(settingsMap['video_host_taka_amount'] || '5000');
-    
+    let baseUnits = parseFloat(settingsMap[`${roleSettingPrefix}_diamond_base`] || String(defaultBase));
+    let takaAmount = parseFloat(settingsMap[`${roleSettingPrefix}_taka_amount`] || String(defaultTaka));
     if (baseUnits <= 0) baseUnits = 100000;
+
     const takaRatePerUnit = takaAmount / baseUnits;
     const payoutAmount = (amount * takaRatePerUnit).toFixed(2);
 
@@ -189,9 +255,9 @@ export async function requestWithdrawal(req, res) {
         return res.status(400).json({ success: false, message: 'Insufficient diamonds balance or concurrent transaction detected.' });
       }
       await connection.execute(
-        `INSERT INTO withdrawals (host_id, diamond_amount, coin_amount, usd_amount, payout_amount, payout_currency, host_type, payment_method, account_details, status)
-         VALUES (?, ?, 0, ?, ?, 'BDT', ?, ?, ?, 'pending')`,
-        [userId, amount, usdAmount, payoutAmount, hostType, paymentMethod, accountDetails]
+        `INSERT INTO withdrawals (host_id, diamond_amount, coin_amount, usd_amount, payout_amount, payout_currency, host_type, user_role, payment_method, account_details, status)
+         VALUES (?, ?, 0, ?, ?, 'BDT', ?, ?, ?, ?, 'pending')`,
+        [userId, amount, usdAmount, payoutAmount, roleKey, userRole, paymentMethod, accountDetails]
       );
     } else {
       // Deduct coins pending payout with atomic balance guard (anti-race condition)
@@ -204,16 +270,16 @@ export async function requestWithdrawal(req, res) {
         return res.status(400).json({ success: false, message: 'Insufficient coins balance or concurrent transaction detected.' });
       }
       await connection.execute(
-        `INSERT INTO withdrawals (host_id, diamond_amount, coin_amount, usd_amount, payout_amount, payout_currency, host_type, payment_method, account_details, status)
-         VALUES (?, 0, ?, ?, ?, 'BDT', ?, ?, ?, 'pending')`,
-        [userId, amount, usdAmount, payoutAmount, hostType, paymentMethod, accountDetails]
+        `INSERT INTO withdrawals (host_id, diamond_amount, coin_amount, usd_amount, payout_amount, payout_currency, host_type, user_role, payment_method, account_details, status)
+         VALUES (?, 0, ?, ?, ?, 'BDT', ?, ?, ?, ?, 'pending')`,
+        [userId, amount, usdAmount, payoutAmount, roleKey, userRole, paymentMethod, accountDetails]
       );
     }
 
     await connection.execute(
       `INSERT INTO transactions (user_id, type, amount, description, status)
        VALUES (?, 'withdrawal', ?, ?, 'pending')`,
-      [userId, amount, `Requested cashout of ${amount} ${currencyName} (৳${payoutAmount} BDT / $${usdAmount}) via ${paymentMethod}`]
+      [userId, amount, `Requested cashout of ${amount.toLocaleString()} ${currencyName} (৳${payoutAmount} BDT / $${usdAmount}) via ${paymentMethod} [${roleLabel}]`]
     );
 
     await connection.commit();
@@ -231,18 +297,31 @@ export async function requestWithdrawal(req, res) {
 
     return res.json({
       success: true,
-      message: 'Withdrawal request submitted for review.',
+      message: `Cashout application of ${amount.toLocaleString()} ${currencyName} (৳${payoutAmount} BDT) submitted successfully!`,
+      withdrawal: {
+        amount,
+        currency: currencyName,
+        payoutAmount,
+        payoutCurrency: 'BDT',
+        usdAmount,
+        paymentMethod,
+        role: userRole,
+        roleLabel,
+        hostType: roleKey,
+        status: 'pending',
+      },
       usdAmount,
       payoutAmount,
       currency: 'BDT',
       currencyName,
       isDiamondMode,
       remainingBalance: updatedBalance,
-      remainingCoins: isDiamondMode ? (users[0]?.coins || 0) : updatedBalance,
-      remainingDiamonds: isDiamondMode ? updatedBalance : (users[0]?.diamonds || 0),
+      remainingCoins: isDiamondMode ? (currentUser.coins || 0) : updatedBalance,
+      remainingDiamonds: isDiamondMode ? updatedBalance : (currentUser.diamonds || 0),
     });
   } catch (err) {
     await connection.rollback();
+    console.error('requestWithdrawal error:', err);
     return res.status(500).json({ success: false, message: 'Withdrawal request failed.', error: err.message });
   } finally {
     connection.release();
@@ -268,11 +347,43 @@ export async function getTransactions(req, res) {
   }
 }
 
+function parseRoleRate(map, prefix, defaultName, defaultBase, defaultTaka, defaultMin, defaultEnabled = true) {
+  const isEnabled = map[`${prefix}_withdrawal_enabled`] !== undefined 
+    ? (map[`${prefix}_withdrawal_enabled`] === 'true' || map[`${prefix}_withdrawal_enabled`] === '1') 
+    : defaultEnabled;
+  const base = parseFloat(map[`${prefix}_diamond_base`] || String(defaultBase));
+  const taka = parseFloat(map[`${prefix}_taka_amount`] || String(defaultTaka));
+  const minAmt = parseInt(map[`${prefix}_min_withdrawal`] || String(defaultMin), 10);
+  const ratePerUnit = base > 0 ? parseFloat((taka / base).toFixed(6)) : parseFloat((defaultTaka / defaultBase).toFixed(6));
+
+  return {
+    role_key: prefix,
+    label: defaultName,
+    is_enabled: isEnabled,
+    diamond_base: base,
+    coin_base: base,
+    taka_amount: taka,
+    rate_per_unit: ratePerUnit,
+    rate_per_diamond: ratePerUnit,
+    rate_per_coin: ratePerUnit,
+    min_amount: minAmt,
+    currency: 'BDT',
+  };
+}
+
 export async function getWithdrawalConfig(req, res) {
   try {
     const config = await cache.getOrSet('wallet:withdrawal:config', 60, async () => {
       const rows = await query(
-        "SELECT key_name, key_value FROM system_settings WHERE key_name IN ('is_convert_to_diamond', 'diamond_to_usd_rate', 'min_withdrawal_diamonds', 'withdrawal_presets', 'allow_manual_withdrawal_input', 'video_host_diamond_base', 'video_host_taka_amount', 'audio_host_diamond_base', 'audio_host_taka_amount')"
+        `SELECT key_name, key_value FROM system_settings WHERE key_name IN (
+          'is_convert_to_diamond', 'diamond_to_usd_rate', 'min_withdrawal_diamonds', 'withdrawal_presets', 'allow_manual_withdrawal_input',
+          'video_host_withdrawal_enabled', 'video_host_diamond_base', 'video_host_taka_amount', 'video_host_min_withdrawal',
+          'audio_host_withdrawal_enabled', 'audio_host_diamond_base', 'audio_host_taka_amount', 'audio_host_min_withdrawal',
+          'user_withdrawal_enabled', 'user_diamond_base', 'user_taka_amount', 'user_min_withdrawal',
+          'agency_withdrawal_enabled', 'agency_diamond_base', 'agency_taka_amount', 'agency_min_withdrawal',
+          'reseller_withdrawal_enabled', 'reseller_diamond_base', 'reseller_taka_amount', 'reseller_min_withdrawal',
+          'moderator_withdrawal_enabled', 'moderator_diamond_base', 'moderator_taka_amount', 'moderator_min_withdrawal'
+        )`
       );
       const map = {};
       rows.forEach((r) => { map[r.key_name] = r.key_value; });
@@ -291,10 +402,15 @@ export async function getWithdrawalConfig(req, res) {
       } catch (e) {}
 
       const usdRate = parseFloat(map['diamond_to_usd_rate'] || '0.005');
-      const videoBase = parseFloat(map['video_host_diamond_base'] || '100000');
-      const videoTaka = parseFloat(map['video_host_taka_amount'] || '5000');
-      const audioBase = parseFloat(map['audio_host_diamond_base'] || '100000');
-      const audioTaka = parseFloat(map['audio_host_taka_amount'] || '3500');
+
+      const rates = {
+        video: parseRoleRate(map, 'video_host', 'Video Host', 100000, 5000, minWithdrawal, true),
+        audio: parseRoleRate(map, 'audio_host', 'Audio Host', 100000, 3500, minWithdrawal, true),
+        user: parseRoleRate(map, 'user', 'Normal User', 100000, 4000, minWithdrawal, true),
+        agency: parseRoleRate(map, 'agency', 'Agency Partner', 100000, 6000, 5000, true),
+        reseller: parseRoleRate(map, 'reseller', 'Coin / Diamond Reseller', 100000, 5500, 5000, true),
+        moderator: parseRoleRate(map, 'moderator', 'Platform Moderator', 100000, 4500, minWithdrawal, true),
+      };
 
       return {
         is_convert_to_diamond: isDiamondMode,
@@ -306,28 +422,55 @@ export async function getWithdrawalConfig(req, res) {
         allow_manual_withdrawal_input: allowManualInput,
         diamond_to_usd_rate: usdRate,
         coin_to_usd_rate: usdRate,
-        rates: {
-          video: {
-            diamond_base: videoBase,
-            coin_base: videoBase,
-            taka_amount: videoTaka,
-            rate_per_diamond: videoBase > 0 ? parseFloat((videoTaka / videoBase).toFixed(6)) : 0.05,
-            rate_per_coin: videoBase > 0 ? parseFloat((videoTaka / videoBase).toFixed(6)) : 0.05,
-            currency: 'BDT',
-          },
-          audio: {
-            diamond_base: audioBase,
-            coin_base: audioBase,
-            taka_amount: audioTaka,
-            rate_per_diamond: audioBase > 0 ? parseFloat((audioTaka / audioBase).toFixed(6)) : 0.035,
-            rate_per_coin: audioBase > 0 ? parseFloat((audioTaka / audioBase).toFixed(6)) : 0.035,
-            currency: 'BDT',
-          },
-        },
+        rates,
       };
     });
 
-    return res.json({ success: true, config });
+    // If caller is authenticated, compute their personalized withdrawal rule & live limits
+    let myRule = null;
+    if (req.user && req.user.id) {
+      const userRole = req.user.role || 'user';
+      let roleKey = 'user';
+      if (userRole === 'host') {
+        roleKey = req.user.host_type === 'audio' ? 'audio' : 'video';
+      } else if (userRole === 'agency') {
+        roleKey = 'agency';
+      } else if (userRole === 'reseller') {
+        roleKey = 'reseller';
+      } else if (userRole === 'moderator') {
+        roleKey = 'moderator';
+      } else {
+        roleKey = 'user';
+      }
+
+      const roleConfig = config.rates[roleKey] || config.rates.user;
+      const currentBalance = config.is_convert_to_diamond ? (req.user.diamonds || 0) : (req.user.coins || 0);
+
+      myRule = {
+        user_id: req.user.id,
+        user_name: req.user.full_name,
+        user_role: userRole,
+        role_key: roleKey,
+        role_label: roleConfig.label,
+        is_withdrawal_allowed: roleConfig.is_enabled,
+        rate_per_unit: roleConfig.rate_per_unit,
+        diamond_base: roleConfig.diamond_base,
+        taka_amount: roleConfig.taka_amount,
+        min_withdrawal_amount: roleConfig.min_amount,
+        currency: 'BDT',
+        current_balance: currentBalance,
+        estimated_payout_bdt: (currentBalance * roleConfig.rate_per_unit).toFixed(2),
+        explanation: `${roleConfig.diamond_base.toLocaleString()} ${config.withdrawal_currency} = ৳${roleConfig.taka_amount.toLocaleString()} BDT (৳${roleConfig.rate_per_unit}/unit)`,
+      };
+    }
+
+    return res.json({
+      success: true,
+      config: {
+        ...config,
+        my_rule: myRule,
+      },
+    });
   } catch (err) {
     console.error('getWithdrawalConfig error:', err);
     return res.status(500).json({ success: false, message: 'Failed to fetch withdrawal configuration.' });

@@ -15,7 +15,7 @@ import {
   getWithdrawalConfig,
   getRechargeConfig,
 } from '../../controllers/mobile/walletController.js';
-import { requireAuth } from '../../middlewares/authMiddleware.js';
+import { requireAuth, optionalAuth } from '../../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
@@ -28,8 +28,8 @@ const router = express.Router();
 router.get('/packages', getPackages);
 router.get('/recharge-config', getRechargeConfig);
 
-// Public: View withdrawal configuration (minimum withdrawal, presets, manual toggle)
-router.get('/withdrawal-config', getWithdrawalConfig);
+// Public / Authenticated: View withdrawal configuration with personalized role rule
+router.get('/withdrawal-config', optionalAuth, getWithdrawalConfig);
 
 // Authenticated Mobile Wallet Actions
 router.get('/balance', requireAuth, getBalances);

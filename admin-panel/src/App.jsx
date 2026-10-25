@@ -135,6 +135,14 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    const handleProfileUpdate = () => {
+      setUser(getCurrentUser());
+    };
+    window.addEventListener('user-profile-updated', handleProfileUpdate);
+    return () => window.removeEventListener('user-profile-updated', handleProfileUpdate);
+  }, []);
+
+  useEffect(() => {
     if (activeTab && isTabValid(activeTab)) {
       localStorage.setItem('admin_active_tab', activeTab);
     }

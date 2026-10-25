@@ -16,6 +16,17 @@ export const authApi = {
   getMe: async () => {
     return await request('/auth/me');
   },
+
+  getAdminProfile: async () => {
+    return await request('/admin/profile');
+  },
+
+  updateAdminProfile: async (data) => {
+    return await request('/admin/profile', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
 };
 
 export { setToken, getToken, getCurrentUser, setCurrentUser };

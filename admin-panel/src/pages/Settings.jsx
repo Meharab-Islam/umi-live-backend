@@ -54,8 +54,10 @@ import {
   Upload,
 } from 'lucide-react';
 import settingsApi from '../api/settingsApi';
+import authApi from '../api/authApi';
 import Loader from '../components/Loader';
-import { uploadFile, resolveAssetUrl } from '../api/client';
+import { uploadFile, resolveAssetUrl, getCurrentUser, setCurrentUser } from '../api/client';
+import FileUploadInput from '../components/FileUploadInput';
 import { useBranding } from '../context/BrandingContext';
 
 export default function Settings({ onToast, targetSection }) {
@@ -65,6 +67,19 @@ export default function Settings({ onToast, targetSection }) {
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [saving, setSaving] = useState(false);
 
+  // Super Admin Profile State
+  const [adminProfile, setAdminProfile] = useState({
+    id: 1,
+    full_name: '',
+    avatar_url: '',
+    email: '',
+    role: 'superadmin',
+    password: '',
+  });
+  const [loadingProfile, setLoadingProfile] = useState(false);
+  const [savingProfile, setSavingProfile] = useState(false);
+  const [showAdminPassword, setShowAdminPassword] = useState(false);
+
   const getInitialTab = () => {
     if (targetSection === 'economy') return 'economy';
     if (targetSection === 'calls') return 'calls';
@@ -72,7 +87,9 @@ export default function Settings({ onToast, targetSection }) {
     if (targetSection === 'screen_guard') return 'screen_guard';
     if (targetSection === 'stars') return 'stars';
     if (targetSection === 'monetization') return 'monetization';
-    return 'security';
+    if (targetSection === 'security') return 'security';
+    if (targetSection === 'system') return 'system';
+    return 'profile';
   };
 
   const [activeTab, setActiveTab] = useState(getInitialTab);
@@ -513,10 +530,30 @@ export default function Settings({ onToast, targetSection }) {
         'is_convert_to_diamond',
         'coin_to_diamond_ratio',
         'diamond_to_usd_rate',
+        'video_host_withdrawal_enabled',
         'video_host_diamond_base',
         'video_host_taka_amount',
+        'video_host_min_withdrawal',
+        'audio_host_withdrawal_enabled',
         'audio_host_diamond_base',
         'audio_host_taka_amount',
+        'audio_host_min_withdrawal',
+        'user_withdrawal_enabled',
+        'user_diamond_base',
+        'user_taka_amount',
+        'user_min_withdrawal',
+        'agency_withdrawal_enabled',
+        'agency_diamond_base',
+        'agency_taka_amount',
+        'agency_min_withdrawal',
+        'reseller_withdrawal_enabled',
+        'reseller_diamond_base',
+        'reseller_taka_amount',
+        'reseller_min_withdrawal',
+        'moderator_withdrawal_enabled',
+        'moderator_diamond_base',
+        'moderator_taka_amount',
+        'moderator_min_withdrawal',
         'min_withdrawal_diamonds',
         'withdrawal_presets',
         'allow_manual_withdrawal_input',
@@ -533,7 +570,7 @@ export default function Settings({ onToast, targetSection }) {
             : Promise.resolve()
         )
       );
-      onToast('Platform Economy & Currency Engine settings updated!', 'success');
+      onToast('Platform Economy & Role Cashout settings updated!', 'success');
     } catch (err) {
       onToast(err.message, 'error');
     } finally {
@@ -632,8 +669,87 @@ export default function Settings({ onToast, targetSection }) {
     }
   };
 
+  const fetchAdminProfile = async () => {
+    try {
+      setLoadingProfile(true);
+      const res = await authApi.getAdminProfile();
+      if (res.success && res.user) {
+        setAdminProfile({
+          id: res.user.id || 1,
+          full_name: res.user.full_name || '',
+          avatar_url: res.user.avatar_url || '',
+          email: res.user.email || '',
+          role: res.user.role || 'superadmin',
+          password: '',
+        });
+      }
+    } catch (err) {
+      const cur = getCurrentUser();
+      if (cur) {
+        setAdminProfile({
+          id: cur.id || 1,
+          full_name: cur.full_name || '',
+          avatar_url: cur.avatar_url || '',
+          email: cur.email || '',
+          role: cur.role || 'superadmin',
+          password: '',
+        });
+      }
+    } finally {
+      setLoadingProfile(false);
+    }
+  };
+
+  const handleSaveAdminProfile = async (e) => {
+    if (e) e.preventDefault();
+    if (!adminProfile.full_name.trim()) {
+      onToast('Super Admin full name is required.', 'error');
+      return;
+    }
+
+    try {
+      setSavingProfile(true);
+      const payload = {
+        full_name: adminProfile.full_name.trim(),
+        avatar_url: (adminProfile.avatar_url || '').trim(),
+        email: (adminProfile.email || '').trim(),
+      };
+      if (adminProfile.password && adminProfile.password.trim()) {
+        payload.password = adminProfile.password.trim();
+      }
+
+      const res = await authApi.updateAdminProfile(payload);
+      if (res.success && res.user) {
+        // Update local session
+        const current = getCurrentUser() || {};
+        const updated = { ...current, ...res.user };
+        setCurrentUser(updated);
+
+        // Notify App and Sidebar live
+        window.dispatchEvent(new Event('user-profile-updated'));
+
+        setAdminProfile((prev) => ({
+          ...prev,
+          password: '',
+          full_name: res.user.full_name,
+          avatar_url: res.user.avatar_url,
+          email: res.user.email,
+        }));
+
+        onToast('Super Admin profile updated successfully!', 'success');
+      } else {
+        onToast(res.message || 'Failed to update profile.', 'error');
+      }
+    } catch (err) {
+      onToast(err.message || 'Failed to update profile.', 'error');
+    } finally {
+      setSavingProfile(false);
+    }
+  };
+
   useEffect(() => {
     fetchSettings();
+    fetchAdminProfile();
   }, []);
 
   const handleChange = (key, val) => {
@@ -681,6 +797,22 @@ export default function Settings({ onToast, targetSection }) {
   const audioTaka = parseFloat(settings.audio_host_taka_amount || '3.5');
   const audioRate = audioBase > 0 ? audioTaka / audioBase : 0.035;
 
+  const userBase = parseFloat(settings.user_diamond_base || '100000');
+  const userTaka = parseFloat(settings.user_taka_amount || '4000');
+  const userRate = userBase > 0 ? userTaka / userBase : 0.04;
+
+  const agencyBase = parseFloat(settings.agency_diamond_base || '100000');
+  const agencyTaka = parseFloat(settings.agency_taka_amount || '6000');
+  const agencyRate = agencyBase > 0 ? agencyTaka / agencyBase : 0.06;
+
+  const resellerBase = parseFloat(settings.reseller_diamond_base || '100000');
+  const resellerTaka = parseFloat(settings.reseller_taka_amount || '5500');
+  const resellerRate = resellerBase > 0 ? resellerTaka / resellerBase : 0.055;
+
+  const moderatorBase = parseFloat(settings.moderator_diamond_base || '100000');
+  const moderatorTaka = parseFloat(settings.moderator_taka_amount || '4500');
+  const moderatorRate = moderatorBase > 0 ? moderatorTaka / moderatorBase : 0.045;
+
   // Real-time Simulation Calculations
   const simNum = Math.max(0, parseInt(simCoins, 10) || 0);
   const simAdminCoins = Math.round((simNum * adminGiftPct) / 100);
@@ -691,6 +823,15 @@ export default function Settings({ onToast, targetSection }) {
   const simAudioPayout = (simHostDiamonds * audioRate).toFixed(2);
 
   const adminTabs = [
+    {
+      id: 'profile',
+      name: 'Super Admin Profile',
+      icon: UserCheck,
+      badge: 'Master Account',
+      badgeColor: '#10b981',
+      accent: '#8b5cf6',
+      description: 'Super Admin display name, profile avatar photo, email, and login credentials.',
+    },
     {
       id: 'security',
       name: 'Financial Security',
@@ -1173,16 +1314,16 @@ export default function Settings({ onToast, targetSection }) {
                 </div>
               </div>
 
-              {/* Host Payout Conversion Rules (Taka Rates) */}
+              {/* Role-Based Payout Conversion Rules (Taka Rates) */}
               <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '1.25rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.75rem' }}>
                   <Sliders size={18} color="#7c3aed" />
                   <span style={{ fontWeight: 700, fontSize: '0.92rem', color: 'var(--text-main)' }}>
-                    Host Cashout Payout Exchange Rules ({isDiamondMode ? 'Diamonds 💎' : 'Coins 🪙'} to Taka ৳ BDT)
+                    Role-Based Cashout Exchange Rules ({isDiamondMode ? 'Diamonds 💎' : 'Coins 🪙'} to Taka ৳ BDT)
                   </span>
                 </div>
                 <p style={{ fontSize: '0.8rem', color: 'var(--text-dim)', marginBottom: '1rem' }}>
-                  Configure exact base exchange rates for Video and Audio hosts (e.g. <strong>100 {isDiamondMode ? 'Diamonds' : 'Coins'} = 5.00 Taka</strong>).
+                  Configure exact base exchange rates and cashout status for Normal Users, Agencies, Resellers, Moderators, and Broadcasters.
                 </p>
 
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.25rem' }}>
@@ -1215,7 +1356,7 @@ export default function Settings({ onToast, targetSection }) {
                           type="number"
                           min="1"
                           className="input-field"
-                          value={settings.video_host_diamond_base || '100'}
+                          value={settings.video_host_diamond_base || '100000'}
                           onChange={(e) => handleChange('video_host_diamond_base', e.target.value)}
                         />
                       </div>
@@ -1229,7 +1370,7 @@ export default function Settings({ onToast, targetSection }) {
                           step="0.01"
                           min="0.01"
                           className="input-field"
-                          value={settings.video_host_taka_amount || '5'}
+                          value={settings.video_host_taka_amount || '5000'}
                           onChange={(e) => handleChange('video_host_taka_amount', e.target.value)}
                         />
                       </div>
@@ -1282,7 +1423,7 @@ export default function Settings({ onToast, targetSection }) {
                           type="number"
                           min="1"
                           className="input-field"
-                          value={settings.audio_host_diamond_base || '100'}
+                          value={settings.audio_host_diamond_base || '100000'}
                           onChange={(e) => handleChange('audio_host_diamond_base', e.target.value)}
                         />
                       </div>
@@ -1296,7 +1437,7 @@ export default function Settings({ onToast, targetSection }) {
                           step="0.01"
                           min="0.01"
                           className="input-field"
-                          value={settings.audio_host_taka_amount || '3.5'}
+                          value={settings.audio_host_taka_amount || '3500'}
                           onChange={(e) => handleChange('audio_host_taka_amount', e.target.value)}
                         />
                       </div>
@@ -1317,6 +1458,326 @@ export default function Settings({ onToast, targetSection }) {
                     >
                       <span>1 {isDiamondMode ? '💎' : '🪙'} = ৳{audioRate.toFixed(4)} BDT</span>
                       <span>10,000 = ৳{(10000 * audioRate).toFixed(0)} BDT</span>
+                    </div>
+                  </div>
+
+                  {/* Normal User Rule Card */}
+                  <div
+                    style={{
+                      padding: '1.25rem',
+                      borderRadius: '12px',
+                      background: 'var(--bg-secondary)',
+                      border: '1px solid rgba(139, 92, 246, 0.3)',
+                      boxShadow: 'var(--shadow-sm)',
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 700, color: '#8b5cf6', fontSize: '0.92rem' }}>
+                        <UserCheck size={18} />
+                        <span>👤 Normal User Cashout Rule</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleChange('user_withdrawal_enabled', settings.user_withdrawal_enabled === 'false' ? 'true' : 'false')}
+                        style={{
+                          fontSize: '0.72rem',
+                          fontWeight: 700,
+                          background: settings.user_withdrawal_enabled === 'false' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(16, 185, 129, 0.15)',
+                          color: settings.user_withdrawal_enabled === 'false' ? '#ef4444' : '#10b981',
+                          border: 'none',
+                          padding: '2px 8px',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        {settings.user_withdrawal_enabled === 'false' ? 'Disabled' : 'Active'}
+                      </button>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', marginBottom: '0.75rem' }}>
+                      <div style={{ flex: 1 }}>
+                        <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-dim)', display: 'block', marginBottom: '4px' }}>
+                          Base {isDiamondMode ? 'Diamonds (💎)' : 'Coins (🪙)'}:
+                        </label>
+                        <input
+                          type="number"
+                          min="1"
+                          className="input-field"
+                          value={settings.user_diamond_base || '100000'}
+                          onChange={(e) => handleChange('user_diamond_base', e.target.value)}
+                        />
+                      </div>
+                      <span style={{ color: 'var(--text-dim)', paddingTop: '18px', fontWeight: 700 }}>=</span>
+                      <div style={{ flex: 1 }}>
+                        <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-dim)', display: 'block', marginBottom: '4px' }}>
+                          Payout (৳ BDT):
+                        </label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0.01"
+                          className="input-field"
+                          value={settings.user_taka_amount || '4000'}
+                          onChange={(e) => handleChange('user_taka_amount', e.target.value)}
+                        />
+                      </div>
+                    </div>
+
+                    <div
+                      style={{
+                        padding: '8px 12px',
+                        borderRadius: '8px',
+                        background: 'rgba(139, 92, 246, 0.08)',
+                        fontSize: '0.78rem',
+                        color: '#8b5cf6',
+                        fontWeight: 700,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                      }}
+                    >
+                      <span>1 {isDiamondMode ? '💎' : '🪙'} = ৳{userRate.toFixed(4)} BDT</span>
+                      <span>10,000 = ৳{(10000 * userRate).toFixed(0)} BDT</span>
+                    </div>
+                  </div>
+
+                  {/* Agency Partner Rule Card */}
+                  <div
+                    style={{
+                      padding: '1.25rem',
+                      borderRadius: '12px',
+                      background: 'var(--bg-secondary)',
+                      border: '1px solid rgba(249, 115, 22, 0.3)',
+                      boxShadow: 'var(--shadow-sm)',
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 700, color: '#f97316', fontSize: '0.92rem' }}>
+                        <Users size={18} />
+                        <span>🏢 Agency Partner Cashout Rule</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleChange('agency_withdrawal_enabled', settings.agency_withdrawal_enabled === 'false' ? 'true' : 'false')}
+                        style={{
+                          fontSize: '0.72rem',
+                          fontWeight: 700,
+                          background: settings.agency_withdrawal_enabled === 'false' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(16, 185, 129, 0.15)',
+                          color: settings.agency_withdrawal_enabled === 'false' ? '#ef4444' : '#10b981',
+                          border: 'none',
+                          padding: '2px 8px',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        {settings.agency_withdrawal_enabled === 'false' ? 'Disabled' : 'Active'}
+                      </button>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', marginBottom: '0.75rem' }}>
+                      <div style={{ flex: 1 }}>
+                        <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-dim)', display: 'block', marginBottom: '4px' }}>
+                          Base {isDiamondMode ? 'Diamonds (💎)' : 'Coins (🪙)'}:
+                        </label>
+                        <input
+                          type="number"
+                          min="1"
+                          className="input-field"
+                          value={settings.agency_diamond_base || '100000'}
+                          onChange={(e) => handleChange('agency_diamond_base', e.target.value)}
+                        />
+                      </div>
+                      <span style={{ color: 'var(--text-dim)', paddingTop: '18px', fontWeight: 700 }}>=</span>
+                      <div style={{ flex: 1 }}>
+                        <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-dim)', display: 'block', marginBottom: '4px' }}>
+                          Payout (৳ BDT):
+                        </label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0.01"
+                          className="input-field"
+                          value={settings.agency_taka_amount || '6000'}
+                          onChange={(e) => handleChange('agency_taka_amount', e.target.value)}
+                        />
+                      </div>
+                    </div>
+
+                    <div
+                      style={{
+                        padding: '8px 12px',
+                        borderRadius: '8px',
+                        background: 'rgba(249, 115, 22, 0.08)',
+                        fontSize: '0.78rem',
+                        color: '#f97316',
+                        fontWeight: 700,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                      }}
+                    >
+                      <span>1 {isDiamondMode ? '💎' : '🪙'} = ৳{agencyRate.toFixed(4)} BDT</span>
+                      <span>10,000 = ৳{(10000 * agencyRate).toFixed(0)} BDT</span>
+                    </div>
+                  </div>
+
+                  {/* Reseller Rule Card */}
+                  <div
+                    style={{
+                      padding: '1.25rem',
+                      borderRadius: '12px',
+                      background: 'var(--bg-secondary)',
+                      border: '1px solid rgba(245, 158, 11, 0.3)',
+                      boxShadow: 'var(--shadow-sm)',
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 700, color: '#f59e0b', fontSize: '0.92rem' }}>
+                        <Coins size={18} />
+                        <span>🛍️ Coin Reseller Cashout Rule</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleChange('reseller_withdrawal_enabled', settings.reseller_withdrawal_enabled === 'false' ? 'true' : 'false')}
+                        style={{
+                          fontSize: '0.72rem',
+                          fontWeight: 700,
+                          background: settings.reseller_withdrawal_enabled === 'false' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(16, 185, 129, 0.15)',
+                          color: settings.reseller_withdrawal_enabled === 'false' ? '#ef4444' : '#10b981',
+                          border: 'none',
+                          padding: '2px 8px',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        {settings.reseller_withdrawal_enabled === 'false' ? 'Disabled' : 'Active'}
+                      </button>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', marginBottom: '0.75rem' }}>
+                      <div style={{ flex: 1 }}>
+                        <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-dim)', display: 'block', marginBottom: '4px' }}>
+                          Base {isDiamondMode ? 'Diamonds (💎)' : 'Coins (🪙)'}:
+                        </label>
+                        <input
+                          type="number"
+                          min="1"
+                          className="input-field"
+                          value={settings.reseller_diamond_base || '100000'}
+                          onChange={(e) => handleChange('reseller_diamond_base', e.target.value)}
+                        />
+                      </div>
+                      <span style={{ color: 'var(--text-dim)', paddingTop: '18px', fontWeight: 700 }}>=</span>
+                      <div style={{ flex: 1 }}>
+                        <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-dim)', display: 'block', marginBottom: '4px' }}>
+                          Payout (৳ BDT):
+                        </label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0.01"
+                          className="input-field"
+                          value={settings.reseller_taka_amount || '5500'}
+                          onChange={(e) => handleChange('reseller_taka_amount', e.target.value)}
+                        />
+                      </div>
+                    </div>
+
+                    <div
+                      style={{
+                        padding: '8px 12px',
+                        borderRadius: '8px',
+                        background: 'rgba(245, 158, 11, 0.08)',
+                        fontSize: '0.78rem',
+                        color: '#f59e0b',
+                        fontWeight: 700,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                      }}
+                    >
+                      <span>1 {isDiamondMode ? '💎' : '🪙'} = ৳{resellerRate.toFixed(4)} BDT</span>
+                      <span>10,000 = ৳{(10000 * resellerRate).toFixed(0)} BDT</span>
+                    </div>
+                  </div>
+
+                  {/* Moderator Rule Card */}
+                  <div
+                    style={{
+                      padding: '1.25rem',
+                      borderRadius: '12px',
+                      background: 'var(--bg-secondary)',
+                      border: '1px solid rgba(6, 182, 212, 0.3)',
+                      boxShadow: 'var(--shadow-sm)',
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 700, color: '#06b6d4', fontSize: '0.92rem' }}>
+                        <Shield size={18} />
+                        <span>🛡️ Moderator Cashout Rule</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleChange('moderator_withdrawal_enabled', settings.moderator_withdrawal_enabled === 'false' ? 'true' : 'false')}
+                        style={{
+                          fontSize: '0.72rem',
+                          fontWeight: 700,
+                          background: settings.moderator_withdrawal_enabled === 'false' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(16, 185, 129, 0.15)',
+                          color: settings.moderator_withdrawal_enabled === 'false' ? '#ef4444' : '#10b981',
+                          border: 'none',
+                          padding: '2px 8px',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        {settings.moderator_withdrawal_enabled === 'false' ? 'Disabled' : 'Active'}
+                      </button>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', marginBottom: '0.75rem' }}>
+                      <div style={{ flex: 1 }}>
+                        <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-dim)', display: 'block', marginBottom: '4px' }}>
+                          Base {isDiamondMode ? 'Diamonds (💎)' : 'Coins (🪙)'}:
+                        </label>
+                        <input
+                          type="number"
+                          min="1"
+                          className="input-field"
+                          value={settings.moderator_diamond_base || '100000'}
+                          onChange={(e) => handleChange('moderator_diamond_base', e.target.value)}
+                        />
+                      </div>
+                      <span style={{ color: 'var(--text-dim)', paddingTop: '18px', fontWeight: 700 }}>=</span>
+                      <div style={{ flex: 1 }}>
+                        <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-dim)', display: 'block', marginBottom: '4px' }}>
+                          Payout (৳ BDT):
+                        </label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0.01"
+                          className="input-field"
+                          value={settings.moderator_taka_amount || '4500'}
+                          onChange={(e) => handleChange('moderator_taka_amount', e.target.value)}
+                        />
+                      </div>
+                    </div>
+
+                    <div
+                      style={{
+                        padding: '8px 12px',
+                        borderRadius: '8px',
+                        background: 'rgba(6, 182, 212, 0.08)',
+                        fontSize: '0.78rem',
+                        color: '#06b6d4',
+                        fontWeight: 700,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                      }}
+                    >
+                      <span>1 {isDiamondMode ? '💎' : '🪙'} = ৳{moderatorRate.toFixed(4)} BDT</span>
+                      <span>10,000 = ৳{(10000 * moderatorRate).toFixed(0)} BDT</span>
                     </div>
                   </div>
                 </div>
@@ -2674,6 +3135,300 @@ export default function Settings({ onToast, targetSection }) {
               </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* TAB CONTENT: SUPER ADMIN PROFILE */}
+      {activeTab === 'profile' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          {loadingProfile ? (
+            <div className="panel-card" style={{ padding: '3rem', textAlign: 'center' }}>
+              <RefreshCw size={28} className="spin" color="var(--primary)" style={{ margin: '0 auto 12px' }} />
+              <p style={{ color: 'var(--text-dim)', fontSize: '0.9rem' }}>Loading Super Admin profile...</p>
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>
+              {/* Profile Card Preview */}
+              <div
+                className="panel-card"
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  textAlign: 'center',
+                  padding: '2.5rem 1.75rem',
+                  background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.08) 0%, rgba(16, 185, 129, 0.05) 100%)',
+                  border: '1px solid rgba(124, 58, 237, 0.3)',
+                  borderRadius: '18px',
+                  position: 'relative',
+                  overflow: 'hidden',
+                }}
+              >
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: '-40px',
+                    right: '-40px',
+                    width: '120px',
+                    height: '120px',
+                    borderRadius: '50%',
+                    background: 'radial-gradient(circle, rgba(124, 58, 237, 0.25) 0%, transparent 70%)',
+                    pointerEvents: 'none',
+                  }}
+                />
+
+                {/* Avatar with Glow Ring */}
+                <div style={{ position: 'relative', marginBottom: '1.25rem' }}>
+                  <div
+                    style={{
+                      width: '110px',
+                      height: '110px',
+                      borderRadius: '50%',
+                      padding: '4px',
+                      background: 'linear-gradient(135deg, #7c3aed, #10b981)',
+                      boxShadow: '0 8px 24px rgba(124, 58, 237, 0.35)',
+                    }}
+                  >
+                    <img
+                      src={resolveAssetUrl(adminProfile.avatar_url) || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200'}
+                      alt="Super Admin Avatar"
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                        borderRadius: '50%',
+                        background: '#1e1e2d',
+                      }}
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200';
+                      }}
+                    />
+                  </div>
+                  <span
+                    style={{
+                      position: 'absolute',
+                      bottom: '4px',
+                      right: '6px',
+                      width: '18px',
+                      height: '18px',
+                      borderRadius: '50%',
+                      background: '#10b981',
+                      border: '3px solid var(--card-bg, #1a1a2e)',
+                      boxShadow: '0 0 10px #10b981',
+                    }}
+                    title="Active Super Admin"
+                  />
+                </div>
+
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '4px 12px', borderRadius: '20px', background: 'rgba(124, 58, 237, 0.15)', border: '1px solid rgba(124, 58, 237, 0.4)', marginBottom: '0.75rem' }}>
+                  <Crown size={14} color="#a855f7" />
+                  <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#c084fc', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    {adminProfile.role || 'Super Admin'}
+                  </span>
+                </div>
+
+                <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-main)', margin: '0 0 0.25rem 0' }}>
+                  {adminProfile.full_name || 'Super Admin'}
+                </h2>
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-dim)', margin: '0 0 1.25rem 0' }}>
+                  {adminProfile.email || 'admin@umi.live'}
+                </p>
+
+                {adminProfile.bio && (
+                  <p style={{ fontSize: '0.82rem', color: 'var(--text-dim)', margin: '0 0 1.25rem 0', fontStyle: 'italic', maxWidth: '300px' }}>
+                    "{adminProfile.bio}"
+                  </p>
+                )}
+
+                <div
+                  style={{
+                    width: '100%',
+                    padding: '0.9rem 1rem',
+                    borderRadius: '12px',
+                    background: 'rgba(0, 0, 0, 0.2)',
+                    border: '1px solid var(--border-color)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '0.5rem',
+                    fontSize: '0.8rem',
+                    textAlign: 'left',
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-dim)' }}>
+                    <span>Account ID</span>
+                    <strong style={{ color: 'var(--text-main)', fontFamily: 'var(--font-mono)' }}>#{adminProfile.id || 1}</strong>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-dim)' }}>
+                    <span>Permissions</span>
+                    <strong style={{ color: '#10b981' }}>Full Platform Control</strong>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-dim)' }}>
+                    <span>Live Synchronization</span>
+                    <strong style={{ color: '#3b82f6' }}>Instant Redis & Sidebar</strong>
+                  </div>
+                </div>
+              </div>
+
+              {/* Edit Profile Form Card */}
+              <form
+                onSubmit={handleSaveAdminProfile}
+                className="panel-card"
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '1.25rem',
+                  border: '1px solid rgba(124, 58, 237, 0.3)',
+                  borderRadius: '18px',
+                }}
+              >
+                <div className="panel-header" style={{ marginBottom: 0 }}>
+                  <div className="panel-title">
+                    <UserCheck size={22} color="#8b5cf6" />
+                    <span>Edit Super Admin Account</span>
+                  </div>
+                  <span className="badge badge-success" style={{ fontSize: '0.75rem', padding: '4px 10px' }}>
+                    Root Credentials
+                  </span>
+                </div>
+
+                <p style={{ fontSize: '0.84rem', color: 'var(--text-dim)', margin: 0, lineHeight: 1.5 }}>
+                  Change your display name and profile picture. The updated picture and name will immediately appear on your Admin Panel topbar, sidebar footer, and database.
+                </p>
+
+                {/* Profile Picture Upload & URL */}
+                <div>
+                  <FileUploadInput
+                    label="Super Admin Profile Picture"
+                    value={adminProfile.avatar_url || ''}
+                    onChange={(url) => setAdminProfile((prev) => ({ ...prev, avatar_url: url }))}
+                    category="avatars"
+                    placeholder="https://... or upload image from your computer"
+                    helperText="Upload JPG, PNG, WEBP or paste external image URL."
+                    onToast={onToast}
+                  />
+                </div>
+
+                {/* Full Name */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '0.4rem' }}>
+                    Display Name <span style={{ color: '#ef4444' }}>*</span>
+                  </label>
+                  <input
+                    type="text"
+                    className="input-field"
+                    style={{ width: '100%' }}
+                    value={adminProfile.full_name || ''}
+                    onChange={(e) => setAdminProfile((prev) => ({ ...prev, full_name: e.target.value }))}
+                    placeholder="e.g. Master Admin / Super Admin"
+                    required
+                  />
+                </div>
+
+                {/* Email */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '0.4rem' }}>
+                    Admin Email Address <span style={{ color: '#ef4444' }}>*</span>
+                  </label>
+                  <input
+                    type="email"
+                    className="input-field"
+                    style={{ width: '100%' }}
+                    value={adminProfile.email || ''}
+                    onChange={(e) => setAdminProfile((prev) => ({ ...prev, email: e.target.value }))}
+                    placeholder="admin@umi.live"
+                    required
+                  />
+                </div>
+
+                {/* Bio / Title */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '0.4rem' }}>
+                    Admin Bio / Tagline (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    className="input-field"
+                    style={{ width: '100%' }}
+                    value={adminProfile.bio || ''}
+                    onChange={(e) => setAdminProfile((prev) => ({ ...prev, bio: e.target.value }))}
+                    placeholder="e.g. Platform Owner & Chief Administrator"
+                  />
+                </div>
+
+                {/* Optional Password Change */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '0.4rem' }}>
+                    New Admin Password <span style={{ fontSize: '0.75rem', fontWeight: 400, color: 'var(--text-dim)' }}>(Leave blank to keep current password)</span>
+                  </label>
+                  <div style={{ position: 'relative' }}>
+                    <input
+                      type={showAdminPassword ? 'text' : 'password'}
+                      className="input-field"
+                      style={{ width: '100%', paddingRight: '2.5rem' }}
+                      value={adminProfile.password || ''}
+                      onChange={(e) => setAdminProfile((prev) => ({ ...prev, password: e.target.value }))}
+                      placeholder="Enter new login password if changing..."
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowAdminPassword(!showAdminPassword)}
+                      style={{
+                        position: 'absolute',
+                        right: '10px',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        color: 'var(--text-dim)',
+                        padding: 0,
+                      }}
+                      title={showAdminPassword ? 'Hide password' : 'Show password'}
+                    >
+                      {showAdminPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem', justifyContent: 'flex-end' }}>
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={fetchAdminProfile}
+                    disabled={savingProfile}
+                  >
+                    Reset Form
+                  </button>
+                  <button
+                    type="submit"
+                    className="btn btn-primary"
+                    disabled={savingProfile}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      background: 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)',
+                      boxShadow: '0 4px 14px rgba(124, 58, 237, 0.35)',
+                    }}
+                  >
+                    {savingProfile ? (
+                      <>
+                        <RefreshCw size={16} className="spin" />
+                        <span>Updating Profile...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Save size={16} />
+                        <span>Save Super Admin Profile</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
         </div>
       )}
 

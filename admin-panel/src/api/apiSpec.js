@@ -6143,14 +6143,14 @@ export const API_SPEC = {
       "category": "wallet",
       "method": "GET",
       "path": "/api/mobile/wallet/withdrawal-config",
-      "summary": "Get Withdrawal Rules, Presets & Economy Mode (Coin vs Diamond)",
-      "description": "Returns current withdrawal configuration including active currency mode (`is_convert_to_diamond`: false for Direct Coin Cashout, true for Diamond Conversion Mode), minimum withdrawal thresholds for coins and diamonds, preset cashout buttons, manual input allowance flag, and real-time host payout exchange rates for Video and Audio live hosts. Cached in Redis ('wallet:withdrawal:config', TTL 60s).",
+      "summary": "Get Withdrawal Rules, Role-Based Rates & Personalized Policy",
+      "description": "Returns withdrawal configuration including currency mode (`is_convert_to_diamond`), presets, and role-based payout exchange rates for all platform roles: Normal User (`user`), Agency Partner (`agency`), Coin Reseller (`reseller`), Platform Moderator (`moderator`), Video Host (`video`), and Audio Host (`audio`). When called with an optional `Authorization: Bearer <token>` header, it also returns `my_rule` with the user's specific rate, minimum threshold, cashout status, and live estimated BDT payout.",
       "requiresAuth": false,
       "parameters": [],
       "responses": [
         {
           "status": 200,
-          "description": "Withdrawal configuration retrieved successfully.",
+          "description": "Withdrawal configuration and role-based rates retrieved successfully.",
           "example": {
             "success": true,
             "config": {
@@ -6171,22 +6171,91 @@ export const API_SPEC = {
               "diamond_to_usd_rate": 0.005,
               "coin_to_usd_rate": 0.005,
               "rates": {
+                "user": {
+                  "role": "user",
+                  "label": "Normal User",
+                  "enabled": true,
+                  "diamond_base": 100000,
+                  "coin_base": 100000,
+                  "taka_amount": 4000,
+                  "min_withdrawal": 1000,
+                  "rate_per_diamond": 0.04,
+                  "rate_per_coin": 0.04,
+                  "currency": "BDT"
+                },
+                "agency": {
+                  "role": "agency",
+                  "label": "Agency Partner",
+                  "enabled": true,
+                  "diamond_base": 100000,
+                  "coin_base": 100000,
+                  "taka_amount": 6000,
+                  "min_withdrawal": 5000,
+                  "rate_per_diamond": 0.06,
+                  "rate_per_coin": 0.06,
+                  "currency": "BDT"
+                },
+                "reseller": {
+                  "role": "reseller",
+                  "label": "Coin Reseller",
+                  "enabled": true,
+                  "diamond_base": 100000,
+                  "coin_base": 100000,
+                  "taka_amount": 5500,
+                  "min_withdrawal": 5000,
+                  "rate_per_diamond": 0.055,
+                  "rate_per_coin": 0.055,
+                  "currency": "BDT"
+                },
+                "moderator": {
+                  "role": "moderator",
+                  "label": "Platform Moderator",
+                  "enabled": true,
+                  "diamond_base": 100000,
+                  "coin_base": 100000,
+                  "taka_amount": 4500,
+                  "min_withdrawal": 1000,
+                  "rate_per_diamond": 0.045,
+                  "rate_per_coin": 0.045,
+                  "currency": "BDT"
+                },
                 "video": {
+                  "role": "video",
+                  "label": "Video Host",
+                  "enabled": true,
                   "diamond_base": 100000,
                   "coin_base": 100000,
                   "taka_amount": 5000,
+                  "min_withdrawal": 1000,
                   "rate_per_diamond": 0.05,
                   "rate_per_coin": 0.05,
                   "currency": "BDT"
                 },
                 "audio": {
+                  "role": "audio",
+                  "label": "Audio Host",
+                  "enabled": true,
                   "diamond_base": 100000,
                   "coin_base": 100000,
                   "taka_amount": 3500,
+                  "min_withdrawal": 1000,
                   "rate_per_diamond": 0.035,
                   "rate_per_coin": 0.035,
                   "currency": "BDT"
                 }
+              },
+              "my_rule": {
+                "role_key": "user",
+                "role_label": "Normal User",
+                "is_withdrawal_allowed": true,
+                "rate_per_unit": 0.04,
+                "diamond_base": 100000,
+                "taka_amount": 4000,
+                "min_withdrawal_amount": 1000,
+                "currency": "BDT",
+                "current_balance": 15000,
+                "estimated_payout_bdt": "600.00",
+                "explanation": "Normal User rate: 100,000 coins = 4,000 BDT (Min: 1,000 coins)"
               }
             }
           }
@@ -6199,7 +6268,7 @@ export const API_SPEC = {
       "method": "POST",
       "path": "/api/mobile/wallet/withdraw",
       "summary": "Request Cashout Withdrawal (Coins or Diamonds)",
-      "description": "Submits a payout cashout request. The backend dynamically determines the cashout currency using the admin setting `is_convert_to_diamond`:\n- **Coin Mode (`is_convert_to_diamond: false`)**: Cashout is deducted directly from user's `coins` balance.\n- **Diamond Mode (`is_convert_to_diamond: true`)**: Cashout is deducted from user's `diamonds` balance.\n\nAccepts `amount`, `coinAmount`, or `diamondAmount`. Validates against admin minimum limit and presets (when manual input is disabled). Executes in an atomic MySQL transaction (SSOT) before instant Redis invalidation.",
+      "description": "Submits a payout cashout request with role-based rules applied. The backend detects caller identity and enforces role policy:\n- **Roles Supported**: Normal User (`user`), Agency Partner (`agency`), Coin Reseller (`reseller`), Platform Moderator (`moderator`), Video Host (`video`), Audio Host (`audio`).\n- **Role-based Minimums & Rates**: Each role has its own min cashout limit and exchange rate in BDT.\n- **Coin vs Diamond Mode**: Uses `is_convert_to_diamond` setting to deduct from either `diamonds` or `coins`.\n- **SSOT Execution**: MySQL atomic update & transaction commit first before instant Redis invalidation.",
       "requiresAuth": true,
       "requestHeaders": [
         {
@@ -6253,10 +6322,12 @@ export const API_SPEC = {
             "withdrawnAmount": 5000,
             "currency": "coins",
             "currencySymbol": "🪙",
-            "balanceRemaining": 15000,
-            "usdAmount": "25.00",
-            "payoutAmount": "250.00",
-            "payoutCurrency": "BDT"
+            "balanceRemaining": 10000,
+            "usdAmount": "20.00",
+            "payoutAmount": "200.00",
+            "payoutCurrency": "BDT",
+            "userRole": "user",
+            "hostType": "user"
           }
         },
         {

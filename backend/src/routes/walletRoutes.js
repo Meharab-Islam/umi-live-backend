@@ -8,13 +8,13 @@ import {
   getWithdrawalConfig,
   getRechargeConfig,
 } from '../controllers/walletController.js';
-import { requireAuth } from '../middlewares/authMiddleware.js';
+import { requireAuth, optionalAuth } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
 router.get('/packages', getPackages);
 router.get('/recharge-config', getRechargeConfig);
-router.get('/withdrawal-config', getWithdrawalConfig);
+router.get('/withdrawal-config', optionalAuth, getWithdrawalConfig);
 
 router.use(requireAuth);
 

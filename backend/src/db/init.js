@@ -1134,6 +1134,12 @@ export async function initializeDatabase() {
       try {
         await connection.query("ALTER TABLE withdrawals ADD COLUMN coin_amount INT DEFAULT 0 AFTER diamond_amount;");
       } catch (e) { }
+      try {
+        await connection.query("ALTER TABLE withdrawals MODIFY COLUMN host_type VARCHAR(50) DEFAULT 'user';");
+      } catch (e) { }
+      try {
+        await connection.query("ALTER TABLE withdrawals ADD COLUMN user_role VARCHAR(50) DEFAULT 'user' AFTER host_type;");
+      } catch (e) { }
 
       // Seed a sample withdrawal request
       await connection.query(`

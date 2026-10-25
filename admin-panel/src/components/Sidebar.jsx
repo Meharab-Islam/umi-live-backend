@@ -473,7 +473,12 @@ export default function Sidebar({
 
       {/* Admin Profile & Logout */}
       <div className="sidebar-footer">
-        <div className="admin-profile-pill">
+        <div
+          className="admin-profile-pill"
+          onClick={() => onNavigate && onNavigate('settings')}
+          title="Click to view & edit Super Admin profile"
+          style={{ cursor: 'pointer', transition: 'all 0.2s ease' }}
+        >
           <img
             src={user?.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100'}
             alt="Admin"

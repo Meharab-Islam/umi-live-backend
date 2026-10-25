@@ -939,7 +939,7 @@ export async function clearGiftHistoryAdmin(req, res) {
 
 export async function getWithdrawals(req, res) {
   try {
-    const { status, page = 1, limit = 20 } = req.query;
+    const { status, role, page = 1, limit = 20 } = req.query;
 
     const settingRows = await query(
       "SELECT key_value FROM system_settings WHERE key_name = 'is_convert_to_diamond' LIMIT 1"
@@ -948,20 +948,40 @@ export async function getWithdrawals(req, res) {
       ? (settingRows[0].key_value === 'true' || settingRows[0].key_value === '1')
       : false;
 
-    const cacheKey = `admin:withdrawals:${status || 'all'}:${page}:${limit}:${isDiamondMode ? 'diamond' : 'coin'}`;
+    const cacheKey = `admin:withdrawals:${status || 'all'}:${role || 'all'}:${page}:${limit}:${isDiamondMode ? 'diamond' : 'coin'}`;
 
     const data = await cache.getOrSet(cacheKey, 30, async () => {
       const offset = (parseInt(page, 10) - 1) * parseInt(limit, 10);
 
-      let whereSql = '';
-      let params = [];
+      const conditions = [];
+      const params = [];
+
       if (status && status !== 'all') {
-        whereSql = 'WHERE w.status = ?';
+        conditions.push('w.status = ?');
         params.push(status);
       }
 
+      if (role && role !== 'all') {
+        if (role === 'video_host' || role === 'video') {
+          conditions.push("(w.host_type = 'video' OR (u.role = 'host' AND u.host_type = 'video'))");
+        } else if (role === 'audio_host' || role === 'audio') {
+          conditions.push("(w.host_type = 'audio' OR (u.role = 'host' AND u.host_type = 'audio'))");
+        } else if (role === 'user') {
+          conditions.push("(w.user_role = 'user' OR w.host_type = 'user' OR (u.role = 'user' AND (w.host_type IS NULL OR w.host_type = 'none' OR w.host_type = 'user')))");
+        } else if (role === 'agency') {
+          conditions.push("(w.user_role = 'agency' OR w.host_type = 'agency' OR u.role = 'agency')");
+        } else if (role === 'reseller') {
+          conditions.push("(w.user_role = 'reseller' OR w.host_type = 'reseller' OR u.role = 'reseller')");
+        } else if (role === 'moderator') {
+          conditions.push("(w.user_role = 'moderator' OR w.host_type = 'moderator' OR u.role = 'moderator')");
+        }
+      }
+
+      const whereSql = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+
       const rows = await query(
-        `SELECT w.*, u.full_name as host_name, u.email as host_email, u.avatar_url as host_avatar, u.diamonds as current_diamonds, u.coins as current_coins
+        `SELECT w.*, u.full_name as host_name, u.email as host_email, u.avatar_url as host_avatar, 
+                u.diamonds as current_diamonds, u.coins as current_coins, u.role as user_actual_role, u.host_type as user_actual_host_type
          FROM withdrawals w
          JOIN users u ON w.host_id = u.id
          ${whereSql}
@@ -979,6 +999,33 @@ export async function getWithdrawals(req, res) {
         const resolvedSymbol = isDiamondRecord ? '💎' : '🪙';
         const resolvedLabel = isDiamondRecord ? 'Diamond' : 'Coin';
 
+        // Resolve applicant account role
+        const rawRole = w.user_role || w.user_actual_role || 'user';
+        let resolvedRoleKey = 'user';
+        let resolvedRoleLabel = 'Normal User';
+        let resolvedRoleBadge = { label: 'Normal User', color: '#8b5cf6', bg: 'rgba(139, 92, 246, 0.12)' };
+
+        if (rawRole === 'host' || w.host_type === 'video' || w.host_type === 'audio') {
+          const isAudio = w.host_type === 'audio' || w.user_actual_host_type === 'audio';
+          resolvedRoleKey = isAudio ? 'audio' : 'video';
+          resolvedRoleLabel = isAudio ? 'Audio Host' : 'Video Host';
+          resolvedRoleBadge = isAudio 
+            ? { label: 'Audio Host', color: '#10b981', bg: 'rgba(16, 185, 129, 0.12)' }
+            : { label: 'Video Host', color: '#3b82f6', bg: 'rgba(59, 130, 246, 0.12)' };
+        } else if (rawRole === 'agency') {
+          resolvedRoleKey = 'agency';
+          resolvedRoleLabel = 'Agency Partner';
+          resolvedRoleBadge = { label: 'Agency', color: '#f97316', bg: 'rgba(249, 115, 22, 0.12)' };
+        } else if (rawRole === 'reseller') {
+          resolvedRoleKey = 'reseller';
+          resolvedRoleLabel = 'Coin Reseller';
+          resolvedRoleBadge = { label: 'Reseller', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.12)' };
+        } else if (rawRole === 'moderator') {
+          resolvedRoleKey = 'moderator';
+          resolvedRoleLabel = 'Platform Moderator';
+          resolvedRoleBadge = { label: 'Moderator', color: '#06b6d4', bg: 'rgba(6, 182, 212, 0.12)' };
+        }
+
         return {
           ...w,
           diamond_amount: diamondAmount,
@@ -991,10 +1038,19 @@ export async function getWithdrawals(req, res) {
           is_diamond_record: isDiamondRecord,
           is_coin_record: !isDiamondRecord,
           record_mode: isDiamondRecord ? 'diamond' : 'coin',
+          user_role_key: resolvedRoleKey,
+          user_role_label: resolvedRoleLabel,
+          user_role_badge: resolvedRoleBadge,
         };
       });
 
-      const [totalRows] = await query(`SELECT COUNT(*) as count FROM withdrawals w ${whereSql}`, params);
+      const [totalRows] = await query(
+        `SELECT COUNT(*) as count 
+         FROM withdrawals w 
+         JOIN users u ON w.host_id = u.id 
+         ${whereSql}`, 
+        params
+      );
 
       return {
         withdrawals: formatted,
@@ -3642,7 +3698,15 @@ export async function updateRechargePresetsAdmin(req, res) {
 export async function getWithdrawalConfigAdmin(req, res) {
   try {
     const rows = await query(
-      "SELECT key_name, key_value, description FROM system_settings WHERE key_name IN ('is_convert_to_diamond', 'diamond_to_usd_rate', 'min_withdrawal_diamonds', 'withdrawal_presets', 'allow_manual_withdrawal_input', 'video_host_diamond_base', 'video_host_taka_amount', 'audio_host_diamond_base', 'audio_host_taka_amount')"
+      `SELECT key_name, key_value, description FROM system_settings WHERE key_name IN (
+        'is_convert_to_diamond', 'diamond_to_usd_rate', 'min_withdrawal_diamonds', 'withdrawal_presets', 'allow_manual_withdrawal_input',
+        'video_host_withdrawal_enabled', 'video_host_diamond_base', 'video_host_taka_amount', 'video_host_min_withdrawal',
+        'audio_host_withdrawal_enabled', 'audio_host_diamond_base', 'audio_host_taka_amount', 'audio_host_min_withdrawal',
+        'user_withdrawal_enabled', 'user_diamond_base', 'user_taka_amount', 'user_min_withdrawal',
+        'agency_withdrawal_enabled', 'agency_diamond_base', 'agency_taka_amount', 'agency_min_withdrawal',
+        'reseller_withdrawal_enabled', 'reseller_diamond_base', 'reseller_taka_amount', 'reseller_min_withdrawal',
+        'moderator_withdrawal_enabled', 'moderator_diamond_base', 'moderator_taka_amount', 'moderator_min_withdrawal'
+      )`
     );
     const map = {};
     rows.forEach((r) => { map[r.key_name] = r.key_value; });
@@ -3661,10 +3725,38 @@ export async function getWithdrawalConfigAdmin(req, res) {
     } catch (e) {}
 
     const usdRate = parseFloat(map['diamond_to_usd_rate'] || '0.005');
-    const videoBase = parseFloat(map['video_host_diamond_base'] || '100000');
-    const videoTaka = parseFloat(map['video_host_taka_amount'] || '5000');
-    const audioBase = parseFloat(map['audio_host_diamond_base'] || '100000');
-    const audioTaka = parseFloat(map['audio_host_taka_amount'] || '3500');
+
+    const parseAdminRoleRate = (prefix, defaultName, defaultBase, defaultTaka, defaultMin, defaultEnabled = true) => {
+      const isEnabled = map[`${prefix}_withdrawal_enabled`] !== undefined 
+        ? (map[`${prefix}_withdrawal_enabled`] === 'true' || map[`${prefix}_withdrawal_enabled`] === '1') 
+        : defaultEnabled;
+      const base = parseFloat(map[`${prefix}_diamond_base`] || String(defaultBase));
+      const taka = parseFloat(map[`${prefix}_taka_amount`] || String(defaultTaka));
+      const minAmt = parseInt(map[`${prefix}_min_withdrawal`] || String(defaultMin), 10);
+      const ratePerUnit = base > 0 ? parseFloat((taka / base).toFixed(6)) : parseFloat((defaultTaka / defaultBase).toFixed(6));
+
+      return {
+        roleKey: prefix,
+        label: defaultName,
+        isEnabled,
+        diamondBase: base,
+        coinBase: base,
+        takaAmount: taka,
+        ratePerUnit,
+        ratePerDiamond: ratePerUnit,
+        minWithdrawal: minAmt,
+        currency: 'BDT',
+      };
+    };
+
+    const rates = {
+      video: parseAdminRoleRate('video_host', 'Video Host', 100000, 5000, minWithdrawal, true),
+      audio: parseAdminRoleRate('audio_host', 'Audio Host', 100000, 3500, minWithdrawal, true),
+      user: parseAdminRoleRate('user', 'Normal User', 100000, 4000, minWithdrawal, true),
+      agency: parseAdminRoleRate('agency', 'Agency Partner', 100000, 6000, 5000, true),
+      reseller: parseAdminRoleRate('reseller', 'Coin / Diamond Reseller', 100000, 5500, 5000, true),
+      moderator: parseAdminRoleRate('moderator', 'Platform Moderator', 100000, 4500, minWithdrawal, true),
+    };
 
     return res.json({
       success: true,
@@ -3678,20 +3770,7 @@ export async function getWithdrawalConfigAdmin(req, res) {
         withdrawalPresets: presets,
         allowManualInput,
         diamondToUsdRate: usdRate,
-        rates: {
-          video: {
-            diamondBase: videoBase,
-            takaAmount: videoTaka,
-            ratePerDiamond: videoBase > 0 ? parseFloat((videoTaka / videoBase).toFixed(6)) : 0.05,
-            currency: 'BDT',
-          },
-          audio: {
-            diamondBase: audioBase,
-            takaAmount: audioTaka,
-            ratePerDiamond: audioBase > 0 ? parseFloat((audioTaka / audioBase).toFixed(6)) : 0.035,
-            currency: 'BDT',
-          },
-        },
+        rates,
       },
     });
   } catch (err) {
@@ -3713,6 +3792,7 @@ export async function updateWithdrawalConfigAdmin(req, res) {
       videoTaka,
       audioBase,
       audioTaka,
+      rates,
     } = req.body;
 
     if (is_convert_to_diamond !== undefined || isDiamondMode !== undefined) {
@@ -3769,6 +3849,7 @@ export async function updateWithdrawalConfigAdmin(req, res) {
       );
     }
 
+    // Direct video/audio fields if sent
     if (videoBase !== undefined && videoTaka !== undefined) {
       await query(
         `INSERT INTO system_settings (key_name, key_value, description)
@@ -3799,6 +3880,63 @@ export async function updateWithdrawalConfigAdmin(req, res) {
       );
     }
 
+    // Comprehensive role rates dictionary
+    if (rates && typeof rates === 'object') {
+      const rolePrefixMap = {
+        video: 'video_host',
+        audio: 'audio_host',
+        user: 'user',
+        agency: 'agency',
+        reseller: 'reseller',
+        moderator: 'moderator',
+      };
+
+      for (const [k, prefix] of Object.entries(rolePrefixMap)) {
+        const item = rates[k];
+        if (!item) continue;
+
+        if (item.isEnabled !== undefined || item.is_enabled !== undefined) {
+          const val = item.isEnabled !== undefined ? item.isEnabled : item.is_enabled;
+          await query(
+            `INSERT INTO system_settings (key_name, key_value, description)
+             VALUES (?, ?, ?)
+             ON DUPLICATE KEY UPDATE key_value = VALUES(key_value)`,
+            [`${prefix}_withdrawal_enabled`, val ? 'true' : 'false', `Withdrawal enabled for ${k}`]
+          );
+        }
+
+        const baseVal = item.diamondBase || item.diamond_base || item.coinBase || item.coin_base;
+        if (baseVal !== undefined) {
+          await query(
+            `INSERT INTO system_settings (key_name, key_value, description)
+             VALUES (?, ?, ?)
+             ON DUPLICATE KEY UPDATE key_value = VALUES(key_value)`,
+            [`${prefix}_diamond_base`, String(baseVal), `${k} diamond/coin base count`]
+          );
+        }
+
+        const takaVal = item.takaAmount || item.taka_amount;
+        if (takaVal !== undefined) {
+          await query(
+            `INSERT INTO system_settings (key_name, key_value, description)
+             VALUES (?, ?, ?)
+             ON DUPLICATE KEY UPDATE key_value = VALUES(key_value)`,
+            [`${prefix}_taka_amount`, String(takaVal), `${k} payout amount in BDT`]
+          );
+        }
+
+        const minVal = item.minWithdrawal || item.min_amount || item.min_withdrawal;
+        if (minVal !== undefined) {
+          await query(
+            `INSERT INTO system_settings (key_name, key_value, description)
+             VALUES (?, ?, ?)
+             ON DUPLICATE KEY UPDATE key_value = VALUES(key_value)`,
+            [`${prefix}_min_withdrawal`, String(minVal), `${k} minimum withdrawal amount`]
+          );
+        }
+      }
+    }
+
     // Database write succeeded -> Invalidate Redis cache
     await cache.del('setting:is_convert_to_diamond');
     await cache.del('wallet:withdrawal:config');
@@ -3811,7 +3949,7 @@ export async function updateWithdrawalConfigAdmin(req, res) {
 
     return res.json({
       success: true,
-      message: 'Withdrawal configuration updated successfully!',
+      message: 'Role-based withdrawal rules, rates & thresholds saved successfully!',
     });
   } catch (err) {
     console.error('updateWithdrawalConfigAdmin error:', err);
@@ -5171,6 +5309,118 @@ export async function recalculateAllUserStars(req, res) {
   } catch (err) {
     console.error('recalculateAllUserStars error:', err);
     return res.status(500).json({ success: false, message: 'Failed to recalculate users stars.', error: err.message });
+  }
+}
+
+export async function getAdminProfile(req, res) {
+  try {
+    const adminId = req.user?.id;
+    if (!adminId) {
+      return res.status(401).json({ success: false, message: 'Unauthorized.' });
+    }
+
+    const [admin] = await query(
+      `SELECT id, email, full_name, avatar_url, bio, role, coins, diamonds, level, created_at, updated_at 
+       FROM users WHERE id = ? LIMIT 1`,
+      [adminId]
+    );
+
+    if (!admin) {
+      return res.status(404).json({ success: false, message: 'Admin account not found.' });
+    }
+
+    return res.json({
+      success: true,
+      user: admin,
+    });
+  } catch (err) {
+    console.error('getAdminProfile error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to retrieve admin profile.', error: err.message });
+  }
+}
+
+export async function updateAdminProfile(req, res) {
+  try {
+    const adminId = req.user?.id;
+    if (!adminId) {
+      return res.status(401).json({ success: false, message: 'Unauthorized.' });
+    }
+
+    const { full_name, avatar_url, email, password, bio } = req.body;
+
+    const [existing] = await query('SELECT * FROM users WHERE id = ?', [adminId]);
+    if (!existing) {
+      return res.status(404).json({ success: false, message: 'Admin account not found.' });
+    }
+
+    const updates = [];
+    const params = [];
+
+    if (full_name !== undefined) {
+      const cleanName = String(full_name).trim();
+      if (!cleanName) {
+        return res.status(400).json({ success: false, message: 'Admin name cannot be empty.' });
+      }
+      updates.push('full_name = ?');
+      params.push(cleanName);
+    }
+
+    if (avatar_url !== undefined) {
+      updates.push('avatar_url = ?');
+      params.push(String(avatar_url).trim());
+    }
+
+    if (bio !== undefined) {
+      updates.push('bio = ?');
+      params.push(String(bio).trim());
+    }
+
+    if (email !== undefined) {
+      const cleanEmail = String(email).trim().toLowerCase();
+      if (cleanEmail && cleanEmail !== existing.email) {
+        const [dup] = await query('SELECT id FROM users WHERE email = ? AND id != ?', [cleanEmail, adminId]);
+        if (dup) {
+          return res.status(409).json({ success: false, message: 'An account with this email already exists.' });
+        }
+        updates.push('email = ?');
+        params.push(cleanEmail);
+      }
+    }
+
+    if (password && String(password).trim().length > 0) {
+      const cleanPass = String(password).trim();
+      if (cleanPass.length < 6) {
+        return res.status(400).json({ success: false, message: 'Password must be at least 6 characters long.' });
+      }
+      const passHash = await bcrypt.hash(cleanPass, 10);
+      updates.push('password_hash = ?');
+      params.push(passHash);
+    }
+
+    if (updates.length > 0) {
+      params.push(adminId);
+      await query(`UPDATE users SET ${updates.join(', ')} WHERE id = ?`, params);
+    }
+
+    // Invalidate Redis caches
+    await cache.del(`user:${adminId}`);
+    await cache.delByPattern('admin:users*');
+
+    // Fetch fresh updated user
+    const [updatedUser] = await query(
+      `SELECT id, email, full_name, avatar_url, bio, role, coins, diamonds, level, created_at, updated_at 
+       FROM users WHERE id = ? LIMIT 1`,
+      [adminId]
+    );
+
+    return res.json({
+      success: true,
+      message: 'Super Admin profile updated successfully.',
+      user: updatedUser,
+    });
+  } catch (err) {
+    console.error('updateAdminProfile error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to update admin profile.', error: err.message });
   }
 }
 
