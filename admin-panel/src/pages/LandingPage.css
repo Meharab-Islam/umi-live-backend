@@ -1,50 +1,51 @@
 /* ==========================================================================
    UMI LIVE / BM PRO - Official Multi-Page Web Portal Stylesheet
-   Theme: Pure White & Crisp Light Theme
-   Accents: Vibrant Royal Blue (#1E88E5) + Violet (#7C3AED) +
-            Electric Magenta (#D946EF) + Pure White Canvas (#FFFFFF / #F8FAFC)
+   Theme: Ultra-Premium Clean White 3D Light Theme
+   Design: 3D Isometric Stages, Dynamic Micro-Animations, Glassmorphism & High-Contrast Typography
    ========================================================================== */
 
 :root {
-  /* Ultra-Premium Clean Light / White Theme Palette */
+  /* Pristine Light Theme System */
   --umi-bg-canvas: #ffffff;
-  --umi-bg-surface: #f8fafc;
+  --umi-bg-subtle: #f8fafc;
   --umi-bg-card: #ffffff;
-  --umi-bg-card-hover: #ffffff;
   --umi-bg-glass: rgba(255, 255, 255, 0.94);
 
   --umi-border: #e2e8f0;
-  --umi-border-glow: rgba(30, 136, 229, 0.35);
-  --umi-border-hover: rgba(124, 58, 237, 0.4);
+  --umi-border-subtle: #f1f5f9;
+  --umi-border-hover: rgba(30, 136, 229, 0.4);
+  --umi-border-glow: rgba(124, 58, 237, 0.35);
 
-  /* Primary Theme Accents */
+  /* Vibrant Accents */
+  --umi-primary: #1e88e5;
+  --umi-primary-hover: #1565c0;
+  --umi-violet: #7c3aed;
+  --umi-violet-hover: #6d28d9;
   --umi-pink: #d946ef;
   --umi-rose: #e11d48;
-  --umi-violet: #7c3aed;
-  --umi-purple: #9333ea;
   --umi-cyan: #0284c7;
-  --umi-blue: #1e88e5;
-  --umi-gold: #d97706;
+  --umi-gold: #f59e0b;
   --umi-emerald: #059669;
-  --umi-danger: #dc2626;
 
   /* Gradients */
   --umi-grad-hero: linear-gradient(135deg, #1e88e5 0%, #7c3aed 50%, #d946ef 100%);
-  --umi-grad-accent: linear-gradient(135deg, #e11d48 0%, #ec4899 100%);
-  --umi-grad-cyan: linear-gradient(135deg, #0284c7 0%, #2563eb 100%);
-  --umi-grad-card: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
   --umi-grad-btn: linear-gradient(135deg, #1e88e5 0%, #7c3aed 100%);
+  --umi-grad-card: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  --umi-grad-gold: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  --umi-grad-cyan: linear-gradient(135deg, #0284c7 0%, #2563eb 100%);
 
-  /* Typography Colors (High contrast, sharp readability) */
-  --umi-text-white: #0f172a;       /* Slate-900 sharp charcoal */
-  --umi-text-main: #0f172a;
-  --umi-text-muted: #334155;       /* Slate-700 */
+  /* High-Contrast Crisp Typography */
+  --umi-text-title: #0f172a;       /* Slate-900 */
+  --umi-text-main: #1e293b;        /* Slate-800 */
+  --umi-text-muted: #475569;       /* Slate-600 */
   --umi-text-dim: #64748b;         /* Slate-500 */
 
-  /* Shadows for pristine light surfaces */
-  --umi-glow-hero: 0 10px 40px rgba(30, 136, 229, 0.12);
-  --umi-glow-btn: 0 6px 20px rgba(124, 58, 237, 0.28);
-  --umi-shadow-card: 0 4px 20px -2px rgba(0, 0, 0, 0.05), 0 2px 6px -1px rgba(0, 0, 0, 0.03);
+  /* Shadows with 3D Depth */
+  --umi-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --umi-shadow-md: 0 4px 14px -2px rgba(0, 0, 0, 0.06), 0 2px 6px -1px rgba(0, 0, 0, 0.04);
+  --umi-shadow-lg: 0 12px 32px -4px rgba(0, 0, 0, 0.08), 0 4px 12px -2px rgba(0, 0, 0, 0.04);
+  --umi-shadow-3d: 0 24px 60px -12px rgba(30, 136, 229, 0.18), 0 12px 28px -6px rgba(124, 58, 237, 0.1);
+  --umi-glow-btn: 0 8px 24px rgba(30, 136, 229, 0.32);
 }
 
 /* Base Wrapper */
@@ -59,43 +60,43 @@
   flex-direction: column;
 }
 
-/* Ambient Background Soft Radial Glows */
+/* Ambient 3D Mesh Lighting */
 .umi-landing-bg-orb {
   position: fixed;
   border-radius: 50%;
   filter: blur(140px);
   pointer-events: none;
   z-index: 0;
-  opacity: 0.65;
+  opacity: 0.7;
 }
 
 .umi-landing-bg-orb-1 {
-  top: -120px;
+  top: -100px;
   right: -50px;
   width: 600px;
   height: 600px;
-  background: radial-gradient(circle, rgba(30, 136, 229, 0.09) 0%, rgba(124, 58, 237, 0.05) 70%, transparent 100%);
+  background: radial-gradient(circle, rgba(30, 136, 229, 0.1) 0%, rgba(124, 58, 237, 0.06) 70%, transparent 100%);
 }
 
 .umi-landing-bg-orb-2 {
-  top: 400px;
-  left: -100px;
+  top: 450px;
+  left: -120px;
   width: 550px;
   height: 550px;
-  background: radial-gradient(circle, rgba(217, 70, 239, 0.07) 0%, rgba(2, 132, 199, 0.04) 70%, transparent 100%);
+  background: radial-gradient(circle, rgba(217, 70, 239, 0.08) 0%, rgba(2, 132, 199, 0.04) 70%, transparent 100%);
 }
 
 .umi-landing-bg-orb-3 {
-  bottom: 100px;
-  right: 15%;
-  width: 650px;
-  height: 650px;
-  background: radial-gradient(circle, rgba(16, 185, 129, 0.05) 0%, transparent 100%);
+  bottom: 80px;
+  right: 10%;
+  width: 700px;
+  height: 700px;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.06) 0%, transparent 100%);
 }
 
 .umi-container {
   width: 100%;
-  max-width: 1200px;
+  max-width: 1240px;
   margin: 0 auto;
   padding: 0 1.5rem;
   position: relative;
@@ -103,7 +104,7 @@
 }
 
 /* ==========================================================================
-   Header Navbar (Multi-Page Navigation)
+   Header Navbar (Clean, Public Only, NO Admin Buttons)
    ========================================================================== */
 .umi-navbar {
   position: sticky;
@@ -120,7 +121,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 76px;
+  height: 78px;
 }
 
 .umi-brand {
@@ -139,9 +140,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 18px rgba(30, 136, 229, 0.25);
+  box-shadow: 0 4px 16px rgba(30, 136, 229, 0.25);
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.35);
 }
 
 .umi-brand-logo-img {
@@ -153,7 +154,7 @@
 .umi-brand-title {
   font-size: 1.35rem;
   font-weight: 800;
-  color: #0f172a;
+  color: var(--umi-text-title);
   letter-spacing: -0.02em;
   display: flex;
   align-items: center;
@@ -171,18 +172,18 @@
 .umi-nav-links {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
-.umi-nav-item button,
-.umi-nav-item a {
-  padding: 8px 14px;
+.umi-nav-item button {
+  padding: 8px 15px;
   border-radius: 10px;
   font-size: 0.88rem;
   font-weight: 600;
   color: var(--umi-text-muted);
-  text-decoration: none;
   background: transparent;
   border: none;
   cursor: pointer;
@@ -192,15 +193,13 @@
   gap: 6px;
 }
 
-.umi-nav-item button:hover,
-.umi-nav-item a:hover {
-  color: #0f172a;
-  background: #f1f5f9;
+.umi-nav-item button:hover {
+  color: var(--umi-text-title);
+  background: var(--umi-bg-subtle);
 }
 
-.umi-nav-item.active button,
-.umi-nav-item.active a {
-  color: var(--umi-blue);
+.umi-nav-item.active button {
+  color: var(--umi-primary);
   background: rgba(30, 136, 229, 0.08);
   border: 1px solid rgba(30, 136, 229, 0.25);
   font-weight: 700;
@@ -212,35 +211,32 @@
   gap: 12px;
 }
 
-.umi-btn-admin {
+.umi-btn-nav-download {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 18px;
+  padding: 9px 18px;
   border-radius: 12px;
-  font-size: 0.85rem;
+  font-size: 0.86rem;
   font-weight: 700;
-  background: rgba(124, 58, 237, 0.08);
-  color: #6d28d9;
-  border: 1px solid rgba(124, 58, 237, 0.22);
+  background: var(--umi-grad-btn);
+  color: #ffffff !important;
+  border: none;
   cursor: pointer;
   transition: all 0.2s ease;
-  text-decoration: none;
+  box-shadow: 0 3px 12px rgba(30, 136, 229, 0.25);
 }
 
-.umi-btn-admin:hover {
-  background: var(--umi-violet);
-  color: #ffffff;
-  border-color: var(--umi-violet);
+.umi-btn-nav-download:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 16px rgba(124, 58, 237, 0.3);
+  box-shadow: 0 6px 18px rgba(30, 136, 229, 0.35);
 }
 
 .umi-mobile-menu-btn {
   display: none;
   background: #ffffff;
   border: 1px solid var(--umi-border);
-  color: var(--umi-text-main);
+  color: var(--umi-text-title);
   padding: 8px;
   border-radius: 10px;
   cursor: pointer;
@@ -250,74 +246,60 @@
 .umi-mobile-drawer {
   background: #ffffff;
   border-bottom: 1px solid var(--umi-border);
-  padding: 1rem 1.5rem;
+  padding: 1.25rem 1.5rem;
   display: flex;
   flex-direction: column;
   gap: 8px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
 }
 
 /* ==========================================================================
-   Page Content Area
-   ========================================================================== */
-.umi-page-body {
-  flex: 1;
-  padding: 40px 0 80px;
-}
-
-/* Page Header Banner */
-.umi-page-header {
-  text-align: center;
-  margin-bottom: 40px;
-}
-
-.umi-page-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
-  border-radius: 9999px;
-  background: rgba(30, 136, 229, 0.08);
-  border: 1px solid rgba(30, 136, 229, 0.22);
-  color: var(--umi-blue);
-  font-size: 0.78rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  margin-bottom: 14px;
-}
-
-.umi-page-title {
-  font-size: 2.5rem;
-  font-weight: 800;
-  color: #0f172a;
-  letter-spacing: -0.03em;
-  margin-bottom: 12px;
-}
-
-.umi-page-subtitle {
-  font-size: 1.05rem;
-  color: var(--umi-text-muted);
-  max-width: 680px;
-  margin: 0 auto;
-  line-height: 1.6;
-}
-
-/* ==========================================================================
-   HOME PAGE: Hero & Features
+   Hero Section with 3D Perspective Visual Mockup
    ========================================================================== */
 .umi-hero-section {
-  padding: 40px 0 60px;
-  text-align: center;
+  padding: 50px 0 70px;
+}
+
+.umi-hero-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 40px;
+  align-items: center;
+}
+
+@media (min-width: 1024px) {
+  .umi-hero-grid {
+    grid-template-columns: 1.15fr 0.85fr;
+  }
+}
+
+.umi-hero-left {
+  text-align: left;
+}
+
+.umi-hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  border-radius: 9999px;
+  background: rgba(30, 136, 229, 0.08);
+  border: 1px solid rgba(30, 136, 229, 0.25);
+  color: var(--umi-primary);
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-bottom: 20px;
 }
 
 .umi-hero-title {
-  font-size: clamp(2.4rem, 5vw, 4rem);
+  font-size: clamp(2.5rem, 5.5vw, 3.8rem);
   font-weight: 800;
-  line-height: 1.15;
-  letter-spacing: -0.03em;
+  line-height: 1.12;
+  letter-spacing: -0.035em;
   margin-bottom: 20px;
-  color: #0f172a;
+  color: var(--umi-text-title);
 }
 
 .umi-hero-gradient-text {
@@ -330,77 +312,334 @@
 .umi-hero-desc {
   font-size: 1.15rem;
   color: var(--umi-text-muted);
-  max-width: 720px;
-  margin: 0 auto 36px;
   line-height: 1.7;
+  max-width: 580px;
+  margin-bottom: 34px;
 }
 
 .umi-hero-cta-group {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 16px;
+  gap: 14px;
   flex-wrap: wrap;
-  margin-bottom: 50px;
+  margin-bottom: 30px;
 }
 
 .umi-btn-primary {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  padding: 14px 30px;
+  padding: 14px 28px;
   border-radius: 14px;
-  font-size: 1rem;
+  font-size: 0.98rem;
   font-weight: 700;
   background: var(--umi-grad-btn);
   color: #ffffff !important;
   border: none;
   cursor: pointer;
   transition: all 0.25s ease;
-  box-shadow: 0 4px 18px rgba(30, 136, 229, 0.35);
+  box-shadow: var(--umi-glow-btn);
   text-decoration: none;
 }
 
 .umi-btn-primary:hover {
   transform: translateY(-2px);
   box-shadow: 0 10px 28px rgba(30, 136, 229, 0.45);
-  color: #ffffff !important;
 }
 
 .umi-btn-secondary {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  padding: 14px 26px;
+  padding: 14px 24px;
   border-radius: 14px;
-  font-size: 1rem;
+  font-size: 0.98rem;
   font-weight: 700;
   background: #ffffff;
-  color: #0f172a;
+  color: var(--umi-text-title);
   border: 1px solid #cbd5e1;
   cursor: pointer;
   transition: all 0.25s ease;
   text-decoration: none;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--umi-shadow-sm);
 }
 
 .umi-btn-secondary:hover {
-  background: #f8fafc;
+  background: var(--umi-bg-subtle);
   border-color: #94a3b8;
   transform: translateY(-2px);
 }
 
-/* Hero Stats Bar */
+.umi-hero-indicators {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding-top: 10px;
+}
+
+.umi-indicator-chip {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--umi-text-dim);
+}
+
+.live-pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 8px #10b981;
+  animation: pulse-dot 1.8s infinite;
+}
+
+@keyframes pulse-dot {
+  0% { transform: scale(0.9); opacity: 1; }
+  50% { transform: scale(1.5); opacity: 0.5; }
+  100% { transform: scale(0.9); opacity: 1; }
+}
+
+/* ==========================================================================
+   3D Floating Mobile Stream Stage Simulation Card
+   ========================================================================== */
+.umi-3d-stage-wrapper {
+  position: relative;
+  perspective: 1200px;
+  display: flex;
+  justify-content: center;
+}
+
+.umi-3d-stage-card {
+  width: 100%;
+  max-width: 380px;
+  background: #ffffff;
+  border: 1px solid var(--umi-border);
+  border-radius: 36px;
+  padding: 20px;
+  box-shadow: var(--umi-shadow-3d);
+  transform: rotateY(-8deg) rotateX(6deg) rotateZ(1deg);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease;
+  position: relative;
+  z-index: 5;
+}
+
+.umi-3d-stage-card:hover {
+  transform: rotateY(-2deg) rotateX(2deg) translateY(-8px);
+  box-shadow: 0 32px 75px -10px rgba(30, 136, 229, 0.25);
+}
+
+/* 3D Floating Badges around the stage */
+.umi-float-badge {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  padding: 10px 14px;
+  border-radius: 14px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--umi-text-title);
+  z-index: 10;
+  animation: float-gentle 4s ease-in-out infinite;
+}
+
+.umi-float-badge-top {
+  top: -24px;
+  right: -20px;
+  animation-delay: 0s;
+}
+
+.umi-float-badge-bottom {
+  bottom: 30px;
+  left: -28px;
+  animation-delay: 2s;
+}
+
+@keyframes float-gentle {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+  100% { transform: translateY(0px); }
+}
+
+/* Stage Inner Visuals */
+.umi-stage-screen {
+  background: linear-gradient(180deg, #0f172a 0%, #1e1b4b 100%);
+  border-radius: 26px;
+  overflow: hidden;
+  padding: 16px;
+  color: #ffffff;
+  position: relative;
+}
+
+.umi-stage-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.umi-host-profile {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.umi-host-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 2px solid #f59e0b;
+  object-fit: cover;
+}
+
+.umi-host-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.umi-host-name {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.umi-host-stars {
+  font-size: 0.7rem;
+  color: #fbbf24;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.umi-live-tag {
+  background: #e11d48;
+  color: #ffffff;
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  text-transform: uppercase;
+}
+
+/* 9-Seat Grid Simulation */
+.umi-seats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.umi-seat-slot {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  height: 72px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.umi-seat-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.umi-seat-num {
+  font-size: 0.65rem;
+  color: #94a3b8;
+  margin-top: 3px;
+}
+
+.umi-seat-speaking {
+  border-color: #10b981;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+}
+
+/* Floating Simulated Gift Popup */
+.umi-stage-gift-burst {
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(245, 158, 11, 0.5);
+  border-radius: 12px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+  animation: pulse-gift 2.5s infinite;
+}
+
+@keyframes pulse-gift {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+
+.umi-gift-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.umi-gift-icon-box {
+  font-size: 1.4rem;
+}
+
+.umi-gift-text {
+  font-size: 0.76rem;
+  line-height: 1.25;
+}
+
+.umi-gift-combo {
+  font-size: 1.15rem;
+  font-weight: 900;
+  font-style: italic;
+  color: #fbbf24;
+  text-shadow: 0 0 10px rgba(245, 158, 11, 0.6);
+}
+
+/* Chat Snippet in Stage */
+.umi-stage-chat-bubble {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 0.72rem;
+  color: #e2e8f0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ==========================================================================
+   Stats Bar (Clean, Floating 3D White Cards)
+   ========================================================================== */
 .umi-stats-bar {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
+  gap: 18px;
   padding: 24px;
   background: #ffffff;
   border: 1px solid var(--umi-border);
-  border-radius: 20px;
-  margin-bottom: 70px;
-  box-shadow: var(--umi-shadow-card);
+  border-radius: 24px;
+  margin-bottom: 80px;
+  box-shadow: var(--umi-shadow-lg);
 }
 
 .umi-stat-item {
@@ -408,64 +647,216 @@
 }
 
 .umi-stat-num {
-  font-size: 1.85rem;
+  font-size: 2.1rem;
   font-weight: 800;
-  color: #0f172a;
+  color: var(--umi-text-title);
   margin-bottom: 4px;
   background: var(--umi-grad-hero);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  display: inline-block;
 }
 
 .umi-stat-lbl {
-  font-size: 0.82rem;
+  font-size: 0.85rem;
   color: var(--umi-text-dim);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
-/* Feature Grid */
+/* ==========================================================================
+   Interactive Feature Showcases & Tabs
+   ========================================================================== */
+.umi-section-header {
+  text-align: center;
+  margin-bottom: 45px;
+}
+
+.umi-section-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  border-radius: 9999px;
+  background: rgba(124, 58, 237, 0.08);
+  border: 1px solid rgba(124, 58, 237, 0.22);
+  color: var(--umi-violet);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 12px;
+}
+
+.umi-section-header h2 {
+  font-size: 2.4rem;
+  font-weight: 800;
+  color: var(--umi-text-title);
+  letter-spacing: -0.025em;
+  margin-bottom: 10px;
+}
+
+.umi-section-header p {
+  color: var(--umi-text-muted);
+  font-size: 1.05rem;
+  max-width: 650px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* Interactive Tabs Bar */
+.umi-tabs-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 40px;
+}
+
+.umi-tab-btn {
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--umi-text-muted);
+  background: #ffffff;
+  border: 1px solid var(--umi-border);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: var(--umi-shadow-sm);
+}
+
+.umi-tab-btn:hover {
+  background: var(--umi-bg-subtle);
+  color: var(--umi-text-title);
+}
+
+.umi-tab-btn.active {
+  background: var(--umi-primary);
+  color: #ffffff;
+  border-color: var(--umi-primary);
+  box-shadow: 0 4px 14px rgba(30, 136, 229, 0.3);
+}
+
+/* Interactive Tab Showcase Box */
+.umi-showcase-box {
+  background: #ffffff;
+  border: 1px solid var(--umi-border);
+  border-radius: 28px;
+  padding: 40px;
+  box-shadow: var(--umi-shadow-lg);
+  margin-bottom: 80px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 40px;
+  align-items: center;
+}
+
+@media (min-width: 1024px) {
+  .umi-showcase-box {
+    grid-template-columns: 1.1fr 0.9fr;
+  }
+}
+
+.umi-showcase-content h3 {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--umi-text-title);
+  margin-bottom: 14px;
+}
+
+.umi-showcase-content p {
+  font-size: 1rem;
+  color: var(--umi-text-muted);
+  line-height: 1.7;
+  margin-bottom: 24px;
+}
+
+.umi-showcase-bullets {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.umi-showcase-bullets li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--umi-text-main);
+}
+
+.umi-bullet-check {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.umi-showcase-visual {
+  background: var(--umi-bg-subtle);
+  border: 1px solid var(--umi-border);
+  border-radius: 20px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* 3D Features Grid */
 .umi-features-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 24px;
-  margin-bottom: 60px;
+  margin-bottom: 80px;
 }
 
 .umi-feature-card {
   background: #ffffff;
   border: 1px solid var(--umi-border);
-  border-radius: 20px;
+  border-radius: 22px;
   padding: 32px 28px;
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+  box-shadow: var(--umi-shadow-sm);
 }
 
 .umi-feature-card:hover {
-  background: #ffffff;
-  border-color: var(--umi-border-glow);
-  transform: translateY(-4px);
-  box-shadow: 0 16px 36px -10px rgba(30, 136, 229, 0.14);
+  transform: translateY(-5px);
+  border-color: var(--umi-border-hover);
+  box-shadow: 0 16px 36px -8px rgba(30, 136, 229, 0.14);
 }
 
 .umi-feature-icon {
-  width: 54px;
-  height: 54px;
+  width: 52px;
+  height: 52px;
   border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 20px;
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .umi-feature-card h3 {
   font-size: 1.25rem;
-  font-weight: 700;
-  color: #0f172a;
+  font-weight: 800;
+  color: var(--umi-text-title);
   margin-bottom: 10px;
 }
 
@@ -473,37 +864,203 @@
   font-size: 0.92rem;
   color: var(--umi-text-muted);
   line-height: 1.65;
-}
-
-/* Section Header Titles */
-.umi-section-header {
-  text-align: center;
-  margin-bottom: 40px;
-}
-
-.umi-section-header h2 {
-  font-size: 2rem;
-  font-weight: 800;
-  color: #0f172a;
-  margin-bottom: 10px;
-}
-
-.umi-section-header p {
-  color: var(--umi-text-dim);
-  font-size: 1rem;
-  max-width: 600px;
-  margin: 0 auto;
+  margin: 0;
 }
 
 /* ==========================================================================
-   MARKDOWN DOCUMENT VIEWER (Privacy Policy & Terms)
+   Interactive Live Gift Demo Simulator
+   ========================================================================== */
+.umi-simulator-box {
+  background: linear-gradient(135deg, rgba(30, 136, 229, 0.04) 0%, rgba(124, 58, 237, 0.04) 100%);
+  border: 1px solid rgba(30, 136, 229, 0.25);
+  border-radius: 28px;
+  padding: 40px;
+  margin-bottom: 80px;
+  box-shadow: var(--umi-shadow-lg);
+  text-align: center;
+}
+
+.umi-simulator-counter-bubble {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 24px;
+  background: #ffffff;
+  border: 1px solid var(--umi-border);
+  border-radius: 9999px;
+  box-shadow: var(--umi-shadow-md);
+  margin-bottom: 24px;
+}
+
+.umi-simulator-btns {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.umi-sim-btn {
+  padding: 12px 22px;
+  border-radius: 14px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--umi-border);
+  background: #ffffff;
+  color: var(--umi-text-title);
+  box-shadow: var(--umi-shadow-sm);
+}
+
+.umi-sim-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--umi-shadow-md);
+}
+
+.umi-sim-btn:active {
+  transform: scale(0.96);
+}
+
+/* ==========================================================================
+   Download Mobile App Banner
+   ========================================================================== */
+.umi-download-banner {
+  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+  border-radius: 28px;
+  padding: 48px;
+  color: #ffffff;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 36px;
+  align-items: center;
+  margin-bottom: 80px;
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.2);
+}
+
+@media (min-width: 900px) {
+  .umi-download-banner {
+    grid-template-columns: 1.2fr 0.8fr;
+  }
+}
+
+.umi-download-left h2 {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 12px;
+}
+
+.umi-download-left p {
+  font-size: 1.05rem;
+  color: #94a3b8;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.umi-download-badges-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.umi-download-badge-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 14px;
+  color: #ffffff;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.umi-download-badge-btn:hover {
+  background: rgba(255, 255, 255, 0.22);
+  transform: translateY(-2px);
+}
+
+.umi-download-badge-icon {
+  font-size: 1.5rem;
+}
+
+.umi-download-badge-text {
+  text-align: left;
+}
+
+.umi-download-badge-sub {
+  font-size: 0.68rem;
+  color: #94a3b8;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.umi-download-badge-main {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+/* ==========================================================================
+   FAQ Accordion
+   ========================================================================== */
+.umi-faq-section {
+  max-width: 800px;
+  margin: 0 auto 80px;
+}
+
+.umi-faq-item {
+  background: #ffffff;
+  border: 1px solid var(--umi-border);
+  border-radius: 16px;
+  margin-bottom: 12px;
+  overflow: hidden;
+  box-shadow: var(--umi-shadow-sm);
+  transition: border-color 0.2s ease;
+}
+
+.umi-faq-item.open {
+  border-color: var(--umi-primary);
+}
+
+.umi-faq-question {
+  width: 100%;
+  padding: 18px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--umi-text-title);
+}
+
+.umi-faq-answer {
+  padding: 0 24px 20px;
+  font-size: 0.92rem;
+  color: var(--umi-text-muted);
+  line-height: 1.7;
+}
+
+/* ==========================================================================
+   Legal Documents & Forms (100% White Theme)
    ========================================================================== */
 .umi-doc-card {
   background: #ffffff;
   border: 1px solid var(--umi-border);
   border-radius: 24px;
   padding: 48px;
-  box-shadow: var(--umi-shadow-card);
+  box-shadow: var(--umi-shadow-lg);
   max-width: 900px;
   margin: 0 auto;
 }
@@ -527,12 +1084,7 @@
   gap: 6px;
 }
 
-.umi-doc-actions {
-  display: flex;
-  gap: 10px;
-}
-
-/* Markdown Semantic Typography */
+/* Semantic Markdown Body */
 .markdown-body {
   color: #334155;
   font-size: 0.96rem;
@@ -566,13 +1118,13 @@
   width: 4px;
   height: 1.2rem;
   border-radius: 2px;
-  background: var(--umi-blue);
+  background: var(--umi-primary);
 }
 
 .markdown-body .md-h3 {
   font-size: 1.18rem;
   font-weight: 700;
-  color: var(--umi-blue);
+  color: var(--umi-primary);
   margin: 1.75rem 0 0.65rem;
 }
 
@@ -610,7 +1162,7 @@
   content: '✦';
   position: absolute;
   left: 4px;
-  color: var(--umi-blue);
+  color: var(--umi-primary);
   font-size: 0.75rem;
   top: 1px;
 }
@@ -626,31 +1178,21 @@
 }
 
 .markdown-body .md-link {
-  color: var(--umi-blue);
+  color: var(--umi-primary);
   text-decoration: underline;
   text-underline-offset: 3px;
   transition: color 0.2s;
   font-weight: 600;
 }
 
-.markdown-body .md-link:hover {
-  color: var(--umi-violet);
-}
-
 .markdown-body .md-blockquote {
-  border-left: 4px solid var(--umi-blue);
+  border-left: 4px solid var(--umi-primary);
   padding: 12px 20px;
   margin: 1.5rem 0;
   background: #f8fafc;
   border-radius: 0 12px 12px 0;
   color: #475569;
   font-style: italic;
-}
-
-.markdown-body .md-hr {
-  border: none;
-  border-top: 1px solid var(--umi-border);
-  margin: 2.5rem 0;
 }
 
 .markdown-body .md-inline-code {
@@ -663,15 +1205,13 @@
   border: 1px solid #e2e8f0;
 }
 
-/* ==========================================================================
-   ACCOUNT DELETION REQUEST FORM
-   ========================================================================== */
+/* Account Deletion Request Form */
 .umi-form-card {
   background: #ffffff;
   border: 1px solid var(--umi-border);
   border-radius: 24px;
   padding: 40px;
-  box-shadow: var(--umi-shadow-card);
+  box-shadow: var(--umi-shadow-lg);
   max-width: 640px;
   margin: 0 auto;
 }
@@ -689,7 +1229,7 @@
 }
 
 .umi-form-label span.req {
-  color: var(--umi-danger);
+  color: var(--umi-rose);
   margin-left: 3px;
 }
 
@@ -707,7 +1247,7 @@
 
 .umi-input:focus {
   outline: none;
-  border-color: var(--umi-blue);
+  border-color: var(--umi-primary);
   box-shadow: 0 0 0 3px rgba(30, 136, 229, 0.15);
   background: #ffffff;
 }
@@ -733,7 +1273,7 @@ textarea.umi-input {
 
 .umi-checkbox-label input[type="checkbox"] {
   margin-top: 3px;
-  accent-color: var(--umi-danger);
+  accent-color: var(--umi-rose);
   width: 16px;
   height: 16px;
   cursor: pointer;
@@ -763,12 +1303,12 @@ textarea.umi-input {
 }
 
 /* ==========================================================================
-   Footer
+   Footer (100% Clean White, Zero Admin Links)
    ========================================================================== */
 .umi-footer {
   background: #f8fafc;
   border-top: 1px solid var(--umi-border);
-  padding: 60px 0 30px;
+  padding: 60px 0 32px;
   margin-top: auto;
 }
 
@@ -789,6 +1329,7 @@ textarea.umi-input {
 .umi-footer-links {
   list-style: none;
   padding: 0;
+  margin: 0;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -810,7 +1351,7 @@ textarea.umi-input {
 
 .umi-footer-links button:hover,
 .umi-footer-links a:hover {
-  color: var(--umi-blue);
+  color: var(--umi-primary);
 }
 
 .umi-footer-bottom {
@@ -845,8 +1386,12 @@ textarea.umi-input {
     grid-template-columns: 1fr 1fr;
   }
 
-  .umi-doc-card {
-    padding: 28px 20px;
+  .umi-3d-stage-card {
+    transform: none;
+  }
+
+  .umi-3d-stage-card:hover {
+    transform: none;
   }
 }
 

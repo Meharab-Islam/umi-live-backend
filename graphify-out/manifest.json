@@ -1482,9 +1482,9 @@
     "semantic_hash": ""
   },
   "admin-panel/src/pages/LandingPage.jsx": {
-    "mtime": 1793037652.5575826,
-    "seen": 1793037676.01217,
-    "ast_hash": "974203aba6b8c0a5fcca74863757586a",
+    "mtime": 1793038014.7611346,
+    "seen": 1793038058.535664,
+    "ast_hash": "1adce6bf95a0450bfcc652d01a146007",
     "semantic_hash": ""
   },
   "admin-panel/src/components/MarkdownRenderer.jsx": {
