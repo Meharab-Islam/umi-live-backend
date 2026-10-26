@@ -1,7 +1,7 @@
 # Graph Report - umi_backend  (2026-10-26)
 
 ## Corpus Check
-- 197 files · ~1,128,130 words
+- 197 files · ~1,128,142 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `71773bd3`
+- Built from commit: `84135114`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -217,8 +217,8 @@ Cohesion: 0.18
 Nodes (7): API_SPEC, getToken(), SocketDocsView(), ApiDocs(), EndpointErrorBoundary, extractMediaItems(), copyToClipboard()
 
 ### Community 38 - "App.jsx"
-Cohesion: 0.11
-Nodes (23): checkHealth(), levelApi, liveRewardApi, streamApi, App(), checkIsAdminPath(), getInitialTab(), isTabValid() (+15 more)
+Cohesion: 0.13
+Nodes (18): checkHealth(), levelApi, liveRewardApi, streamApi, App(), checkIsAdminPath(), getInitialTab(), isTabValid() (+10 more)
 
 ### Community 41 - "dev.js"
 Cohesion: 0.33
@@ -233,8 +233,8 @@ Cohesion: 0.09
 Nodes (43): __dirname, __filename, signToken(), getMe(), login(), register(), ensureFcmSchema(), getMe() (+35 more)
 
 ### Community 47 - "Loader.jsx"
-Cohesion: 0.25
-Nodes (16): adminApi, agencyApi, userApi, withdrawalApi, BulkActionBar(), Loader(), Pagination(), MODERATOR_POWER_LABELS (+8 more)
+Cohesion: 0.21
+Nodes (22): adminApi, agencyApi, userApi, withdrawalApi, BulkActionBar(), Loader(), Pagination(), MODERATOR_POWER_LABELS (+14 more)
 
 ### Community 48 - "specialItemController.js"
 Cohesion: 0.13
@@ -266,7 +266,7 @@ Nodes (10): resolveAssetUrl(), uploadFile(), settingsApi, specialItemApi, FileUp
 
 ### Community 58 - "react"
 Cohesion: 0.11
-Nodes (21): API_BASE, getApiBase(), dashboardApi, legalApi, liveApi, GoogleMeetLiveStage(), MarkdownRenderer(), parseMarkdownToHtml() (+13 more)
+Nodes (20): API_BASE, getApiBase(), dashboardApi, legalApi, liveApi, GoogleMeetLiveStage(), MarkdownRenderer(), parseMarkdownToHtml() (+12 more)
 
 ### Community 59 - "themeRoutes.js"
 Cohesion: 0.39

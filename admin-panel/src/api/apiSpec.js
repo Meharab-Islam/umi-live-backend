@@ -4245,13 +4245,13 @@ export const API_SPEC = {
             "name": "live_type",
             "type": "string",
             "required": false,
-            "description": "Broadcast type: \"video\" (default, camera on, max 9 seats) or \"audio\" (voice room, camera off, min 7 seats)"
+            "description": "Broadcast type: \"video\" (default, camera on, max 12 seats) or \"audio\" (voice room, camera off, min 7 seats)"
           },
           {
             "name": "total_seats",
             "type": "number",
             "required": false,
-            "description": "Total stage seat count (Video: 2-9, default 6; Audio: min 7, default 8)"
+            "description": "Total stage seat count (Video: 2-12, default 12; Audio: min 7, default 8)"
           },
           {
             "name": "background_image",

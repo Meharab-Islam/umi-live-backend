@@ -26,7 +26,7 @@ export async function createRoom(req, res) {
     let seatCount;
     if (liveType === 'video') {
       const requested = parseInt(rawSeats, 10);
-      seatCount = requested ? Math.min(9, Math.max(2, requested)) : 6;
+      seatCount = requested ? Math.min(12, Math.max(2, requested)) : 12;
     } else {
       const requested = parseInt(rawSeats, 10);
       seatCount = requested ? Math.max(7, requested) : 8;
@@ -45,6 +45,15 @@ export async function createRoom(req, res) {
        ON DUPLICATE KEY UPDATE user_id = VALUES(user_id)`,
       [roomId, hostId, hostCameraOn]
     );
+
+    for (let s = 2; s <= seatCount; s++) {
+      await query(
+        `INSERT INTO live_room_seats (room_id, seat_number, user_id, is_main_seat, is_camera_on, is_muted)
+         VALUES (?, ?, NULL, 0, 0, 0)
+         ON DUPLICATE KEY UPDATE is_main_seat = 0`,
+        [roomId, s]
+      );
+    }
 
     const createdRooms = await query(
       `SELECT r.*, u.full_name as host_name, u.avatar_url as host_avatar, u.level as host_level

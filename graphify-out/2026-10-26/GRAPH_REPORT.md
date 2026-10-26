@@ -1,16 +1,16 @@
 # Graph Report - umi_backend  (2026-10-26)
 
 ## Corpus Check
-- 197 files · ~1,127,893 words
+- 197 files · ~1,128,103 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1075 nodes · 2998 edges · 77 communities (58 shown, 19 thin omitted)
+- 1075 nodes · 2998 edges · 76 communities (57 shown, 19 thin omitted)
 - Extraction: 86% EXTRACTED · 14% INFERRED · 0% AMBIGUOUS · INFERRED: 426 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `9e5d2e88`
+- Built from commit: `d63eb260`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -72,7 +72,7 @@
 - themeRoutes.js
 - hostController.js
 - liveRewardService.js
-- Gifts.jsx
+- LiveRewards.jsx
 - resellerController.js
 - callController.js
 - AppThemes.jsx
@@ -81,9 +81,8 @@
 - thumbnailRoutes.js
 - requireAuth
 - ErrorBoundary
-- CreateCategory.jsx
-- test_video_live_seat_guard.mjs
 - adminThemeController.js
+- test_video_live_seat_guard.mjs
 - publicController.js
 - AccountDeletionRequests.jsx
 
@@ -114,7 +113,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (77 total, 19 thin omitted)
+## Communities (76 total, 19 thin omitted)
 
 ### Community 0 - "controllers/packageController.js"
 Cohesion: 0.14
@@ -217,8 +216,8 @@ Cohesion: 0.18
 Nodes (7): API_SPEC, getToken(), SocketDocsView(), ApiDocs(), EndpointErrorBoundary, extractMediaItems(), copyToClipboard()
 
 ### Community 38 - "App.jsx"
-Cohesion: 0.11
-Nodes (23): checkHealth(), levelApi, liveRewardApi, streamApi, App(), checkIsAdminPath(), getInitialTab(), isTabValid() (+15 more)
+Cohesion: 0.12
+Nodes (25): checkHealth(), giftApi, streamApi, App(), checkIsAdminPath(), getInitialTab(), isTabValid(), normalizeTab() (+17 more)
 
 ### Community 41 - "dev.js"
 Cohesion: 0.33
@@ -233,7 +232,7 @@ Cohesion: 0.09
 Nodes (43): __dirname, __filename, signToken(), getMe(), login(), register(), ensureFcmSchema(), getMe() (+35 more)
 
 ### Community 47 - "Loader.jsx"
-Cohesion: 0.25
+Cohesion: 0.27
 Nodes (16): adminApi, agencyApi, userApi, withdrawalApi, BulkActionBar(), Loader(), Pagination(), MODERATOR_POWER_LABELS (+8 more)
 
 ### Community 48 - "specialItemController.js"
@@ -261,12 +260,12 @@ Cohesion: 0.12
 Nodes (16): getPool(), executeMerge(), getMergeHistory(), previewMerge(), addModerator(), adjustBalance(), assignReseller(), assignUserToAgency() (+8 more)
 
 ### Community 57 - "Thumbnails.jsx"
-Cohesion: 0.25
-Nodes (10): resolveAssetUrl(), uploadFile(), settingsApi, specialItemApi, FileUploadInput(), Banners(), EntryEffects(), PackageManagement() (+2 more)
+Cohesion: 0.22
+Nodes (11): resolveAssetUrl(), uploadFile(), settingsApi, specialItemApi, FileUploadInput(), Banners(), EntryEffects(), PackageManagement() (+3 more)
 
 ### Community 58 - "react"
-Cohesion: 0.11
-Nodes (21): API_BASE, getApiBase(), dashboardApi, legalApi, liveApi, GoogleMeetLiveStage(), MarkdownRenderer(), parseMarkdownToHtml() (+13 more)
+Cohesion: 0.10
+Nodes (23): API_BASE, getApiBase(), dashboardApi, legalApi, liveApi, packageApi, GoogleMeetLiveStage(), MarkdownRenderer() (+15 more)
 
 ### Community 59 - "themeRoutes.js"
 Cohesion: 0.39
@@ -280,9 +279,9 @@ Nodes (6): formatDuration(), getHostAgencySummary(), getHostDashboardOverview(),
 Cohesion: 0.28
 Nodes (8): getLiveRewardHistoryAdmin(), getLiveRewardSettingsAdmin(), getLiveRewardStatsAdmin(), updateLiveRewardSettingsAdmin(), getLiveDurationRewardHistory(), getLiveDurationRewardSettings(), getLiveDurationRewardStats(), updateLiveDurationRewardSettings()
 
-### Community 62 - "Gifts.jsx"
-Cohesion: 0.39
-Nodes (5): giftApi, Gifts(), isMediaUrl(), resolveMediaUrl(), TopContributors()
+### Community 62 - "LiveRewards.jsx"
+Cohesion: 0.29
+Nodes (4): levelApi, liveRewardApi, Levels(), LiveRewards()
 
 ### Community 63 - "resellerController.js"
 Cohesion: 0.42
@@ -312,11 +311,7 @@ Nodes (8): getCustomThumbnailUploadConfig(), getMyThumbnails(), getThumbnailCata
 Cohesion: 0.29
 Nodes (7): getGifts(), getUserGiftContributions(), sendGift(), getTopAgencies(), getTopGifters(), requireAuth(), router
 
-### Community 72 - "CreateCategory.jsx"
-Cohesion: 0.38
-Nodes (4): packageApi, Sidebar(), CreateCategory(), PACKAGE_COLOR_PRESETS
-
-### Community 74 - "adminThemeController.js"
+### Community 72 - "adminThemeController.js"
 Cohesion: 0.29
 Nodes (6): createThemeItem(), deleteThemeItem(), getAdminThemeItems(), getThemeStats(), setDefaultThemeItem(), updateThemeItem()
 
@@ -332,7 +327,7 @@ Nodes (5): getPublicBranding(), getPublicPrivacyPolicy(), getPublicTerms(), subm
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `query()` connect `query` to `controllers/packageController.js`, `moderatorRoutes.js`, `db.js`, `feedController.js`, `mobile/liveController.js`, `mobile/walletRoutes.js`, `chatController.js`, `livekit.js`, `mobile/authController.js`, `specialItemController.js`, `routes/liveRoutes.js`, `controllers/bannerController.js`, `authMiddleware.js`, `mobile/index.js`, `getPool`, `themeRoutes.js`, `hostController.js`, `liveRewardService.js`, `resellerController.js`, `callController.js`, `controllers/walletController.js`, `cache`, `thumbnailRoutes.js`, `requireAuth`, `test_video_live_seat_guard.mjs`, `adminThemeController.js`, `publicController.js`?**
+- **Why does `query()` connect `query` to `controllers/packageController.js`, `moderatorRoutes.js`, `db.js`, `feedController.js`, `mobile/liveController.js`, `mobile/walletRoutes.js`, `chatController.js`, `livekit.js`, `mobile/authController.js`, `specialItemController.js`, `routes/liveRoutes.js`, `controllers/bannerController.js`, `authMiddleware.js`, `mobile/index.js`, `getPool`, `themeRoutes.js`, `hostController.js`, `liveRewardService.js`, `resellerController.js`, `callController.js`, `controllers/walletController.js`, `cache`, `thumbnailRoutes.js`, `requireAuth`, `adminThemeController.js`, `test_video_live_seat_guard.mjs`, `publicController.js`?**
   _High betweenness centrality (0.203) - this node is a cross-community bridge._
 - **Why does `cache` connect `cache` to `controllers/packageController.js`, `query`, `server.js`, `moderatorRoutes.js`, `feedController.js`, `mobile/liveController.js`, `mobile/walletRoutes.js`, `chatController.js`, `redis.js`, `livekit.js`, `mobile/authController.js`, `specialItemController.js`, `routes/liveRoutes.js`, `controllers/bannerController.js`, `authMiddleware.js`, `mobile/index.js`, `getPool`, `themeRoutes.js`, `hostController.js`, `liveRewardService.js`, `resellerController.js`, `callController.js`, `controllers/walletController.js`, `thumbnailRoutes.js`, `requireAuth`, `adminThemeController.js`, `publicController.js`?**
   _High betweenness centrality (0.011) - this node is a cross-community bridge._
