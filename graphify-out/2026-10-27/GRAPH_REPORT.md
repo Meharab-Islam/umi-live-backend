@@ -1,7 +1,7 @@
 # Graph Report - umi_backend  (2026-10-27)
 
 ## Corpus Check
-- 201 files · ~1,136,880 words
+- 201 files · ~1,137,847 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `2ad69ad0`
+- Built from commit: `4e484cd5`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -53,7 +53,7 @@
 - test_redis_hit_and_freshness.mjs
 - mobile/packageRoutes.js
 - ApiDocs.jsx
-- App.jsx
+- EconomyContext.jsx
 - dev.js
 - test_google_token_flow.mjs
 - livekit.js
@@ -62,12 +62,12 @@
 - Loader.jsx
 - query
 - add_audio_live_api_docs.mjs
-- useEconomy
+- App.jsx
 - controllers/bannerController.js
 - entryEffectController.js
 - mobile/index.js
 - accountMergeController.js
-- resolveAssetUrl
+- Settings.jsx
 - react
 - themeRoutes.js
 - hostController.js
@@ -159,8 +159,8 @@ Cohesion: 0.50
 Nodes (3): Expanding the Oxlint configuration, React Compiler, React + Vite
 
 ### Community 11 - "client.js"
-Cohesion: 0.12
-Nodes (22): chatApi, del(), get(), getApiBase(), patch(), post(), put(), request() (+14 more)
+Cohesion: 0.11
+Nodes (27): authApi, chatApi, del(), get(), getApiBase(), getCurrentUser(), patch(), post() (+19 more)
 
 ### Community 12 - "Mandatory Production-Grade Redis Caching, Invalidation & .env Architecture Policy"
 Cohesion: 0.29
@@ -218,9 +218,9 @@ Nodes (9): checkRoomActionPrivilege, getMyPackages, getPackageCategories, getPac
 Cohesion: 0.19
 Nodes (6): API_SPEC, SocketDocsView(), ApiDocs(), EndpointErrorBoundary, extractMediaItems(), copyToClipboard()
 
-### Community 38 - "App.jsx"
-Cohesion: 0.24
-Nodes (16): authApi, checkHealth(), getCurrentUser(), getToken(), setCurrentUser(), setToken(), App(), checkIsAdminPath() (+8 more)
+### Community 38 - "EconomyContext.jsx"
+Cohesion: 0.38
+Nodes (4): settingsApi, BrandingProvider(), EconomyContext, EconomyProvider()
 
 ### Community 41 - "dev.js"
 Cohesion: 0.33
@@ -242,9 +242,9 @@ Nodes (17): adminApi, agencyApi, specialItemApi, userApi, withdrawalApi, BulkAct
 Cohesion: 0.07
 Nodes (42): query(), approveDeletionRequest(), deleteAdminReport(), deleteDeletionRequestRecord(), deleteGift(), deleteLevelConfig(), getAdminDeletionRequests(), getAdminPrivacyPolicy() (+34 more)
 
-### Community 51 - "useEconomy"
-Cohesion: 0.14
-Nodes (13): accountMergeApi, settingsApi, streamApi, EconomyContext, EconomyProvider(), useEconomy(), AccountMerge(), Agencies() (+5 more)
+### Community 51 - "App.jsx"
+Cohesion: 0.11
+Nodes (26): accountMergeApi, checkHealth(), getToken(), dashboardApi, streamApi, App(), checkIsAdminPath(), getInitialTab() (+18 more)
 
 ### Community 52 - "controllers/bannerController.js"
 Cohesion: 0.25
@@ -262,13 +262,13 @@ Nodes (16): getMobileBanners(), getTopAgencies(), getTopGifters(), router, route
 Cohesion: 0.50
 Nodes (3): executeMerge(), getMergeHistory(), previewMerge()
 
-### Community 57 - "resolveAssetUrl"
-Cohesion: 0.15
-Nodes (13): bannerApi, resolveAssetUrl(), uploadFile(), themeApi, FileUploadInput(), BrandingProvider(), AppThemes(), TAB_TYPES (+5 more)
+### Community 57 - "Settings.jsx"
+Cohesion: 0.21
+Nodes (10): bannerApi, resolveAssetUrl(), uploadFile(), themeApi, FileUploadInput(), AppThemes(), TAB_TYPES, Banners() (+2 more)
 
 ### Community 58 - "react"
-Cohesion: 0.10
-Nodes (21): API_BASE, dashboardApi, legalApi, liveApi, packageApi, GoogleMeetLiveStage(), MarkdownRenderer(), parseMarkdownToHtml() (+13 more)
+Cohesion: 0.12
+Nodes (18): API_BASE, legalApi, liveApi, packageApi, GoogleMeetLiveStage(), MarkdownRenderer(), parseMarkdownToHtml(), Sidebar() (+10 more)
 
 ### Community 59 - "themeRoutes.js"
 Cohesion: 0.39
@@ -328,7 +328,7 @@ _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `query()` connect `query` to `controllers/packageController.js`, `adminRoutes.js`, `server.js`, `moderatorRoutes.js`, `db.js`, `feedController.js`, `mobile/liveController.js`, `mobile/walletRoutes.js`, `chatController.js`, `livekit.js`, `mobile/authController.js`, `controllers/bannerController.js`, `entryEffectController.js`, `mobile/index.js`, `accountMergeController.js`, `themeRoutes.js`, `hostController.js`, `liveRewardService.js`, `deleteMultipleFilesFromStorage`, `resellerController.js`, `callController.js`, `thumbnailRoutes.js`, `cache`, `authMiddleware.js`, `routes/liveRoutes.js`, `invalidateWalletWithdrawalCache`, `test_audio_live_seats.mjs`, `test_socket_realtime_emission.mjs`, `test_video_live_seat_guard.mjs`?**
   _High betweenness centrality (0.218) - this node is a cross-community bridge._
-- **Why does `react` connect `react` to `Gifts.jsx`, `ApiDocs.jsx`, `App.jsx`, `.oxlintrc.json`, `AccountDeletionRequests.jsx`, `client.js`, `Levels.jsx`, `LiveRewards.jsx`, `Loader.jsx`, `useEconomy`, `resolveAssetUrl`?**
+- **Why does `react` connect `react` to `Gifts.jsx`, `ApiDocs.jsx`, `EconomyContext.jsx`, `.oxlintrc.json`, `AccountDeletionRequests.jsx`, `client.js`, `Levels.jsx`, `LiveRewards.jsx`, `Loader.jsx`, `App.jsx`, `Settings.jsx`?**
   _High betweenness centrality (0.009) - this node is a cross-community bridge._
 - **Why does `getPool()` connect `adminRoutes.js` to `callController.js`, `server.js`, `authMiddleware.js`, `mobile/authController.js`, `db.js`, `query`, `feedController.js`, `chatController.js`, `mobile/walletRoutes.js`, `accountMergeController.js`, `resellerController.js`?**
   _High betweenness centrality (0.008) - this node is a cross-community bridge._

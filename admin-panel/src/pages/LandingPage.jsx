@@ -134,31 +134,68 @@ export default function LandingPage({ activePage = 'home', onPageChange }) {
     const fetchPolicies = async () => {
       try {
         setLoadingPolicies(true);
-        const res = await fetch('/api/public/policies');
-        if (res.ok) {
-          const data = await res.json();
-          if (isMounted && data.success) {
-            if (data.privacyPolicy) {
+        let loaded = false;
+
+        // Try aggregated endpoint first
+        try {
+          const res = await fetch('/api/public/policies');
+          if (res.ok) {
+            const data = await res.json();
+            if (isMounted && data.success) {
+              if (data.privacyPolicy && data.privacyPolicy.content) {
+                setPrivacyData({
+                  title: data.privacyPolicy.title || 'Privacy Policy',
+                  content: data.privacyPolicy.content || '',
+                  updatedAt: data.privacyPolicy.updated_at || data.privacyPolicy.updatedAt || '2026-10-26',
+                });
+                loaded = true;
+              }
+              if (data.termsOfService && data.termsOfService.content) {
+                setTermsData({
+                  title: data.termsOfService.title || 'Terms of Service',
+                  content: data.termsOfService.content || '',
+                  updatedAt: data.termsOfService.updated_at || data.termsOfService.updatedAt || '2026-10-26',
+                });
+              }
+              if (data.supportEmail) {
+                setSupportEmail(data.supportEmail);
+              }
+            }
+          }
+        } catch (e) {
+          // ignore and fallback
+        }
+
+        // If aggregated endpoint didn't supply content, fetch individually
+        if (!loaded) {
+          const [privRes, termsRes] = await Promise.allSettled([
+            fetch('/api/public/privacy-policy').then(r => r.ok ? r.json() : null),
+            fetch('/api/public/terms').then(r => r.ok ? r.json() : null),
+          ]);
+
+          if (isMounted) {
+            if (privRes.status === 'fulfilled' && privRes.value?.success) {
+              const priv = privRes.value;
               setPrivacyData({
-                title: data.privacyPolicy.title || 'Privacy Policy',
-                content: data.privacyPolicy.content || '',
-                updatedAt: data.privacyPolicy.updated_at || '2026-10-26',
+                title: priv.title || 'Privacy Policy',
+                content: priv.content || '',
+                updatedAt: priv.updated_at || '2026-10-26',
               });
+              if (priv.support_email) setSupportEmail(priv.support_email);
             }
-            if (data.termsOfService) {
+
+            if (termsRes.status === 'fulfilled' && termsRes.value?.success) {
+              const terms = termsRes.value;
               setTermsData({
-                title: data.termsOfService.title || 'Terms of Service',
-                content: data.termsOfService.content || '',
-                updatedAt: data.termsOfService.updated_at || '2026-10-26',
+                title: terms.title || 'Terms of Service',
+                content: terms.content || '',
+                updatedAt: terms.updated_at || '2026-10-26',
               });
-            }
-            if (data.supportEmail) {
-              setSupportEmail(data.supportEmail);
             }
           }
         }
-      } catch {
-        // Fallback default
+      } catch (err) {
+        console.error('fetchPolicies error:', err);
       } finally {
         if (isMounted) setLoadingPolicies(false);
       }

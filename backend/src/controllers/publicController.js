@@ -72,6 +72,56 @@ export async function getPublicTerms(req, res) {
   }
 }
 
+export async function getAllPublicPolicies(req, res) {
+  try {
+    const data = await cache.getOrSet('public:policies', 300, async () => {
+      const rows = await query(`
+        SELECT key_name, key_value 
+        FROM system_settings 
+        WHERE key_name IN (
+          'privacy_policy_title',
+          'privacy_policy_content',
+          'privacy_policy_updated_at',
+          'terms_of_service_title',
+          'terms_of_service_content',
+          'contact_support_email',
+          'platform_name',
+          'app_logo_url'
+        )
+      `);
+
+      const map = {};
+      (rows || []).forEach((r) => {
+        map[r.key_name] = r.key_value;
+      });
+
+      return {
+        privacyPolicy: {
+          title: map['privacy_policy_title'] || 'UMI LIVE - Privacy Policy',
+          content: map['privacy_policy_content'] || '',
+          updated_at: map['privacy_policy_updated_at'] || '2026-10-26',
+        },
+        termsOfService: {
+          title: map['terms_of_service_title'] || 'UMI LIVE - Terms of Service',
+          content: map['terms_of_service_content'] || '',
+          updated_at: map['privacy_policy_updated_at'] || '2026-10-26',
+        },
+        supportEmail: map['contact_support_email'] || 'support@umilive.com',
+        platformName: map['platform_name'] || 'Umi Live',
+        logoUrl: map['app_logo_url'] || '',
+      };
+    });
+
+    return res.json({
+      success: true,
+      ...data,
+    });
+  } catch (err) {
+    console.error('getAllPublicPolicies error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to retrieve public policies.' });
+  }
+}
+
 export async function getPublicBranding(req, res) {
   try {
     const data = await cache.getOrSet('public:branding', 300, async () => {

@@ -5590,6 +5590,7 @@ export async function updateAdminPrivacyPolicy(req, res) {
     await cache.del('public:privacy_policy');
     await cache.del('public:terms');
     await cache.del('public:branding');
+    await cache.del('public:policies');
 
     return res.json({
       success: true,
