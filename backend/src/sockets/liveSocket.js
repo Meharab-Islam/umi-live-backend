@@ -4,6 +4,7 @@ import { verifyToken } from '../config/jwt.js';
 import { handleUserSeatDeparture } from '../controllers/mobile/liveController.js';
 import { sendChatPushNotification } from '../config/firebase.js';
 import { handleLiveEndedNotifications } from '../services/notificationService.js';
+import { enqueueRoomGift, clearRoomGiftQueue } from '../services/giftQueueService.js';
 
 // Store connected viewers: roomId -> Set of socket IDs (Module-level scope)
 const roomViewers = new Map();
@@ -1056,39 +1057,25 @@ export function setupLiveSocket(io) {
         timestamp: giftEvent.timestamp || new Date().toISOString(),
       };
 
-      // Broadcast full gift explosion event to all room participants across all standard event names
+      // Broadcast full gift explosion event via Room Gift Queue (Paced & Anti-Duplicate)
       const roomKey = String(targetRoomId).trim();
-      io.to(roomKey).emit('gift-broadcast', payload);
-      io.to(roomKey).emit('gift_broadcast', payload);
-      io.to(roomKey).emit('gift_received', payload);
-      io.to(roomKey).emit('gift:received', payload);
-      io.to(roomKey).emit('gift-sent', payload);
-      io.to(roomKey).emit('gift_sent', payload);
-      io.to(roomKey).emit('room_gift', payload);
-
       const senderId = giftEvent.sender_id || giftEvent.senderId || giftEvent.sender?.id;
       const receiverId = giftEvent.receiver_id || giftEvent.receiverId || giftEvent.receiver?.id;
       const senderCoin = giftEvent.sender_updated_coin ?? giftEvent.senderUpdatedCoin ?? giftEvent.sender?.updated_coin;
       const receiverCoin = giftEvent.receiver_updated_coin ?? giftEvent.receiverUpdatedCoin ?? giftEvent.receiver?.updated_coin;
 
-      if (senderId && senderCoin !== undefined) {
-        io.to(roomKey).emit('user_balance_updated', { userId: senderId, coins: senderCoin });
-        io.to(`user_${senderId}`).emit('wallet_balance_updated', { coins: senderCoin });
-      }
+      const receiversList = Array.isArray(giftEvent.receivers) && giftEvent.receivers.length > 0
+        ? giftEvent.receivers
+        : (receiverId ? [{ id: receiverId, updated_coin: receiverCoin }] : []);
 
-      if (Array.isArray(giftEvent.receivers) && giftEvent.receivers.length > 0) {
-        for (const r of giftEvent.receivers) {
-          const rId = r.id || r.receiver_id;
-          const rCoin = r.updated_coin ?? r.receiver_updated_coin ?? r.coins;
-          if (rId && rCoin !== undefined) {
-            io.to(roomKey).emit('user_balance_updated', { userId: rId, coins: rCoin });
-            io.to(`user_${rId}`).emit('wallet_balance_updated', { coins: rCoin });
-          }
-        }
-      } else if (receiverId && receiverCoin !== undefined) {
-        io.to(roomKey).emit('user_balance_updated', { userId: receiverId, coins: receiverCoin });
-        io.to(`user_${receiverId}`).emit('wallet_balance_updated', { coins: receiverCoin });
-      }
+      enqueueRoomGift({
+        io,
+        roomTargets: [roomKey],
+        socketPayload: payload,
+        senderId,
+        senderUpdatedCoins: senderCoin,
+        receiversList,
+      });
     };
 
     socket.on('gift-sent', handleGiftSentSocket);
@@ -1124,6 +1111,9 @@ export function setupLiveSocket(io) {
         roomViewers.delete(canonicalRoomId);
         roomViewers.delete(String(roomId));
         if (numericRoomId) roomViewers.delete(String(numericRoomId));
+        clearRoomGiftQueue(canonicalRoomId);
+        clearRoomGiftQueue(String(roomId));
+        if (numericRoomId) clearRoomGiftQueue(String(numericRoomId));
 
         await Promise.allSettled([
           cache.delByPattern('mobile:rooms:*'),

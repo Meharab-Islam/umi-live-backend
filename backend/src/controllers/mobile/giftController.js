@@ -1,6 +1,7 @@
 import { query, getPool } from '../../config/db.js';
 import { cache } from '../../config/redis.js';
 import { recordCoinsSpentAndCheckLevelUp } from '../../services/levelService.js';
+import { enqueueRoomGift } from '../../services/giftQueueService.js';
 
 /**
  * Mobile Get Available Gifts Catalog
@@ -518,36 +519,20 @@ export async function sendGift(req, res) {
       timestamp: new Date().toISOString(),
     };
 
-    // 16. Broadcast live event via Socket.IO - EXACTLY ONE EVENT TRIGGERED FOR THE ROOM
+    // 16. Broadcast live event via Socket.IO through the Sequential Room Dispatch Queue (Anti-Duplicate & Paced)
     if (req.io) {
       const roomTargets = new Set(
         [activeRoom?.room_id, activeRoom?.id ? String(activeRoom.id) : null, targetRoomId ? String(targetRoomId) : null].filter(Boolean)
       );
 
-      for (const rm of roomTargets) {
-        req.io.to(rm).emit('gift-broadcast', socketPayload);
-        req.io.to(rm).emit('gift_broadcast', socketPayload);
-        req.io.to(rm).emit('gift_received', socketPayload);
-        req.io.to(rm).emit('gift:received', socketPayload);
-        req.io.to(rm).emit('gift-sent', socketPayload);
-        req.io.to(rm).emit('gift_sent', socketPayload);
-        req.io.to(rm).emit('room_gift', socketPayload);
-
-        // Update balances in room
-        req.io.to(rm).emit('user_balance_updated', { userId: senderId, coins: senderUpdatedCoins });
-        for (const r of receiversList) {
-          req.io.to(rm).emit('user_balance_updated', { userId: r.id, coins: r.updated_coin });
-        }
-      }
-
-      // User direct socket channels
-      req.io.to(`user_${senderId}`).emit('wallet_balance_updated', { coins: senderUpdatedCoins });
-      req.io.to(`user_${senderId}`).emit('gift_sent', socketPayload);
-
-      for (const r of receiversList) {
-        req.io.to(`user_${r.id}`).emit('wallet_balance_updated', { coins: r.updated_coin });
-        req.io.to(`user_${r.id}`).emit('gift_received', socketPayload);
-      }
+      enqueueRoomGift({
+        io: req.io,
+        roomTargets,
+        socketPayload,
+        senderId,
+        senderUpdatedCoins,
+        receiversList,
+      });
     }
 
     const resultPayload = {
