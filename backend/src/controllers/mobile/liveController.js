@@ -52,11 +52,13 @@ export async function buildRoomResponse(roomId, currentUser = null) {
   const room = rooms[0];
   const canonicalRoomId = room.room_id;
 
-  // 2. Check Diamond Mode from system_settings
-  const settingRows = await query("SELECT key_value FROM system_settings WHERE key_name = 'is_convert_to_diamond'");
-  const isDiamondMode = settingRows && settingRows.length > 0
-    ? (settingRows[0].key_value === 'true' || settingRows[0].key_value === '1')
-    : true;
+  // 2. Check Diamond Mode & Screen Security from system_settings
+  const settingRows = await query(
+    "SELECT key_name, key_value FROM system_settings WHERE key_name IN ('is_convert_to_diamond', 'live_screen_guard_enabled', 'live_screen_record_enabled', 'live_screen_share_enabled', 'screen_guard_creator_bypass', 'screen_guard_allow_creator_record', 'screen_guard_allow_creator_share')"
+  );
+  const settingsMap = {};
+  for (const r of settingRows) settingsMap[r.key_name] = r.key_value;
+  const isDiamondMode = settingsMap['is_convert_to_diamond'] !== 'false';
 
   // 3. Calculate Live Duration
   const startedAt = new Date(room.started_at || room.created_at);
@@ -252,6 +254,24 @@ export async function buildRoomResponse(roomId, currentUser = null) {
       ...(isDiamondMode ? { diamond: room.host_diamonds || 0 } : {}),
     },
     seats,
+  };
+
+  // Screen Security & Screen Guard Permissions
+  const isRoomCreator = currentUser && (Number(currentUser.id) === Number(room.host_id));
+  const creatorBypass = settingsMap['screen_guard_creator_bypass'] !== 'false';
+  const creatorCanRecord = settingsMap['screen_guard_allow_creator_record'] !== 'false';
+  const creatorCanShare = settingsMap['screen_guard_allow_creator_share'] !== 'false';
+  const globalGuardEnabled = settingsMap['live_screen_guard_enabled'] !== 'false';
+  const globalRecordEnabled = settingsMap['live_screen_record_enabled'] === 'true';
+  const globalShareEnabled = settingsMap['live_screen_share_enabled'] !== 'false';
+
+  roomResponse.screen_security = {
+    is_room_creator: Boolean(isRoomCreator),
+    screen_guard_enabled: globalGuardEnabled,
+    is_screen_guard_active: isRoomCreator ? (!creatorBypass && globalGuardEnabled) : globalGuardEnabled,
+    can_screen_record: isRoomCreator ? (creatorCanRecord || globalRecordEnabled) : globalRecordEnabled,
+    can_screen_share: isRoomCreator ? (creatorCanShare || globalShareEnabled) : globalShareEnabled,
+    bypass_screen_guard: isRoomCreator ? creatorBypass : false,
   };
 
   // Only host or admin gets the stream_key and plain room_password

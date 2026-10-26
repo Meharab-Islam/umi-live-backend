@@ -357,6 +357,9 @@ export default function Settings({ onToast, targetSection }) {
         'live_screen_share_enabled',
         'live_screen_share_roles',
         'screen_guard_allow_host',
+        'screen_guard_allow_creator_record',
+        'screen_guard_allow_creator_share',
+        'screen_guard_creator_bypass',
         'screen_guard_allow_moderator',
         'screen_guard_allow_agency',
         'screen_guard_allow_general_users',
@@ -4702,6 +4705,68 @@ export default function Settings({ onToast, targetSection }) {
                   Overlays a subtle dynamic watermark showing the viewer's User ID to trace any unauthorized external recording.
                 </div>
               </div>
+
+              {/* Creator Screen Recording Permission */}
+              <div style={{ padding: '1.15rem', borderRadius: '12px', background: 'var(--bg-primary)', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '0.75rem', marginBottom: '0.75rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ padding: '8px', borderRadius: '8px', background: 'rgba(236, 72, 153, 0.15)', color: '#f472b6' }}>
+                      <Video size={18} />
+                    </div>
+                    <div>
+                      <div style={{ fontWeight: 700, fontSize: '0.92rem', color: 'var(--text-main)' }}>
+                        Creator Screen Record
+                      </div>
+                      <div style={{ fontSize: '0.74rem', color: 'var(--text-dim)' }}>
+                        Host / Streamer Recording Rights
+                      </div>
+                    </div>
+                  </div>
+                  <select
+                    className="select-field"
+                    style={{ width: '130px', fontWeight: 600 }}
+                    value={settings.screen_guard_allow_creator_record !== 'false' ? 'true' : 'false'}
+                    onChange={(e) => handleChange('screen_guard_allow_creator_record', e.target.value)}
+                  >
+                    <option value="true">Allowed (On)</option>
+                    <option value="false">Blocked (Off)</option>
+                  </select>
+                </div>
+                <div style={{ fontSize: '0.78rem', color: 'var(--text-dim)', lineHeight: 1.4 }}>
+                  Allows the user who created the live room to record their own session, regardless of their account role.
+                </div>
+              </div>
+
+              {/* Creator Screen Share Permission */}
+              <div style={{ padding: '1.15rem', borderRadius: '12px', background: 'var(--bg-primary)', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '0.75rem', marginBottom: '0.75rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ padding: '8px', borderRadius: '8px', background: 'rgba(59, 130, 246, 0.15)', color: '#60a5fa' }}>
+                      <Cast size={18} />
+                    </div>
+                    <div>
+                      <div style={{ fontWeight: 700, fontSize: '0.92rem', color: 'var(--text-main)' }}>
+                        Creator Screen Share
+                      </div>
+                      <div style={{ fontSize: '0.74rem', color: 'var(--text-dim)' }}>
+                        Host / Streamer Screen Cast
+                      </div>
+                    </div>
+                  </div>
+                  <select
+                    className="select-field"
+                    style={{ width: '130px', fontWeight: 600 }}
+                    value={settings.screen_guard_allow_creator_share !== 'false' ? 'true' : 'false'}
+                    onChange={(e) => handleChange('screen_guard_allow_creator_share', e.target.value)}
+                  >
+                    <option value="true">Allowed (On)</option>
+                    <option value="false">Blocked (Off)</option>
+                  </select>
+                </div>
+                <div style={{ fontSize: '0.78rem', color: 'var(--text-dim)', lineHeight: 1.4 }}>
+                  Allows the room creator to share their device screen during the live stream, regardless of their user role.
+                </div>
+              </div>
             </div>
           </div>
 
@@ -4719,6 +4784,25 @@ export default function Settings({ onToast, targetSection }) {
             </p>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.25rem' }}>
+              {/* Room Creator (Role-Agnostic) */}
+              <div style={{ padding: '1rem', borderRadius: '10px', background: 'var(--bg-primary)', border: '1px solid rgba(236, 72, 153, 0.3)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                  <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#f472b6' }}>🎬 Room Creator (Any Role)</div>
+                  <select
+                    className="select-field"
+                    style={{ width: '120px' }}
+                    value={settings.screen_guard_creator_bypass !== 'false' ? 'true' : 'false'}
+                    onChange={(e) => handleChange('screen_guard_creator_bypass', e.target.value)}
+                  >
+                    <option value="true">Allowed (Bypass)</option>
+                    <option value="false">Blocked (Guarded)</option>
+                  </select>
+                </div>
+                <span style={{ fontSize: '0.74rem', color: 'var(--text-dim)' }}>
+                  Bypasses screen guard so the user who created the live room can record & screenshot their stream.
+                </span>
+              </div>
+
               {/* Host */}
               <div style={{ padding: '1rem', borderRadius: '10px', background: 'var(--bg-primary)', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>

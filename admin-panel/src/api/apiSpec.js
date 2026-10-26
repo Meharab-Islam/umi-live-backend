@@ -3009,7 +3009,13 @@ export const API_SPEC = {
               "live_screen_record_enabled": false,
               "live_screen_share_enabled": true,
               "live_screen_share_roles": "host_only",
+              "allow_creator_record": true,
+              "allow_creator_share": true,
+              "creator_bypass_guard": true,
               "permissions": {
+                "allow_creator": true,
+                "allow_creator_record": true,
+                "allow_creator_share": true,
                 "allow_host": true,
                 "allow_moderator": true,
                 "allow_agency": true,
