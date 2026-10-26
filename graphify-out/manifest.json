@@ -1458,9 +1458,9 @@
     "semantic_hash": ""
   },
   "admin-panel/src/pages/LegalPolicies.jsx": {
-    "mtime": 1792958418.3039546,
-    "seen": 1792958495.1541178,
-    "ast_hash": "23b392b544390f56f3692a01648f9e80",
+    "mtime": 1793039159.6587758,
+    "seen": 1793039177.845868,
+    "ast_hash": "34994608107fc46c393d680eda85b730",
     "semantic_hash": ""
   },
   "backend/src/controllers/publicController.js": {

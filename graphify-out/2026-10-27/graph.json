@@ -5955,7 +5955,7 @@
       "file_type": "code",
       "norm_label": "landingpage()",
       "source_file": "admin-panel/src/pages/LandingPage.jsx",
-      "source_location": "L29"
+      "source_location": "L36"
     },
     {
       "id": "admin_panel_src_pages_legalpolicies_legalpolicies",
@@ -13451,7 +13451,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "admin-panel/src/pages/LandingPage.jsx",
-      "source_location": "L30",
+      "source_location": "L37",
       "weight": 1.0
     },
     {
@@ -24167,7 +24167,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "admin-panel/src/pages/LandingPage.jsx",
-      "source_location": "L25",
+      "source_location": "L32",
       "weight": 1.0
     },
     {
@@ -24179,7 +24179,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "admin-panel/src/pages/LandingPage.jsx",
-      "source_location": "L26",
+      "source_location": "L33",
       "weight": 1.0
     },
     {
@@ -30215,7 +30215,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "admin-panel/src/pages/LandingPage.jsx",
-      "source_location": "L25",
+      "source_location": "L32",
       "weight": 1.0
     },
     {
@@ -30227,7 +30227,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "admin-panel/src/pages/LandingPage.jsx",
-      "source_location": "L26",
+      "source_location": "L33",
       "weight": 1.0
     },
     {
@@ -35586,7 +35586,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "admin-panel/src/pages/LandingPage.jsx",
-      "source_location": "L29",
+      "source_location": "L36",
       "weight": 1.0
     },
     {
@@ -48815,5 +48815,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "988ad82d3c6912c1fea7219a70f07818042ea2d6"
+  "built_at_commit": "2ad69ad02fa39cec63a2cd674bff5ce277412d7f"
 }
