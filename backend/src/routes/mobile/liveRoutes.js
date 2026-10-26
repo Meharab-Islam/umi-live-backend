@@ -172,6 +172,9 @@ router.post('/rooms/:roomId/seats/promote', requireAuth, promoteToMainSeat);
 router.post('/rooms/:roomId/seats/:seatNumber/promote', requireAuth, promoteToMainSeat);
 router.post('/rooms/:roomId/seats/:seatNumber/make-main', requireAuth, promoteToMainSeat);
 router.post('/rooms/:roomId/seats/:seatNumber/swap-main', requireAuth, promoteToMainSeat);
+router.post('/rooms/:roomId/seats/spotlight', requireAuth, promoteToMainSeat);
+router.post('/rooms/:roomId/seats/:seatNumber/spotlight', requireAuth, promoteToMainSeat);
+router.post('/rooms/:roomId/spotlight', requireAuth, promoteToMainSeat);
 
 // Real-Time Live Room Chat Messages (Send, History, Delete)
 router.post('/rooms/:roomId/messages', requireAuth, sendRoomChatMessage);

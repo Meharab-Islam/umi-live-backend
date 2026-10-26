@@ -294,28 +294,64 @@
       "source_location": "L318"
     },
     {
-      "id": "backend_src_config_db_query",
-      "label": "query()",
+      "id": "backend_src_config_db_getpool",
+      "label": "getPool()",
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "query",
+      "community_name": "adminRoutes.js",
       "file_type": "code",
-      "norm_label": "query()",
+      "norm_label": "getpool()",
       "source_file": "backend/src/config/db.js",
-      "source_location": "L44"
+      "source_location": "L29"
     },
     {
-      "id": "backend_src_controllers_admincontroller_approvedeletionrequest",
-      "label": "approveDeletionRequest()",
+      "id": "backend_src_controllers_admincontroller_addmoderator",
+      "label": "addModerator()",
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "query",
+      "community_name": "adminRoutes.js",
       "file_type": "code",
-      "norm_label": "approvedeletionrequest()",
+      "norm_label": "addmoderator()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5653"
+      "source_location": "L1570"
+    },
+    {
+      "id": "backend_src_controllers_admincontroller_adjustbalance",
+      "label": "adjustBalance()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "adminRoutes.js",
+      "file_type": "code",
+      "norm_label": "adjustbalance()",
+      "source_file": "backend/src/controllers/adminController.js",
+      "source_location": "L355"
+    },
+    {
+      "id": "backend_src_controllers_admincontroller_assignreseller",
+      "label": "assignReseller()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "adminRoutes.js",
+      "file_type": "code",
+      "norm_label": "assignreseller()",
+      "source_file": "backend/src/controllers/adminController.js",
+      "source_location": "L3125"
+    },
+    {
+      "id": "backend_src_controllers_admincontroller_assignusertoagency",
+      "label": "assignUserToAgency()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "adminRoutes.js",
+      "file_type": "code",
+      "norm_label": "assignusertoagency()",
+      "source_file": "backend/src/controllers/adminController.js",
+      "source_location": "L1451"
     },
     {
       "id": "backend_src_controllers_admincontroller_bulkdelete",
@@ -323,7 +359,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "query",
+      "community_name": "adminRoutes.js",
       "file_type": "code",
       "norm_label": "bulkdelete()",
       "source_file": "backend/src/controllers/adminController.js",
@@ -335,7 +371,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "query",
+      "community_name": "adminRoutes.js",
       "file_type": "code",
       "norm_label": "bulkdeletereports()",
       "source_file": "backend/src/controllers/adminController.js",
@@ -347,23 +383,35 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "query",
+      "community_name": "adminRoutes.js",
       "file_type": "code",
       "norm_label": "cleargifthistoryadmin()",
       "source_file": "backend/src/controllers/adminController.js",
       "source_location": "L926"
     },
     {
-      "id": "backend_src_controllers_admincontroller_clearresellersales",
-      "label": "clearResellerSales()",
+      "id": "backend_src_controllers_admincontroller_createadminpost",
+      "label": "createAdminPost()",
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "query",
+      "community_name": "adminRoutes.js",
       "file_type": "code",
-      "norm_label": "clearresellersales()",
+      "norm_label": "createadminpost()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L3447"
+      "source_location": "L2133"
+    },
+    {
+      "id": "backend_src_controllers_admincontroller_createagency",
+      "label": "createAgency()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "adminRoutes.js",
+      "file_type": "code",
+      "norm_label": "createagency()",
+      "source_file": "backend/src/controllers/adminController.js",
+      "source_location": "L1284"
     },
     {
       "id": "backend_src_controllers_admincontroller_createcoinpackageadmin",
@@ -371,7 +419,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "query",
+      "community_name": "adminRoutes.js",
       "file_type": "code",
       "norm_label": "createcoinpackageadmin()",
       "source_file": "backend/src/controllers/adminController.js",
@@ -383,7 +431,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "query",
+      "community_name": "adminRoutes.js",
       "file_type": "code",
       "norm_label": "creategift()",
       "source_file": "backend/src/controllers/adminController.js",
@@ -395,7 +443,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "query",
+      "community_name": "adminRoutes.js",
       "file_type": "code",
       "norm_label": "createhostrequest()",
       "source_file": "backend/src/controllers/adminController.js",
@@ -407,7 +455,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "query",
+      "community_name": "adminRoutes.js",
       "file_type": "code",
       "norm_label": "createlevelconfig()",
       "source_file": "backend/src/controllers/adminController.js",
@@ -419,11 +467,23 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "query",
+      "community_name": "adminRoutes.js",
       "file_type": "code",
       "norm_label": "deleteadminreport()",
       "source_file": "backend/src/controllers/adminController.js",
       "source_location": "L4596"
+    },
+    {
+      "id": "backend_src_controllers_admincontroller_deleteagency",
+      "label": "deleteAgency()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "adminRoutes.js",
+      "file_type": "code",
+      "norm_label": "deleteagency()",
+      "source_file": "backend/src/controllers/adminController.js",
+      "source_location": "L1383"
     },
     {
       "id": "backend_src_controllers_admincontroller_deletecoinpackageadmin",
@@ -431,23 +491,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "query",
+      "community_name": "adminRoutes.js",
       "file_type": "code",
       "norm_label": "deletecoinpackageadmin()",
       "source_file": "backend/src/controllers/adminController.js",
       "source_location": "L3608"
-    },
-    {
-      "id": "backend_src_controllers_admincontroller_deletedeletionrequestrecord",
-      "label": "deleteDeletionRequestRecord()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "query",
-      "file_type": "code",
-      "norm_label": "deletedeletionrequestrecord()",
-      "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5811"
     },
     {
       "id": "backend_src_controllers_admincontroller_deletegift",
@@ -455,7 +503,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "query",
+      "community_name": "adminRoutes.js",
       "file_type": "code",
       "norm_label": "deletegift()",
       "source_file": "backend/src/controllers/adminController.js",
@@ -467,11 +515,23 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "query",
+      "community_name": "adminRoutes.js",
       "file_type": "code",
       "norm_label": "deletelevelconfig()",
       "source_file": "backend/src/controllers/adminController.js",
       "source_location": "L4981"
+    },
+    {
+      "id": "backend_src_controllers_admincontroller_deletemoderator",
+      "label": "deleteModerator()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "adminRoutes.js",
+      "file_type": "code",
+      "norm_label": "deletemoderator()",
+      "source_file": "backend/src/controllers/adminController.js",
+      "source_location": "L1710"
     },
     {
       "id": "backend_src_controllers_admincontroller_deletereseller",
@@ -479,7 +539,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "query",
+      "community_name": "adminRoutes.js",
       "file_type": "code",
       "norm_label": "deletereseller()",
       "source_file": "backend/src/controllers/adminController.js",
@@ -491,7 +551,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "query",
+      "community_name": "adminRoutes.js",
       "file_type": "code",
       "norm_label": "deleteresellersale()",
       "source_file": "backend/src/controllers/adminController.js",
@@ -503,35 +563,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "query",
+      "community_name": "adminRoutes.js",
       "file_type": "code",
       "norm_label": "deleteuser()",
       "source_file": "backend/src/controllers/adminController.js",
       "source_location": "L2257"
-    },
-    {
-      "id": "backend_src_controllers_admincontroller_deleteuserpost",
-      "label": "deleteUserPost()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "query",
-      "file_type": "code",
-      "norm_label": "deleteuserpost()",
-      "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L2241"
-    },
-    {
-      "id": "backend_src_controllers_admincontroller_getadmincalllogs",
-      "label": "getAdminCallLogs()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "query",
-      "file_type": "code",
-      "norm_label": "getadmincalllogs()",
-      "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L4720"
     },
     {
       "id": "backend_src_controllers_admincontroller_getadmindeletionrequests",
@@ -539,35 +575,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "query",
+      "community_name": "adminRoutes.js",
       "file_type": "code",
       "norm_label": "getadmindeletionrequests()",
       "source_file": "backend/src/controllers/adminController.js",
       "source_location": "L5547"
-    },
-    {
-      "id": "backend_src_controllers_admincontroller_getadminposts",
-      "label": "getAdminPosts()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "query",
-      "file_type": "code",
-      "norm_label": "getadminposts()",
-      "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1941"
-    },
-    {
-      "id": "backend_src_controllers_admincontroller_getadminprivacypolicy",
-      "label": "getAdminPrivacyPolicy()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "query",
-      "file_type": "code",
-      "norm_label": "getadminprivacypolicy()",
-      "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5464"
     },
     {
       "id": "backend_src_controllers_admincontroller_getadminprofile",
@@ -575,7 +587,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "query",
+      "community_name": "adminRoutes.js",
       "file_type": "code",
       "norm_label": "getadminprofile()",
       "source_file": "backend/src/controllers/adminController.js",
@@ -587,7 +599,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "query",
+      "community_name": "adminRoutes.js",
       "file_type": "code",
       "norm_label": "getadminreports()",
       "source_file": "backend/src/controllers/adminController.js",
@@ -599,23 +611,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "query",
+      "community_name": "adminRoutes.js",
       "file_type": "code",
       "norm_label": "getagencies()",
       "source_file": "backend/src/controllers/adminController.js",
       "source_location": "L1252"
-    },
-    {
-      "id": "backend_src_controllers_admincontroller_getagencyhosts",
-      "label": "getAgencyHosts()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "query",
-      "file_type": "code",
-      "norm_label": "getagencyhosts()",
-      "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1434"
     },
     {
       "id": "backend_src_controllers_admincontroller_getchattesterconversation",
@@ -623,7 +623,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "query",
+      "community_name": "adminRoutes.js",
       "file_type": "code",
       "norm_label": "getchattesterconversation()",
       "source_file": "backend/src/controllers/adminController.js",
@@ -635,23 +635,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "query",
+      "community_name": "adminRoutes.js",
       "file_type": "code",
       "norm_label": "getchattesterusers()",
       "source_file": "backend/src/controllers/adminController.js",
       "source_location": "L3994"
-    },
-    {
-      "id": "backend_src_controllers_admincontroller_getcoinpackagesadmin",
-      "label": "getCoinPackagesAdmin()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "query",
-      "file_type": "code",
-      "norm_label": "getcoinpackagesadmin()",
-      "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L3482"
     },
     {
       "id": "backend_src_controllers_admincontroller_getconversationmessages",
@@ -659,23 +647,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "query",
+      "community_name": "adminRoutes.js",
       "file_type": "code",
       "norm_label": "getconversationmessages()",
       "source_file": "backend/src/controllers/adminController.js",
       "source_location": "L1891"
-    },
-    {
-      "id": "backend_src_controllers_admincontroller_getdashboardstats",
-      "label": "getDashboardStats()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "query",
-      "file_type": "code",
-      "norm_label": "getdashboardstats()",
-      "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L15"
     },
     {
       "id": "backend_src_controllers_admincontroller_getgiftsadmin",
@@ -683,23 +659,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "query",
+      "community_name": "adminRoutes.js",
       "file_type": "code",
       "norm_label": "getgiftsadmin()",
       "source_file": "backend/src/controllers/adminController.js",
       "source_location": "L672"
-    },
-    {
-      "id": "backend_src_controllers_admincontroller_gethostrequests",
-      "label": "getHostRequests()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "query",
-      "file_type": "code",
-      "norm_label": "gethostrequests()",
-      "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L2675"
     },
     {
       "id": "backend_src_controllers_admincontroller_gethosts",
@@ -707,23 +671,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "query",
+      "community_name": "adminRoutes.js",
       "file_type": "code",
       "norm_label": "gethosts()",
       "source_file": "backend/src/controllers/adminController.js",
       "source_location": "L2530"
-    },
-    {
-      "id": "backend_src_controllers_admincontroller_gethostwithdrawalratios",
-      "label": "getHostWithdrawalRatios()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "query",
-      "file_type": "code",
-      "norm_label": "gethostwithdrawalratios()",
-      "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L2840"
     },
     {
       "id": "backend_src_controllers_admincontroller_getlevelconfigs",
@@ -731,23 +683,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "query",
+      "community_name": "adminRoutes.js",
       "file_type": "code",
       "norm_label": "getlevelconfigs()",
       "source_file": "backend/src/controllers/adminController.js",
       "source_location": "L4787"
-    },
-    {
-      "id": "backend_src_controllers_admincontroller_getlevelrewardhistory",
-      "label": "getLevelRewardHistory()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "query",
-      "file_type": "code",
-      "norm_label": "getlevelrewardhistory()",
-      "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5004"
     },
     {
       "id": "backend_src_controllers_admincontroller_getlevelrewardoptions",
@@ -755,7 +695,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "query",
+      "community_name": "adminRoutes.js",
       "file_type": "code",
       "norm_label": "getlevelrewardoptions()",
       "source_file": "backend/src/controllers/adminController.js",
@@ -767,7 +707,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "query",
+      "community_name": "adminRoutes.js",
       "file_type": "code",
       "norm_label": "getmoderators()",
       "source_file": "backend/src/controllers/adminController.js",
@@ -779,7 +719,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "query",
+      "community_name": "adminRoutes.js",
       "file_type": "code",
       "norm_label": "getoffenderreports()",
       "source_file": "backend/src/controllers/adminController.js",
@@ -791,23 +731,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "query",
+      "community_name": "adminRoutes.js",
       "file_type": "code",
       "norm_label": "getrechargehistory()",
       "source_file": "backend/src/controllers/adminController.js",
       "source_location": "L506"
-    },
-    {
-      "id": "backend_src_controllers_admincontroller_getrechargepresetsadmin",
-      "label": "getRechargePresetsAdmin()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "query",
-      "file_type": "code",
-      "norm_label": "getrechargepresetsadmin()",
-      "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L3673"
     },
     {
       "id": "backend_src_controllers_admincontroller_getresellers",
@@ -815,7 +743,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "query",
+      "community_name": "adminRoutes.js",
       "file_type": "code",
       "norm_label": "getresellers()",
       "source_file": "backend/src/controllers/adminController.js",
@@ -827,7 +755,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "query",
+      "community_name": "adminRoutes.js",
       "file_type": "code",
       "norm_label": "getresellersales()",
       "source_file": "backend/src/controllers/adminController.js",
@@ -839,7 +767,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "query",
+      "community_name": "adminRoutes.js",
       "file_type": "code",
       "norm_label": "getsettings()",
       "source_file": "backend/src/controllers/adminController.js",
@@ -851,23 +779,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "query",
+      "community_name": "adminRoutes.js",
       "file_type": "code",
       "norm_label": "getstarsettings()",
       "source_file": "backend/src/controllers/adminController.js",
       "source_location": "L5223"
-    },
-    {
-      "id": "backend_src_controllers_admincontroller_getstreams",
-      "label": "getStreams()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "query",
-      "file_type": "code",
-      "norm_label": "getstreams()",
-      "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L607"
     },
     {
       "id": "backend_src_controllers_admincontroller_gettopcontributorsadmin",
@@ -875,7 +791,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "query",
+      "community_name": "adminRoutes.js",
       "file_type": "code",
       "norm_label": "gettopcontributorsadmin()",
       "source_file": "backend/src/controllers/adminController.js",
@@ -887,7 +803,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "query",
+      "community_name": "adminRoutes.js",
       "file_type": "code",
       "norm_label": "getuserdetails()",
       "source_file": "backend/src/controllers/adminController.js",
@@ -899,7 +815,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "query",
+      "community_name": "adminRoutes.js",
       "file_type": "code",
       "norm_label": "getusers()",
       "source_file": "backend/src/controllers/adminController.js",
@@ -911,7 +827,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "query",
+      "community_name": "adminRoutes.js",
       "file_type": "code",
       "norm_label": "getwithdrawalconfigadmin()",
       "source_file": "backend/src/controllers/adminController.js",
@@ -923,11 +839,35 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "query",
+      "community_name": "adminRoutes.js",
       "file_type": "code",
       "norm_label": "getwithdrawals()",
       "source_file": "backend/src/controllers/adminController.js",
       "source_location": "L974"
+    },
+    {
+      "id": "backend_src_controllers_admincontroller_processhostrequest",
+      "label": "processHostRequest()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "adminRoutes.js",
+      "file_type": "code",
+      "norm_label": "processhostrequest()",
+      "source_file": "backend/src/controllers/adminController.js",
+      "source_location": "L2781"
+    },
+    {
+      "id": "backend_src_controllers_admincontroller_processwithdrawal",
+      "label": "processWithdrawal()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "adminRoutes.js",
+      "file_type": "code",
+      "norm_label": "processwithdrawal()",
+      "source_file": "backend/src/controllers/adminController.js",
+      "source_location": "L1112"
     },
     {
       "id": "backend_src_controllers_admincontroller_recalculatealluserstars",
@@ -935,11 +875,35 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "query",
+      "community_name": "adminRoutes.js",
       "file_type": "code",
       "norm_label": "recalculatealluserstars()",
       "source_file": "backend/src/controllers/adminController.js",
       "source_location": "L5314"
+    },
+    {
+      "id": "backend_src_controllers_admincontroller_rechargecoins",
+      "label": "rechargeCoins()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "adminRoutes.js",
+      "file_type": "code",
+      "norm_label": "rechargecoins()",
+      "source_file": "backend/src/controllers/adminController.js",
+      "source_location": "L433"
+    },
+    {
+      "id": "backend_src_controllers_admincontroller_recordresellersale",
+      "label": "recordResellerSale()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "adminRoutes.js",
+      "file_type": "code",
+      "norm_label": "recordresellersale()",
+      "source_file": "backend/src/controllers/adminController.js",
+      "source_location": "L3340"
     },
     {
       "id": "backend_src_controllers_admincontroller_rejectdeletionrequest",
@@ -947,23 +911,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "query",
+      "community_name": "adminRoutes.js",
       "file_type": "code",
       "norm_label": "rejectdeletionrequest()",
       "source_file": "backend/src/controllers/adminController.js",
       "source_location": "L5742"
-    },
-    {
-      "id": "backend_src_controllers_admincontroller_removeuserfromagency",
-      "label": "removeUserFromAgency()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "query",
-      "file_type": "code",
-      "norm_label": "removeuserfromagency()",
-      "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1504"
     },
     {
       "id": "backend_src_controllers_admincontroller_resetallusersbalances",
@@ -971,7 +923,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "query",
+      "community_name": "adminRoutes.js",
       "file_type": "code",
       "norm_label": "resetallusersbalances()",
       "source_file": "backend/src/controllers/adminController.js",
@@ -983,23 +935,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "query",
+      "community_name": "adminRoutes.js",
       "file_type": "code",
       "norm_label": "resetalluserscoins()",
       "source_file": "backend/src/controllers/adminController.js",
       "source_location": "L5094"
-    },
-    {
-      "id": "backend_src_controllers_admincontroller_resetallusersdiamonds",
-      "label": "resetAllUsersDiamonds()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "query",
-      "file_type": "code",
-      "norm_label": "resetallusersdiamonds()",
-      "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5136"
     },
     {
       "id": "backend_src_controllers_admincontroller_seeddefaultlevels",
@@ -1007,7 +947,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "query",
+      "community_name": "adminRoutes.js",
       "file_type": "code",
       "norm_label": "seeddefaultlevels()",
       "source_file": "backend/src/controllers/adminController.js",
@@ -1019,7 +959,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "query",
+      "community_name": "adminRoutes.js",
       "file_type": "code",
       "norm_label": "takeadminreportaction()",
       "source_file": "backend/src/controllers/adminController.js",
@@ -1031,7 +971,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "query",
+      "community_name": "adminRoutes.js",
       "file_type": "code",
       "norm_label": "terminatestream()",
       "source_file": "backend/src/controllers/adminController.js",
@@ -1043,7 +983,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "query",
+      "community_name": "adminRoutes.js",
       "file_type": "code",
       "norm_label": "togglecoinpackageadmin()",
       "source_file": "backend/src/controllers/adminController.js",
@@ -1055,7 +995,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "query",
+      "community_name": "adminRoutes.js",
       "file_type": "code",
       "norm_label": "updateadminprivacypolicy()",
       "source_file": "backend/src/controllers/adminController.js",
@@ -1067,23 +1007,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "query",
+      "community_name": "adminRoutes.js",
       "file_type": "code",
       "norm_label": "updateadminprofile()",
       "source_file": "backend/src/controllers/adminController.js",
       "source_location": "L5373"
-    },
-    {
-      "id": "backend_src_controllers_admincontroller_updateadminreportstatus",
-      "label": "updateAdminReportStatus()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "query",
-      "file_type": "code",
-      "norm_label": "updateadminreportstatus()",
-      "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L4382"
     },
     {
       "id": "backend_src_controllers_admincontroller_updateagency",
@@ -1091,23 +1019,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "query",
+      "community_name": "adminRoutes.js",
       "file_type": "code",
       "norm_label": "updateagency()",
       "source_file": "backend/src/controllers/adminController.js",
       "source_location": "L1352"
-    },
-    {
-      "id": "backend_src_controllers_admincontroller_updatecoinpackageadmin",
-      "label": "updateCoinPackageAdmin()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "query",
-      "file_type": "code",
-      "norm_label": "updatecoinpackageadmin()",
-      "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L3560"
     },
     {
       "id": "backend_src_controllers_admincontroller_updategift",
@@ -1115,35 +1031,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "query",
+      "community_name": "adminRoutes.js",
       "file_type": "code",
       "norm_label": "updategift()",
       "source_file": "backend/src/controllers/adminController.js",
       "source_location": "L751"
-    },
-    {
-      "id": "backend_src_controllers_admincontroller_updatehostdetails",
-      "label": "updateHostDetails()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "query",
-      "file_type": "code",
-      "norm_label": "updatehostdetails()",
-      "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L2622"
-    },
-    {
-      "id": "backend_src_controllers_admincontroller_updatehostwithdrawalratios",
-      "label": "updateHostWithdrawalRatios()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "query",
-      "file_type": "code",
-      "norm_label": "updatehostwithdrawalratios()",
-      "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L2915"
     },
     {
       "id": "backend_src_controllers_admincontroller_updatelevelconfig",
@@ -1151,7 +1043,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "query",
+      "community_name": "adminRoutes.js",
       "file_type": "code",
       "norm_label": "updatelevelconfig()",
       "source_file": "backend/src/controllers/adminController.js",
@@ -1163,7 +1055,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "query",
+      "community_name": "adminRoutes.js",
       "file_type": "code",
       "norm_label": "updatemoderator()",
       "source_file": "backend/src/controllers/adminController.js",
@@ -1175,23 +1067,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "query",
+      "community_name": "adminRoutes.js",
       "file_type": "code",
       "norm_label": "updaterechargepresetsadmin()",
       "source_file": "backend/src/controllers/adminController.js",
       "source_location": "L3693"
-    },
-    {
-      "id": "backend_src_controllers_admincontroller_updatesetting",
-      "label": "updateSetting()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "query",
-      "file_type": "code",
-      "norm_label": "updatesetting()",
-      "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1195"
     },
     {
       "id": "backend_src_controllers_admincontroller_updatestarsettings",
@@ -1199,47 +1079,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "query",
+      "community_name": "adminRoutes.js",
       "file_type": "code",
       "norm_label": "updatestarsettings()",
       "source_file": "backend/src/controllers/adminController.js",
       "source_location": "L5264"
-    },
-    {
-      "id": "backend_src_controllers_admincontroller_updateuser",
-      "label": "updateUser()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "query",
-      "file_type": "code",
-      "norm_label": "updateuser()",
-      "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L278"
-    },
-    {
-      "id": "backend_src_controllers_admincontroller_updatewithdrawalconfigadmin",
-      "label": "updateWithdrawalConfigAdmin()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "query",
-      "file_type": "code",
-      "norm_label": "updatewithdrawalconfigadmin()",
-      "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L3820"
-    },
-    {
-      "id": "backend_src_controllers_walletcontroller_invalidatewalletwithdrawalcache",
-      "label": "invalidateWalletWithdrawalCache()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "query",
-      "file_type": "code",
-      "norm_label": "invalidatewalletwithdrawalcache()",
-      "source_file": "backend/src/controllers/walletController.js",
-      "source_location": "L427"
     },
     {
       "id": "backend_src_routes_adminroutes_setuploadcategory",
@@ -1247,7 +1091,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 1,
-      "community_name": "query",
+      "community_name": "adminRoutes.js",
       "file_type": "code",
       "norm_label": "setuploadcategory()",
       "source_file": "backend/src/routes/adminRoutes.js",
@@ -2463,7 +2307,7 @@
       "file_type": "code",
       "norm_label": "claimlivereward()",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L4469"
+      "source_location": "L4490"
     },
     {
       "id": "backend_src_controllers_mobile_livecontroller_createroom",
@@ -2499,7 +2343,7 @@
       "file_type": "code",
       "norm_label": "deleteroomchatmessage()",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L4103"
+      "source_location": "L4124"
     },
     {
       "id": "backend_src_controllers_mobile_livecontroller_endroom",
@@ -2547,7 +2391,7 @@
       "file_type": "code",
       "norm_label": "formathmstime()",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L3684"
+      "source_location": "L3705"
     },
     {
       "id": "backend_src_controllers_mobile_livecontroller_getlivekittoken",
@@ -2559,7 +2403,7 @@
       "file_type": "code",
       "norm_label": "getlivekittoken()",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L4157"
+      "source_location": "L4178"
     },
     {
       "id": "backend_src_controllers_mobile_livecontroller_getliverewardstatus",
@@ -2571,7 +2415,7 @@
       "file_type": "code",
       "norm_label": "getliverewardstatus()",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L4453"
+      "source_location": "L4474"
     },
     {
       "id": "backend_src_controllers_mobile_livecontroller_getmyactiveroom",
@@ -2607,7 +2451,7 @@
       "file_type": "code",
       "norm_label": "getroomchatmessages()",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L4029"
+      "source_location": "L4050"
     },
     {
       "id": "backend_src_controllers_mobile_livecontroller_getroomdetails",
@@ -2667,7 +2511,7 @@
       "file_type": "code",
       "norm_label": "getuserlivehistory()",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L3713"
+      "source_location": "L3734"
     },
     {
       "id": "backend_src_controllers_mobile_livecontroller_handleuserseatdeparture",
@@ -2871,7 +2715,7 @@
       "file_type": "code",
       "norm_label": "sendroomchatmessage()",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L3940"
+      "source_location": "L3961"
     },
     {
       "id": "backend_src_controllers_mobile_livecontroller_switchseat",
@@ -2907,7 +2751,7 @@
       "file_type": "code",
       "norm_label": "toggleroomlock()",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L4340"
+      "source_location": "L4361"
     },
     {
       "id": "backend_src_controllers_mobile_livecontroller_toggleseatmedia",
@@ -2931,7 +2775,7 @@
       "file_type": "code",
       "norm_label": "updateroombackground()",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L3547"
+      "source_location": "L3568"
     },
     {
       "id": "backend_src_controllers_mobile_livecontroller_updateroomseatscount",
@@ -2955,7 +2799,7 @@
       "file_type": "code",
       "norm_label": "updateroomsettings()",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L4230"
+      "source_location": "L4251"
     },
     {
       "id": "backend_src_services_liverewardservice_checkstreamrewardstatus",
@@ -5082,12 +4926,348 @@
       "source_location": "L72"
     },
     {
+      "id": "backend_src_config_db_query",
+      "label": "query()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "query",
+      "file_type": "code",
+      "norm_label": "query()",
+      "source_file": "backend/src/config/db.js",
+      "source_location": "L44"
+    },
+    {
+      "id": "backend_src_controllers_admincontroller_approvedeletionrequest",
+      "label": "approveDeletionRequest()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "query",
+      "file_type": "code",
+      "norm_label": "approvedeletionrequest()",
+      "source_file": "backend/src/controllers/adminController.js",
+      "source_location": "L5653"
+    },
+    {
+      "id": "backend_src_controllers_admincontroller_clearresellersales",
+      "label": "clearResellerSales()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "query",
+      "file_type": "code",
+      "norm_label": "clearresellersales()",
+      "source_file": "backend/src/controllers/adminController.js",
+      "source_location": "L3447"
+    },
+    {
+      "id": "backend_src_controllers_admincontroller_deletedeletionrequestrecord",
+      "label": "deleteDeletionRequestRecord()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "query",
+      "file_type": "code",
+      "norm_label": "deletedeletionrequestrecord()",
+      "source_file": "backend/src/controllers/adminController.js",
+      "source_location": "L5811"
+    },
+    {
+      "id": "backend_src_controllers_admincontroller_deleteuserpost",
+      "label": "deleteUserPost()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "query",
+      "file_type": "code",
+      "norm_label": "deleteuserpost()",
+      "source_file": "backend/src/controllers/adminController.js",
+      "source_location": "L2241"
+    },
+    {
+      "id": "backend_src_controllers_admincontroller_getadmincalllogs",
+      "label": "getAdminCallLogs()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "query",
+      "file_type": "code",
+      "norm_label": "getadmincalllogs()",
+      "source_file": "backend/src/controllers/adminController.js",
+      "source_location": "L4720"
+    },
+    {
+      "id": "backend_src_controllers_admincontroller_getadminposts",
+      "label": "getAdminPosts()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "query",
+      "file_type": "code",
+      "norm_label": "getadminposts()",
+      "source_file": "backend/src/controllers/adminController.js",
+      "source_location": "L1941"
+    },
+    {
+      "id": "backend_src_controllers_admincontroller_getadminprivacypolicy",
+      "label": "getAdminPrivacyPolicy()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "query",
+      "file_type": "code",
+      "norm_label": "getadminprivacypolicy()",
+      "source_file": "backend/src/controllers/adminController.js",
+      "source_location": "L5464"
+    },
+    {
+      "id": "backend_src_controllers_admincontroller_getagencyhosts",
+      "label": "getAgencyHosts()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "query",
+      "file_type": "code",
+      "norm_label": "getagencyhosts()",
+      "source_file": "backend/src/controllers/adminController.js",
+      "source_location": "L1434"
+    },
+    {
+      "id": "backend_src_controllers_admincontroller_getcoinpackagesadmin",
+      "label": "getCoinPackagesAdmin()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "query",
+      "file_type": "code",
+      "norm_label": "getcoinpackagesadmin()",
+      "source_file": "backend/src/controllers/adminController.js",
+      "source_location": "L3482"
+    },
+    {
+      "id": "backend_src_controllers_admincontroller_getdashboardstats",
+      "label": "getDashboardStats()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "query",
+      "file_type": "code",
+      "norm_label": "getdashboardstats()",
+      "source_file": "backend/src/controllers/adminController.js",
+      "source_location": "L15"
+    },
+    {
+      "id": "backend_src_controllers_admincontroller_gethostrequests",
+      "label": "getHostRequests()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "query",
+      "file_type": "code",
+      "norm_label": "gethostrequests()",
+      "source_file": "backend/src/controllers/adminController.js",
+      "source_location": "L2675"
+    },
+    {
+      "id": "backend_src_controllers_admincontroller_gethostwithdrawalratios",
+      "label": "getHostWithdrawalRatios()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "query",
+      "file_type": "code",
+      "norm_label": "gethostwithdrawalratios()",
+      "source_file": "backend/src/controllers/adminController.js",
+      "source_location": "L2840"
+    },
+    {
+      "id": "backend_src_controllers_admincontroller_getlevelrewardhistory",
+      "label": "getLevelRewardHistory()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "query",
+      "file_type": "code",
+      "norm_label": "getlevelrewardhistory()",
+      "source_file": "backend/src/controllers/adminController.js",
+      "source_location": "L5004"
+    },
+    {
+      "id": "backend_src_controllers_admincontroller_getrechargepresetsadmin",
+      "label": "getRechargePresetsAdmin()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "query",
+      "file_type": "code",
+      "norm_label": "getrechargepresetsadmin()",
+      "source_file": "backend/src/controllers/adminController.js",
+      "source_location": "L3673"
+    },
+    {
+      "id": "backend_src_controllers_admincontroller_getstreams",
+      "label": "getStreams()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "query",
+      "file_type": "code",
+      "norm_label": "getstreams()",
+      "source_file": "backend/src/controllers/adminController.js",
+      "source_location": "L607"
+    },
+    {
+      "id": "backend_src_controllers_admincontroller_removeuserfromagency",
+      "label": "removeUserFromAgency()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "query",
+      "file_type": "code",
+      "norm_label": "removeuserfromagency()",
+      "source_file": "backend/src/controllers/adminController.js",
+      "source_location": "L1504"
+    },
+    {
+      "id": "backend_src_controllers_admincontroller_resetallusersdiamonds",
+      "label": "resetAllUsersDiamonds()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "query",
+      "file_type": "code",
+      "norm_label": "resetallusersdiamonds()",
+      "source_file": "backend/src/controllers/adminController.js",
+      "source_location": "L5136"
+    },
+    {
+      "id": "backend_src_controllers_admincontroller_updateadminreportstatus",
+      "label": "updateAdminReportStatus()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "query",
+      "file_type": "code",
+      "norm_label": "updateadminreportstatus()",
+      "source_file": "backend/src/controllers/adminController.js",
+      "source_location": "L4382"
+    },
+    {
+      "id": "backend_src_controllers_admincontroller_updatecoinpackageadmin",
+      "label": "updateCoinPackageAdmin()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "query",
+      "file_type": "code",
+      "norm_label": "updatecoinpackageadmin()",
+      "source_file": "backend/src/controllers/adminController.js",
+      "source_location": "L3560"
+    },
+    {
+      "id": "backend_src_controllers_admincontroller_updatehostdetails",
+      "label": "updateHostDetails()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "query",
+      "file_type": "code",
+      "norm_label": "updatehostdetails()",
+      "source_file": "backend/src/controllers/adminController.js",
+      "source_location": "L2622"
+    },
+    {
+      "id": "backend_src_controllers_admincontroller_updateuser",
+      "label": "updateUser()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "query",
+      "file_type": "code",
+      "norm_label": "updateuser()",
+      "source_file": "backend/src/controllers/adminController.js",
+      "source_location": "L278"
+    },
+    {
+      "id": "backend_src_controllers_adminthemecontroller_createthemeitem",
+      "label": "createThemeItem()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "query",
+      "file_type": "code",
+      "norm_label": "createthemeitem()",
+      "source_file": "backend/src/controllers/adminThemeController.js",
+      "source_location": "L111"
+    },
+    {
+      "id": "backend_src_controllers_adminthemecontroller_deletethemeitem",
+      "label": "deleteThemeItem()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "query",
+      "file_type": "code",
+      "norm_label": "deletethemeitem()",
+      "source_file": "backend/src/controllers/adminThemeController.js",
+      "source_location": "L269"
+    },
+    {
+      "id": "backend_src_controllers_adminthemecontroller_getadminthemeitems",
+      "label": "getAdminThemeItems()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "query",
+      "file_type": "code",
+      "norm_label": "getadminthemeitems()",
+      "source_file": "backend/src/controllers/adminThemeController.js",
+      "source_location": "L10"
+    },
+    {
+      "id": "backend_src_controllers_adminthemecontroller_getthemestats",
+      "label": "getThemeStats()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "query",
+      "file_type": "code",
+      "norm_label": "getthemestats()",
+      "source_file": "backend/src/controllers/adminThemeController.js",
+      "source_location": "L72"
+    },
+    {
+      "id": "backend_src_controllers_adminthemecontroller_setdefaultthemeitem",
+      "label": "setDefaultThemeItem()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "query",
+      "file_type": "code",
+      "norm_label": "setdefaultthemeitem()",
+      "source_file": "backend/src/controllers/adminThemeController.js",
+      "source_location": "L236"
+    },
+    {
+      "id": "backend_src_controllers_adminthemecontroller_updatethemeitem",
+      "label": "updateThemeItem()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "query",
+      "file_type": "code",
+      "norm_label": "updatethemeitem()",
+      "source_file": "backend/src/controllers/adminThemeController.js",
+      "source_location": "L169"
+    },
+    {
       "id": "backend_src_controllers_bannercontroller_createbanner",
       "label": "createBanner()",
       "_callable": true,
       "_origin": "ast",
       "community": 52,
-      "community_name": "controllers/bannerController.js",
+      "community_name": "query",
       "file_type": "code",
       "norm_label": "createbanner()",
       "source_file": "backend/src/controllers/bannerController.js",
@@ -5099,7 +5279,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 52,
-      "community_name": "controllers/bannerController.js",
+      "community_name": "query",
       "file_type": "code",
       "norm_label": "deletebanner()",
       "source_file": "backend/src/controllers/bannerController.js",
@@ -5111,7 +5291,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 52,
-      "community_name": "controllers/bannerController.js",
+      "community_name": "query",
       "file_type": "code",
       "norm_label": "getadminbanners()",
       "source_file": "backend/src/controllers/bannerController.js",
@@ -5123,7 +5303,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 52,
-      "community_name": "controllers/bannerController.js",
+      "community_name": "query",
       "file_type": "code",
       "norm_label": "getpublicbanners()",
       "source_file": "backend/src/controllers/bannerController.js",
@@ -5135,7 +5315,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 52,
-      "community_name": "controllers/bannerController.js",
+      "community_name": "query",
       "file_type": "code",
       "norm_label": "reorderbanners()",
       "source_file": "backend/src/controllers/bannerController.js",
@@ -5147,7 +5327,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 52,
-      "community_name": "controllers/bannerController.js",
+      "community_name": "query",
       "file_type": "code",
       "norm_label": "togglebannerstatus()",
       "source_file": "backend/src/controllers/bannerController.js",
@@ -5159,7 +5339,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 52,
-      "community_name": "controllers/bannerController.js",
+      "community_name": "query",
       "file_type": "code",
       "norm_label": "updatebanner()",
       "source_file": "backend/src/controllers/bannerController.js",
@@ -5310,24 +5490,12 @@
       "source_location": "L10"
     },
     {
-      "id": "backend_src_config_db_getpool",
-      "label": "getPool()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 55,
-      "community_name": "getPool",
-      "file_type": "code",
-      "norm_label": "getpool()",
-      "source_file": "backend/src/config/db.js",
-      "source_location": "L29"
-    },
-    {
       "id": "backend_src_controllers_accountmergecontroller_executemerge",
       "label": "executeMerge()",
       "_callable": true,
       "_origin": "ast",
       "community": 55,
-      "community_name": "getPool",
+      "community_name": "accountMergeController.js",
       "file_type": "code",
       "norm_label": "executemerge()",
       "source_file": "backend/src/controllers/accountMergeController.js",
@@ -5339,7 +5507,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 55,
-      "community_name": "getPool",
+      "community_name": "accountMergeController.js",
       "file_type": "code",
       "norm_label": "getmergehistory()",
       "source_file": "backend/src/controllers/accountMergeController.js",
@@ -5351,155 +5519,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 55,
-      "community_name": "getPool",
+      "community_name": "accountMergeController.js",
       "file_type": "code",
       "norm_label": "previewmerge()",
       "source_file": "backend/src/controllers/accountMergeController.js",
       "source_location": "L8"
-    },
-    {
-      "id": "backend_src_controllers_admincontroller_addmoderator",
-      "label": "addModerator()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 55,
-      "community_name": "getPool",
-      "file_type": "code",
-      "norm_label": "addmoderator()",
-      "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1570"
-    },
-    {
-      "id": "backend_src_controllers_admincontroller_adjustbalance",
-      "label": "adjustBalance()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 55,
-      "community_name": "getPool",
-      "file_type": "code",
-      "norm_label": "adjustbalance()",
-      "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L355"
-    },
-    {
-      "id": "backend_src_controllers_admincontroller_assignreseller",
-      "label": "assignReseller()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 55,
-      "community_name": "getPool",
-      "file_type": "code",
-      "norm_label": "assignreseller()",
-      "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L3125"
-    },
-    {
-      "id": "backend_src_controllers_admincontroller_assignusertoagency",
-      "label": "assignUserToAgency()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 55,
-      "community_name": "getPool",
-      "file_type": "code",
-      "norm_label": "assignusertoagency()",
-      "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1451"
-    },
-    {
-      "id": "backend_src_controllers_admincontroller_createadminpost",
-      "label": "createAdminPost()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 55,
-      "community_name": "getPool",
-      "file_type": "code",
-      "norm_label": "createadminpost()",
-      "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L2133"
-    },
-    {
-      "id": "backend_src_controllers_admincontroller_createagency",
-      "label": "createAgency()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 55,
-      "community_name": "getPool",
-      "file_type": "code",
-      "norm_label": "createagency()",
-      "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1284"
-    },
-    {
-      "id": "backend_src_controllers_admincontroller_deleteagency",
-      "label": "deleteAgency()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 55,
-      "community_name": "getPool",
-      "file_type": "code",
-      "norm_label": "deleteagency()",
-      "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1383"
-    },
-    {
-      "id": "backend_src_controllers_admincontroller_deletemoderator",
-      "label": "deleteModerator()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 55,
-      "community_name": "getPool",
-      "file_type": "code",
-      "norm_label": "deletemoderator()",
-      "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1710"
-    },
-    {
-      "id": "backend_src_controllers_admincontroller_processhostrequest",
-      "label": "processHostRequest()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 55,
-      "community_name": "getPool",
-      "file_type": "code",
-      "norm_label": "processhostrequest()",
-      "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L2781"
-    },
-    {
-      "id": "backend_src_controllers_admincontroller_processwithdrawal",
-      "label": "processWithdrawal()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 55,
-      "community_name": "getPool",
-      "file_type": "code",
-      "norm_label": "processwithdrawal()",
-      "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1112"
-    },
-    {
-      "id": "backend_src_controllers_admincontroller_rechargecoins",
-      "label": "rechargeCoins()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 55,
-      "community_name": "getPool",
-      "file_type": "code",
-      "norm_label": "rechargecoins()",
-      "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L433"
-    },
-    {
-      "id": "backend_src_controllers_admincontroller_recordresellersale",
-      "label": "recordResellerSale()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 55,
-      "community_name": "getPool",
-      "file_type": "code",
-      "norm_label": "recordresellersale()",
-      "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L3340"
     },
     {
       "id": "scratch_ssh_runner_run_ssh_command",
@@ -6750,76 +6774,52 @@
       "source_location": "L18"
     },
     {
-      "id": "backend_src_controllers_adminthemecontroller_createthemeitem",
-      "label": "createThemeItem()",
+      "id": "backend_src_controllers_admincontroller_updatehostwithdrawalratios",
+      "label": "updateHostWithdrawalRatios()",
       "_callable": true,
       "_origin": "ast",
       "community": 74,
-      "community_name": "adminThemeController.js",
+      "community_name": "invalidateWalletWithdrawalCache",
       "file_type": "code",
-      "norm_label": "createthemeitem()",
-      "source_file": "backend/src/controllers/adminThemeController.js",
-      "source_location": "L111"
+      "norm_label": "updatehostwithdrawalratios()",
+      "source_file": "backend/src/controllers/adminController.js",
+      "source_location": "L2915"
     },
     {
-      "id": "backend_src_controllers_adminthemecontroller_deletethemeitem",
-      "label": "deleteThemeItem()",
+      "id": "backend_src_controllers_admincontroller_updatesetting",
+      "label": "updateSetting()",
       "_callable": true,
       "_origin": "ast",
       "community": 74,
-      "community_name": "adminThemeController.js",
+      "community_name": "invalidateWalletWithdrawalCache",
       "file_type": "code",
-      "norm_label": "deletethemeitem()",
-      "source_file": "backend/src/controllers/adminThemeController.js",
-      "source_location": "L269"
+      "norm_label": "updatesetting()",
+      "source_file": "backend/src/controllers/adminController.js",
+      "source_location": "L1195"
     },
     {
-      "id": "backend_src_controllers_adminthemecontroller_getadminthemeitems",
-      "label": "getAdminThemeItems()",
+      "id": "backend_src_controllers_admincontroller_updatewithdrawalconfigadmin",
+      "label": "updateWithdrawalConfigAdmin()",
       "_callable": true,
       "_origin": "ast",
       "community": 74,
-      "community_name": "adminThemeController.js",
+      "community_name": "invalidateWalletWithdrawalCache",
       "file_type": "code",
-      "norm_label": "getadminthemeitems()",
-      "source_file": "backend/src/controllers/adminThemeController.js",
-      "source_location": "L10"
+      "norm_label": "updatewithdrawalconfigadmin()",
+      "source_file": "backend/src/controllers/adminController.js",
+      "source_location": "L3820"
     },
     {
-      "id": "backend_src_controllers_adminthemecontroller_getthemestats",
-      "label": "getThemeStats()",
+      "id": "backend_src_controllers_walletcontroller_invalidatewalletwithdrawalcache",
+      "label": "invalidateWalletWithdrawalCache()",
       "_callable": true,
       "_origin": "ast",
       "community": 74,
-      "community_name": "adminThemeController.js",
+      "community_name": "invalidateWalletWithdrawalCache",
       "file_type": "code",
-      "norm_label": "getthemestats()",
-      "source_file": "backend/src/controllers/adminThemeController.js",
-      "source_location": "L72"
-    },
-    {
-      "id": "backend_src_controllers_adminthemecontroller_setdefaultthemeitem",
-      "label": "setDefaultThemeItem()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 74,
-      "community_name": "adminThemeController.js",
-      "file_type": "code",
-      "norm_label": "setdefaultthemeitem()",
-      "source_file": "backend/src/controllers/adminThemeController.js",
-      "source_location": "L236"
-    },
-    {
-      "id": "backend_src_controllers_adminthemecontroller_updatethemeitem",
-      "label": "updateThemeItem()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 74,
-      "community_name": "adminThemeController.js",
-      "file_type": "code",
-      "norm_label": "updatethemeitem()",
-      "source_file": "backend/src/controllers/adminThemeController.js",
-      "source_location": "L169"
+      "norm_label": "invalidatewalletwithdrawalcache()",
+      "source_file": "backend/src/controllers/walletController.js",
+      "source_location": "L427"
     },
     {
       "id": "backend_src_controllers_publiccontroller_getpublicbranding",
@@ -6908,7 +6908,7 @@
       "label": "adminController.js",
       "_origin": "ast",
       "community": 1,
-      "community_name": "query",
+      "community_name": "adminRoutes.js",
       "file_type": "code",
       "norm_label": "admincontroller.js",
       "source_file": "backend/src/controllers/adminController.js",
@@ -6919,7 +6919,7 @@
       "label": "adminRoutes.js",
       "_origin": "ast",
       "community": 1,
-      "community_name": "query",
+      "community_name": "adminRoutes.js",
       "file_type": "code",
       "norm_label": "adminroutes.js",
       "source_file": "backend/src/routes/adminRoutes.js",
@@ -10914,11 +10914,22 @@
       "source_location": "L5"
     },
     {
+      "id": "backend_src_controllers_adminthemecontroller",
+      "label": "adminThemeController.js",
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "query",
+      "file_type": "code",
+      "norm_label": "adminthemecontroller.js",
+      "source_file": "backend/src/controllers/adminThemeController.js",
+      "source_location": "L1"
+    },
+    {
       "id": "backend_src_controllers_bannercontroller",
       "label": "controllers/bannerController.js",
       "_origin": "ast",
       "community": 52,
-      "community_name": "controllers/bannerController.js",
+      "community_name": "query",
       "file_type": "code",
       "norm_label": "controllers/bannercontroller.js",
       "source_file": "backend/src/controllers/bannerController.js",
@@ -11138,7 +11149,7 @@
       "label": "accountMergeController.js",
       "_origin": "ast",
       "community": 55,
-      "community_name": "getPool",
+      "community_name": "accountMergeController.js",
       "file_type": "code",
       "norm_label": "accountmergecontroller.js",
       "source_file": "backend/src/controllers/accountMergeController.js",
@@ -12263,17 +12274,6 @@
       "file_type": "code",
       "norm_label": "test_video_live_seat_guard.mjs",
       "source_file": "scratch/test_video_live_seat_guard.mjs",
-      "source_location": "L1"
-    },
-    {
-      "id": "backend_src_controllers_adminthemecontroller",
-      "label": "adminThemeController.js",
-      "_origin": "ast",
-      "community": 74,
-      "community_name": "adminThemeController.js",
-      "file_type": "code",
-      "norm_label": "adminthemecontroller.js",
-      "source_file": "backend/src/controllers/adminThemeController.js",
       "source_location": "L1"
     },
     {
@@ -17469,7 +17469,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L4473",
+      "source_location": "L4494",
       "weight": 1.0
     },
     {
@@ -17553,7 +17553,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L4109",
+      "source_location": "L4130",
       "weight": 1.0
     },
     {
@@ -17649,7 +17649,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L4169",
+      "source_location": "L4190",
       "weight": 1.0
     },
     {
@@ -17661,7 +17661,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L4201",
+      "source_location": "L4222",
       "weight": 1.0
     },
     {
@@ -17673,7 +17673,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L4457",
+      "source_location": "L4478",
       "weight": 1.0
     },
     {
@@ -17721,7 +17721,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L4065",
+      "source_location": "L4086",
       "weight": 1.0
     },
     {
@@ -17793,7 +17793,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L3751",
+      "source_location": "L3772",
       "weight": 1.0
     },
     {
@@ -17805,7 +17805,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L3866",
+      "source_location": "L3887",
       "weight": 1.0
     },
     {
@@ -18093,7 +18093,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L3517",
+      "source_location": "L3500",
       "weight": 1.0
     },
     {
@@ -18213,7 +18213,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L3953",
+      "source_location": "L3974",
       "weight": 1.0
     },
     {
@@ -18261,7 +18261,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L4346",
+      "source_location": "L4367",
       "weight": 1.0
     },
     {
@@ -18297,7 +18297,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L3554",
+      "source_location": "L3575",
       "weight": 1.0
     },
     {
@@ -18309,7 +18309,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L3654",
+      "source_location": "L3675",
       "weight": 1.0
     },
     {
@@ -18345,7 +18345,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L4237",
+      "source_location": "L4258",
       "weight": 1.0
     },
     {
@@ -20589,7 +20589,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/sockets/liveSocket.js",
-      "source_location": "L1488",
+      "source_location": "L1536",
       "weight": 1.0
     },
     {
@@ -38471,7 +38471,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L3547",
+      "source_location": "L3568",
       "weight": 1.0
     },
     {
@@ -38482,7 +38482,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L3684",
+      "source_location": "L3705",
       "weight": 1.0
     },
     {
@@ -38493,7 +38493,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L3713",
+      "source_location": "L3734",
       "weight": 1.0
     },
     {
@@ -38504,7 +38504,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L3940",
+      "source_location": "L3961",
       "weight": 1.0
     },
     {
@@ -38515,7 +38515,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L4029",
+      "source_location": "L4050",
       "weight": 1.0
     },
     {
@@ -38526,7 +38526,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L4103",
+      "source_location": "L4124",
       "weight": 1.0
     },
     {
@@ -38537,7 +38537,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L4157",
+      "source_location": "L4178",
       "weight": 1.0
     },
     {
@@ -38548,7 +38548,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L4230",
+      "source_location": "L4251",
       "weight": 1.0
     },
     {
@@ -38559,7 +38559,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L4340",
+      "source_location": "L4361",
       "weight": 1.0
     },
     {
@@ -38570,7 +38570,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L4453",
+      "source_location": "L4474",
       "weight": 1.0
     },
     {
@@ -38581,7 +38581,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/mobile/liveController.js",
-      "source_location": "L4469",
+      "source_location": "L4490",
       "weight": 1.0
     },
     {
@@ -45855,7 +45855,7 @@
       "confidence_score": 0.85,
       "context": "argument",
       "source_file": "backend/src/routes/mobile/liveRoutes.js",
-      "source_location": "L177",
+      "source_location": "L180",
       "weight": 1.0
     },
     {
@@ -45867,7 +45867,7 @@
       "confidence_score": 0.85,
       "context": "argument",
       "source_file": "backend/src/routes/mobile/liveRoutes.js",
-      "source_location": "L179",
+      "source_location": "L182",
       "weight": 1.0
     },
     {
@@ -45879,7 +45879,7 @@
       "confidence_score": 0.85,
       "context": "argument",
       "source_file": "backend/src/routes/mobile/liveRoutes.js",
-      "source_location": "L181",
+      "source_location": "L184",
       "weight": 1.0
     },
     {
@@ -45891,7 +45891,7 @@
       "confidence_score": 0.85,
       "context": "argument",
       "source_file": "backend/src/routes/mobile/liveRoutes.js",
-      "source_location": "L184",
+      "source_location": "L187",
       "weight": 1.0
     },
     {
@@ -45903,7 +45903,7 @@
       "confidence_score": 0.85,
       "context": "argument",
       "source_file": "backend/src/routes/mobile/liveRoutes.js",
-      "source_location": "L185",
+      "source_location": "L188",
       "weight": 1.0
     },
     {
@@ -45915,7 +45915,7 @@
       "confidence_score": 0.85,
       "context": "argument",
       "source_file": "backend/src/routes/mobile/liveRoutes.js",
-      "source_location": "L190",
+      "source_location": "L193",
       "weight": 1.0
     },
     {
@@ -45927,7 +45927,7 @@
       "confidence_score": 0.85,
       "context": "argument",
       "source_file": "backend/src/routes/mobile/liveRoutes.js",
-      "source_location": "L194",
+      "source_location": "L197",
       "weight": 1.0
     },
     {
@@ -45939,7 +45939,7 @@
       "confidence_score": 0.85,
       "context": "argument",
       "source_file": "backend/src/routes/mobile/liveRoutes.js",
-      "source_location": "L200",
+      "source_location": "L203",
       "weight": 1.0
     },
     {
@@ -45951,7 +45951,7 @@
       "confidence_score": 0.85,
       "context": "argument",
       "source_file": "backend/src/routes/mobile/liveRoutes.js",
-      "source_location": "L201",
+      "source_location": "L204",
       "weight": 1.0
     },
     {
@@ -47636,5 +47636,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "9e5d2e88f353a0d1cdf72dd36e07f036efc2ee49"
+  "built_at_commit": "71773bd3fdb66ba76f1e175e358668495699bab9"
 }

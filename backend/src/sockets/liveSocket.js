@@ -801,6 +801,54 @@ export function setupLiveSocket(io) {
           is_reaction_disabled: Boolean(dbCountRow ? dbCountRow.is_reaction_disabled : false),
         });
 
+        // Sync complete seat occupancy & spotlight state directly to the joining socket (supports late joiners)
+        try {
+          const currentSeats = await query(
+            `SELECT s.seat_number, s.is_main_seat, s.is_camera_on, s.is_muted, s.is_locked,
+                    s.user_id, u.full_name as user_name, u.avatar_url as user_avatar,
+                    u.coins as user_coin, u.diamonds as user_diamond, u.level as user_level, u.role as user_role
+             FROM live_room_seats s
+             LEFT JOIN users u ON s.user_id = u.id
+             WHERE (s.room_id = ? OR s.room_id = ?)
+             ORDER BY s.seat_number ASC`,
+            [canonicalRoomId, String(numericRoomId || '')]
+          );
+
+          let currentSpotlightUserId = room ? room.host_id : null;
+          const formattedSeats = (currentSeats || []).map((st) => {
+            const isOcc = Boolean(st.user_id);
+            const isMain = st.seat_number === 1 || Boolean(st.is_main_seat);
+            if (isMain && st.user_id) currentSpotlightUserId = st.user_id;
+            return {
+              seat_number: st.seat_number,
+              user_id: st.user_id || null,
+              user_name: st.user_name || null,
+              user_avatar: st.user_avatar || null,
+              is_occupied: isOcc,
+              is_empty: !isOcc,
+              is_main_seat: isMain,
+              is_spotlight: isMain,
+              is_camera_on: Boolean(st.is_camera_on),
+              is_muted: Boolean(st.is_muted),
+              is_locked: Boolean(st.is_locked),
+            };
+          });
+
+          const seatSyncPayload = {
+            roomId: canonicalRoomId,
+            room_id: canonicalRoomId,
+            seats: formattedSeats,
+            spotlight_seat_number: 1,
+            spotlight_user_id: currentSpotlightUserId,
+          };
+
+          socket.emit('seats-sync', seatSyncPayload);
+          socket.emit('room-seats-sync', seatSyncPayload);
+          socket.emit('seats_sync', seatSyncPayload);
+        } catch (seatSyncErr) {
+          console.warn('Late joiner seat sync warning:', seatSyncErr.message);
+        }
+
         // Emit user joined welcome notice ONLY if not host and not announced within 20s
         const userKey = `${canonicalRoomId}_${currentUser.id}`;
         const lastAnnounced = roomUserJoinAnnounced.get(userKey);

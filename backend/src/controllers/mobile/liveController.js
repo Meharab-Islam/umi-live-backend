@@ -3497,29 +3497,50 @@ export async function promoteToMainSeat(req, res) {
       cache.delByPattern(`mobile:room:users:${roomId}*`),
     ]);
 
-    // Socket Broadcast
+    const roomData = await buildRoomResponse(roomId, req.user);
+
+    // Socket Broadcast to all viewers and hosts in the room
     if (req.io) {
-      req.io.to(roomId).emit('main_seat_swapped', {
+      const spotlightPayload = {
         roomId,
         targetSeat: targetSeatNum,
+        spotlightSeat: 1,
+        spotlight_seat_number: 1,
         newMainUserId: targetUserId,
+        spotlightUserId: targetUserId,
+        spotlight_user_id: targetUserId,
+        spotlight_user: roomData.spotlight_user || null,
         previousMainUserId: prevMainUserId,
         promotedBy: callerId,
-      });
+        timestamp: new Date().toISOString(),
+      };
+
+      req.io.to(roomId).emit('main_seat_swapped', spotlightPayload);
+      req.io.to(roomId).emit('spotlight_updated', spotlightPayload);
+      req.io.to(roomId).emit('spotlight_changed', spotlightPayload);
       req.io.to(roomId).emit('seat_updated', {
         roomId,
         action: 'swap_main',
         newMainUserId: targetUserId,
         previousMainUserId: prevMainUserId,
+        spotlight_seat_number: 1,
+        spotlight_user_id: targetUserId,
+      });
+      req.io.to(roomId).emit('seats_updated', {
+        roomId,
+        seats: roomData.seats,
+        spotlight_seat_number: 1,
+        spotlight_user_id: targetUserId,
+        spotlight_user: roomData.spotlight_user || null,
       });
     }
 
-    const roomData = await buildRoomResponse(roomId, req.user);
-
     return res.json({
       success: true,
-      message: `Seat ${targetSeatNum} promoted to main seat successfully.`,
+      message: `Seat ${targetSeatNum} promoted to main spotlight successfully.`,
       new_main_user_id: targetUserId,
+      spotlight_user_id: targetUserId,
+      spotlight_seat_number: 1,
       previous_main_user_id: prevMainUserId,
       swapped_seat_number: targetSeatNum,
       room: roomData,

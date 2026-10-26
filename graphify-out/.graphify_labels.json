@@ -1,6 +1,6 @@
 {
   "0": "controllers/packageController.js",
-  "1": "query",
+  "1": "adminRoutes.js",
   "2": "server.js",
   "3": "admin-panel/package.json",
   "4": "dependencies",
@@ -51,10 +51,10 @@
   "49": "add_audio_live_api_docs.mjs",
   "50": "tag_live_types_in_docs.mjs",
   "51": "routes/liveRoutes.js",
-  "52": "controllers/bannerController.js",
+  "52": "query",
   "53": "authMiddleware.js",
   "54": "mobile/index.js",
-  "55": "getPool",
+  "55": "accountMergeController.js",
   "56": "ssh_runner.py",
   "57": "Thumbnails.jsx",
   "58": "react",
@@ -73,7 +73,7 @@
   "71": "ErrorBoundary",
   "72": "CreateCategory.jsx",
   "73": "test_video_live_seat_guard.mjs",
-  "74": "adminThemeController.js",
+  "74": "invalidateWalletWithdrawalCache",
   "75": "publicController.js",
   "76": "AccountDeletionRequests.jsx"
 }
