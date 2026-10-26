@@ -192,9 +192,9 @@
     "semantic_hash": ""
   },
   "backend/src/sockets/liveSocket.js": {
-    "mtime": 1793033958.9778893,
-    "seen": 1793034439.906513,
-    "ast_hash": "a70a4281ed033ec67771bceda4454600",
+    "mtime": 1793035862.6749647,
+    "seen": 1793035877.3507211,
+    "ast_hash": "d47e5632dc80e20aa7c83bd9071703c9",
     "semantic_hash": ""
   },
   "admin-panel/src/pages/Agencies.jsx": {
@@ -552,9 +552,9 @@
     "semantic_hash": ""
   },
   "backend/src/controllers/mobile/giftController.js": {
-    "mtime": 1793033958.9493315,
-    "seen": 1793034439.9054248,
-    "ast_hash": "b19ef68141328435455799a98a688632",
+    "mtime": 1793035832.993514,
+    "seen": 1793035877.349516,
+    "ast_hash": "d4f001e1ff95eca9555de9c437624049",
     "semantic_hash": ""
   },
   "backend/src/controllers/mobile/liveController.js": {
@@ -1491,6 +1491,12 @@
     "mtime": 1792958233.4363787,
     "seen": 1792958495.153731,
     "ast_hash": "d4e017761e60f6fb1c20c54c6d6b990e",
+    "semantic_hash": ""
+  },
+  "backend/src/services/giftQueueService.js": {
+    "mtime": 1793035785.7791934,
+    "seen": 1793035877.350641,
+    "ast_hash": "c7bc3a679693400c390cb1e1c82bb066",
     "semantic_hash": ""
   }
 }

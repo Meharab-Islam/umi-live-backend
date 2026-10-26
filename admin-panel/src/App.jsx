@@ -30,6 +30,7 @@ import Levels from './pages/Levels';
 import AccountDeletionRequests from './pages/AccountDeletionRequests';
 import LegalPolicies from './pages/LegalPolicies';
 import LandingPage from './pages/LandingPage';
+import ChatModeration from './pages/ChatModeration';
 
 import { checkHealth, getToken, setToken, getCurrentUser, setCurrentUser } from './api/client';
 import dashboardApi from './api/dashboardApi';
@@ -49,6 +50,7 @@ const VALID_TABS = [
   'users',
   'deletion-requests',
   'reports',
+  'chats',
   'posts',
   'account-merge',
   'packages',
@@ -429,6 +431,10 @@ export default function App() {
 
           {activeTab === 'reports' && (
             <Reports onToast={addToast} />
+          )}
+
+          {activeTab === 'chats' && (
+            <ChatModeration onToast={addToast} />
           )}
 
           {activeTab === 'posts' && (

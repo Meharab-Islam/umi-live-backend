@@ -17,6 +17,7 @@ import { accountMergeApi } from './accountMergeApi';
 import { adminApi } from './adminApi';
 import { postApi } from './postApi';
 import { reportApi } from './reportApi';
+import { chatApi } from './chatApi';
 
 // Re-export individual modular API services
 export {
@@ -25,6 +26,7 @@ export {
   authApi,
   dashboardApi,
   userApi,
+  chatApi,
   postApi,
   reportApi,
   agencyApi,

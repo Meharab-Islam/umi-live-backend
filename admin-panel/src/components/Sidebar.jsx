@@ -36,6 +36,7 @@ import {
   Star,
   UserX,
   FileText,
+  MessageSquare,
 } from 'lucide-react';
 import packageApi from '../api/packageApi';
 import { useBranding } from '../context/BrandingContext';
@@ -106,6 +107,7 @@ export default function Sidebar({
           { id: 'deletion-requests', label: 'Deletion Requests', icon: UserX },
           { id: 'moderators', label: 'Moderators', icon: Shield },
           { id: 'reports', label: 'Reports', icon: ShieldAlert },
+          { id: 'chats', label: 'Chat Moderation', icon: MessageSquare },
           { id: 'posts', label: 'Posts', icon: Newspaper },
           { id: 'levels', label: 'Levels', icon: TrendingUp },
           { id: 'account-merge', label: 'Account Merge', icon: GitMerge },

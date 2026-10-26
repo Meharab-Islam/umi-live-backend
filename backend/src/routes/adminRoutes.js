@@ -4,6 +4,11 @@ import {
   getUsers,
   getUserDetails,
   getConversationMessages,
+  getAdminChatUsers,
+  getAdminConversations,
+  getAdminConversationMessages,
+  deleteAdminChatMessage,
+  deleteAdminConversation,
   getAdminPosts,
   createAdminPost,
   deleteUserPost,
@@ -194,6 +199,13 @@ router.post('/bulk-delete', bulkDelete);
 router.post('/users/:id/balance', adjustBalance);
 router.post('/recharge-coin', rechargeCoins);
 router.get('/recharge-history', getRechargeHistory);
+
+// Chat Moderation & Message Management
+router.get('/chats/users', getAdminChatUsers);
+router.get('/chats/conversations', getAdminConversations);
+router.get('/chats/conversations/:id/messages', getAdminConversationMessages);
+router.delete('/chats/messages/:id', deleteAdminChatMessage);
+router.delete('/chats/conversations/:id', deleteAdminConversation);
 
 // Host Management
 router.get('/hosts', getHosts);

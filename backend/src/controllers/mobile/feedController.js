@@ -7,6 +7,7 @@ import {
   sendNewPostPushNotification,
 } from '../../config/firebase.js';
 import { notifyComment, notifyCommentReply } from '../../services/notificationService.js';
+import { deleteMultipleFilesFromStorage } from '../../services/fileStorageService.js';
 
 /**
  * Helper to build user package category object from joined SQL row
@@ -819,6 +820,30 @@ export const deletePost = async (req, res) => {
     if (!isOwner && !isAdmin) {
       return res.status(403).json({ success: false, message: 'Unauthorized to delete this post.' });
     }
+
+    // Gather all media files for this post before deleting from storage
+    const postRows = await query('SELECT media_url, media FROM posts WHERE id = ? LIMIT 1', [postId]);
+    const postMediaRows = await query('SELECT media_url, thumbnail_url FROM post_media WHERE post_id = ?', [postId]);
+    const commentRows = await query('SELECT media_url FROM post_comments WHERE post_id = ? AND media_url IS NOT NULL', [postId]);
+
+    const mediaToDelete = [];
+    if (postRows?.[0]) {
+      if (postRows[0].media_url) mediaToDelete.push(postRows[0].media_url);
+      if (postRows[0].media) mediaToDelete.push(postRows[0].media);
+    }
+    if (postMediaRows?.length) {
+      for (const m of postMediaRows) {
+        if (m.media_url) mediaToDelete.push(m.media_url);
+        if (m.thumbnail_url) mediaToDelete.push(m.thumbnail_url);
+      }
+    }
+    if (commentRows?.length) {
+      for (const c of commentRows) {
+        if (c.media_url) mediaToDelete.push(c.media_url);
+      }
+    }
+
+    deleteMultipleFilesFromStorage(mediaToDelete);
 
     // MySQL SSOT delete (cascades to post_media, post_reactions, post_comments)
     await query('DELETE FROM posts WHERE id = ?', [postId]);

@@ -11,6 +11,7 @@ import {
 } from '../services/liveRewardService.js';
 import { getStarProgressionConfig, calculateUserStars } from '../services/systemService.js';
 import { invalidateWalletWithdrawalCache } from './walletController.js';
+import { deleteMultipleFilesFromStorage } from '../services/fileStorageService.js';
 
 export async function getDashboardStats(req, res) {
   try {
@@ -2241,13 +2242,40 @@ export async function createAdminPost(req, res) {
 export async function deleteUserPost(req, res) {
   try {
     const { postId } = req.params;
+
+    // 1. Gather all media files for this post before deleting
+    const postRows = await query('SELECT media_url, media FROM posts WHERE id = ? LIMIT 1', [postId]);
+    const postMediaRows = await query('SELECT media_url, thumbnail_url FROM post_media WHERE post_id = ?', [postId]);
+    const commentRows = await query('SELECT media_url FROM post_comments WHERE post_id = ? AND media_url IS NOT NULL', [postId]);
+
+    const mediaToDelete = [];
+    if (postRows?.[0]) {
+      if (postRows[0].media_url) mediaToDelete.push(postRows[0].media_url);
+      if (postRows[0].media) mediaToDelete.push(postRows[0].media);
+    }
+    if (postMediaRows?.length) {
+      for (const m of postMediaRows) {
+        if (m.media_url) mediaToDelete.push(m.media_url);
+        if (m.thumbnail_url) mediaToDelete.push(m.thumbnail_url);
+      }
+    }
+    if (commentRows?.length) {
+      for (const c of commentRows) {
+        if (c.media_url) mediaToDelete.push(c.media_url);
+      }
+    }
+
+    // 2. Delete physical files from storage
+    deleteMultipleFilesFromStorage(mediaToDelete);
+
+    // 3. MySQL SSOT delete
     await query('DELETE FROM posts WHERE id = ?', [postId]);
     await cache.delByPattern('feed:*');
     await cache.del(`feed:post:${postId}`);
     await cache.delByPattern(`feed:comments:${postId}:*`);
     await cache.delByPattern(`feed:reactions:${postId}:*`);
     await cache.delByPattern('admin:posts:*');
-    return res.json({ success: true, message: 'Post deleted successfully.' });
+    return res.json({ success: true, message: 'Post and associated media files deleted successfully.' });
   } catch (err) {
     console.error('deleteUserPost error:', err);
     return res.status(500).json({ success: false, message: 'Failed to delete post.' });
@@ -2496,6 +2524,35 @@ export async function bulkDelete(req, res) {
 
       case 'posts': {
         const placeholders = cleanIds.map(() => '?').join(',');
+
+        // 1. Gather all media files for these posts before deleting
+        const postRows = await query(`SELECT media_url, media FROM posts WHERE id IN (${placeholders})`, cleanIds);
+        const postMediaRows = await query(`SELECT media_url, thumbnail_url FROM post_media WHERE post_id IN (${placeholders})`, cleanIds);
+        const commentRows = await query(`SELECT media_url FROM post_comments WHERE post_id IN (${placeholders}) AND media_url IS NOT NULL`, cleanIds);
+
+        const mediaToDelete = [];
+        if (postRows?.length) {
+          for (const p of postRows) {
+            if (p.media_url) mediaToDelete.push(p.media_url);
+            if (p.media) mediaToDelete.push(p.media);
+          }
+        }
+        if (postMediaRows?.length) {
+          for (const m of postMediaRows) {
+            if (m.media_url) mediaToDelete.push(m.media_url);
+            if (m.thumbnail_url) mediaToDelete.push(m.thumbnail_url);
+          }
+        }
+        if (commentRows?.length) {
+          for (const c of commentRows) {
+            if (c.media_url) mediaToDelete.push(c.media_url);
+          }
+        }
+
+        // 2. Delete physical files from storage
+        deleteMultipleFilesFromStorage(mediaToDelete);
+
+        // 3. MySQL SSOT delete
         const result = await query(`DELETE FROM posts WHERE id IN (${placeholders})`, cleanIds);
         deletedCount = result.affectedRows || 0;
         await cache.delByPattern('feed:*');
@@ -5823,6 +5880,520 @@ export async function deleteDeletionRequestRecord(req, res) {
     return res.status(500).json({ success: false, message: 'Failed to delete record.', error: err.message });
   }
 }
+
+// =========================================================================
+// CHAT MODERATION & MEDIA CLEANUP (ADMIN PANEL)
+// =========================================================================
+
+/**
+ * 1. Search Users for Chat Moderation
+ * GET /api/admin/chats/users?query=...
+ */
+export async function getAdminChatUsers(req, res) {
+  try {
+    const search = (req.query.query || req.query.search || '').trim();
+    const page = Math.max(1, parseInt(req.query.page || '1', 10));
+    const limit = Math.min(50, Math.max(1, parseInt(req.query.limit || '20', 10)));
+    const offset = (page - 1) * limit;
+
+    let whereClause = "WHERE u.role != 'superadmin'";
+    const params = [];
+
+    if (search) {
+      if (!isNaN(search)) {
+        whereClause += ' AND (u.id = ? OR u.full_name LIKE ? OR u.email LIKE ? OR u.phone_number LIKE ?)';
+        params.push(parseInt(search, 10), `%${search}%`, `%${search}%`, `%${search}%`);
+      } else {
+        whereClause += ' AND (u.full_name LIKE ? OR u.email LIKE ? OR u.phone_number LIKE ?)';
+        params.push(`%${search}%`, `%${search}%`, `%${search}%`);
+      }
+    }
+
+    // Count total users matching
+    const countSql = `SELECT COUNT(*) as total FROM users u ${whereClause}`;
+    const countRows = await query(countSql, params);
+    const total = countRows?.[0]?.total || 0;
+
+    // Fetch users with conversation & message counts
+    const selectSql = `
+      SELECT 
+        u.id,
+        u.full_name,
+        u.email,
+        u.phone_number,
+        u.avatar_url,
+        u.role,
+        u.level,
+        u.created_at,
+        (
+          SELECT COUNT(*) 
+          FROM conversations c 
+          WHERE c.user1_id = u.id OR c.user2_id = u.id
+        ) as conversation_count,
+        (
+          SELECT COUNT(*) 
+          FROM chat_messages m 
+          WHERE m.sender_id = u.id OR m.receiver_id = u.id
+        ) as total_messages_count,
+        (
+          SELECT COUNT(*)
+          FROM chat_messages m
+          WHERE (m.sender_id = u.id OR m.receiver_id = u.id)
+            AND (m.message_type IN ('image', 'video', 'audio', 'multiple') OR m.media_url IS NOT NULL)
+        ) as total_media_messages_count
+      FROM users u
+      ${whereClause}
+      ORDER BY total_messages_count DESC, conversation_count DESC, u.id DESC
+      LIMIT ? OFFSET ?
+    `;
+
+    const users = await query(selectSql, [...params, limit, offset]);
+
+    return res.json({
+      success: true,
+      users: users || [],
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit) || 1,
+      },
+    });
+  } catch (err) {
+    console.error('getAdminChatUsers error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to search users.', error: err.message });
+  }
+}
+
+/**
+ * 2. Get Conversations for a Specific User or Global List
+ * GET /api/admin/chats/conversations?userId=...&search=...
+ */
+export async function getAdminConversations(req, res) {
+  try {
+    const userId = req.query.userId ? parseInt(req.query.userId, 10) : null;
+    const search = (req.query.search || req.query.query || '').trim();
+    const page = Math.max(1, parseInt(req.query.page || '1', 10));
+    const limit = Math.min(50, Math.max(1, parseInt(req.query.limit || '20', 10)));
+    const offset = (page - 1) * limit;
+
+    const whereParts = [];
+    const params = [];
+
+    if (userId) {
+      whereParts.push('(c.user1_id = ? OR c.user2_id = ?)');
+      params.push(userId, userId);
+    }
+
+    if (search) {
+      if (!isNaN(search)) {
+        whereParts.push('(c.id = ? OR u1.id = ? OR u2.id = ? OR u1.full_name LIKE ? OR u2.full_name LIKE ? OR c.last_message LIKE ?)');
+        const sNum = parseInt(search, 10);
+        params.push(sNum, sNum, sNum, `%${search}%`, `%${search}%`, `%${search}%`);
+      } else {
+        whereParts.push('(u1.full_name LIKE ? OR u2.full_name LIKE ? OR c.last_message LIKE ?)');
+        params.push(`%${search}%`, `%${search}%`, `%${search}%`);
+      }
+    }
+
+    const whereSql = whereParts.length > 0 ? `WHERE ${whereParts.join(' AND ')}` : '';
+
+    const countSql = `
+      SELECT COUNT(*) as total 
+      FROM conversations c
+      JOIN users u1 ON u1.id = c.user1_id
+      JOIN users u2 ON u2.id = c.user2_id
+      ${whereSql}
+    `;
+    const countRows = await query(countSql, params);
+    const total = countRows?.[0]?.total || 0;
+
+    const selectSql = `
+      SELECT 
+        c.id,
+        c.user1_id,
+        c.user2_id,
+        c.last_message,
+        c.last_message_at,
+        c.background_image,
+        c.background_color,
+        c.created_at,
+        u1.full_name as user1_name,
+        u1.avatar_url as user1_avatar,
+        u1.email as user1_email,
+        u1.phone_number as user1_phone,
+        u1.role as user1_role,
+        u1.level as user1_level,
+        u2.full_name as user2_name,
+        u2.avatar_url as user2_avatar,
+        u2.email as user2_email,
+        u2.phone_number as user2_phone,
+        u2.role as user2_role,
+        u2.level as user2_level,
+        (
+          SELECT COUNT(*) 
+          FROM chat_messages m 
+          WHERE m.conversation_id = c.id
+        ) as total_messages,
+        (
+          SELECT COUNT(*) 
+          FROM chat_messages m 
+          WHERE m.conversation_id = c.id 
+            AND (m.message_type = 'image' OR m.media_url REGEXP '\\.(png|jpg|jpeg|webp|gif|svg)$')
+        ) as image_count,
+        (
+          SELECT COUNT(*) 
+          FROM chat_messages m 
+          WHERE m.conversation_id = c.id 
+            AND (m.message_type = 'video' OR m.media_url REGEXP '\\.(mp4|mov|avi|mkv|webm)$')
+        ) as video_count,
+        (
+          SELECT COUNT(*) 
+          FROM chat_messages m 
+          WHERE m.conversation_id = c.id 
+            AND (m.message_type = 'audio' OR m.media_url REGEXP '\\.(mp3|wav|aac|ogg|m4a)$')
+        ) as audio_count
+      FROM conversations c
+      JOIN users u1 ON u1.id = c.user1_id
+      JOIN users u2 ON u2.id = c.user2_id
+      ${whereSql}
+      ORDER BY c.last_message_at DESC, c.id DESC
+      LIMIT ? OFFSET ?
+    `;
+
+    const rows = await query(selectSql, [...params, limit, offset]);
+
+    const conversations = (rows || []).map((row) => ({
+      id: row.id,
+      user1: {
+        id: row.user1_id,
+        full_name: row.user1_name,
+        avatar_url: row.user1_avatar,
+        email: row.user1_email,
+        phone_number: row.user1_phone,
+        role: row.user1_role,
+        level: row.user1_level,
+      },
+      user2: {
+        id: row.user2_id,
+        full_name: row.user2_name,
+        avatar_url: row.user2_avatar,
+        email: row.user2_email,
+        phone_number: row.user2_phone,
+        role: row.user2_role,
+        level: row.user2_level,
+      },
+      last_message: row.last_message,
+      last_message_at: row.last_message_at,
+      background_image: row.background_image,
+      background_color: row.background_color,
+      created_at: row.created_at,
+      total_messages: row.total_messages || 0,
+      image_count: row.image_count || 0,
+      video_count: row.video_count || 0,
+      audio_count: row.audio_count || 0,
+      has_images: (row.image_count || 0) > 0,
+      has_videos: (row.video_count || 0) > 0,
+      has_audio: (row.audio_count || 0) > 0,
+    }));
+
+    return res.json({
+      success: true,
+      conversations,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit) || 1,
+      },
+    });
+  } catch (err) {
+    console.error('getAdminConversations error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to fetch conversations.', error: err.message });
+  }
+}
+
+/**
+ * 3. Get Messages for a Specific Conversation
+ * GET /api/admin/chats/conversations/:id/messages
+ */
+export async function getAdminConversationMessages(req, res) {
+  try {
+    const conversationId = parseInt(req.params.id, 10);
+    if (!conversationId || isNaN(conversationId)) {
+      return res.status(400).json({ success: false, message: 'Valid conversation ID is required.' });
+    }
+
+    // Verify conversation
+    const convRows = await query(
+      `SELECT c.*, 
+        u1.full_name as user1_name, u1.avatar_url as user1_avatar,
+        u2.full_name as user2_name, u2.avatar_url as user2_avatar
+       FROM conversations c
+       JOIN users u1 ON u1.id = c.user1_id
+       JOIN users u2 ON u2.id = c.user2_id
+       WHERE c.id = ? LIMIT 1`,
+      [conversationId]
+    );
+
+    if (!convRows || convRows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Conversation not found.' });
+    }
+
+    const conversation = convRows[0];
+
+    // Fetch messages chronologically
+    const messagesSql = `
+      SELECT 
+        m.id,
+        m.conversation_id,
+        m.sender_id,
+        m.receiver_id,
+        m.reply_to_id,
+        m.message_type,
+        m.message,
+        m.media_url,
+        m.media,
+        m.is_read,
+        m.created_at,
+        sender.full_name as sender_name,
+        sender.avatar_url as sender_avatar,
+        sender.role as sender_role,
+        receiver.full_name as receiver_name,
+        receiver.avatar_url as receiver_avatar,
+        receiver.role as receiver_role
+      FROM chat_messages m
+      JOIN users sender ON sender.id = m.sender_id
+      JOIN users receiver ON receiver.id = m.receiver_id
+      WHERE m.conversation_id = ?
+      ORDER BY m.created_at ASC, m.id ASC
+    `;
+
+    const rawMessages = await query(messagesSql, [conversationId]);
+
+    // Fetch media details from chat_message_media if any
+    const mediaMap = new Map();
+    if (rawMessages.length > 0) {
+      const msgIds = rawMessages.map((m) => m.id);
+      const placeholders = msgIds.map(() => '?').join(',');
+      const mediaRows = await query(
+        `SELECT * FROM chat_message_media WHERE message_id IN (${placeholders}) ORDER BY display_order ASC, id ASC`,
+        msgIds
+      );
+
+      for (const row of mediaRows || []) {
+        if (!mediaMap.has(row.message_id)) {
+          mediaMap.set(row.message_id, []);
+        }
+        mediaMap.get(row.message_id).push(row);
+      }
+    }
+
+    const messages = (rawMessages || []).map((m) => {
+      let parsedMedia = null;
+      if (m.media) {
+        try {
+          parsedMedia = typeof m.media === 'string' ? JSON.parse(m.media) : m.media;
+        } catch {
+          parsedMedia = null;
+        }
+      }
+
+      return {
+        id: m.id,
+        conversation_id: m.conversation_id,
+        sender: {
+          id: m.sender_id,
+          full_name: m.sender_name,
+          avatar_url: m.sender_avatar,
+          role: m.sender_role,
+        },
+        receiver: {
+          id: m.receiver_id,
+          full_name: m.receiver_name,
+          avatar_url: m.receiver_avatar,
+          role: m.receiver_role,
+        },
+        reply_to_id: m.reply_to_id,
+        message_type: m.message_type,
+        message: m.message,
+        media_url: m.media_url,
+        media: parsedMedia,
+        media_items: mediaMap.get(m.id) || [],
+        is_read: Boolean(m.is_read),
+        created_at: m.created_at,
+      };
+    });
+
+    return res.json({
+      success: true,
+      conversation: {
+        id: conversation.id,
+        user1: { id: conversation.user1_id, full_name: conversation.user1_name, avatar_url: conversation.user1_avatar },
+        user2: { id: conversation.user2_id, full_name: conversation.user2_name, avatar_url: conversation.user2_avatar },
+        background_image: conversation.background_image,
+        background_color: conversation.background_color,
+      },
+      messages,
+      total: messages.length,
+    });
+  } catch (err) {
+    console.error('getAdminConversationMessages error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to fetch messages.', error: err.message });
+  }
+}
+
+/**
+ * 4. Delete Single Chat Message (Cleans Storage Files & DB)
+ * DELETE /api/admin/chats/messages/:id
+ */
+export async function deleteAdminChatMessage(req, res) {
+  try {
+    const messageId = parseInt(req.params.id, 10);
+    if (!messageId || isNaN(messageId)) {
+      return res.status(400).json({ success: false, message: 'Valid message ID is required.' });
+    }
+
+    // 1. Locate message
+    const msgRows = await query('SELECT * FROM chat_messages WHERE id = ? LIMIT 1', [messageId]);
+    if (!msgRows || msgRows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Message not found.' });
+    }
+    const message = msgRows[0];
+
+    // 2. Locate any attached media in chat_message_media
+    const mediaRows = await query('SELECT media_url, thumbnail_url FROM chat_message_media WHERE message_id = ?', [messageId]);
+
+    // 3. Collect media paths for storage deletion
+    const filesToDelete = [];
+    if (message.media_url) filesToDelete.push(message.media_url);
+    if (message.media) filesToDelete.push(message.media);
+
+    for (const row of mediaRows || []) {
+      if (row.media_url) filesToDelete.push(row.media_url);
+      if (row.thumbnail_url) filesToDelete.push(row.thumbnail_url);
+    }
+
+    // 4. Delete physical files from disk
+    const removedCount = deleteMultipleFilesFromStorage(filesToDelete);
+
+    // 5. Delete from MySQL (cascades to chat_message_media)
+    await query('DELETE FROM chat_messages WHERE id = ?', [messageId]);
+
+    // 6. Update conversation last_message if this was the last message
+    const remainingLast = await query(
+      'SELECT message, created_at FROM chat_messages WHERE conversation_id = ? ORDER BY created_at DESC, id DESC LIMIT 1',
+      [message.conversation_id]
+    );
+
+    if (remainingLast && remainingLast.length > 0) {
+      await query(
+        'UPDATE conversations SET last_message = ?, last_message_at = ? WHERE id = ?',
+        [remainingLast[0].message || 'Media attachment', remainingLast[0].created_at, message.conversation_id]
+      );
+    }
+
+    // 7. Instant Redis cache invalidation
+    await cache.delByPattern(`chat:conversations:${message.sender_id}:*`);
+    await cache.delByPattern(`chat:conversations:${message.receiver_id}:*`);
+    await cache.delByPattern(`chat:messages:${message.conversation_id}:*`);
+    await cache.del(`chat:conv:${message.conversation_id}`);
+
+    // 8. Realtime socket notification
+    if (req.io) {
+      const socketPayload = { message_id: messageId, conversation_id: message.conversation_id };
+      req.io.to(`user_${message.sender_id}`).emit('chat:message_deleted', socketPayload);
+      req.io.to(`user_${message.receiver_id}`).emit('chat:message_deleted', socketPayload);
+    }
+
+    return res.json({
+      success: true,
+      message: 'Message and attached storage media removed permanently.',
+      removed_files: removedCount,
+    });
+  } catch (err) {
+    console.error('deleteAdminChatMessage error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to delete message.', error: err.message });
+  }
+}
+
+/**
+ * 5. Delete Entire Conversation (Cleans Storage Files & DB)
+ * DELETE /api/admin/chats/conversations/:id
+ */
+export async function deleteAdminConversation(req, res) {
+  try {
+    const conversationId = parseInt(req.params.id, 10);
+    if (!conversationId || isNaN(conversationId)) {
+      return res.status(400).json({ success: false, message: 'Valid conversation ID is required.' });
+    }
+
+    // 1. Locate conversation
+    const convRows = await query('SELECT * FROM conversations WHERE id = ? LIMIT 1', [conversationId]);
+    if (!convRows || convRows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Conversation not found.' });
+    }
+    const conversation = convRows[0];
+
+    // 2. Gather all media files across all messages in this conversation
+    const msgMediaRows = await query(
+      'SELECT media_url, media FROM chat_messages WHERE conversation_id = ?',
+      [conversationId]
+    );
+
+    const extraMediaRows = await query(
+      `SELECT cmm.media_url, cmm.thumbnail_url 
+       FROM chat_message_media cmm
+       JOIN chat_messages cm ON cm.id = cmm.message_id
+       WHERE cm.conversation_id = ?`,
+      [conversationId]
+    );
+
+    const filesToDelete = [];
+    if (conversation.background_image) {
+      filesToDelete.push(conversation.background_image);
+    }
+
+    for (const m of msgMediaRows || []) {
+      if (m.media_url) filesToDelete.push(m.media_url);
+      if (m.media) filesToDelete.push(m.media);
+    }
+
+    for (const r of extraMediaRows || []) {
+      if (r.media_url) filesToDelete.push(r.media_url);
+      if (r.thumbnail_url) filesToDelete.push(r.thumbnail_url);
+    }
+
+    // 3. Delete physical files from disk
+    const removedCount = deleteMultipleFilesFromStorage(filesToDelete);
+
+    // 4. Delete conversation from MySQL (cascades to chat_messages and chat_message_media)
+    await query('DELETE FROM conversations WHERE id = ?', [conversationId]);
+
+    // 5. Invalidate Redis cache
+    await cache.delByPattern(`chat:conversations:${conversation.user1_id}:*`);
+    await cache.delByPattern(`chat:conversations:${conversation.user2_id}:*`);
+    await cache.delByPattern(`chat:messages:${conversationId}:*`);
+    await cache.del(`chat:conv:${conversationId}`);
+
+    // 6. Realtime socket notification
+    if (req.io) {
+      const socketPayload = { conversation_id: conversationId };
+      req.io.to(`user_${conversation.user1_id}`).emit('chat:conversation_deleted', socketPayload);
+      req.io.to(`user_${conversation.user2_id}`).emit('chat:conversation_deleted', socketPayload);
+    }
+
+    return res.json({
+      success: true,
+      message: 'Conversation and all associated storage files permanently deleted.',
+      removed_files: removedCount,
+    });
+  } catch (err) {
+    console.error('deleteAdminConversation error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to delete conversation.', error: err.message });
+  }
+}
+
 
 
 
