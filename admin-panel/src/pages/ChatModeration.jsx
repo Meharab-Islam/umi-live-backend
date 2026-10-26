@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   MessageSquare,
   Search,
@@ -20,14 +20,13 @@ import {
   Eye,
   Play,
   Volume2,
-  Paperclip,
   Users,
   Maximize2,
-  Sparkles,
 } from 'lucide-react';
 import chatApi from '../api/chatApi';
 import Loader from '../components/Loader';
 import Pagination from '../components/Pagination';
+import './ChatModeration.css';
 
 // Helper to resolve backend media URLs
 const resolveMediaUrl = (url) => {
@@ -71,7 +70,7 @@ export default function ChatModeration({ onToast }) {
   // Search & Navigation state
   const [searchInput, setSearchInput] = useState('');
   const [activeSearch, setActiveSearch] = useState('');
-  const [selectedUser, setSelectedUser] = useState(null); // When filtering by a specific user
+  const [selectedUser, setSelectedUser] = useState(null);
   const [userSearchResults, setUserSearchResults] = useState([]);
   const [searchingUsers, setSearchingUsers] = useState(false);
 
@@ -95,7 +94,7 @@ export default function ChatModeration({ onToast }) {
   const [deletingConv, setDeletingConv] = useState(false);
 
   // Media lightbox modal state
-  const [previewMedia, setPreviewMedia] = useState(null); // { type: 'image' | 'video', url: string, name?: string }
+  const [previewMedia, setPreviewMedia] = useState(null);
 
   // 1. Fetch Conversations
   const fetchConversations = useCallback(async (isRefresh = false) => {
@@ -115,13 +114,13 @@ export default function ChatModeration({ onToast }) {
       }
 
       const res = await chatApi.getConversations(params);
-      if (res.success) {
+      if (res && res.success) {
         setConversations(res.conversations || []);
         if (res.pagination) {
           setPagination(res.pagination);
         }
       } else {
-        if (onToast) onToast(res.message || 'Failed to load conversations.', 'error');
+        if (onToast) onToast(res?.message || 'Failed to load conversations.', 'error');
       }
     } catch (err) {
       if (onToast) onToast(err.message || 'Network error fetching conversations.', 'error');
@@ -150,7 +149,7 @@ export default function ChatModeration({ onToast }) {
     setSearchingUsers(true);
     try {
       const res = await chatApi.searchChatUsers({ query, limit: 8 });
-      if (res.success) {
+      if (res && res.success) {
         setUserSearchResults(res.users || []);
       }
     } catch {
@@ -192,11 +191,11 @@ export default function ChatModeration({ onToast }) {
     setLoadingMessages(true);
     try {
       const res = await chatApi.getConversationMessages(convId);
-      if (res.success) {
+      if (res && res.success) {
         setCurrentConversation(res.conversation);
         setMessages(res.messages || []);
       } else {
-        if (onToast) onToast(res.message || 'Failed to load messages.', 'error');
+        if (onToast) onToast(res?.message || 'Failed to load messages.', 'error');
       }
     } catch (err) {
       if (onToast) onToast(err.message || 'Error loading conversation messages.', 'error');
@@ -216,20 +215,18 @@ export default function ChatModeration({ onToast }) {
     setDeletingMessage(true);
     try {
       const res = await chatApi.deleteChatMessage(messageToDelete.id);
-      if (res.success) {
+      if (res && res.success) {
         if (onToast) {
           onToast(
-            `Message and storage files deleted successfully (${res.removed_files || 0} media files removed).`,
+            `Message and storage media files purged (${res.removed_files || 0} files deleted).`,
             'success'
           );
         }
-        // Remove locally from messages array
         setMessages((prev) => prev.filter((m) => m.id !== messageToDelete.id));
         setMessageToDelete(null);
-        // Refresh conversations to update last message preview and counts
         fetchConversations(false);
       } else {
-        if (onToast) onToast(res.message || 'Failed to delete message.', 'error');
+        if (onToast) onToast(res?.message || 'Failed to delete message.', 'error');
       }
     } catch (err) {
       if (onToast) onToast(err.message || 'Network error deleting message.', 'error');
@@ -244,10 +241,10 @@ export default function ChatModeration({ onToast }) {
     setDeletingConv(true);
     try {
       const res = await chatApi.deleteConversation(convToDelete.id);
-      if (res.success) {
+      if (res && res.success) {
         if (onToast) {
           onToast(
-            `Conversation and all media permanently wiped from database and storage (${res.removed_files || 0} files purged).`,
+            `Conversation and all media files permanently removed from database and disk storage (${res.removed_files || 0} files purged).`,
             'success'
           );
         }
@@ -257,7 +254,7 @@ export default function ChatModeration({ onToast }) {
         setMessages([]);
         fetchConversations(false);
       } else {
-        if (onToast) onToast(res.message || 'Failed to delete conversation.', 'error');
+        if (onToast) onToast(res?.message || 'Failed to delete conversation.', 'error');
       }
     } catch (err) {
       if (onToast) onToast(err.message || 'Network error deleting conversation.', 'error');
@@ -267,93 +264,103 @@ export default function ChatModeration({ onToast }) {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="chat-mod-container">
       {/* Top Banner / Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900/60 p-6 rounded-2xl border border-slate-800 backdrop-blur-md">
-        <div>
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-indigo-500/10 border border-indigo-500/20 rounded-xl text-indigo-400">
-              <MessageSquare className="w-6 h-6" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-white tracking-wide">Chat Moderation & Inspection</h1>
-              <p className="text-sm text-slate-400 mt-0.5">
-                Search users, audit 1-to-1 conversations, inspect exchanged media (photos & videos), and delete messages with automatic storage file cleanup.
-              </p>
-            </div>
+      <div className="chat-mod-header">
+        <div className="chat-mod-header-left">
+          <div className="chat-mod-icon-badge">
+            <MessageSquare size={26} />
+          </div>
+          <div>
+            <h1 className="chat-mod-title">Chat Moderation & Inspection</h1>
+            <p className="chat-mod-subtitle">
+              Audit 1-to-1 conversations, search users, inspect photos & videos, and delete messages with automatic server disk file cleanup.
+            </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div>
           <button
             onClick={() => fetchConversations(true)}
             disabled={refreshing}
-            className="flex items-center gap-2 px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl border border-slate-700/60 text-sm font-medium transition-all shadow-sm active:scale-95 disabled:opacity-60"
+            className="btn"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '8px 16px',
+              background: 'var(--bg-secondary)',
+              border: '1px solid var(--border-color)',
+              borderRadius: '10px',
+              cursor: 'pointer',
+              fontWeight: 600,
+              color: 'var(--text-main)',
+            }}
           >
-            <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin text-indigo-400' : ''}`} />
+            <RefreshCw size={15} className={refreshing ? 'animate-spin' : ''} />
             Refresh
           </button>
         </div>
       </div>
 
-      {/* User Search & Filters Bar */}
-      <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 shadow-xl backdrop-blur-sm relative">
-        <form onSubmit={handleApplySearch} className="flex flex-col md:flex-row items-center gap-3">
-          <div className="relative flex-1 w-full">
-            <Search className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+      {/* User Search & Filters Card */}
+      <div className="chat-search-card">
+        <form onSubmit={handleApplySearch} className="chat-search-form">
+          <div className="chat-search-input-wrap">
+            <Search size={18} className="chat-search-icon" />
             <input
               type="text"
               value={searchInput}
               onChange={(e) => handleUserSearch(e.target.value)}
-              placeholder="Search user by Name, User ID, Email, or Phone number..."
-              className="w-full bg-slate-950/80 border border-slate-800 rounded-xl pl-11 pr-10 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition-all"
+              placeholder="Search user by Name, User ID, or Email..."
+              className="chat-search-input"
             />
             {searchInput && (
               <button
                 type="button"
                 onClick={handleClearUserFilter}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white p-1"
+                className="chat-search-clear"
               >
-                <X className="w-4 h-4" />
+                <X size={16} />
               </button>
             )}
 
             {/* User Search Autocomplete Dropdown */}
             {userSearchResults.length > 0 && (
-              <div className="absolute left-0 right-0 top-full mt-2 bg-slate-900 border border-slate-800 rounded-xl shadow-2xl z-50 overflow-hidden divide-y divide-slate-800/60 max-h-80 overflow-y-auto">
-                <div className="p-2.5 text-xs font-semibold text-slate-400 bg-slate-950/60">
-                  Select a user to inspect all their conversations:
+              <div className="chat-search-dropdown">
+                <div style={{ padding: '8px 12px', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-dim)', background: '#f8fafc', borderBottom: '1px solid var(--border-color)' }}>
+                  SELECT A USER TO INSPECT CONVERSATIONS:
                 </div>
                 {userSearchResults.map((u) => (
                   <button
                     key={u.id}
                     type="button"
                     onClick={() => handleSelectUser(u)}
-                    className="w-full flex items-center justify-between p-3 hover:bg-slate-800/80 transition-colors text-left"
+                    className="chat-user-item"
                   >
-                    <div className="flex items-center gap-3">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                       <img
-                        src={resolveMediaUrl(u.avatar_url) || 'https://via.placeholder.com/40'}
+                        src={resolveMediaUrl(u.avatar_url) || 'https://via.placeholder.com/36'}
                         alt={u.full_name}
-                        className="w-9 h-9 rounded-full object-cover border border-slate-700"
+                        style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover', border: '1px solid var(--border-color)' }}
                         onError={(e) => {
-                          e.target.src = 'https://via.placeholder.com/40';
+                          e.target.src = 'https://via.placeholder.com/36';
                         }}
                       />
                       <div>
-                        <div className="text-sm font-semibold text-white flex items-center gap-2">
-                          {u.full_name}
-                          <span className="text-xs font-mono text-indigo-400 bg-indigo-500/10 px-1.5 py-0.5 rounded">
+                        <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-main)' }}>
+                          {u.full_name}{' '}
+                          <span style={{ fontSize: '0.7rem', color: 'var(--primary)', background: 'rgba(30, 136, 229, 0.1)', padding: '1px 6px', borderRadius: '4px' }}>
                             ID: {u.id}
                           </span>
                         </div>
-                        <div className="text-xs text-slate-400">
-                          {u.email || u.phone_number || `Role: ${u.role}`}
+                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                          {u.email || `Role: ${u.role}`}
                         </div>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <span className="inline-flex items-center gap-1 text-xs text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20 font-medium">
+                    <div>
+                      <span style={{ fontSize: '0.75rem', color: '#059669', background: 'rgba(5, 150, 105, 0.1)', padding: '2px 8px', borderRadius: '12px', fontWeight: 600 }}>
                         {u.conversation_count || 0} chats
                       </span>
                     </div>
@@ -365,174 +372,162 @@ export default function ChatModeration({ onToast }) {
 
           <button
             type="submit"
-            className="w-full md:w-auto px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-sm font-medium transition-all shadow-md shadow-indigo-600/20 active:scale-95 flex items-center justify-center gap-2"
+            style={{
+              padding: '0 20px',
+              height: '42px',
+              background: 'var(--primary, #1e88e5)',
+              color: '#ffffff',
+              border: 'none',
+              borderRadius: '10px',
+              fontWeight: 700,
+              fontSize: '0.85rem',
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+            }}
           >
-            <Search className="w-4 h-4" />
+            <Search size={15} />
             Filter
           </button>
         </form>
 
         {/* Selected User Filter Card */}
         {selectedUser && (
-          <div className="mt-3 p-3 bg-indigo-500/10 border border-indigo-500/20 rounded-xl flex items-center justify-between">
-            <div className="flex items-center gap-3">
+          <div className="chat-selected-filter-badge">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <img
-                src={resolveMediaUrl(selectedUser.avatar_url) || 'https://via.placeholder.com/40'}
+                src={resolveMediaUrl(selectedUser.avatar_url) || 'https://via.placeholder.com/36'}
                 alt={selectedUser.full_name}
-                className="w-10 h-10 rounded-full object-cover border border-indigo-500/30"
+                style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover' }}
               />
               <div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-bold text-white">{selectedUser.full_name}</span>
-                  <span className="text-xs bg-indigo-500/20 text-indigo-300 font-mono px-2 py-0.5 rounded-md">
-                    User ID: {selectedUser.id}
-                  </span>
-                  <span className="text-xs bg-slate-800 text-slate-300 px-2 py-0.5 rounded-md capitalize">
-                    {selectedUser.role}
+                <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-main)' }}>
+                  {selectedUser.full_name}{' '}
+                  <span style={{ fontSize: '0.75rem', color: 'var(--primary)' }}>
+                    (User ID: {selectedUser.id})
                   </span>
                 </div>
-                <p className="text-xs text-indigo-200/70 mt-0.5">
-                  Showing all conversations involving this user ({selectedUser.conversation_count || 0} total chats)
-                </p>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                  Filtered: Viewing all conversations involving this user ({selectedUser.conversation_count || 0} total chats)
+                </div>
               </div>
             </div>
 
             <button
               onClick={handleClearUserFilter}
-              className="flex items-center gap-1.5 text-xs text-rose-400 hover:text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 px-3 py-1.5 rounded-lg border border-rose-500/20 transition-all font-medium"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '4px',
+                padding: '4px 10px',
+                background: 'rgba(225, 29, 72, 0.1)',
+                color: '#e11d48',
+                border: '1px solid rgba(225, 29, 72, 0.25)',
+                borderRadius: '8px',
+                fontSize: '0.75rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+              }}
             >
-              <X className="w-3.5 h-3.5" />
-              Clear User Filter
+              <X size={14} />
+              Clear Filter
             </button>
           </div>
         )}
       </div>
 
-      {/* Main Split Grid Layout: Conversations (Left) + Messages (Right) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[650px]">
-        {/* Left Column: Conversations List (5 Cols) */}
-        <div className="lg:col-span-5 bg-slate-900/80 border border-slate-800 rounded-2xl p-4 shadow-xl flex flex-col h-full">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-800 mb-3">
-            <div className="flex items-center gap-2">
-              <Users className="w-4 h-4 text-indigo-400" />
-              <h2 className="text-sm font-bold text-white uppercase tracking-wider">
-                Conversations ({pagination.total})
-              </h2>
-            </div>
-            {selectedUser && (
-              <span className="text-xs text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded font-mono">
-                {selectedUser.full_name}
-              </span>
-            )}
+      {/* Master-Detail Split Grid */}
+      <div className="chat-split-grid">
+        {/* Left Column: Conversations List */}
+        <div className="chat-conversations-panel">
+          <div className="chat-panel-title">
+            <Users size={16} />
+            <span>Conversations ({pagination.total})</span>
           </div>
 
-          <div className="flex-1 overflow-y-auto space-y-2 pr-1 max-h-[600px]">
+          <div className="chat-conv-scroll">
             {loadingConversations ? (
-              <div className="py-20 flex justify-center">
+              <div style={{ padding: '60px 0', textAlign: 'center' }}>
                 <Loader />
               </div>
             ) : conversations.length === 0 ? (
-              <div className="py-20 text-center px-4">
-                <MessageSquare className="w-12 h-12 text-slate-600 mx-auto mb-3 opacity-40" />
-                <p className="text-sm text-slate-400 font-medium">No conversations found</p>
-                <p className="text-xs text-slate-500 mt-1">
-                  {selectedUser
-                    ? 'This user has not engaged in any 1-to-1 chats yet.'
-                    : 'Try searching with a different user name or ID.'}
-                </p>
+              <div style={{ padding: '60px 20px', textAlign: 'center', color: 'var(--text-dim)' }}>
+                <MessageSquare size={36} style={{ margin: '0 auto 12px', opacity: 0.4 }} />
+                <div style={{ fontSize: '0.9rem', fontWeight: 600 }}>No conversations found</div>
+                <div style={{ fontSize: '0.75rem', marginTop: '4px' }}>
+                  {selectedUser ? 'This user has no active 1-to-1 chats yet.' : 'Try searching for another user.'}
+                </div>
               </div>
             ) : (
               conversations.map((conv) => {
                 const isSelected = selectedConvId === conv.id;
-                // If filtering by a specific user, highlight the other party
-                const otherParty = selectedUser
-                  ? conv.user1.id === selectedUser.id
-                    ? conv.user2
-                    : conv.user1
-                  : null;
 
                 return (
                   <div
                     key={conv.id}
                     onClick={() => handleSelectConversation(conv)}
-                    className={`p-3.5 rounded-xl border cursor-pointer transition-all ${
-                      isSelected
-                        ? 'bg-indigo-600/15 border-indigo-500/50 shadow-md ring-1 ring-indigo-500/30'
-                        : 'bg-slate-950/60 border-slate-800/80 hover:bg-slate-800/50 hover:border-slate-700'
-                    }`}
+                    className={`chat-conv-card ${isSelected ? 'active' : ''}`}
                   >
-                    <div className="flex items-start justify-between gap-3">
-                      {/* Participants Avatars */}
-                      <div className="flex items-center gap-3">
-                        <div className="relative flex -space-x-2">
-                          <img
-                            src={resolveMediaUrl(conv.user1.avatar_url) || 'https://via.placeholder.com/32'}
-                            alt={conv.user1.full_name}
-                            className="w-9 h-9 rounded-full object-cover border-2 border-slate-900 ring-1 ring-slate-700"
-                            onError={(e) => {
-                              e.target.src = 'https://via.placeholder.com/32';
-                            }}
-                          />
-                          <img
-                            src={resolveMediaUrl(conv.user2.avatar_url) || 'https://via.placeholder.com/32'}
-                            alt={conv.user2.full_name}
-                            className="w-9 h-9 rounded-full object-cover border-2 border-slate-900 ring-1 ring-indigo-500/40"
-                            onError={(e) => {
-                              e.target.src = 'https://via.placeholder.com/32';
-                            }}
-                          />
+                    <div className="chat-conv-header-row">
+                      <div className="chat-avatars-pair">
+                        <img
+                          src={resolveMediaUrl(conv.user1.avatar_url) || 'https://via.placeholder.com/32'}
+                          alt={conv.user1.full_name}
+                          className="chat-avatar-circle"
+                          onError={(e) => {
+                            e.target.src = 'https://via.placeholder.com/32';
+                          }}
+                        />
+                        <img
+                          src={resolveMediaUrl(conv.user2.avatar_url) || 'https://via.placeholder.com/32'}
+                          alt={conv.user2.full_name}
+                          className="chat-avatar-circle overlap"
+                          onError={(e) => {
+                            e.target.src = 'https://via.placeholder.com/32';
+                          }}
+                        />
+                      </div>
+
+                      <div className="chat-conv-info">
+                        <div className="chat-conv-names">
+                          {conv.user1.full_name} ↔ {conv.user2.full_name}
                         </div>
-
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-1.5 text-sm font-semibold text-white truncate">
-                            <span className="truncate">{conv.user1.full_name}</span>
-                            <span className="text-slate-500 text-xs font-normal">↔</span>
-                            <span className="truncate">{conv.user2.full_name}</span>
-                          </div>
-
-                          <div className="flex items-center gap-2 mt-0.5 text-xs text-slate-400">
-                            <span className="text-slate-500 font-mono">#{conv.id}</span>
-                            <span>•</span>
-                            <span className="truncate max-w-[140px] text-slate-300">
-                              {conv.last_message || 'Media exchange'}
-                            </span>
-                          </div>
+                        <div className="chat-conv-snippet">
+                          {conv.last_message || 'Media attachment'}
                         </div>
                       </div>
 
-                      <div className="text-right shrink-0">
-                        <span className="text-[11px] text-slate-500 block">
+                      <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                        <span style={{ fontSize: '0.7rem', color: 'var(--text-dim)', display: 'block' }}>
                           {formatTimeAgo(conv.last_message_at)}
                         </span>
-                        <span className="inline-block mt-1 text-[11px] font-mono text-indigo-400 bg-indigo-500/10 px-1.5 py-0.5 rounded">
+                        <span style={{ fontSize: '0.7rem', color: 'var(--primary)', background: 'rgba(30, 136, 229, 0.1)', padding: '1px 5px', borderRadius: '4px', fontWeight: 600 }}>
                           {conv.total_messages} msgs
                         </span>
                       </div>
                     </div>
 
-                    {/* Media Indicators row */}
-                    <div className="mt-2.5 pt-2 border-t border-slate-800/60 flex items-center justify-between text-xs">
-                      <div className="flex items-center gap-2">
+                    {/* Media Type Badges Row */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '6px', borderTop: '1px solid #f1f5f9' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                         {conv.has_images && (
-                          <span className="flex items-center gap-1 text-[11px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20 font-medium">
-                            <ImageIcon className="w-3 h-3" />
-                            {conv.image_count} Image{conv.image_count > 1 ? 's' : ''}
+                          <span className="chat-media-pill pill-image">
+                            <ImageIcon size={11} /> {conv.image_count} Image{conv.image_count > 1 ? 's' : ''}
                           </span>
                         )}
                         {conv.has_videos && (
-                          <span className="flex items-center gap-1 text-[11px] text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/20 font-medium">
-                            <Video className="w-3 h-3" />
-                            {conv.video_count} Video{conv.video_count > 1 ? 's' : ''}
+                          <span className="chat-media-pill pill-video">
+                            <Video size={11} /> {conv.video_count} Video{conv.video_count > 1 ? 's' : ''}
                           </span>
                         )}
                         {conv.has_audio && (
-                          <span className="flex items-center gap-1 text-[11px] text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded-md border border-purple-500/20 font-medium">
-                            <Mic className="w-3 h-3" />
-                            Voice
+                          <span className="chat-media-pill pill-voice">
+                            <Mic size={11} /> Voice
                           </span>
                         )}
                         {!conv.has_images && !conv.has_videos && !conv.has_audio && (
-                          <span className="text-[11px] text-slate-500">Text only</span>
+                          <span style={{ fontSize: '0.7rem', color: 'var(--text-dim)' }}>Text only</span>
                         )}
                       </div>
 
@@ -542,9 +537,17 @@ export default function ChatModeration({ onToast }) {
                           setConvToDelete(conv);
                         }}
                         title="Delete entire conversation and storage files"
-                        className="text-slate-500 hover:text-rose-400 p-1 rounded hover:bg-rose-500/10 transition-colors"
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          color: '#e11d48',
+                          cursor: 'pointer',
+                          padding: '2px 4px',
+                          display: 'flex',
+                          alignItems: 'center',
+                        }}
                       >
-                        <Trash2 className="w-3.5 h-3.5" />
+                        <Trash2 size={13} />
                       </button>
                     </div>
                   </div>
@@ -555,7 +558,7 @@ export default function ChatModeration({ onToast }) {
 
           {/* Pagination */}
           {pagination.totalPages > 1 && (
-            <div className="pt-3 border-t border-slate-800 mt-auto">
+            <div style={{ paddingTop: '10px', borderTop: '1px solid var(--border-color)', marginTop: 'auto' }}>
               <Pagination
                 page={page}
                 totalPages={pagination.totalPages}
@@ -565,46 +568,49 @@ export default function ChatModeration({ onToast }) {
           )}
         </div>
 
-        {/* Right Column: Chat Messages Timeline & Media Inspector (7 Cols) */}
-        <div className="lg:col-span-7 bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col h-full">
+        {/* Right Column: Chat Messages Timeline & Media Inspector */}
+        <div className="chat-messages-panel">
           {!selectedConvId ? (
-            <div className="flex-1 flex flex-col items-center justify-center p-8 text-center text-slate-500">
-              <div className="p-4 bg-slate-800/40 rounded-full border border-slate-700/40 mb-4">
-                <MessageSquare className="w-10 h-10 text-slate-400" />
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '60px 20px', textAlign: 'center', color: 'var(--text-dim)' }}>
+              <div style={{ padding: '16px', background: 'rgba(30, 136, 229, 0.08)', borderRadius: '50%', marginBottom: '12px' }}>
+                <MessageSquare size={36} color="var(--primary)" />
               </div>
-              <h3 className="text-base font-bold text-slate-300">No Conversation Selected</h3>
-              <p className="text-sm text-slate-400 max-w-sm mt-1">
-                Select a conversation from the left to inspect the messages, photos, and videos exchanged between users.
+              <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-main)' }}>Select a Conversation</h3>
+              <p style={{ fontSize: '0.85rem', maxWidth: '340px', marginTop: '4px', lineHeight: 1.4 }}>
+                Click on any conversation from the left to inspect exchanged text, images, and videos between the two users.
               </p>
             </div>
           ) : (
-            <div className="flex flex-col h-full">
+            <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
               {/* Conversation Top Header */}
-              <div className="flex items-center justify-between pb-4 border-b border-slate-800 mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-indigo-500/10 border border-indigo-500/20 rounded-lg text-indigo-400">
-                    <Users className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                      <span>{currentConversation?.user1?.full_name}</span>
-                      <span className="text-xs text-slate-500 font-normal">and</span>
-                      <span>{currentConversation?.user2?.full_name}</span>
-                    </h3>
-                    <p className="text-xs text-slate-400 mt-0.5">
-                      Conversation ID: #{selectedConvId} • {messages.length} messages
-                    </p>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: '12px', borderBottom: '1px solid var(--border-color)', marginBottom: '12px' }}>
+                <div>
+                  <h3 style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span>{currentConversation?.user1?.full_name}</span>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)', fontWeight: 400 }}>↔</span>
+                    <span>{currentConversation?.user2?.full_name}</span>
+                  </h3>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '2px' }}>
+                    Conversation #{selectedConvId} • {messages.length} messages
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <button
                     onClick={() => fetchMessages(selectedConvId)}
                     disabled={loadingMessages}
-                    title="Refresh conversation messages"
-                    className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 transition-colors"
+                    title="Refresh conversation"
+                    style={{
+                      padding: '6px 10px',
+                      background: 'var(--bg-primary)',
+                      border: '1px solid var(--border-color)',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                    }}
                   >
-                    <RefreshCw className={`w-4 h-4 ${loadingMessages ? 'animate-spin' : ''}`} />
+                    <RefreshCw size={14} className={loadingMessages ? 'animate-spin' : ''} />
                   </button>
 
                   <button
@@ -613,114 +619,101 @@ export default function ChatModeration({ onToast }) {
                         setConvToDelete(currentConversation);
                       }
                     }}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 rounded-lg text-xs font-semibold transition-all shadow-sm active:scale-95"
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '5px',
+                      padding: '6px 12px',
+                      background: 'rgba(225, 29, 72, 0.1)',
+                      color: '#e11d48',
+                      border: '1px solid rgba(225, 29, 72, 0.25)',
+                      borderRadius: '8px',
+                      fontSize: '0.75rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                    }}
                   >
-                    <Trash2 className="w-3.5 h-3.5" />
+                    <Trash2 size={13} />
                     Wipe Conversation
                   </button>
                 </div>
               </div>
 
               {/* Messages Stream */}
-              <div className="flex-1 overflow-y-auto space-y-4 pr-1 max-h-[550px] p-2">
+              <div className="chat-messages-stream">
                 {loadingMessages ? (
-                  <div className="py-24 flex justify-center">
+                  <div style={{ padding: '60px 0', textAlign: 'center' }}>
                     <Loader />
                   </div>
                 ) : messages.length === 0 ? (
-                  <div className="py-20 text-center text-slate-500">
-                    <p className="text-sm">No messages found in this conversation.</p>
+                  <div style={{ padding: '60px 0', textAlign: 'center', color: 'var(--text-dim)', fontSize: '0.85rem' }}>
+                    No messages found in this conversation.
                   </div>
                 ) : (
                   messages.map((msg) => {
                     const isUser1 = msg.sender.id === currentConversation?.user1?.id;
-                    const hasMedia =
-                      Boolean(msg.media_url) ||
-                      (Array.isArray(msg.media_items) && msg.media_items.length > 0) ||
-                      (Array.isArray(msg.media) && msg.media.length > 0);
 
                     return (
                       <div
                         key={msg.id}
-                        className={`p-3.5 rounded-xl border transition-all ${
-                          isUser1
-                            ? 'bg-slate-950/70 border-slate-800/80 mr-4'
-                            : 'bg-indigo-950/20 border-indigo-900/40 ml-4'
-                        }`}
+                        className={`chat-msg-row ${isUser1 ? 'user1-bubble' : 'user2-bubble'}`}
                       >
-                        {/* Header: Sender info + Time + Delete button */}
-                        <div className="flex items-center justify-between gap-3 mb-2">
-                          <div className="flex items-center gap-2">
+                        <div className="chat-msg-top">
+                          <div className="chat-msg-sender">
                             <img
-                              src={resolveMediaUrl(msg.sender.avatar_url) || 'https://via.placeholder.com/28'}
+                              src={resolveMediaUrl(msg.sender.avatar_url) || 'https://via.placeholder.com/24'}
                               alt={msg.sender.full_name}
-                              className="w-6 h-6 rounded-full object-cover border border-slate-700"
+                              className="chat-sender-img"
                             />
-                            <span className="text-xs font-bold text-white">
-                              {msg.sender.full_name}
-                            </span>
-                            <span className="text-[10px] text-slate-500 font-mono">
-                              (ID: {msg.sender.id})
-                            </span>
-                            <span className="text-[10px] text-slate-500">➔</span>
-                            <span className="text-xs text-slate-400">
-                              {msg.receiver.full_name}
-                            </span>
+                            <span className="chat-sender-name">{msg.sender.full_name}</span>
+                            <span style={{ fontSize: '0.7rem', color: 'var(--text-dim)' }}>➔ {msg.receiver.full_name}</span>
                           </div>
 
-                          <div className="flex items-center gap-2">
-                            <span className="text-[11px] text-slate-500">
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span style={{ fontSize: '0.7rem', color: 'var(--text-dim)' }}>
                               {formatFullDate(msg.created_at)}
                             </span>
                             <button
                               onClick={() => setMessageToDelete(msg)}
-                              title="Delete this message and remove attached storage file"
-                              className="text-slate-500 hover:text-rose-400 p-1 rounded hover:bg-rose-500/10 transition-colors"
+                              title="Delete message & media file"
+                              style={{
+                                background: 'none',
+                                border: 'none',
+                                color: '#e11d48',
+                                cursor: 'pointer',
+                                padding: '2px',
+                                display: 'flex',
+                                alignItems: 'center',
+                              }}
                             >
-                              <Trash2 className="w-3.5 h-3.5" />
+                              <Trash2 size={13} />
                             </button>
                           </div>
                         </div>
 
-                        {/* Text Message Content */}
+                        {/* Text Message */}
                         {msg.message && (
-                          <div className="text-sm text-slate-200 whitespace-pre-wrap break-words pl-8">
-                            {msg.message}
-                          </div>
+                          <div className="chat-msg-text">{msg.message}</div>
                         )}
 
-                        {/* Media Inspector: Single media_url */}
+                        {/* Media Preview: Single media_url */}
                         {msg.media_url && (
-                          <div className="mt-2.5 pl-8">
+                          <div className="chat-msg-media-wrap">
                             {msg.message_type === 'video' || msg.media_url.match(/\.(mp4|mov|webm)$/i) ? (
-                              <div className="relative rounded-lg overflow-hidden border border-slate-800 bg-black/40 max-w-sm">
+                              <div style={{ maxWidth: '320px', borderRadius: '10px', overflow: 'hidden', border: '1px solid var(--border-color)', background: '#000000' }}>
                                 <video
                                   src={resolveMediaUrl(msg.media_url)}
                                   controls
-                                  className="w-full max-h-60 rounded-lg object-contain bg-black"
+                                  style={{ width: '100%', maxHeight: '220px', display: 'block' }}
                                 />
-                                <div className="absolute top-2 right-2">
-                                  <button
-                                    onClick={() =>
-                                      setPreviewMedia({
-                                        type: 'video',
-                                        url: resolveMediaUrl(msg.media_url),
-                                      })
-                                    }
-                                    className="p-1.5 bg-black/70 hover:bg-black text-white rounded-md backdrop-blur-sm"
-                                  >
-                                    <Maximize2 className="w-3.5 h-3.5" />
-                                  </button>
-                                </div>
                               </div>
                             ) : msg.message_type === 'audio' || msg.media_url.match(/\.(mp3|wav|aac|ogg|m4a)$/i) ? (
-                              <div className="p-2.5 bg-slate-900 rounded-lg border border-slate-800 flex items-center gap-3 max-w-sm">
-                                <Volume2 className="w-5 h-5 text-purple-400 shrink-0" />
-                                <audio src={resolveMediaUrl(msg.media_url)} controls className="w-full h-8" />
+                              <div style={{ maxWidth: '320px', padding: '8px 12px', background: 'var(--bg-primary)', borderRadius: '10px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <Volume2 size={18} color="var(--primary)" />
+                                <audio src={resolveMediaUrl(msg.media_url)} controls style={{ width: '100%', height: '32px' }} />
                               </div>
                             ) : (
-                              /* Default to Image */
-                              <div className="relative inline-block group">
+                              <div style={{ display: 'inline-block', position: 'relative' }}>
                                 <img
                                   src={resolveMediaUrl(msg.media_url)}
                                   alt="Attachment"
@@ -730,46 +723,29 @@ export default function ChatModeration({ onToast }) {
                                       url: resolveMediaUrl(msg.media_url),
                                     })
                                   }
-                                  className="max-h-52 rounded-lg border border-slate-800 object-cover cursor-pointer hover:opacity-90 transition-opacity shadow-md"
+                                  className="chat-msg-thumb"
                                 />
-                                <button
-                                  onClick={() =>
-                                    setPreviewMedia({
-                                      type: 'image',
-                                      url: resolveMediaUrl(msg.media_url),
-                                    })
-                                  }
-                                  className="absolute bottom-2 right-2 p-1.5 bg-black/70 text-white rounded-md opacity-0 group-hover:opacity-100 transition-opacity"
-                                >
-                                  <Eye className="w-3.5 h-3.5" />
-                                </button>
                               </div>
                             )}
                           </div>
                         )}
 
-                        {/* Multiple Media Attachments (from chat_message_media) */}
+                        {/* Multiple Media Items */}
                         {Array.isArray(msg.media_items) && msg.media_items.length > 0 && (
-                          <div className="mt-2.5 pl-8 grid grid-cols-2 sm:grid-cols-3 gap-2">
+                          <div className="chat-msg-media-wrap" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '8px' }}>
                             {msg.media_items.map((item, idx) => (
-                              <div key={item.id || idx} className="relative group rounded-lg overflow-hidden border border-slate-800">
+                              <div key={item.id || idx} style={{ borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--border-color)', height: '90px' }}>
                                 {item.media_type === 'video' ? (
-                                  <div className="relative">
-                                    <video
-                                      src={resolveMediaUrl(item.media_url)}
-                                      className="w-full h-28 object-cover bg-black"
-                                    />
-                                    <button
-                                      onClick={() =>
-                                        setPreviewMedia({
-                                          type: 'video',
-                                          url: resolveMediaUrl(item.media_url),
-                                        })
-                                      }
-                                      className="absolute inset-0 flex items-center justify-center bg-black/40 hover:bg-black/20 text-white"
-                                    >
-                                      <Play className="w-6 h-6 fill-white" />
-                                    </button>
+                                  <div
+                                    onClick={() =>
+                                      setPreviewMedia({
+                                        type: 'video',
+                                        url: resolveMediaUrl(item.media_url),
+                                      })
+                                    }
+                                    style={{ width: '100%', height: '100%', background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                                  >
+                                    <Play size={20} color="#fff" />
                                   </div>
                                 ) : (
                                   <img
@@ -781,7 +757,7 @@ export default function ChatModeration({ onToast }) {
                                         url: resolveMediaUrl(item.media_url),
                                       })
                                     }
-                                    className="w-full h-28 object-cover cursor-pointer hover:scale-105 transition-transform"
+                                    style={{ width: '100%', height: '100%', objectFit: 'cover', cursor: 'pointer' }}
                                   />
                                 )}
                               </div>
@@ -798,39 +774,41 @@ export default function ChatModeration({ onToast }) {
         </div>
       </div>
 
-      {/* MODAL 1: Delete Single Message Confirmation */}
+      {/* MODAL 1: Delete Single Message */}
       {messageToDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
-            <div className="flex items-center gap-3 text-rose-400">
-              <div className="p-2.5 bg-rose-500/10 border border-rose-500/20 rounded-xl">
-                <AlertTriangle className="w-6 h-6" />
-              </div>
+        <div className="chat-modal-overlay">
+          <div className="chat-modal-content">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#e11d48' }}>
+              <AlertTriangle size={24} />
               <div>
-                <h3 className="text-lg font-bold text-white">Delete Chat Message</h3>
-                <p className="text-xs text-slate-400">Message ID: #{messageToDelete.id}</p>
+                <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--text-main)', margin: 0 }}>Delete Chat Message</h3>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>Message ID: #{messageToDelete.id}</div>
               </div>
             </div>
 
-            <p className="text-sm text-slate-300 leading-relaxed">
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: 1.5, margin: 0 }}>
               Are you sure you want to delete this message?
             </p>
 
-            <div className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-xs text-rose-300 space-y-1">
-              <p className="font-semibold flex items-center gap-1.5">
-                <ShieldAlert className="w-4 h-4" /> Physical Storage Media Removal
-              </p>
-              <p className="text-rose-300/80">
-                Any images, videos, or audio attached to this message will be permanently deleted from server disk storage and database records.
-              </p>
+            <div style={{ padding: '10px 12px', background: 'rgba(225, 29, 72, 0.08)', border: '1px solid rgba(225, 29, 72, 0.25)', borderRadius: '10px', fontSize: '0.78rem', color: '#e11d48', lineHeight: 1.4 }}>
+              <strong>Permanent Disk Storage Purge:</strong> Any attached photos, videos, or voice recordings will be permanently deleted from the server storage disk and database.
             </div>
 
-            <div className="flex items-center justify-end gap-3 pt-2">
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '10px', marginTop: '6px' }}>
               <button
                 type="button"
                 onClick={() => setMessageToDelete(null)}
                 disabled={deletingMessage}
-                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-sm font-medium transition-colors"
+                style={{
+                  padding: '8px 16px',
+                  background: 'var(--bg-primary)',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '10px',
+                  fontWeight: 600,
+                  fontSize: '0.85rem',
+                  cursor: 'pointer',
+                  color: 'var(--text-main)',
+                }}
               >
                 Cancel
               </button>
@@ -838,9 +816,21 @@ export default function ChatModeration({ onToast }) {
                 type="button"
                 onClick={confirmDeleteMessage}
                 disabled={deletingMessage}
-                className="px-5 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-sm font-semibold transition-all shadow-lg shadow-rose-600/30 flex items-center gap-2 disabled:opacity-60"
+                style={{
+                  padding: '8px 18px',
+                  background: '#e11d48',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '10px',
+                  fontWeight: 700,
+                  fontSize: '0.85rem',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                }}
               >
-                {deletingMessage && <RefreshCw className="w-4 h-4 animate-spin" />}
+                {deletingMessage && <RefreshCw size={14} className="animate-spin" />}
                 Delete Message & Media
               </button>
             </div>
@@ -848,41 +838,41 @@ export default function ChatModeration({ onToast }) {
         </div>
       )}
 
-      {/* MODAL 2: Delete Entire Conversation Confirmation */}
+      {/* MODAL 2: Delete Entire Conversation */}
       {convToDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
-            <div className="flex items-center gap-3 text-rose-400">
-              <div className="p-2.5 bg-rose-500/10 border border-rose-500/20 rounded-xl">
-                <Trash2 className="w-6 h-6" />
-              </div>
+        <div className="chat-modal-overlay">
+          <div className="chat-modal-content">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#e11d48' }}>
+              <Trash2 size={24} />
               <div>
-                <h3 className="text-lg font-bold text-white">Wipe Entire Conversation</h3>
-                <p className="text-xs text-slate-400">Conversation ID: #{convToDelete.id}</p>
+                <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--text-main)', margin: 0 }}>Wipe Entire Conversation</h3>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>Conversation ID: #{convToDelete.id}</div>
               </div>
             </div>
 
-            <p className="text-sm text-slate-300 leading-relaxed">
-              This will completely remove the conversation between{' '}
-              <strong className="text-white">{convToDelete.user1?.full_name}</strong> and{' '}
-              <strong className="text-white">{convToDelete.user2?.full_name}</strong>.
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: 1.5, margin: 0 }}>
+              This will completely wipe the conversation between <strong>{convToDelete.user1?.full_name}</strong> and <strong>{convToDelete.user2?.full_name}</strong>.
             </p>
 
-            <div className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-xs text-rose-300 space-y-1">
-              <p className="font-semibold flex items-center gap-1.5">
-                <AlertTriangle className="w-4 h-4" /> Comprehensive Media & DB Clean
-              </p>
-              <p className="text-rose-300/80">
-                All messages ({convToDelete.total_messages || 'all'} messages) and all attached photos, videos, voice notes, and background images will be purged from the physical file storage.
-              </p>
+            <div style={{ padding: '10px 12px', background: 'rgba(225, 29, 72, 0.08)', border: '1px solid rgba(225, 29, 72, 0.25)', borderRadius: '10px', fontSize: '0.78rem', color: '#e11d48', lineHeight: 1.4 }}>
+              <strong>Comprehensive Cleanup:</strong> All {convToDelete.total_messages || 'all'} messages and all associated image/video files in server storage will be permanently wiped.
             </div>
 
-            <div className="flex items-center justify-end gap-3 pt-2">
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '10px', marginTop: '6px' }}>
               <button
                 type="button"
                 onClick={() => setConvToDelete(null)}
                 disabled={deletingConv}
-                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-sm font-medium transition-colors"
+                style={{
+                  padding: '8px 16px',
+                  background: 'var(--bg-primary)',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '10px',
+                  fontWeight: 600,
+                  fontSize: '0.85rem',
+                  cursor: 'pointer',
+                  color: 'var(--text-main)',
+                }}
               >
                 Cancel
               </button>
@@ -890,31 +880,67 @@ export default function ChatModeration({ onToast }) {
                 type="button"
                 onClick={confirmDeleteConversation}
                 disabled={deletingConv}
-                className="px-5 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-sm font-semibold transition-all shadow-lg shadow-rose-600/30 flex items-center gap-2 disabled:opacity-60"
+                style={{
+                  padding: '8px 18px',
+                  background: '#e11d48',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '10px',
+                  fontWeight: 700,
+                  fontSize: '0.85rem',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                }}
               >
-                {deletingConv && <RefreshCw className="w-4 h-4 animate-spin" />}
-                Permanently Wipe All
+                {deletingConv && <RefreshCw size={14} className="animate-spin" />}
+                Wipe Conversation & Media
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* MODAL 3: Media Lightbox / Fullscreen Viewer */}
+      {/* MODAL 3: Fullscreen Media Preview Lightbox */}
       {previewMedia && (
         <div
           onClick={() => setPreviewMedia(null)}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-fade-in"
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0, 0, 0, 0.88)',
+            backdropFilter: 'blur(6px)',
+            zIndex: 110,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '20px',
+          }}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="relative max-w-4xl max-h-[85vh] w-full flex flex-col items-center justify-center"
+            style={{ position: 'relative', maxWidth: '90vw', maxHeight: '85vh' }}
           >
             <button
               onClick={() => setPreviewMedia(null)}
-              className="absolute -top-10 right-0 p-2 text-white/80 hover:text-white bg-slate-800/80 rounded-full hover:bg-slate-800 transition-colors"
+              style={{
+                position: 'absolute',
+                top: '-42px',
+                right: '0',
+                background: 'rgba(255, 255, 255, 0.2)',
+                border: 'none',
+                color: '#ffffff',
+                borderRadius: '50%',
+                width: '36px',
+                height: '36px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
             >
-              <X className="w-5 h-5" />
+              <X size={20} />
             </button>
 
             {previewMedia.type === 'video' ? (
@@ -922,13 +948,13 @@ export default function ChatModeration({ onToast }) {
                 src={previewMedia.url}
                 controls
                 autoPlay
-                className="max-w-full max-h-[80vh] rounded-xl shadow-2xl border border-slate-700"
+                style={{ maxWidth: '100%', maxHeight: '80vh', borderRadius: '12px' }}
               />
             ) : (
               <img
                 src={previewMedia.url}
-                alt="Fullscreen Preview"
-                className="max-w-full max-h-[80vh] rounded-xl object-contain shadow-2xl border border-slate-700"
+                alt="Fullscreen"
+                style={{ maxWidth: '100%', maxHeight: '80vh', objectFit: 'contain', borderRadius: '12px' }}
               />
             )}
           </div>

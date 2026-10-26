@@ -5901,11 +5901,11 @@ export async function getAdminChatUsers(req, res) {
 
     if (search) {
       if (!isNaN(search)) {
-        whereClause += ' AND (u.id = ? OR u.full_name LIKE ? OR u.email LIKE ? OR u.phone_number LIKE ?)';
-        params.push(parseInt(search, 10), `%${search}%`, `%${search}%`, `%${search}%`);
+        whereClause += ' AND (u.id = ? OR u.full_name LIKE ? OR u.email LIKE ?)';
+        params.push(parseInt(search, 10), `%${search}%`, `%${search}%`);
       } else {
-        whereClause += ' AND (u.full_name LIKE ? OR u.email LIKE ? OR u.phone_number LIKE ?)';
-        params.push(`%${search}%`, `%${search}%`, `%${search}%`);
+        whereClause += ' AND (u.full_name LIKE ? OR u.email LIKE ?)';
+        params.push(`%${search}%`, `%${search}%`);
       }
     }
 
@@ -5920,7 +5920,6 @@ export async function getAdminChatUsers(req, res) {
         u.id,
         u.full_name,
         u.email,
-        u.phone_number,
         u.avatar_url,
         u.role,
         u.level,
@@ -6021,13 +6020,11 @@ export async function getAdminConversations(req, res) {
         u1.full_name as user1_name,
         u1.avatar_url as user1_avatar,
         u1.email as user1_email,
-        u1.phone_number as user1_phone,
         u1.role as user1_role,
         u1.level as user1_level,
         u2.full_name as user2_name,
         u2.avatar_url as user2_avatar,
         u2.email as user2_email,
-        u2.phone_number as user2_phone,
         u2.role as user2_role,
         u2.level as user2_level,
         (
@@ -6070,7 +6067,6 @@ export async function getAdminConversations(req, res) {
         full_name: row.user1_name,
         avatar_url: row.user1_avatar,
         email: row.user1_email,
-        phone_number: row.user1_phone,
         role: row.user1_role,
         level: row.user1_level,
       },
@@ -6079,7 +6075,6 @@ export async function getAdminConversations(req, res) {
         full_name: row.user2_name,
         avatar_url: row.user2_avatar,
         email: row.user2_email,
-        phone_number: row.user2_phone,
         role: row.user2_role,
         level: row.user2_level,
       },
