@@ -3846,28 +3846,112 @@
       "source_location": "L4"
     },
     {
-      "id": "admin_panel_src_pages_levels_levels",
-      "label": "Levels()",
+      "id": "admin_panel_src_context_economycontext_economyprovider",
+      "label": "EconomyProvider()",
       "_callable": true,
       "_origin": "ast",
       "community": 38,
       "community_name": "App.jsx",
       "file_type": "code",
-      "norm_label": "levels()",
-      "source_file": "admin-panel/src/pages/Levels.jsx",
-      "source_location": "L31"
+      "norm_label": "economyprovider()",
+      "source_file": "admin-panel/src/context/EconomyContext.jsx",
+      "source_location": "L10"
     },
     {
-      "id": "admin_panel_src_pages_liverewards_liverewards",
-      "label": "LiveRewards()",
+      "id": "admin_panel_src_context_economycontext_useeconomy",
+      "label": "useEconomy()",
       "_callable": true,
       "_origin": "ast",
       "community": 38,
       "community_name": "App.jsx",
       "file_type": "code",
-      "norm_label": "liverewards()",
-      "source_file": "admin-panel/src/pages/LiveRewards.jsx",
+      "norm_label": "useeconomy()",
+      "source_file": "admin-panel/src/context/EconomyContext.jsx",
+      "source_location": "L40"
+    },
+    {
+      "id": "admin_panel_src_pages_accountmerge_accountmerge",
+      "label": "AccountMerge()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 38,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": "accountmerge()",
+      "source_file": "admin-panel/src/pages/AccountMerge.jsx",
       "source_location": "L26"
+    },
+    {
+      "id": "admin_panel_src_pages_agencies_agencies",
+      "label": "Agencies()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 38,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": "agencies()",
+      "source_file": "admin-panel/src/pages/Agencies.jsx",
+      "source_location": "L35"
+    },
+    {
+      "id": "admin_panel_src_pages_coinrecharge_coinrecharge",
+      "label": "CoinRecharge()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 38,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": "coinrecharge()",
+      "source_file": "admin-panel/src/pages/CoinRecharge.jsx",
+      "source_location": "L41"
+    },
+    {
+      "id": "admin_panel_src_pages_gifts_gifts",
+      "label": "Gifts()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 38,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": "gifts()",
+      "source_file": "admin-panel/src/pages/Gifts.jsx",
+      "source_location": "L50"
+    },
+    {
+      "id": "admin_panel_src_pages_gifts_ismediaurl",
+      "label": "isMediaUrl()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 38,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": "ismediaurl()",
+      "source_file": "admin-panel/src/pages/Gifts.jsx",
+      "source_location": "L45"
+    },
+    {
+      "id": "admin_panel_src_pages_gifts_resolvemediaurl",
+      "label": "resolveMediaUrl()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 38,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": "resolvemediaurl()",
+      "source_file": "admin-panel/src/pages/Gifts.jsx",
+      "source_location": "L36"
+    },
+    {
+      "id": "admin_panel_src_pages_hostmanagement_hostmanagement",
+      "label": "HostManagement()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 38,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": "hostmanagement()",
+      "source_file": "admin-panel/src/pages/HostManagement.jsx",
+      "source_location": "L45"
     },
     {
       "id": "admin_panel_src_pages_livestreams_livestreams",
@@ -3882,30 +3966,6 @@
       "source_location": "L7"
     },
     {
-      "id": "admin_panel_src_pages_moderators_getdefaultpermissions",
-      "label": "getDefaultPermissions()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 38,
-      "community_name": "App.jsx",
-      "file_type": "code",
-      "norm_label": "getdefaultpermissions()",
-      "source_file": "admin-panel/src/pages/Moderators.jsx",
-      "source_location": "L134"
-    },
-    {
-      "id": "admin_panel_src_pages_moderators_moderators",
-      "label": "Moderators()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 38,
-      "community_name": "App.jsx",
-      "file_type": "code",
-      "norm_label": "moderators()",
-      "source_file": "admin-panel/src/pages/Moderators.jsx",
-      "source_location": "L142"
-    },
-    {
       "id": "admin_panel_src_pages_resellers_resellers",
       "label": "Resellers()",
       "_callable": true,
@@ -3918,16 +3978,40 @@
       "source_location": "L34"
     },
     {
-      "id": "admin_panel_src_pages_specialitems_specialitems",
-      "label": "SpecialItems()",
+      "id": "admin_panel_src_pages_topcontributors_topcontributors",
+      "label": "TopContributors()",
       "_callable": true,
       "_origin": "ast",
       "community": 38,
       "community_name": "App.jsx",
       "file_type": "code",
-      "norm_label": "specialitems()",
-      "source_file": "admin-panel/src/pages/SpecialItems.jsx",
-      "source_location": "L10"
+      "norm_label": "topcontributors()",
+      "source_file": "admin-panel/src/pages/TopContributors.jsx",
+      "source_location": "L23"
+    },
+    {
+      "id": "admin_panel_src_pages_users_users",
+      "label": "Users()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 38,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": "users()",
+      "source_file": "admin-panel/src/pages/Users.jsx",
+      "source_location": "L33"
+    },
+    {
+      "id": "admin_panel_src_pages_withdrawals_withdrawals",
+      "label": "Withdrawals()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 38,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": "withdrawals()",
+      "source_file": "admin-panel/src/pages/Withdrawals.jsx",
+      "source_location": "L36"
     },
     {
       "id": "scratch_test_device_and_google_auth_runtests",
@@ -4566,64 +4650,28 @@
       "source_location": "L64"
     },
     {
-      "id": "admin_panel_src_context_economycontext_useeconomy",
-      "label": "useEconomy()",
+      "id": "admin_panel_src_pages_moderators_getdefaultpermissions",
+      "label": "getDefaultPermissions()",
       "_callable": true,
       "_origin": "ast",
       "community": 47,
       "community_name": "Loader.jsx",
       "file_type": "code",
-      "norm_label": "useeconomy()",
-      "source_file": "admin-panel/src/context/EconomyContext.jsx",
-      "source_location": "L40"
+      "norm_label": "getdefaultpermissions()",
+      "source_file": "admin-panel/src/pages/Moderators.jsx",
+      "source_location": "L134"
     },
     {
-      "id": "admin_panel_src_pages_accountmerge_accountmerge",
-      "label": "AccountMerge()",
+      "id": "admin_panel_src_pages_moderators_moderators",
+      "label": "Moderators()",
       "_callable": true,
       "_origin": "ast",
       "community": 47,
       "community_name": "Loader.jsx",
       "file_type": "code",
-      "norm_label": "accountmerge()",
-      "source_file": "admin-panel/src/pages/AccountMerge.jsx",
-      "source_location": "L26"
-    },
-    {
-      "id": "admin_panel_src_pages_agencies_agencies",
-      "label": "Agencies()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 47,
-      "community_name": "Loader.jsx",
-      "file_type": "code",
-      "norm_label": "agencies()",
-      "source_file": "admin-panel/src/pages/Agencies.jsx",
-      "source_location": "L35"
-    },
-    {
-      "id": "admin_panel_src_pages_coinrecharge_coinrecharge",
-      "label": "CoinRecharge()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 47,
-      "community_name": "Loader.jsx",
-      "file_type": "code",
-      "norm_label": "coinrecharge()",
-      "source_file": "admin-panel/src/pages/CoinRecharge.jsx",
-      "source_location": "L41"
-    },
-    {
-      "id": "admin_panel_src_pages_hostmanagement_hostmanagement",
-      "label": "HostManagement()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 47,
-      "community_name": "Loader.jsx",
-      "file_type": "code",
-      "norm_label": "hostmanagement()",
-      "source_file": "admin-panel/src/pages/HostManagement.jsx",
-      "source_location": "L45"
+      "norm_label": "moderators()",
+      "source_file": "admin-panel/src/pages/Moderators.jsx",
+      "source_location": "L142"
     },
     {
       "id": "admin_panel_src_pages_posts_formattimeago",
@@ -4660,30 +4708,6 @@
       "norm_label": "resolvemediaurl()",
       "source_file": "admin-panel/src/pages/Posts.jsx",
       "source_location": "L35"
-    },
-    {
-      "id": "admin_panel_src_pages_users_users",
-      "label": "Users()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 47,
-      "community_name": "Loader.jsx",
-      "file_type": "code",
-      "norm_label": "users()",
-      "source_file": "admin-panel/src/pages/Users.jsx",
-      "source_location": "L33"
-    },
-    {
-      "id": "admin_panel_src_pages_withdrawals_withdrawals",
-      "label": "Withdrawals()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 47,
-      "community_name": "Loader.jsx",
-      "file_type": "code",
-      "norm_label": "withdrawals()",
-      "source_file": "admin-panel/src/pages/Withdrawals.jsx",
-      "source_location": "L36"
     },
     {
       "id": "backend_src_controllers_specialitemcontroller_createentryeffect",
@@ -5634,6 +5658,18 @@
       "source_location": "L67"
     },
     {
+      "id": "admin_panel_src_pages_specialitems_specialitems",
+      "label": "SpecialItems()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 57,
+      "community_name": "Thumbnails.jsx",
+      "file_type": "code",
+      "norm_label": "specialitems()",
+      "source_file": "admin-panel/src/pages/SpecialItems.jsx",
+      "source_location": "L10"
+    },
+    {
       "id": "admin_panel_src_pages_thumbnails_thumbnails",
       "label": "Thumbnails()",
       "_callable": true,
@@ -5706,6 +5742,18 @@
       "source_location": "L7"
     },
     {
+      "id": "admin_panel_src_components_sidebar_sidebar",
+      "label": "Sidebar()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 58,
+      "community_name": "react",
+      "file_type": "code",
+      "norm_label": "sidebar()",
+      "source_file": "admin-panel/src/components/Sidebar.jsx",
+      "source_location": "L43"
+    },
+    {
       "id": "admin_panel_src_components_statcard_statcard",
       "label": "StatCard()",
       "_callable": true,
@@ -5754,18 +5802,6 @@
       "source_location": "L101"
     },
     {
-      "id": "admin_panel_src_context_economycontext_economyprovider",
-      "label": "EconomyProvider()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 58,
-      "community_name": "react",
-      "file_type": "code",
-      "norm_label": "economyprovider()",
-      "source_file": "admin-panel/src/context/EconomyContext.jsx",
-      "source_location": "L10"
-    },
-    {
       "id": "admin_panel_src_hooks_uselivekit_uselivekit",
       "label": "useLiveKit()",
       "_callable": true,
@@ -5776,6 +5812,18 @@
       "norm_label": "uselivekit()",
       "source_file": "admin-panel/src/hooks/useLiveKit.js",
       "source_location": "L8"
+    },
+    {
+      "id": "admin_panel_src_pages_createcategory_createcategory",
+      "label": "CreateCategory()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 58,
+      "community_name": "react",
+      "file_type": "code",
+      "norm_label": "createcategory()",
+      "source_file": "admin-panel/src/pages/CreateCategory.jsx",
+      "source_location": "L34"
     },
     {
       "id": "admin_panel_src_pages_dashboard_dashboard",
@@ -6066,52 +6114,28 @@
       "source_location": "L60"
     },
     {
-      "id": "admin_panel_src_pages_gifts_gifts",
-      "label": "Gifts()",
+      "id": "admin_panel_src_pages_levels_levels",
+      "label": "Levels()",
       "_callable": true,
       "_origin": "ast",
       "community": 62,
-      "community_name": "Gifts.jsx",
+      "community_name": "LiveRewards.jsx",
       "file_type": "code",
-      "norm_label": "gifts()",
-      "source_file": "admin-panel/src/pages/Gifts.jsx",
-      "source_location": "L50"
+      "norm_label": "levels()",
+      "source_file": "admin-panel/src/pages/Levels.jsx",
+      "source_location": "L31"
     },
     {
-      "id": "admin_panel_src_pages_gifts_ismediaurl",
-      "label": "isMediaUrl()",
+      "id": "admin_panel_src_pages_liverewards_liverewards",
+      "label": "LiveRewards()",
       "_callable": true,
       "_origin": "ast",
       "community": 62,
-      "community_name": "Gifts.jsx",
+      "community_name": "LiveRewards.jsx",
       "file_type": "code",
-      "norm_label": "ismediaurl()",
-      "source_file": "admin-panel/src/pages/Gifts.jsx",
-      "source_location": "L45"
-    },
-    {
-      "id": "admin_panel_src_pages_gifts_resolvemediaurl",
-      "label": "resolveMediaUrl()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 62,
-      "community_name": "Gifts.jsx",
-      "file_type": "code",
-      "norm_label": "resolvemediaurl()",
-      "source_file": "admin-panel/src/pages/Gifts.jsx",
-      "source_location": "L36"
-    },
-    {
-      "id": "admin_panel_src_pages_topcontributors_topcontributors",
-      "label": "TopContributors()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 62,
-      "community_name": "Gifts.jsx",
-      "file_type": "code",
-      "norm_label": "topcontributors()",
-      "source_file": "admin-panel/src/pages/TopContributors.jsx",
-      "source_location": "L23"
+      "norm_label": "liverewards()",
+      "source_file": "admin-panel/src/pages/LiveRewards.jsx",
+      "source_location": "L26"
     },
     {
       "id": "backend_src_controllers_mobile_resellercontroller_cleartransactions",
@@ -6615,7 +6639,7 @@
       "file_type": "code",
       "norm_label": "getusergiftcontributions()",
       "source_file": "backend/src/controllers/mobile/giftController.js",
-      "source_location": "L581"
+      "source_location": "L622"
     },
     {
       "id": "backend_src_controllers_mobile_giftcontroller_sendgift",
@@ -6724,30 +6748,6 @@
       "norm_label": ".render()",
       "source_file": "admin-panel/src/components/ErrorBoundary.jsx",
       "source_location": "L23"
-    },
-    {
-      "id": "admin_panel_src_components_sidebar_sidebar",
-      "label": "Sidebar()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 72,
-      "community_name": "CreateCategory.jsx",
-      "file_type": "code",
-      "norm_label": "sidebar()",
-      "source_file": "admin-panel/src/components/Sidebar.jsx",
-      "source_location": "L43"
-    },
-    {
-      "id": "admin_panel_src_pages_createcategory_createcategory",
-      "label": "CreateCategory()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 72,
-      "community_name": "CreateCategory.jsx",
-      "file_type": "code",
-      "norm_label": "createcategory()",
-      "source_file": "admin-panel/src/pages/CreateCategory.jsx",
-      "source_location": "L34"
     },
     {
       "id": "scratch_test_video_live_seat_guard_maketoken",
@@ -9454,47 +9454,25 @@
       "source_location": "L1"
     },
     {
-      "id": "admin_panel_src_api_levelapi",
-      "label": "levelApi.js",
+      "id": "admin_panel_src_api_giftapi",
+      "label": "giftApi.js",
       "_origin": "ast",
       "community": 38,
       "community_name": "App.jsx",
       "file_type": "code",
-      "norm_label": "levelapi.js",
-      "source_file": "admin-panel/src/api/levelApi.js",
+      "norm_label": "giftapi.js",
+      "source_file": "admin-panel/src/api/giftApi.js",
       "source_location": "L1"
     },
     {
-      "id": "admin_panel_src_api_levelapi_levelapi",
-      "label": "levelApi",
+      "id": "admin_panel_src_api_giftapi_giftapi",
+      "label": "giftApi",
       "_origin": "ast",
       "community": 38,
       "community_name": "App.jsx",
       "file_type": "code",
-      "norm_label": "levelapi",
-      "source_file": "admin-panel/src/api/levelApi.js",
-      "source_location": "L3"
-    },
-    {
-      "id": "admin_panel_src_api_liverewardapi",
-      "label": "liveRewardApi.js",
-      "_origin": "ast",
-      "community": 38,
-      "community_name": "App.jsx",
-      "file_type": "code",
-      "norm_label": "liverewardapi.js",
-      "source_file": "admin-panel/src/api/liveRewardApi.js",
-      "source_location": "L1"
-    },
-    {
-      "id": "admin_panel_src_api_liverewardapi_liverewardapi",
-      "label": "liveRewardApi",
-      "_origin": "ast",
-      "community": 38,
-      "community_name": "App.jsx",
-      "file_type": "code",
-      "norm_label": "liverewardapi",
-      "source_file": "admin-panel/src/api/liveRewardApi.js",
+      "norm_label": "giftapi",
+      "source_file": "admin-panel/src/api/giftApi.js",
       "source_location": "L3"
     },
     {
@@ -9553,25 +9531,58 @@
       "source_location": "L1"
     },
     {
-      "id": "admin_panel_src_pages_levels",
-      "label": "Levels.jsx",
+      "id": "admin_panel_src_context_economycontext",
+      "label": "EconomyContext.jsx",
       "_origin": "ast",
       "community": 38,
       "community_name": "App.jsx",
       "file_type": "code",
-      "norm_label": "levels.jsx",
-      "source_file": "admin-panel/src/pages/Levels.jsx",
+      "norm_label": "economycontext.jsx",
+      "source_file": "admin-panel/src/context/EconomyContext.jsx",
       "source_location": "L1"
     },
     {
-      "id": "admin_panel_src_pages_liverewards",
-      "label": "LiveRewards.jsx",
+      "id": "admin_panel_src_context_economycontext_economycontext",
+      "label": "EconomyContext",
       "_origin": "ast",
       "community": 38,
       "community_name": "App.jsx",
       "file_type": "code",
-      "norm_label": "liverewards.jsx",
-      "source_file": "admin-panel/src/pages/LiveRewards.jsx",
+      "norm_label": "economycontext",
+      "source_file": "admin-panel/src/context/EconomyContext.jsx",
+      "source_location": "L4"
+    },
+    {
+      "id": "admin_panel_src_main",
+      "label": "main.jsx",
+      "_origin": "ast",
+      "community": 38,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": "main.jsx",
+      "source_file": "admin-panel/src/main.jsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "admin_panel_src_pages_accountmerge",
+      "label": "AccountMerge.jsx",
+      "_origin": "ast",
+      "community": 38,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": "accountmerge.jsx",
+      "source_file": "admin-panel/src/pages/AccountMerge.jsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "admin_panel_src_pages_gifts",
+      "label": "Gifts.jsx",
+      "_origin": "ast",
+      "community": 38,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": "gifts.jsx",
+      "source_file": "admin-panel/src/pages/Gifts.jsx",
       "source_location": "L1"
     },
     {
@@ -9583,6 +9594,17 @@
       "file_type": "code",
       "norm_label": "livestreams.jsx",
       "source_file": "admin-panel/src/pages/LiveStreams.jsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "admin_panel_src_pages_topcontributors",
+      "label": "TopContributors.jsx",
+      "_origin": "ast",
+      "community": 38,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": "topcontributors.jsx",
+      "source_file": "admin-panel/src/pages/TopContributors.jsx",
       "source_location": "L1"
     },
     {
@@ -10609,39 +10631,6 @@
       "source_location": "L51"
     },
     {
-      "id": "admin_panel_src_context_economycontext",
-      "label": "EconomyContext.jsx",
-      "_origin": "ast",
-      "community": 47,
-      "community_name": "Loader.jsx",
-      "file_type": "code",
-      "norm_label": "economycontext.jsx",
-      "source_file": "admin-panel/src/context/EconomyContext.jsx",
-      "source_location": "L1"
-    },
-    {
-      "id": "admin_panel_src_context_economycontext_economycontext",
-      "label": "EconomyContext",
-      "_origin": "ast",
-      "community": 47,
-      "community_name": "Loader.jsx",
-      "file_type": "code",
-      "norm_label": "economycontext",
-      "source_file": "admin-panel/src/context/EconomyContext.jsx",
-      "source_location": "L4"
-    },
-    {
-      "id": "admin_panel_src_pages_accountmerge",
-      "label": "AccountMerge.jsx",
-      "_origin": "ast",
-      "community": 47,
-      "community_name": "Loader.jsx",
-      "file_type": "code",
-      "norm_label": "accountmerge.jsx",
-      "source_file": "admin-panel/src/pages/AccountMerge.jsx",
-      "source_location": "L1"
-    },
-    {
       "id": "admin_panel_src_pages_agencies",
       "label": "Agencies.jsx",
       "_origin": "ast",
@@ -10661,6 +10650,17 @@
       "file_type": "code",
       "norm_label": "coinrecharge.jsx",
       "source_file": "admin-panel/src/pages/CoinRecharge.jsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "admin_panel_src_pages_entryeffects",
+      "label": "EntryEffects.jsx",
+      "_origin": "ast",
+      "community": 47,
+      "community_name": "Loader.jsx",
+      "file_type": "code",
+      "norm_label": "entryeffects.jsx",
+      "source_file": "admin-panel/src/pages/EntryEffects.jsx",
       "source_location": "L1"
     },
     {
@@ -11255,17 +11255,6 @@
       "source_location": "L1"
     },
     {
-      "id": "admin_panel_src_pages_entryeffects",
-      "label": "EntryEffects.jsx",
-      "_origin": "ast",
-      "community": 57,
-      "community_name": "Thumbnails.jsx",
-      "file_type": "code",
-      "norm_label": "entryeffects.jsx",
-      "source_file": "admin-panel/src/pages/EntryEffects.jsx",
-      "source_location": "L1"
-    },
-    {
       "id": "admin_panel_src_pages_settings",
       "label": "Settings.jsx",
       "_origin": "ast",
@@ -11376,6 +11365,28 @@
       "source_location": "L3"
     },
     {
+      "id": "admin_panel_src_api_packageapi",
+      "label": "packageApi.js",
+      "_origin": "ast",
+      "community": 58,
+      "community_name": "react",
+      "file_type": "code",
+      "norm_label": "packageapi.js",
+      "source_file": "admin-panel/src/api/packageApi.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "admin_panel_src_api_packageapi_packageapi",
+      "label": "packageApi",
+      "_origin": "ast",
+      "community": 58,
+      "community_name": "react",
+      "file_type": "code",
+      "norm_label": "packageapi",
+      "source_file": "admin-panel/src/api/packageApi.js",
+      "source_location": "L3"
+    },
+    {
       "id": "admin_panel_src_components_errorboundary",
       "label": "ErrorBoundary.jsx",
       "_origin": "ast",
@@ -11406,6 +11417,17 @@
       "file_type": "code",
       "norm_label": "markdownrenderer.jsx",
       "source_file": "admin-panel/src/components/MarkdownRenderer.jsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "admin_panel_src_components_sidebar",
+      "label": "Sidebar.jsx",
+      "_origin": "ast",
+      "community": 58,
+      "community_name": "react",
+      "file_type": "code",
+      "norm_label": "sidebar.jsx",
+      "source_file": "admin-panel/src/components/Sidebar.jsx",
       "source_location": "L1"
     },
     {
@@ -11464,15 +11486,26 @@
       "source_location": "L1"
     },
     {
-      "id": "admin_panel_src_main",
-      "label": "main.jsx",
+      "id": "admin_panel_src_pages_createcategory",
+      "label": "CreateCategory.jsx",
       "_origin": "ast",
       "community": 58,
       "community_name": "react",
       "file_type": "code",
-      "norm_label": "main.jsx",
-      "source_file": "admin-panel/src/main.jsx",
+      "norm_label": "createcategory.jsx",
+      "source_file": "admin-panel/src/pages/CreateCategory.jsx",
       "source_location": "L1"
+    },
+    {
+      "id": "admin_panel_src_pages_createcategory_package_color_presets",
+      "label": "PACKAGE_COLOR_PRESETS",
+      "_origin": "ast",
+      "community": 58,
+      "community_name": "react",
+      "file_type": "code",
+      "norm_label": "package_color_presets",
+      "source_file": "admin-panel/src/pages/CreateCategory.jsx",
+      "source_location": "L19"
     },
     {
       "id": "admin_panel_src_pages_dashboard",
@@ -11656,47 +11689,69 @@
       "source_location": "L1"
     },
     {
-      "id": "admin_panel_src_api_giftapi",
-      "label": "giftApi.js",
+      "id": "admin_panel_src_api_levelapi",
+      "label": "levelApi.js",
       "_origin": "ast",
       "community": 62,
-      "community_name": "Gifts.jsx",
+      "community_name": "LiveRewards.jsx",
       "file_type": "code",
-      "norm_label": "giftapi.js",
-      "source_file": "admin-panel/src/api/giftApi.js",
+      "norm_label": "levelapi.js",
+      "source_file": "admin-panel/src/api/levelApi.js",
       "source_location": "L1"
     },
     {
-      "id": "admin_panel_src_api_giftapi_giftapi",
-      "label": "giftApi",
+      "id": "admin_panel_src_api_levelapi_levelapi",
+      "label": "levelApi",
       "_origin": "ast",
       "community": 62,
-      "community_name": "Gifts.jsx",
+      "community_name": "LiveRewards.jsx",
       "file_type": "code",
-      "norm_label": "giftapi",
-      "source_file": "admin-panel/src/api/giftApi.js",
+      "norm_label": "levelapi",
+      "source_file": "admin-panel/src/api/levelApi.js",
       "source_location": "L3"
     },
     {
-      "id": "admin_panel_src_pages_gifts",
-      "label": "Gifts.jsx",
+      "id": "admin_panel_src_api_liverewardapi",
+      "label": "liveRewardApi.js",
       "_origin": "ast",
       "community": 62,
-      "community_name": "Gifts.jsx",
+      "community_name": "LiveRewards.jsx",
       "file_type": "code",
-      "norm_label": "gifts.jsx",
-      "source_file": "admin-panel/src/pages/Gifts.jsx",
+      "norm_label": "liverewardapi.js",
+      "source_file": "admin-panel/src/api/liveRewardApi.js",
       "source_location": "L1"
     },
     {
-      "id": "admin_panel_src_pages_topcontributors",
-      "label": "TopContributors.jsx",
+      "id": "admin_panel_src_api_liverewardapi_liverewardapi",
+      "label": "liveRewardApi",
       "_origin": "ast",
       "community": 62,
-      "community_name": "Gifts.jsx",
+      "community_name": "LiveRewards.jsx",
       "file_type": "code",
-      "norm_label": "topcontributors.jsx",
-      "source_file": "admin-panel/src/pages/TopContributors.jsx",
+      "norm_label": "liverewardapi",
+      "source_file": "admin-panel/src/api/liveRewardApi.js",
+      "source_location": "L3"
+    },
+    {
+      "id": "admin_panel_src_pages_levels",
+      "label": "Levels.jsx",
+      "_origin": "ast",
+      "community": 62,
+      "community_name": "LiveRewards.jsx",
+      "file_type": "code",
+      "norm_label": "levels.jsx",
+      "source_file": "admin-panel/src/pages/Levels.jsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "admin_panel_src_pages_liverewards",
+      "label": "LiveRewards.jsx",
+      "_origin": "ast",
+      "community": 62,
+      "community_name": "LiveRewards.jsx",
+      "file_type": "code",
+      "norm_label": "liverewards.jsx",
+      "source_file": "admin-panel/src/pages/LiveRewards.jsx",
       "source_location": "L1"
     },
     {
@@ -12209,61 +12264,6 @@
       "norm_label": "router",
       "source_file": "backend/src/routes/mobile/leaderboardRoutes.js",
       "source_location": "L4"
-    },
-    {
-      "id": "admin_panel_src_api_packageapi",
-      "label": "packageApi.js",
-      "_origin": "ast",
-      "community": 72,
-      "community_name": "CreateCategory.jsx",
-      "file_type": "code",
-      "norm_label": "packageapi.js",
-      "source_file": "admin-panel/src/api/packageApi.js",
-      "source_location": "L1"
-    },
-    {
-      "id": "admin_panel_src_api_packageapi_packageapi",
-      "label": "packageApi",
-      "_origin": "ast",
-      "community": 72,
-      "community_name": "CreateCategory.jsx",
-      "file_type": "code",
-      "norm_label": "packageapi",
-      "source_file": "admin-panel/src/api/packageApi.js",
-      "source_location": "L3"
-    },
-    {
-      "id": "admin_panel_src_components_sidebar",
-      "label": "Sidebar.jsx",
-      "_origin": "ast",
-      "community": 72,
-      "community_name": "CreateCategory.jsx",
-      "file_type": "code",
-      "norm_label": "sidebar.jsx",
-      "source_file": "admin-panel/src/components/Sidebar.jsx",
-      "source_location": "L1"
-    },
-    {
-      "id": "admin_panel_src_pages_createcategory",
-      "label": "CreateCategory.jsx",
-      "_origin": "ast",
-      "community": 72,
-      "community_name": "CreateCategory.jsx",
-      "file_type": "code",
-      "norm_label": "createcategory.jsx",
-      "source_file": "admin-panel/src/pages/CreateCategory.jsx",
-      "source_location": "L1"
-    },
-    {
-      "id": "admin_panel_src_pages_createcategory_package_color_presets",
-      "label": "PACKAGE_COLOR_PRESETS",
-      "_origin": "ast",
-      "community": 72,
-      "community_name": "CreateCategory.jsx",
-      "file_type": "code",
-      "norm_label": "package_color_presets",
-      "source_file": "admin-panel/src/pages/CreateCategory.jsx",
-      "source_location": "L19"
     },
     {
       "id": "scratch_test_video_live_seat_guard",
@@ -17133,7 +17133,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/giftController.js",
-      "source_location": "L597",
+      "source_location": "L638",
       "weight": 1.0
     },
     {
@@ -20589,7 +20589,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/sockets/liveSocket.js",
-      "source_location": "L1536",
+      "source_location": "L1570",
       "weight": 1.0
     },
     {
@@ -38031,7 +38031,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/mobile/giftController.js",
-      "source_location": "L581",
+      "source_location": "L622",
       "weight": 1.0
     },
     {
@@ -47636,5 +47636,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "841351145f6df7719f916a7486ca88c7ab3fdc5d"
+  "built_at_commit": "8c384f0d89f5b5a0d4df59a46c5e9dd5ca3f8ede"
 }

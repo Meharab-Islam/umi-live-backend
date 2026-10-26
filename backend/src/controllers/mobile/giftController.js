@@ -533,19 +533,60 @@ export async function sendGift(req, res) {
         req.io.to(rm).emit('gift_sent', socketPayload);
         req.io.to(rm).emit('room_gift', socketPayload);
 
-        // Update balances in room
-        req.io.to(rm).emit('user_balance_updated', { userId: senderId, coins: senderUpdatedCoins });
+        // Update balances in room for sender and all receivers
+        const senderBalancePayload = {
+          userId: senderId,
+          user_id: senderId,
+          coins: senderUpdatedCoins,
+          updated_coin: senderUpdatedCoins,
+          sender_updated_coin: senderUpdatedCoins,
+          balance: senderUpdatedCoins,
+          new_balance: senderUpdatedCoins,
+        };
+        req.io.to(rm).emit('user_balance_updated', senderBalancePayload);
+        req.io.to(rm).emit('balance_updated', senderBalancePayload);
+
         for (const r of receiversList) {
-          req.io.to(rm).emit('user_balance_updated', { userId: r.id, coins: r.updated_coin });
+          const receiverBalancePayload = {
+            userId: r.id,
+            user_id: r.id,
+            coins: r.updated_coin,
+            updated_coin: r.updated_coin,
+            receiver_updated_coin: r.updated_coin,
+            received_coins: r.received_coins,
+            balance: r.updated_coin,
+            new_balance: r.updated_coin,
+          };
+          req.io.to(rm).emit('user_balance_updated', receiverBalancePayload);
+          req.io.to(rm).emit('balance_updated', receiverBalancePayload);
         }
       }
 
       // User direct socket channels
-      req.io.to(`user_${senderId}`).emit('wallet_balance_updated', { coins: senderUpdatedCoins });
+      const senderDirectPayload = {
+        userId: senderId,
+        user_id: senderId,
+        coins: senderUpdatedCoins,
+        updated_coin: senderUpdatedCoins,
+        balance: senderUpdatedCoins,
+        new_balance: senderUpdatedCoins,
+      };
+      req.io.to(`user_${senderId}`).emit('wallet_balance_updated', senderDirectPayload);
+      req.io.to(`user_${senderId}`).emit('user_balance_updated', senderDirectPayload);
       req.io.to(`user_${senderId}`).emit('gift_sent', socketPayload);
 
       for (const r of receiversList) {
-        req.io.to(`user_${r.id}`).emit('wallet_balance_updated', { coins: r.updated_coin });
+        const receiverDirectPayload = {
+          userId: r.id,
+          user_id: r.id,
+          coins: r.updated_coin,
+          updated_coin: r.updated_coin,
+          received_coins: r.received_coins,
+          balance: r.updated_coin,
+          new_balance: r.updated_coin,
+        };
+        req.io.to(`user_${r.id}`).emit('wallet_balance_updated', receiverDirectPayload);
+        req.io.to(`user_${r.id}`).emit('user_balance_updated', receiverDirectPayload);
         req.io.to(`user_${r.id}`).emit('gift_received', socketPayload);
       }
     }
