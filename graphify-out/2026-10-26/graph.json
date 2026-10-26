@@ -6639,7 +6639,7 @@
       "file_type": "code",
       "norm_label": "getusergiftcontributions()",
       "source_file": "backend/src/controllers/mobile/giftController.js",
-      "source_location": "L622"
+      "source_location": "L573"
     },
     {
       "id": "backend_src_controllers_mobile_giftcontroller_sendgift",
@@ -17133,7 +17133,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/giftController.js",
-      "source_location": "L638",
+      "source_location": "L589",
       "weight": 1.0
     },
     {
@@ -20589,7 +20589,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/sockets/liveSocket.js",
-      "source_location": "L1570",
+      "source_location": "L1514",
       "weight": 1.0
     },
     {
@@ -38031,7 +38031,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/mobile/giftController.js",
-      "source_location": "L622",
+      "source_location": "L573",
       "weight": 1.0
     },
     {
@@ -47636,5 +47636,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "8c384f0d89f5b5a0d4df59a46c5e9dd5ca3f8ede"
+  "built_at_commit": "c9f4446d60a50facf2f63c3f68cea18a6e13ba10"
 }

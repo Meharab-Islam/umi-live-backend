@@ -1066,8 +1066,30 @@ export function setupLiveSocket(io) {
       io.to(roomKey).emit('gift_sent', payload);
       io.to(roomKey).emit('room_gift', payload);
 
-    };
+      const senderId = giftEvent.sender_id || giftEvent.senderId || giftEvent.sender?.id;
+      const receiverId = giftEvent.receiver_id || giftEvent.receiverId || giftEvent.receiver?.id;
+      const senderCoin = giftEvent.sender_updated_coin ?? giftEvent.senderUpdatedCoin ?? giftEvent.sender?.updated_coin;
+      const receiverCoin = giftEvent.receiver_updated_coin ?? giftEvent.receiverUpdatedCoin ?? giftEvent.receiver?.updated_coin;
 
+      if (senderId && senderCoin !== undefined) {
+        io.to(roomKey).emit('user_balance_updated', { userId: senderId, coins: senderCoin });
+        io.to(`user_${senderId}`).emit('wallet_balance_updated', { coins: senderCoin });
+      }
+
+      if (Array.isArray(giftEvent.receivers) && giftEvent.receivers.length > 0) {
+        for (const r of giftEvent.receivers) {
+          const rId = r.id || r.receiver_id;
+          const rCoin = r.updated_coin ?? r.receiver_updated_coin ?? r.coins;
+          if (rId && rCoin !== undefined) {
+            io.to(roomKey).emit('user_balance_updated', { userId: rId, coins: rCoin });
+            io.to(`user_${rId}`).emit('wallet_balance_updated', { coins: rCoin });
+          }
+        }
+      } else if (receiverId && receiverCoin !== undefined) {
+        io.to(roomKey).emit('user_balance_updated', { userId: receiverId, coins: receiverCoin });
+        io.to(`user_${receiverId}`).emit('wallet_balance_updated', { coins: receiverCoin });
+      }
+    };
 
     socket.on('gift-sent', handleGiftSentSocket);
     socket.on('gift_sent', handleGiftSentSocket);

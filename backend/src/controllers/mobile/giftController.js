@@ -532,12 +532,20 @@ export async function sendGift(req, res) {
         req.io.to(rm).emit('gift-sent', socketPayload);
         req.io.to(rm).emit('gift_sent', socketPayload);
         req.io.to(rm).emit('room_gift', socketPayload);
+
+        // Update balances in room
+        req.io.to(rm).emit('user_balance_updated', { userId: senderId, coins: senderUpdatedCoins });
+        for (const r of receiversList) {
+          req.io.to(rm).emit('user_balance_updated', { userId: r.id, coins: r.updated_coin });
+        }
       }
 
-      // User direct socket channels for sender and receivers
+      // User direct socket channels
+      req.io.to(`user_${senderId}`).emit('wallet_balance_updated', { coins: senderUpdatedCoins });
       req.io.to(`user_${senderId}`).emit('gift_sent', socketPayload);
 
       for (const r of receiversList) {
+        req.io.to(`user_${r.id}`).emit('wallet_balance_updated', { coins: r.updated_coin });
         req.io.to(`user_${r.id}`).emit('gift_received', socketPayload);
       }
     }

@@ -1,7 +1,7 @@
 # Graph Report - umi_backend  (2026-10-26)
 
 ## Corpus Check
-- 197 files · ~1,128,262 words
+- 197 files · ~1,127,988 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `8c384f0d`
+- Built from commit: `c9f4446d`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
