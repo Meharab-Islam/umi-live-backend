@@ -292,16 +292,7 @@ export default function LandingPage({ onNavigateToAdmin, activePage = 'home', on
 
         {/* Mobile Navigation Drawer */}
         {mobileMenuOpen && (
-          <div
-            style={{
-              background: 'rgba(7, 10, 20, 0.98)',
-              borderBottom: '1px solid var(--umi-border)',
-              padding: '1rem 1.5rem',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '8px',
-            }}
-          >
+          <div className="umi-mobile-drawer">
             {[
               { id: 'home', label: 'Home' },
               { id: 'privacy', label: 'Privacy Policy' },
@@ -317,9 +308,9 @@ export default function LandingPage({ onNavigateToAdmin, activePage = 'home', on
                   textAlign: 'left',
                   padding: '10px 14px',
                   borderRadius: '8px',
-                  background: currentPage === nav.id ? 'rgba(255, 128, 238, 0.15)' : 'transparent',
-                  color: currentPage === nav.id ? '#fff' : '#94a3b8',
-                  border: 'none',
+                  background: currentPage === nav.id ? 'rgba(30, 136, 229, 0.08)' : 'transparent',
+                  color: currentPage === nav.id ? '#1e88e5' : '#334155',
+                  border: currentPage === nav.id ? '1px solid rgba(30, 136, 229, 0.25)' : 'none',
                   fontSize: '0.95rem',
                   fontWeight: 600,
                   cursor: 'pointer',
@@ -407,11 +398,9 @@ export default function LandingPage({ onNavigateToAdmin, activePage = 'home', on
 
             {/* Core Features Showcase */}
             <section style={{ marginBottom: '60px' }}>
-              <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-                <h2 style={{ fontSize: '2rem', fontWeight: 800, color: '#fff', marginBottom: '10px' }}>
-                  Engineered for Creators &amp; Superfans
-                </h2>
-                <p style={{ color: '#94a3b8', fontSize: '1rem', maxWidth: '600px', margin: '0 auto' }}>
+              <div className="umi-section-header">
+                <h2>Engineered for Creators &amp; Superfans</h2>
+                <p>
                   Industry-leading broadcasting tools with state-of-the-art privacy protection and real-time moderation.
                 </p>
               </div>
@@ -589,7 +578,7 @@ export default function LandingPage({ onNavigateToAdmin, activePage = 'home', on
                     <div>{deleteResult.message}</div>
                     {deleteResult.referenceId && (
                       <div style={{ marginTop: '8px', fontSize: '0.85rem', fontWeight: 600 }}>
-                        Ticket Reference ID: <span style={{ color: '#fff' }}>{deleteResult.referenceId}</span>
+                        Ticket Reference ID: <span style={{ color: 'var(--umi-blue)', fontWeight: 700 }}>{deleteResult.referenceId}</span>
                       </div>
                     )}
                   </div>
@@ -716,7 +705,7 @@ export default function LandingPage({ onNavigateToAdmin, activePage = 'home', on
                 </p>
                 <a
                   href={`mailto:${supportEmail}`}
-                  style={{ color: '#ff80ee', fontWeight: 700, textDecoration: 'none', fontSize: '1rem' }}
+                  style={{ color: 'var(--umi-blue)', fontWeight: 700, textDecoration: 'none', fontSize: '1rem' }}
                 >
                   {supportEmail}
                 </a>
