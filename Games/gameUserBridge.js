@@ -385,6 +385,11 @@ async function getAdminCoin(gameSlug) {
   return adminCoinPool[gameSlug] || 100000000;
 }
 
+async function updateAdminCoin(gameSlug, amount) {
+  adminCoinPool[gameSlug] = (adminCoinPool[gameSlug] || 100000000) + (parseInt(amount, 10) || 0);
+  return adminCoinPool[gameSlug];
+}
+
 async function getUserGameBets(userId, gameSlug, limit = 50) {
   if (!pool || !userId) return [];
   const numId = parseInt(userId, 10);

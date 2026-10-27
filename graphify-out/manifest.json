@@ -2544,9 +2544,9 @@
     "semantic_hash": ""
   },
   "backend/src/controllers/mobile/gameController.js": {
-    "mtime": 1793086056.9983711,
-    "seen": 1793086123.944556,
-    "ast_hash": "d12102ded6d649782cdcc7a05d828760",
+    "mtime": 1793093455.778005,
+    "seen": 1793093544.993815,
+    "ast_hash": "43a4e5b10422bdd949385d2c4d8d2e93",
     "semantic_hash": ""
   },
   "backend/src/routes/mobile/gameRoutes.js": {
@@ -6186,9 +6186,9 @@
     "semantic_hash": ""
   },
   "admin-panel/src/pages/GamesManagement.jsx": {
-    "mtime": 1793082151.4342003,
-    "seen": 1793082220.674444,
-    "ast_hash": "f4b2a057bd5fa9abea6f3882f65cfe9b",
+    "mtime": 1793093524.570556,
+    "seen": 1793093544.992977,
+    "ast_hash": "67db154a26b0c9a63fac382cb83f42b6",
     "semantic_hash": ""
   },
   "backend/src/services/pubSubService.js": {
@@ -6228,9 +6228,9 @@
     "semantic_hash": ""
   },
   "Games/gameUserBridge.js": {
-    "mtime": 1793092245.5769215,
-    "seen": 1793092878.855268,
-    "ast_hash": "2e4881ce3742cf843c06e1dc8dd6c389",
+    "mtime": 1793093019.9664829,
+    "seen": 1793093544.9889548,
+    "ast_hash": "a7471313fecab7d99792d4ba2f91de2c",
     "semantic_hash": ""
   },
   "Games/package.json": {

@@ -463,21 +463,186 @@
   color: #059669;
 }
 
-/* Footer URL Route */
-.game-card-footer {
-  background: var(--bg-primary, #f8fafc);
-  border-top: 1px solid var(--border-color, #e2e8f0);
-  padding: 0.65rem 1.5rem;
+.game-btn-edit {
+  background: rgba(245, 158, 11, 0.08);
+  border-color: rgba(245, 158, 11, 0.25);
+  color: #d97706;
+}
+
+.game-btn-edit:hover {
+  background: #f59e0b;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);
+}
+
+/* Modal Overlay & Card */
+.game-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(6px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  animation: fadeIn 0.2s ease forwards;
+}
+
+.game-modal-card {
+  background: var(--bg-card, #ffffff);
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: var(--radius-xl, 20px);
+  width: 100%;
+  max-width: 540px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+}
+
+.game-modal-header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border-color, #e2e8f0);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 0.72rem;
-  color: var(--text-dim, #64748b);
-  font-family: var(--font-mono, monospace);
 }
 
-.game-route-tag {
-  color: #7c3aed;
-  font-weight: 700;
-  margin-right: 4px;
+.game-modal-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text-main, #0f172a);
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
+
+.game-modal-close {
+  background: transparent;
+  border: none;
+  color: var(--text-muted, #64748b);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 8px;
+  transition: all 0.15s ease;
+}
+
+.game-modal-close:hover {
+  background: var(--bg-primary, #f1f5f9);
+  color: var(--text-main, #0f172a);
+}
+
+.game-modal-body {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.game-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.game-form-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-main, #1e293b);
+}
+
+.game-form-input,
+.game-form-textarea {
+  width: 100%;
+  padding: 0.65rem 0.85rem;
+  border-radius: 10px;
+  border: 1px solid var(--border-color, #cbd5e1);
+  background: var(--bg-input, #ffffff);
+  color: var(--text-main, #0f172a);
+  font-size: 0.85rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.game-form-input:focus,
+.game-form-textarea:focus {
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
+}
+
+.game-image-upload-wrap {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.game-image-preview {
+  width: 64px;
+  height: 64px;
+  border-radius: 14px;
+  border: 2px solid #e2e8f0;
+  object-fit: cover;
+  background: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.game-image-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.game-modal-footer {
+  padding: 1.25rem 1.5rem;
+  border-top: 1px solid var(--border-color, #e2e8f0);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.game-btn-save {
+  background: linear-gradient(135deg, #7c3aed, #6d28d9);
+  color: #ffffff;
+  padding: 0.6rem 1.3rem;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.game-btn-save:hover:not(:disabled) {
+  opacity: 0.95;
+  box-shadow: 0 4px 14px rgba(109, 40, 217, 0.35);
+  transform: translateY(-1px);
+}
+
+.game-btn-cancel {
+  background: var(--bg-primary, #f1f5f9);
+  border: 1px solid var(--border-color, #cbd5e1);
+  color: var(--text-muted, #475569);
+  padding: 0.6rem 1.1rem;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.game-btn-cancel:hover {
+  background: #e2e8f0;
+  color: var(--text-main, #0f172a);
+}
+

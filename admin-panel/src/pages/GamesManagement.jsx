@@ -14,8 +14,13 @@ import {
   Layers,
   Search,
   Filter,
+  Edit3,
+  Upload,
+  X,
+  Image as ImageIcon,
 } from 'lucide-react';
 import gameApi from '../api/gameApi';
+import { uploadFile } from '../api/client';
 import Loader from '../components/Loader';
 import './GamesManagement.css';
 
@@ -27,6 +32,18 @@ export default function GamesManagement({ onToast }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [toastMessage, setToastMessage] = useState(null);
+
+  // Edit Modal State
+  const [editingGame, setEditingGame] = useState(null);
+  const [editForm, setEditForm] = useState({
+    name: '',
+    description: '',
+    icon_url: '',
+    min_bet: 100,
+    max_bet: 50000,
+  });
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [savingEdit, setSavingEdit] = useState(false);
 
   const fetchGames = async () => {
     try {
@@ -70,6 +87,86 @@ export default function GamesManagement({ onToast }) {
       showToast(err.message || 'Failed to toggle game status', 'error');
     } finally {
       setTogglingId(null);
+    }
+  };
+
+  const openEditModal = (game) => {
+    setEditingGame(game);
+    setEditForm({
+      name: game.name || '',
+      description: game.description || '',
+      icon_url: game.icon_url || '',
+      min_bet: game.min_bet !== undefined ? game.min_bet : 100,
+      max_bet: game.max_bet !== undefined ? game.max_bet : 50000,
+    });
+  };
+
+  const closeEditModal = () => {
+    setEditingGame(null);
+    setUploadingImage(false);
+    setSavingEdit(false);
+  };
+
+  const handleImageFileUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setUploadingImage(true);
+      const res = await uploadFile(file, 'games');
+      const uploadedUrl = res.url || res.fileUrl || res.media_url;
+      if (uploadedUrl) {
+        setEditForm((prev) => ({ ...prev, icon_url: uploadedUrl }));
+        showToast('Game thumbnail uploaded successfully!');
+      } else {
+        throw new Error('No URL returned from upload server');
+      }
+    } catch (err) {
+      showToast(err.message || 'Image upload failed', 'error');
+    } finally {
+      setUploadingImage(false);
+      e.target.value = '';
+    }
+  };
+
+  const handleSaveEdit = async (e) => {
+    e.preventDefault();
+    if (!editingGame) return;
+
+    try {
+      setSavingEdit(true);
+      const res = await gameApi.updateGame(editingGame.id || editingGame.slug, {
+        name: editForm.name,
+        description: editForm.description,
+        icon_url: editForm.icon_url,
+        min_bet: parseInt(editForm.min_bet, 10),
+        max_bet: parseInt(editForm.max_bet, 10),
+      });
+
+      if (res.success) {
+        setGames((prev) =>
+          prev.map((g) =>
+            g.id === editingGame.id || g.slug === editingGame.slug
+              ? {
+                  ...g,
+                  name: editForm.name,
+                  description: editForm.description,
+                  icon_url: editForm.icon_url,
+                  min_bet: parseInt(editForm.min_bet, 10),
+                  max_bet: parseInt(editForm.max_bet, 10),
+                }
+              : g
+          )
+        );
+        showToast(`Saved updates for ${editForm.name}!`);
+        closeEditModal();
+      } else {
+        throw new Error(res.message || 'Failed to save game');
+      }
+    } catch (err) {
+      showToast(err.message || 'Failed to save changes', 'error');
+    } finally {
+      setSavingEdit(false);
     }
   };
 
@@ -456,6 +553,16 @@ export default function GamesManagement({ onToast }) {
 
                     <button
                       type="button"
+                      onClick={() => openEditModal(game)}
+                      className="game-btn game-btn-edit"
+                      title="Edit Game Name & Thumbnail Image"
+                    >
+                      <Edit3 size={13} />
+                      <span>Edit Info</span>
+                    </button>
+
+                    <button
+                      type="button"
                       onClick={() => handleCopyUrl(displayRoute, game.slug)}
                       className={`game-btn game-btn-copy ${isCopied ? 'is-copied' : ''}`}
                       title="Copy Mobile In-App WebView URL"
@@ -488,6 +595,169 @@ export default function GamesManagement({ onToast }) {
           })}
         </div>
       )}
+
+      {/* Edit Game Modal */}
+      {editingGame && (
+        <div className="game-modal-overlay" onClick={closeEditModal}>
+          <div className="game-modal-card" onClick={(e) => e.stopPropagation()}>
+            <div className="game-modal-header">
+              <h3 className="game-modal-title">
+                <Edit3 size={18} color="#7c3aed" />
+                <span>Edit Mini-Game: {editingGame.name}</span>
+              </h3>
+              <button
+                type="button"
+                className="game-modal-close"
+                onClick={closeEditModal}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveEdit}>
+              <div className="game-modal-body">
+                {/* Game Name */}
+                <div className="game-form-group">
+                  <label className="game-form-label">Game Display Name *</label>
+                  <input
+                    type="text"
+                    required
+                    className="game-form-input"
+                    placeholder="e.g. Teen Patti, Chinese Fruit Slot..."
+                    value={editForm.name}
+                    onChange={(e) =>
+                      setEditForm((prev) => ({ ...prev, name: e.target.value }))
+                    }
+                  />
+                </div>
+
+                {/* Game Thumbnail Image & Upload */}
+                <div className="game-form-group">
+                  <label className="game-form-label">Game Thumbnail Icon / Image</label>
+                  <div className="game-image-upload-wrap">
+                    <div className="game-image-preview">
+                      {editForm.icon_url ? (
+                        <img
+                          src={editForm.icon_url}
+                          alt="Game Thumbnail Preview"
+                          onError={(e) => {
+                            e.currentTarget.src = '';
+                          }}
+                        />
+                      ) : (
+                        <ImageIcon size={28} color="#94a3b8" />
+                      )}
+                    </div>
+
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                      <input
+                        type="text"
+                        className="game-form-input"
+                        placeholder="Image URL (or upload below)"
+                        value={editForm.icon_url}
+                        onChange={(e) =>
+                          setEditForm((prev) => ({ ...prev, icon_url: e.target.value }))
+                        }
+                      />
+
+                      <label
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          cursor: uploadingImage ? 'not-allowed' : 'pointer',
+                          fontSize: '0.78rem',
+                          fontWeight: 700,
+                          color: '#7c3aed',
+                        }}
+                      >
+                        <Upload size={14} />
+                        <span>{uploadingImage ? 'Uploading...' : 'Upload New Image File'}</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          style={{ display: 'none' }}
+                          disabled={uploadingImage}
+                          onChange={handleImageFileUpload}
+                        />
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Description */}
+                <div className="game-form-group">
+                  <label className="game-form-label">Description</label>
+                  <textarea
+                    rows={3}
+                    className="game-form-textarea"
+                    placeholder="Short description for mobile app listing..."
+                    value={editForm.description}
+                    onChange={(e) =>
+                      setEditForm((prev) => ({ ...prev, description: e.target.value }))
+                    }
+                  />
+                </div>
+
+                {/* Bets */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                  <div className="game-form-group">
+                    <label className="game-form-label">Min Bet (Coins)</label>
+                    <input
+                      type="number"
+                      min="1"
+                      className="game-form-input"
+                      value={editForm.min_bet}
+                      onChange={(e) =>
+                        setEditForm((prev) => ({ ...prev, min_bet: e.target.value }))
+                      }
+                    />
+                  </div>
+
+                  <div className="game-form-group">
+                    <label className="game-form-label">Max Bet (Coins)</label>
+                    <input
+                      type="number"
+                      min="10"
+                      className="game-form-input"
+                      value={editForm.max_bet}
+                      onChange={(e) =>
+                        setEditForm((prev) => ({ ...prev, max_bet: e.target.value }))
+                      }
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="game-modal-footer">
+                <button
+                  type="button"
+                  className="game-btn-cancel"
+                  onClick={closeEditModal}
+                  disabled={savingEdit}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="game-btn-save"
+                  disabled={savingEdit || uploadingImage}
+                >
+                  {savingEdit ? (
+                    'Saving...'
+                  ) : (
+                    <>
+                      <Check size={14} />
+                      <span>Save Changes</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+

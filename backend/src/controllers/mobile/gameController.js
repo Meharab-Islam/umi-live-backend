@@ -323,7 +323,7 @@ export async function toggleGameStatus(req, res) {
  */
 export async function updateGameSettings(req, res) {
   const { id } = req.params;
-  const { min_bet, max_bet, chips, settings, name, description } = req.body;
+  const { min_bet, max_bet, chips, settings, name, description, icon_url } = req.body;
   const pool = getPool();
   const connection = await pool.getConnection();
 
@@ -342,6 +342,7 @@ export async function updateGameSettings(req, res) {
       `UPDATE mini_games SET
         name = COALESCE(?, name),
         description = COALESCE(?, description),
+        icon_url = COALESCE(?, icon_url),
         min_bet = COALESCE(?, min_bet),
         max_bet = COALESCE(?, max_bet),
         chips = COALESCE(?, chips),
@@ -350,6 +351,7 @@ export async function updateGameSettings(req, res) {
       [
         name || null,
         description || null,
+        icon_url || null,
         min_bet !== undefined ? parseInt(min_bet, 10) : null,
         max_bet !== undefined ? parseInt(max_bet, 10) : null,
         chips ? JSON.stringify(chips) : null,
@@ -357,6 +359,7 @@ export async function updateGameSettings(req, res) {
         game.id,
       ]
     );
+
 
     await connection.commit();
 
