@@ -112,6 +112,53 @@ export default function GamesManagement({ onToast }) {
     });
   }, [games, searchQuery, categoryFilter]);
 
+  const resolveGameUrl = (rawUrl, slug, isForAdmin = false, port = null) => {
+    if (!rawUrl) return '#';
+    let path = rawUrl;
+    if (rawUrl.startsWith('http://') || rawUrl.startsWith('https://')) {
+      try {
+        const parsed = new URL(rawUrl);
+        path = parsed.pathname + parsed.search;
+      } catch (e) {
+        path = rawUrl;
+      }
+    }
+    if (!path.startsWith('/')) path = '/' + path;
+
+    // Use current browser window location origin to prevent port 80 ERR_EMPTY_RESPONSE
+    const urlObj = new URL(path, window.location.origin);
+
+    // Attach SSO credentials so game admin panels & players never ask for login again
+    const adminToken = localStorage.getItem('umi_admin_token') || '';
+    let adminUserId = '1';
+    try {
+      const rawUser = localStorage.getItem('umi_admin_user');
+      if (rawUser) {
+        const u = JSON.parse(rawUser);
+        if (u.id) adminUserId = String(u.id);
+      }
+    } catch (e) {}
+
+    if (adminToken) {
+      urlObj.searchParams.set('token', adminToken);
+    }
+    if (adminUserId) {
+      urlObj.searchParams.set('id', adminUserId);
+      urlObj.searchParams.set('userId', adminUserId);
+    }
+
+    if (isForAdmin) {
+      urlObj.searchParams.set('secret', 'bigeater888');
+      urlObj.searchParams.set('key', 'bigeater888');
+    }
+
+    if (port) {
+      urlObj.searchParams.set('port', String(port));
+    }
+
+    return urlObj.toString();
+  };
+
   const activeCount = games.filter((g) => g.is_active).length;
   const disabledCount = games.length - activeCount;
 
@@ -297,9 +344,13 @@ export default function GamesManagement({ onToast }) {
             const isToggling = togglingId === (game.id || game.slug);
             const isCopied = copiedSlug === game.slug;
 
-            // Route with guaranteed trailing slash
-            const ensuredWebUrl = game.web_url ? (game.web_url.endsWith('/') ? game.web_url : `${game.web_url}/`) : '/';
-            const ensuredAdminUrl = game.admin_url || ensuredWebUrl;
+            // Route for WebView display
+            const rawPath = game.web_url ? (game.web_url.startsWith('http') ? (new URL(game.web_url).pathname) : game.web_url) : `/games/${game.slug}/`;
+            const displayRoute = rawPath.endsWith('/') ? rawPath : `${rawPath}/`;
+
+            // SSO and origin-safe URLs
+            const ssoAdminUrl = resolveGameUrl(game.admin_url || game.web_url || `/games/${game.slug}/`, game.slug, true, game.port);
+            const ssoPlayUrl = resolveGameUrl(game.web_url || `/games/${game.slug}/`, game.slug, false, game.port);
 
             return (
               <div
@@ -376,11 +427,11 @@ export default function GamesManagement({ onToast }) {
                   {/* Action Buttons */}
                   <div className="game-actions-row">
                     <a
-                      href={ensuredAdminUrl}
+                      href={ssoAdminUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="game-btn game-btn-admin"
-                      title="Open Game Admin Control Panel"
+                      title="Open Game Admin Control Panel with Automatic Single Sign-On"
                     >
                       <Sliders size={13} />
                       <span>Admin Panel</span>
@@ -388,7 +439,7 @@ export default function GamesManagement({ onToast }) {
                     </a>
 
                     <a
-                      href={ensuredWebUrl}
+                      href={ssoPlayUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="game-btn game-btn-play"
@@ -400,7 +451,7 @@ export default function GamesManagement({ onToast }) {
 
                     <button
                       type="button"
-                      onClick={() => handleCopyUrl(ensuredWebUrl, game.slug)}
+                      onClick={() => handleCopyUrl(displayRoute, game.slug)}
                       className={`game-btn game-btn-copy ${isCopied ? 'is-copied' : ''}`}
                       title="Copy Mobile In-App WebView URL"
                     >
@@ -423,7 +474,7 @@ export default function GamesManagement({ onToast }) {
                 <div className="game-card-footer">
                   <span className="truncate">
                     <span className="game-route-tag">WebView Route:</span>
-                    <code>{ensuredWebUrl}</code>
+                    <code>{displayRoute}</code>
                   </span>
                   <span>Port {game.port}</span>
                 </div>

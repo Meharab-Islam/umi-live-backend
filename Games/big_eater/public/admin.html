@@ -7,13 +7,13 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700;800;900&family=JetBrains+Mono:wght@400;600;800&family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/admin.css">
-  <script src="/socket.io/socket.io.js"></script>
+  <link rel="stylesheet" href="/games/big_eater/admin.css">
+  <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
 </head>
 <body>
 
-  <!-- Auth Overlay (Shown until authenticated) -->
-  <div class="auth-overlay" id="auth-overlay">
+  <!-- Auth Overlay (Hidden by default, shown only if authentication fails) -->
+  <div class="auth-overlay" id="auth-overlay" style="display:none;">
     <div class="auth-card">
       <div class="auth-icon">🔐</div>
       <h2>Game Master Access</h2>
@@ -1101,6 +1101,6 @@ class GameWebhookController extends Controller
     </div> <!-- /.admin-main -->
   </div> <!-- /.admin-layout -->
 
-  <script src="/admin.js"></script>
+  <script src="/games/big_eater/admin.js"></script>
 </body>
 </html>

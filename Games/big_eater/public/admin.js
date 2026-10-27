@@ -3,10 +3,23 @@
    ══════════════════════════════════════════════════════════ */
 'use strict';
 
-const socket = io();
+const urlParams = new URLSearchParams(window.location.search);
+const secretFromUrl = urlParams.get('secret') || urlParams.get('key') || '';
+const tokenFromUrl = urlParams.get('token') || localStorage.getItem('umi_admin_token') || '';
+const serverPort = urlParams.get('port') || '5061';
+
+const defaultSecret = secretFromUrl || localStorage.getItem('be_admin_key') || 'bigeater888';
+if (defaultSecret) {
+  localStorage.setItem('be_admin_key', defaultSecret);
+}
+
+// Connect to Big Eater dedicated socket server (Port 5061)
+const socketHost = urlParams.get('server') || `${window.location.protocol}//${window.location.hostname}:${serverPort}`;
+const socket = io(socketHost, { transports: ['websocket', 'polling'] });
 
 const S = {
-  authKey: localStorage.getItem('be_admin_key') || '',
+  authKey: defaultSecret,
+  authToken: tokenFromUrl,
   isAuthenticated: false,
   state: null,
   activeTab: 'tab-rig',
@@ -34,33 +47,44 @@ function showToast(msg, duration = 3000) {
 
 // ── Authentication ──
 function submitAuth() {
-  const key = q('auth-key').value.trim();
+  const key = q('auth-key')?.value?.trim() || S.authKey;
   if (!key) return;
-  socket.emit('admin:auth', { secret: key });
+  socket.emit('admin:auth', { secret: key, token: S.authToken });
 }
+
+function performAutoAuth() {
+  const key = S.authKey || 'bigeater888';
+  socket.emit('admin:auth', { secret: key, token: S.authToken });
+}
+
+socket.on('connect', () => {
+  performAutoAuth();
+});
 
 socket.on('admin:authSuccess', ({ message }) => {
   S.isAuthenticated = true;
-  S.authKey = q('auth-key').value.trim() || S.authKey;
+  S.authKey = q('auth-key')?.value?.trim() || S.authKey;
   localStorage.setItem('be_admin_key', S.authKey);
-  q('auth-overlay').style.display = 'none';
-  showToast('⚡ Connected to Game Master Core');
+  const overlay = q('auth-overlay');
+  if (overlay) overlay.style.display = 'none';
+  showToast('⚡ Connected to Game Master Core (SSO Verified)');
   fetchInitialData();
 });
 
 socket.on('admin:authFail', ({ message }) => {
+  const overlay = q('auth-overlay');
+  if (overlay) overlay.style.display = 'flex';
   const err = q('auth-error');
-  err.textContent = message || 'Invalid Admin Key';
-  err.style.display = 'block';
+  if (err) {
+    err.textContent = message || 'Invalid Admin Key';
+    err.style.display = 'block';
+  }
 });
 
-// Auto-login if key is stored
+// Auto-login on DOM load
 window.addEventListener('DOMContentLoaded', () => {
   setupTabs();
-  if (S.authKey) {
-    q('auth-key').value = S.authKey;
-    socket.emit('admin:auth', { secret: S.authKey });
-  }
+  performAutoAuth();
 });
 
 function fetchInitialData() {

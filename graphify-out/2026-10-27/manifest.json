@@ -6336,9 +6336,9 @@
     "semantic_hash": ""
   },
   "admin-panel/src/pages/GamesManagement.jsx": {
-    "mtime": 1793078745.8093965,
-    "seen": 1793078882.796484,
-    "ast_hash": "24551d8b9eaf7166f0ac938aa1bad6a5",
+    "mtime": 1793080976.563849,
+    "seen": 1793081006.520784,
+    "ast_hash": "83ef14986b8580f65d713ff4422ae2a8",
     "semantic_hash": ""
   },
   "backend/src/services/pubSubService.js": {
