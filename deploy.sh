@@ -254,6 +254,14 @@ server {
         proxy_send_timeout 86400s;
     }
 
+    # Mini-Games Web Frontends
+    location /games/ {
+        proxy_pass http://127.0.0.1:5050/games/;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+    }
+
     # Uploads
     location /uploads/ {
         proxy_pass http://127.0.0.1:5050/uploads/;
