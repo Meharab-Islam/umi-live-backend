@@ -1289,6 +1289,40 @@ export async function initializeDatabase() {
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
     `);
 
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS mini_game_bets (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
+        game_slug VARCHAR(64) NOT NULL,
+        round_id VARCHAR(64) NULL,
+        bet_amount BIGINT NOT NULL,
+        win_amount BIGINT DEFAULT 0,
+        selection VARCHAR(100) NULL,
+        multiplier DECIMAL(10,2) DEFAULT 1.00,
+        status ENUM('pending', 'won', 'lost', 'refunded') DEFAULT 'pending',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        INDEX idx_mgb_user (user_id),
+        INDEX idx_mgb_slug (game_slug),
+        INDEX idx_mgb_round (round_id),
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `);
+
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS mini_game_rounds (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        game_slug VARCHAR(64) NOT NULL,
+        round_number BIGINT NOT NULL,
+        winner_outcome VARCHAR(100) NOT NULL,
+        total_bets BIGINT DEFAULT 0,
+        total_payout BIGINT DEFAULT 0,
+        details JSON NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        INDEX idx_mgr_game (game_slug),
+        INDEX idx_mgr_round (round_number)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `);
+
     const [existingGames] = await connection.query('SELECT COUNT(*) as count FROM mini_games');
     if (existingGames[0].count === 0) {
       console.log('✅ [DB Init] Seeding all 7 Integrated Mini-Games...');

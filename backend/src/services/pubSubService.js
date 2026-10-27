@@ -141,6 +141,10 @@ async function handleUserBet({ userId, amount, gameId, gameName }, io) {
       `INSERT INTO transactions (user_id, type, amount, description, status) VALUES (?, ?, ?, ?, 'completed')`,
       [userId, `game_${gameId || 'mini'}_bet`, numAmount, `Bet in ${gameName || gameId || 'Mini-Game'}`]
     );
+    await connection.execute(
+      `INSERT INTO mini_game_bets (user_id, game_slug, bet_amount, status) VALUES (?, ?, ?, 'pending')`,
+      [userId, gameId || 'mini_game', numAmount]
+    );
 
     await connection.commit();
 
@@ -200,6 +204,10 @@ async function handleUserWin({ userId, amount, gameId, gameName }, io) {
     await connection.execute(
       `INSERT INTO transactions (user_id, type, amount, description, status) VALUES (?, ?, ?, ?, 'completed')`,
       [userId, `game_${gameId || 'mini'}_win`, numAmount, `Winnings from ${gameName || gameId || 'Mini-Game'}`]
+    );
+    await connection.execute(
+      `INSERT INTO mini_game_bets (user_id, game_slug, bet_amount, win_amount, status) VALUES (?, ?, 0, ?, 'won')`,
+      [userId, gameId || 'mini_game', numAmount]
     );
 
     await connection.commit();

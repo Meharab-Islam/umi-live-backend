@@ -186,9 +186,9 @@
     "semantic_hash": ""
   },
   "backend/src/server.js": {
-    "mtime": 1793078528.5594313,
-    "seen": 1793078882.798364,
-    "ast_hash": "ecc5597dd5db9e15d0e3b9565f530c30",
+    "mtime": 1793079447.2069504,
+    "seen": 1793079557.8528872,
+    "ast_hash": "777024b95a4425b89a2aa5a1835d2951",
     "semantic_hash": ""
   },
   "backend/src/sockets/liveSocket.js": {
@@ -222,9 +222,9 @@
     "semantic_hash": ""
   },
   "docker-compose.yml": {
-    "mtime": 1793077745.7092733,
-    "seen": 1793077825.3273149,
-    "ast_hash": "1863763b54a95d118f4cf513519957b5",
+    "mtime": 1793079477.7502131,
+    "seen": 1793079557.854441,
+    "ast_hash": "fe77c6073ad192e388a951868ed09b8d",
     "semantic_hash": ""
   },
   "admin-panel/public/favicon.svg": {
@@ -1230,9 +1230,9 @@
     "semantic_hash": ""
   },
   "deploy.sh": {
-    "mtime": 1793079085.7438412,
-    "seen": 1793079199.357142,
-    "ast_hash": "c87dcff1be2af5efb2e430be871664b4",
+    "mtime": 1793079526.4530578,
+    "seen": 1793079557.853058,
+    "ast_hash": "5c235ff97444b2213b1c6a12e5e9461b",
     "semantic_hash": ""
   },
   "DEPLOYMENT_GUIDE.md": {
@@ -1524,9 +1524,9 @@
     "semantic_hash": ""
   },
   "Games/big_eater/package.json": {
-    "mtime": 1791108655.0262082,
-    "seen": 1793077825.322637,
-    "ast_hash": "d39c157472cae3d1ff381d11e26b07fc",
+    "mtime": 1793080012.7736168,
+    "seen": 1793080115.153583,
+    "ast_hash": "a7c246eb9342df0b101e464a076c8e64",
     "semantic_hash": ""
   },
   "Games/big_eater/postcss.config.js": {
@@ -6345,6 +6345,12 @@
     "mtime": 1793078507.5337567,
     "seen": 1793078882.798476,
     "ast_hash": "caefa007b0f24a2ca4f5b451e4e616b2",
+    "semantic_hash": ""
+  },
+  "backend/src/services/gameProcessManager.js": {
+    "mtime": 1793079422.7081547,
+    "seen": 1793079557.852907,
+    "ast_hash": "7f6f21fc8d4731f324869850a8a63bb3",
     "semantic_hash": ""
   }
 }
