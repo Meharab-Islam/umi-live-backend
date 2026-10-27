@@ -289,15 +289,36 @@ if [ "$USE_SSL" = true ]; then
   }
 fi
 
-# Configure UFW Firewall (Safely preserve SSH)
+# Configure UFW Firewall (Safely preserve SSH & Games)
 ufw allow 22/tcp > /dev/null 2>&1 || true
 ufw allow 80/tcp > /dev/null 2>&1 || true
 ufw allow 443/tcp > /dev/null 2>&1 || true
+ufw allow 5061:5067/tcp > /dev/null 2>&1 || true
 echo "y" | ufw enable > /dev/null 2>&1 || true
-echo -e "${GREEN}✓ UFW Firewall configured (Ports 22, 80, 443 open; Database/Redis secured).${NC}"
+echo -e "${GREEN}✓ UFW Firewall configured (Ports 22, 80, 443 & Game ports 5061-5067 open; Database/Redis secured).${NC}"
+
+# 6.5 Verify and Install Game Dependencies
+echo -e "\n${CYAN}${BOLD}[6.5/7] Verifying & Installing Mini-Game Dependencies...${NC}"
+GAME_DIRS=(
+  "Games/big_eater"
+  "Games/slote_mecine/backend"
+  "Games/ferrywheel/backend"
+  "Games/greedybaby/backend"
+  "Games/greedylion/backend"
+  "Games/roulettecasino/backend"
+  "Games/teenpatti/backend"
+)
+
+for GDIR in "${GAME_DIRS[@]}"; do
+  if [ -d "$PROJECT_DIR/$GDIR" ] && [ ! -d "$PROJECT_DIR/$GDIR/node_modules" ]; then
+    echo -e "${YELLOW}➔ Installing npm dependencies for ${GDIR}...${NC}"
+    docker run --rm -v "$PROJECT_DIR/$GDIR:/app" -w /app node:20-alpine npm install --no-audit --no-fund > /dev/null 2>&1 || true
+    echo -e "${GREEN}✓ ${GDIR} dependencies installed.${NC}"
+  fi
+done
 
 # 7. Build and Run Docker Containers
-echo -e "\n${CYAN}${BOLD}[7/7] Launching Docker Containers (MySQL, Redis, Backend, Admin Panel)...${NC}"
+echo -e "\n${CYAN}${BOLD}[7/7] Launching Docker Containers (MySQL, Redis, MongoDB, Backend with 7 Games, Admin Panel)...${NC}"
 docker compose down --remove-orphans > /dev/null 2>&1 || true
 docker compose up -d --build
 
@@ -322,6 +343,15 @@ ${GREEN}${BOLD}=================================================================
    • Interactive API Docs: ${SCHEME}://${ADMIN_DISPLAY}/api-docs
    • Admin Panel Login:    ${SCHEME}://${ADMIN_DISPLAY}
    • WebSocket Endpoint:   ${SCHEME}://${BACKEND_DISPLAY}/socket.io/
+
+🎮 ${BOLD}Integrated 7 Mini-Games (Live & Running):${NC}
+   • 🍔 Big Eater:        ${SCHEME}://${BACKEND_DISPLAY}/games/big_eater (Port 5061)
+   • 🎰 Slot Machine:     ${SCHEME}://${BACKEND_DISPLAY}/games/slote_mecine (Port 5062)
+   • 🎡 Ferry Wheel:      ${SCHEME}://${BACKEND_DISPLAY}/games/ferrywheel (Port 5063)
+   • 👶 Greedy Baby:      ${SCHEME}://${BACKEND_DISPLAY}/games/greedybaby (Port 5064)
+   • 🦁 Greedy Lion:      ${SCHEME}://${BACKEND_DISPLAY}/games/greedylion (Port 5065)
+   • 🎯 Roulette Casino:  ${SCHEME}://${BACKEND_DISPLAY}/games/roulettecasino (Port 5066)
+   • 🃏 Teen Patti Live:  ${SCHEME}://${BACKEND_DISPLAY}/games/teenpatti (Port 5067)
 
 🛡️ ${BOLD}Security & Production Highlights:${NC}
    • MySQL Database:       Secured inside Docker network (Volume: umi_mysql_data)

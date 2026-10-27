@@ -31,6 +31,13 @@ services:
     restart: always
     ports:
       - "${BACKEND_PORT:-5050}:5050"
+      - "${GAME_BIG_EATER_PORT:-5061}:5061"
+      - "${GAME_SLOTE_MECINE_PORT:-5062}:5062"
+      - "${GAME_FERRYWHEEL_PORT:-5063}:5063"
+      - "${GAME_GREEDYBABY_PORT:-5064}:5064"
+      - "${GAME_GREEDYLION_PORT:-5065}:5065"
+      - "${GAME_ROULETTECASINO_PORT:-5066}:5066"
+      - "${GAME_TEENPATTI_PORT:-5067}:5067"
     environment:
       PROJECT_NAME: ${PROJECT_NAME:-umi}
       PORT: 5050
@@ -89,6 +96,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      mongodb:
+        condition: service_started
     volumes:
       - ./backend/src:/app/src
       - ./backend/uploads:/app/uploads

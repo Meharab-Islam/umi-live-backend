@@ -22,6 +22,7 @@ import { cache } from './config/redis.js';
 import { setupLiveSocket } from './sockets/liveSocket.js';
 import { setupGameSocket } from './sockets/gameSocket.js';
 import { initPubSub } from './services/pubSubService.js';
+import { startGameProcesses } from './services/gameProcessManager.js';
 
 
 import authRoutes from './routes/authRoutes.js';
@@ -348,6 +349,9 @@ async function startServer() {
     console.log(`📡 WebSocket Engine ready with Socket.IO`);
     console.log(`🛡️ Admin API: http://localhost:${PORT}/api/admin`);
     console.log(`===============================================`);
+
+    // Launch all 7 Mini-Game background servers & sockets
+    startGameProcesses();
   });
 }
 
