@@ -1151,10 +1151,12 @@ function renderTopWinnersPodium(topWinners) {
 //   SOCKET.IO REALTIME EVENTS
 // ════════════════════════════════════════════════════════
 const urlParams = new URLSearchParams(window.location.search);
-const serverPort = urlParams.get('port') || '5061';
-const socketHost = urlParams.get('server') || `${window.location.protocol}//${window.location.hostname}:${serverPort}`;
+const isCustomServer = Boolean(urlParams.get('server'));
+const socketHost = urlParams.get('server') || window.location.origin;
+const socketPath = isCustomServer ? '/socket.io/' : '/games/socket/big_eater/';
 
 const socket = io(socketHost, {
+  path: socketPath,
   transports: ['websocket', 'polling'],
   reconnectionAttempts: Infinity,
   reconnectionDelay: 1000,

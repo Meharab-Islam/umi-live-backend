@@ -2045,9 +2045,10 @@ if (req.headers['x-slot-signature'] === expectedSig) {
 
     // Connect to backend socket
     const urlParams = new URLSearchParams(window.location.search);
-    const serverPort = urlParams.get('port') || '5062';
-    const host = urlParams.get('server') || `${window.location.protocol}//${window.location.hostname}:${serverPort}`;
-    const socket = io(host, { transports: ['websocket', 'polling'] });
+    const isCustomServer = Boolean(urlParams.get('server'));
+    const host = urlParams.get('server') || window.location.origin;
+    const socketPath = isCustomServer ? '/socket.io/' : '/games/socket/slote_mecine/';
+    const socket = io(host, { path: socketPath, transports: ['websocket', 'polling'] });
 
     const connStatusEl = document.getElementById('conn-status');
     const connTextEl   = document.getElementById('conn-text');

@@ -34,7 +34,7 @@ import "react-toastify/dist/ReactToastify.css";
 import History from "./components/History";
 import Rulse from "./components/Rulse";
 import GameBlock from "./components/GameBlock";
-import { adminBaseURL, baseURL, key } from "./config";
+import { adminBaseURL, baseURL, socketPath, key } from "./config";
 
 
 
@@ -69,6 +69,7 @@ const queryParams = new URLSearchParams(window.location.search);
 const userId = queryParams.get("id") || "6579c2980cb6184131234567";
 
 const socket = io.connect(baseURL, {
+  path: socketPath,
   transports: ["websocket", "polling", "flashsocket"],
   query: { userId: userId },
 });

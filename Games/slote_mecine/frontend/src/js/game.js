@@ -300,10 +300,12 @@ function parseUrlParams() {
 // ─── Socket.IO Connection ─────────────────────────────────────
 function connectSocket() {
   const urlParams = new URLSearchParams(window.location.search);
-  const serverPort = urlParams.get('port') || '5062';
-  const host = urlParams.get('server') || `${window.location.protocol}//${window.location.hostname}:${serverPort}`;
+  const isCustomServer = Boolean(urlParams.get('server'));
+  const host = urlParams.get('server') || window.location.origin;
+  const socketPath = isCustomServer ? '/socket.io/' : '/games/socket/slote_mecine/';
 
   const socket = io(host, {
+    path: socketPath,
     transports: ['websocket', 'polling'],
     reconnection: true,
     reconnectionDelay: 1000,

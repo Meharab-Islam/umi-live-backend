@@ -15,7 +15,7 @@ import WheeSpin from "./GameMain/WheeSpin";
 import { timer } from "./GameMain/Observable";
 import RulesModel from "./GameMain/RulesModel.";
 import HistoryModel from "./GameMain/HistoryModel";
-import { adminBaseURL, baseURL, key } from "./config";
+import { adminBaseURL, baseURL, socketPath, key } from "./config";
 
 
 
@@ -60,6 +60,7 @@ function App() {
 
   useEffect(() => {
     const socket = io.connect(baseURL, {
+      path: socketPath,
       transports: ["websocket", "polling", "flashsocket"],
       query: { globalRoom: userId },
     });

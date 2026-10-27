@@ -7,7 +7,7 @@ import "react-toastify/dist/ReactToastify.css";
 import "./assets/css/responsive.scss";
 import "./assets/css/styles.scss";
 import WheelContent from "./Wheel/WheelContent";
-import { adminBaseURL, baseURL, key } from "./config";
+import { adminBaseURL, baseURL, socketPath, key } from "./config";
 
 
 
@@ -26,6 +26,7 @@ function App() {
     if (userId) {
       console.log("App.js - Initializing socket with userId:", userId);
       const socket = io.connect(baseURL, {
+        path: socketPath,
         transports: ["websocket", "polling", "flashsocket"],
         query: { globalRoom: userId },
       });

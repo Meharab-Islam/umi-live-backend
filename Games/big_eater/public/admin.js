@@ -13,9 +13,14 @@ if (defaultSecret) {
   localStorage.setItem('be_admin_key', defaultSecret);
 }
 
-// Connect to Big Eater dedicated socket server (Port 5061)
-const socketHost = urlParams.get('server') || `${window.location.protocol}//${window.location.hostname}:${serverPort}`;
-const socket = io(socketHost, { transports: ['websocket', 'polling'] });
+// Connect to Big Eater dedicated socket server
+const isCustomServer = Boolean(urlParams.get('server'));
+const socketHost = urlParams.get('server') || window.location.origin;
+const socketPath = isCustomServer ? '/socket.io/' : '/games/socket/big_eater/';
+const socket = io(socketHost, {
+  path: socketPath,
+  transports: ['websocket', 'polling'],
+});
 
 const S = {
   authKey: defaultSecret,
