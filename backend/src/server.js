@@ -130,6 +130,49 @@ app.use('/games/greedylion', express.static(path.join(gamesDir, 'greedylion/back
 app.use('/games/roulettecasino', express.static(path.join(gamesDir, 'roulettecasino/backend/public')));
 app.use('/games/teenpatti', express.static(path.join(gamesDir, 'teenpatti/backend/public')));
 
+// Fallback for CRA compiled games assets requested at /static/media
+app.use('/static/media', express.static(path.join(gamesDir, 'roulettecasino/backend/public/static/media')));
+app.use('/static/media', express.static(path.join(gamesDir, 'ferrywheel/backend/public/static/media')));
+app.use('/static/media', express.static(path.join(gamesDir, 'greedybaby/backend/public/static/media')));
+app.use('/static/media', express.static(path.join(gamesDir, 'greedylion/backend/public/static/media')));
+app.use('/static/media', express.static(path.join(gamesDir, 'teenpatti/backend/public/static/media')));
+
+// Game API proxy/forwarder for sub-games
+const gamePortMap = {
+  big_eater: process.env.GAME_BIG_EATER_PORT || 5061,
+  slote_mecine: process.env.GAME_SLOTE_MECINE_PORT || 5062,
+  ferrywheel: process.env.GAME_FERRYWHEEL_PORT || 5063,
+  greedybaby: process.env.GAME_GREEDYBABY_PORT || 5064,
+  greedylion: process.env.GAME_GREEDYLION_PORT || 5065,
+  roulettecasino: process.env.GAME_ROULETTECASINO_PORT || 5066,
+  teenpatti: process.env.GAME_TEENPATTI_PORT || 5067,
+};
+
+app.use('/games/api/:game', async (req, res) => {
+  const game = req.params.game;
+  const port = gamePortMap[game];
+  if (!port) return res.status(404).json({ status: false, message: 'Game not found' });
+  const subPath = req.url.startsWith('/') ? req.url : `/${req.url}`;
+  const targetUrl = `http://127.0.0.1:${port}${subPath}`;
+  try {
+    const fetchOptions = {
+      method: req.method,
+      headers: {
+        'Content-Type': req.headers['content-type'] || 'application/json',
+        key: req.headers['key'] || '',
+      },
+    };
+    if (['POST', 'PUT', 'PATCH'].includes(req.method) && req.body && Object.keys(req.body).length > 0) {
+      fetchOptions.body = JSON.stringify(req.body);
+    }
+    const response = await fetch(targetUrl, fetchOptions);
+    const data = await response.json().catch(() => null);
+    res.status(response.status).json(data);
+  } catch (err) {
+    res.status(502).json({ status: false, message: 'Game server unreachable', error: err.message });
+  }
+});
+
 
 // Public Landing & Compliance Pages (Web Showcase, Privacy Policy, Account Deletion)
 const landingRoutes = [

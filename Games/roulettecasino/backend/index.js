@@ -51,13 +51,21 @@ const io = new Server(server, {
 
 const refreshSettings = async () => {
   try {
-    const settings = await gameUserBridge.getGameSettings("roulettecasino", defaultSettings);
-    global.setting = settings || defaultSettings;
+    const dbSettings = await gameUserBridge.getGameSettings("roulettecasino", defaultSettings);
+    global.setting = {
+      ...defaultSettings,
+      ...(dbSettings || {}),
+      gameCoin: (dbSettings?.gameCoin && Array.isArray(dbSettings.gameCoin)) ? dbSettings.gameCoin : defaultSettings.gameCoin,
+      roulette_gameRule: dbSettings?.roulette_gameRule || defaultSettings.roulette_gameRule,
+      coinForGameAnnouncement: dbSettings?.coinForGameAnnouncement || defaultSettings.coinForGameAnnouncement,
+      game: (dbSettings?.game && Array.isArray(dbSettings.game)) ? dbSettings.game : defaultSettings.game,
+    };
   } catch (error) {
     console.error("Error fetching settings:", error);
     global.setting = defaultSettings;
   }
 };
+
 
 process.on("unhandledRejection", (err) => {
   console.log(err?.name, err?.message);

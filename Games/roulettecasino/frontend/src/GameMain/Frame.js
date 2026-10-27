@@ -20,32 +20,34 @@ export default function Frame({
   coins,
   mine,
 }) {
+  const defaultCoins = [100, 200, 300, 400, 500];
+  const safeCoins = (Array.isArray(gameCoin) && gameCoin.length >= 5) ? gameCoin : defaultCoins;
   let coinImages = [coin2k, coin5k, coin10k, coin20k, coin50k];
   const coinsRender = arrCoins?.map((obj, i) => {
     return (
       <CoinButtonShow
         key={i}
         name={
-          obj.coin == gameCoin[0]
-            ? gameCoin[0]
-            : obj.coin == gameCoin[1]
-            ? gameCoin[1]
-            : obj.coin == gameCoin[2]
-            ? gameCoin[2]
-            : obj.coin == gameCoin[3]
-            ? gameCoin[3]
-            : obj.coin == gameCoin[4] && gameCoin[4]
+          obj.coin == safeCoins[0]
+            ? safeCoins[0]
+            : obj.coin == safeCoins[1]
+            ? safeCoins[1]
+            : obj.coin == safeCoins[2]
+            ? safeCoins[2]
+            : obj.coin == safeCoins[3]
+            ? safeCoins[3]
+            : obj.coin == safeCoins[4] && safeCoins[4]
         }
         src={
-          obj.coin == gameCoin[0]
+          obj.coin == safeCoins[0]
             ? coinImages[0]
-            : obj.coin == gameCoin[1]
+            : obj.coin == safeCoins[1]
             ? coinImages[1]
-            : obj.coin == gameCoin[2]
+            : obj.coin == safeCoins[2]
             ? coinImages[2]
-            : obj.coin == gameCoin[3]
+            : obj.coin == safeCoins[3]
             ? coinImages[3]
-            : obj.coin == gameCoin[4] && coinImages[4]
+            : obj.coin == safeCoins[4] && coinImages[4]
         }
         left={obj.left + "%"}
         top={obj.top + "%"}
@@ -58,26 +60,26 @@ export default function Frame({
         key={i}
         mineCoin={true}
         name={
-          obj.coin == gameCoin[0]
-            ? gameCoin[0]
-            : obj.coin == gameCoin[1]
-            ? gameCoin[1]
-            : obj.coin == gameCoin[2]
-            ? gameCoin[2]
-            : obj.coin == gameCoin[3]
-            ? gameCoin[3]
-            : obj.coin == gameCoin[4] && gameCoin[4]
+          obj.coin == safeCoins[0]
+            ? safeCoins[0]
+            : obj.coin == safeCoins[1]
+            ? safeCoins[1]
+            : obj.coin == safeCoins[2]
+            ? safeCoins[2]
+            : obj.coin == safeCoins[3]
+            ? safeCoins[3]
+            : obj.coin == safeCoins[4] && safeCoins[4]
         }
         src={
-          obj.coin == gameCoin[0]
+          obj.coin == safeCoins[0]
             ? coinImages[0]
-            : obj.coin == gameCoin[1]
+            : obj.coin == safeCoins[1]
             ? coinImages[1]
-            : obj.coin == gameCoin[2]
+            : obj.coin == safeCoins[2]
             ? coinImages[2]
-            : obj.coin == gameCoin[3]
+            : obj.coin == safeCoins[3]
             ? coinImages[3]
-            : obj.coin == gameCoin[4] && coinImages[4]
+            : obj.coin == safeCoins[4] && coinImages[4]
         }
         left={obj.left + "%"}
         top={obj.top + "%"}

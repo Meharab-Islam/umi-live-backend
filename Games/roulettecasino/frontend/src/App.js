@@ -95,10 +95,14 @@ function App() {
     axios
       .get(`${adminBaseURL + "setting"}`)
       .then((res) => {
-        setGameCoin(res?.data?.setting?.gameCoin);
-        setGetRules(res?.data?.setting?.roulette_gameRule);
+        if (Array.isArray(res?.data?.setting?.gameCoin) && res.data.setting.gameCoin.length > 0) {
+          setGameCoin(res.data.setting.gameCoin);
+        }
+        if (res?.data?.setting?.roulette_gameRule) {
+          setGetRules(res.data.setting.roulette_gameRule);
+        }
       })
-      .catch((err) => console.log(err));
+      .catch((err) => console.log("Failed to fetch settings:", err));
   }, []);
 
   const setGameData = (gameData) => {

@@ -109,6 +109,8 @@ export default function TableContent(props) {
     resultOld,
     isActive,
   } = props;
+  const defaultCoins = [100, 200, 300, 400, 500];
+  const safeGameCoin = (Array.isArray(gameCoin) && gameCoin.length >= 5) ? gameCoin : defaultCoins;
   const [canPressCoins, setCanPressCoins] = useState(true);
   const [clockTime, setClockTime] = useState(0);
   const [user, setUser] = useState({});
@@ -164,7 +166,7 @@ export default function TableContent(props) {
 
   const updateTime = (time) => {
     if (time === 19) {
-      selectedCoin = gameCoin[0];
+      selectedCoin = safeGameCoin[0];
       setIsVisibleTimer(0);
     }
     if (time >= 4) {
@@ -283,11 +285,11 @@ export default function TableContent(props) {
   };
   const getAmount = (coin) => {
     let amount = 0;
-    if (coin == gameCoin[0]) amount = gameCoin[0];
-    else if (coin == gameCoin[1]) amount = gameCoin[1];
-    else if (coin == gameCoin[2]) amount = gameCoin[2];
-    else if (coin == gameCoin[3]) amount = gameCoin[3];
-    else if (coin == gameCoin[4]) amount = gameCoin[4];
+    if (coin == safeGameCoin[0]) amount = safeGameCoin[0];
+    else if (coin == safeGameCoin[1]) amount = safeGameCoin[1];
+    else if (coin == safeGameCoin[2]) amount = safeGameCoin[2];
+    else if (coin == safeGameCoin[3]) amount = safeGameCoin[3];
+    else if (coin == safeGameCoin[4]) amount = safeGameCoin[4];
 
     return amount;
   };
@@ -602,66 +604,66 @@ export default function TableContent(props) {
   };
 
   const clickedCoin2K = (e) => {
-    selectedCoin = gameCoin[0];
+    selectedCoin = safeGameCoin[0];
   };
   const clickedCoin5K = (e) => {
-    selectedCoin = gameCoin[1];
+    selectedCoin = safeGameCoin[1];
   };
   const clickedCoin10K = (e) => {
-    selectedCoin = gameCoin[2];
+    selectedCoin = safeGameCoin[2];
   };
   const clickedCoin20K = (e) => {
-    selectedCoin = gameCoin[3];
+    selectedCoin = safeGameCoin[3];
   };
   const clickedCoin50K = (e) => {
-    selectedCoin = gameCoin[4];
+    selectedCoin = safeGameCoin[4];
   };
 
   const clickFrame1 = (e) => {
     if (selectedCoin >= 0) {
-      addBit(selectedCoin == 0 ? gameCoin[0] : selectedCoin, 1);
+      addBit(selectedCoin == 0 ? safeGameCoin[0] : selectedCoin, 1);
     }
   };
 
   const clickFrame2 = (e) => {
     if (selectedCoin >= 0) {
-      addBit(selectedCoin == 0 ? gameCoin[0] : selectedCoin, 2);
+      addBit(selectedCoin == 0 ? safeGameCoin[0] : selectedCoin, 2);
     }
   };
 
   const clickFrame3 = (e) => {
     if (selectedCoin >= 0) {
-      addBit(selectedCoin == 0 ? gameCoin[0] : selectedCoin, 3);
+      addBit(selectedCoin == 0 ? safeGameCoin[0] : selectedCoin, 3);
     }
   };
 
   const clickFrame4 = (e) => {
     if (selectedCoin >= 0) {
-      addBit(selectedCoin == 0 ? gameCoin[0] : selectedCoin, 4);
+      addBit(selectedCoin == 0 ? safeGameCoin[0] : selectedCoin, 4);
     }
   };
 
   const clickFrame5 = (e) => {
     if (selectedCoin >= 0) {
-      addBit(selectedCoin == 0 ? gameCoin[0] : selectedCoin, 5);
+      addBit(selectedCoin == 0 ? safeGameCoin[0] : selectedCoin, 5);
     }
   };
 
   const clickFrame6 = (e) => {
     if (selectedCoin >= 0) {
-      addBit(selectedCoin == 0 ? gameCoin[0] : selectedCoin, 6);
+      addBit(selectedCoin == 0 ? safeGameCoin[0] : selectedCoin, 6);
     }
   };
 
   const clickFrame7 = (e) => {
     if (selectedCoin >= 0) {
-      addBit(selectedCoin == 0 ? gameCoin[0] : selectedCoin, 7);
+      addBit(selectedCoin == 0 ? safeGameCoin[0] : selectedCoin, 7);
     }
   };
 
   const clickFrame8 = (e) => {
     if (selectedCoin >= 0) {
-      addBit(selectedCoin == 0 ? gameCoin[0] : selectedCoin, 8);
+      addBit(selectedCoin == 0 ? safeGameCoin[0] : selectedCoin, 8);
     }
   };
 
@@ -760,7 +762,7 @@ export default function TableContent(props) {
                     mine={framesTotalMine[0]}
                     arrCoins={arrCoins[0]}
                     mineCoin={mineCoin[0]}
-                    gameCoin={gameCoin}
+                    gameCoin={safeGameCoin}
                     framNo={1}
                     winningFrames={winningFrames}
                     onClick={clickFrame1}
@@ -774,7 +776,7 @@ export default function TableContent(props) {
                     mine={framesTotalMine[1]}
                     arrCoins={arrCoins[1]}
                     mineCoin={mineCoin[1]}
-                    gameCoin={gameCoin}
+                    gameCoin={safeGameCoin}
                     framNo={2}
                     winningFrames={winningFrames}
                     onClick={clickFrame2}
@@ -786,7 +788,7 @@ export default function TableContent(props) {
                     betDetails={"13-24"}
                     coins={framesTotalCoins[2]}
                     mine={framesTotalMine[2]}
-                    gameCoin={gameCoin}
+                    gameCoin={safeGameCoin}
                     arrCoins={arrCoins[2]}
                     mineCoin={mineCoin[2]}
                     framNo={3}
@@ -802,7 +804,7 @@ export default function TableContent(props) {
                     mine={framesTotalMine[3]}
                     arrCoins={arrCoins[3]}
                     mineCoin={mineCoin[3]}
-                    gameCoin={gameCoin}
+                    gameCoin={safeGameCoin}
                     framNo={4}
                     winningFrames={winningFrames}
                     onClick={clickFrame4}
@@ -816,7 +818,7 @@ export default function TableContent(props) {
                     mine={framesTotalMine[4]}
                     arrCoins={arrCoins[4]}
                     mineCoin={mineCoin[4]}
-                    gameCoin={gameCoin}
+                    gameCoin={safeGameCoin}
                     framNo={5}
                     winningFrames={winningFrames}
                     onClick={clickFrame5}
@@ -830,7 +832,7 @@ export default function TableContent(props) {
                     mine={framesTotalMine[5]}
                     arrCoins={arrCoins[5]}
                     mineCoin={mineCoin[5]}
-                    gameCoin={gameCoin}
+                    gameCoin={safeGameCoin}
                     framNo={6}
                     winningFrames={winningFrames}
                     onClick={clickFrame6}
@@ -844,7 +846,7 @@ export default function TableContent(props) {
                     mine={framesTotalMine[6]}
                     arrCoins={arrCoins[6]}
                     mineCoin={mineCoin[6]}
-                    gameCoin={gameCoin}
+                    gameCoin={safeGameCoin}
                     framNo={7}
                     winningFrames={winningFrames}
                     onClick={clickFrame7}
@@ -858,7 +860,7 @@ export default function TableContent(props) {
                     mine={framesTotalMine[7]}
                     arrCoins={arrCoins[7]}
                     mineCoin={mineCoin[7]}
-                    gameCoin={gameCoin}
+                    gameCoin={safeGameCoin}
                     framNo={8}
                     winningFrames={winningFrames}
                     onClick={clickFrame8}
@@ -878,46 +880,46 @@ export default function TableContent(props) {
               <div className="coin-button-box">
                 <CoinBtn
                   src={coin2k}
-                  number={gameCoin[0]}
+                  number={safeGameCoin[0]}
                   funcClick={clickedCoin2K}
                   selectedClass={
-                    selectedCoin == gameCoin[0] ? "selectedCoin" : ""
+                    selectedCoin == safeGameCoin[0] ? "selectedCoin" : ""
                   }
                   disabledClass={canPressCoins === false ? "coinDisabled" : ""}
                 />
                 <CoinBtn
                   src={coin5k}
-                  number={gameCoin[1]}
+                  number={safeGameCoin[1]}
                   funcClick={clickedCoin5K}
                   selectedClass={
-                    selectedCoin == gameCoin[1] ? "selectedCoin" : ""
+                    selectedCoin == safeGameCoin[1] ? "selectedCoin" : ""
                   }
                   disabledClass={canPressCoins === false ? "coinDisabled" : ""}
                 />
                 <CoinBtn
                   src={coin10k}
-                  number={gameCoin[2]}
+                  number={safeGameCoin[2]}
                   funcClick={clickedCoin10K}
                   selectedClass={
-                    selectedCoin == gameCoin[2] ? "selectedCoin" : ""
+                    selectedCoin == safeGameCoin[2] ? "selectedCoin" : ""
                   }
                   disabledClass={canPressCoins === false ? "coinDisabled" : ""}
                 />
                 <CoinBtn
                   src={coin20k}
-                  number={gameCoin[3]}
+                  number={safeGameCoin[3]}
                   funcClick={clickedCoin20K}
                   selectedClass={
-                    selectedCoin == gameCoin[3] ? "selectedCoin" : ""
+                    selectedCoin == safeGameCoin[3] ? "selectedCoin" : ""
                   }
                   disabledClass={canPressCoins === false ? "coinDisabled" : ""}
                 />
                 <CoinBtn
-                  number={gameCoin[4]}
+                  number={safeGameCoin[4]}
                   src={coin50k}
                   funcClick={clickedCoin50K}
                   selectedClass={
-                    selectedCoin == gameCoin[4] ? "selectedCoin" : ""
+                    selectedCoin == safeGameCoin[4] ? "selectedCoin" : ""
                   }
                   disabledClass={canPressCoins === false ? "coinDisabled" : ""}
                 />
