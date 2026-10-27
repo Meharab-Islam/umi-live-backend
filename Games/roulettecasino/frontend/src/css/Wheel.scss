@@ -1,0 +1,78 @@
+.flipper-container {
+  perspective: 1000px;
+  -webkit-perspective: 1000px;
+}
+
+.flipper {
+  display: inline-block;
+  position: relative;
+  width: 49px;
+  height: 69px;
+  transition: all 2s cubic-bezier(0.24, 1.65, 0.915, 0.835);
+  transform-style: preserve-3d;
+  font-family: monospace;
+  user-select: none;
+}
+.flipper.flip {
+  transform: rotateX(90deg);
+}
+
+.front-face,
+.back-face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 2px;
+  backface-visibility: hidden;
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  flex-direction: column;
+  text-align: center;
+  font-size: 33px;
+}
+
+.front-face {
+  background-color: #fc216100;
+  color: #fff;
+  text-shadow: 0 1px 1px #b50236;
+  transform: rotateX(0deg) translateZ(64px);
+}
+
+.back-face {
+  color: #dca041;
+  transform: rotateX(-90deg) translateZ(64px);
+  outline: solid 2px;
+}
+
+.flip.red {
+  .back-face {
+    background-color: #c52703;
+  }
+}
+
+.flip.black {
+  .back-face {
+    background-color: #242324;
+  }
+}
+
+.flip.green {
+  .back-face {
+    background-color: #436410;
+  }
+}
+
+.result {
+  max-width: 411px;
+  margin: auto;
+  margin-top: 75px;
+  .flipper {
+    margin-right: 20px;
+    margin-bottom: 20px;
+  }
+}

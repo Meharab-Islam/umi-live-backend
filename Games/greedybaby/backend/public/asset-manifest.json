@@ -1,0 +1,38 @@
+{
+  "files": {
+    "main.css": "/static/css/main.ed797926.css",
+    "main.js": "/static/js/main.05634587.js",
+    "static/js/453.1c674800.chunk.js": "/static/js/453.1c674800.chunk.js",
+    "static/media/big.png": "/static/media/big.b53bb82940f96e6c338d.png",
+    "static/media/100.png": "/static/media/100.e4331c0165d8feb120ac.png",
+    "static/media/gift_6.png": "/static/media/gift_6.c678e03c56830b3b2664.png",
+    "static/media/gift_8.png": "/static/media/gift_8.41962d8f51395488ab81.png",
+    "static/media/gift_3.png": "/static/media/gift_3.9a270aa019c9ccc27992.png",
+    "static/media/countdown.png": "/static/media/countdown.5f3cb67f510205a18c9f.png",
+    "static/media/Center.png": "/static/media/Center.5fdb851ef44918fc1578.png",
+    "static/media/ResultBg.png": "/static/media/ResultBg.6a14b5e81c24a5735099.png",
+    "static/media/Fruit.png": "/static/media/Fruit.10e52f2676707fa0e48b.png",
+    "static/media/gift_7.png": "/static/media/gift_7.0b4b5e347aff245fd7cb.png",
+    "static/media/gift_1.png": "/static/media/gift_1.b1d99b9a664c3e1c238c.png",
+    "static/media/Pizza.png": "/static/media/Pizza.b0fa94cd33bbcc399107.png",
+    "static/media/gift_4.png": "/static/media/gift_4.84a2038af5e3e48ede97.png",
+    "static/media/Circle3.png": "/static/media/Circle3.a067a5d501e9e41bd8fb.png",
+    "static/media/gift_5.png": "/static/media/gift_5.c01925c9b60fdac4dcf6.png",
+    "static/media/gift_2.png": "/static/media/gift_2.650243c5ae4d72962941.png",
+    "static/media/head.png": "/static/media/head.5bcf4b12dda293ddfabd.png",
+    "static/media/myhistory.png": "/static/media/myhistory.3948e4d7c18e8afc1023.png",
+    "static/media/HistoryNew.png": "/static/media/HistoryNew.dc11bbc0e513175a9c24.png",
+    "static/media/CircleWheel3.png": "/static/media/CircleWheel3.bd0e574e85e2a90f1da2.png",
+    "static/media/MainImg2.png": "/static/media/MainImg2.64b0688c077cd01c1c2a.png",
+    "index.html": "/index.html",
+    "static/media/CircleBg.svg": "/static/media/CircleBg.9b50b7c1b46c53723753.svg",
+    "static/media/LeftArrow.svg": "/static/media/LeftArrow.6ba9efe774b27dc6ef216d122d47876e.svg",
+    "main.ed797926.css.map": "/static/css/main.ed797926.css.map",
+    "main.05634587.js.map": "/static/js/main.05634587.js.map",
+    "453.1c674800.chunk.js.map": "/static/js/453.1c674800.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.ed797926.css",
+    "static/js/main.05634587.js"
+  ]
+}

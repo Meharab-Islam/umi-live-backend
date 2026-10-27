@@ -1,0 +1,1245 @@
+// ═══════════════════════════════════════════════════════════════
+//  CHINESE LIVE STREAMING FRUIT SLOT MACHINE - SCSS DESIGN SYSTEM
+//  Matches exact arcade aesthetic, glowing 3D marquee, and buttons
+// ═══════════════════════════════════════════════════════════════
+
+// ─── Variables & Tokens ─────────────────────────────────────────
+$cabinet-bg:        #180a32;
+$cabinet-mid:       #2e155e;
+$cabinet-purple:    #5825a0;
+$cabinet-border:    #7b38d8;
+$cabinet-light:     #9353ea;
+
+$gold-bright:       #fff385;
+$gold-light:        #fcd34d;
+$gold-main:         #f59e0b;
+$gold-dark:         #b45309;
+$gold-deep:         #78350f;
+
+$neon-cyan:         #00f2fe;
+$neon-blue:         #38bdf8;
+$neon-pink:         #f43f5e;
+$neon-purple:       #c084fc;
+$neon-red:          #ef4444;
+$neon-orange:       #ff7828;
+
+$cell-dark:         rgba(20, 8, 48, 0.92);
+$cell-border-color: rgba(147, 83, 234, 0.4);
+
+// ─── Reset & Base ───────────────────────────────────────────────
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+html, body {
+  width: 100%;
+  min-height: 100%;
+  background: #522187; // Alka beguni (light purple) backdrop for the rest of the screen
+  color: #ffffff;
+  font-family: 'Exo 2', sans-serif;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+// ─── Loading Screen ─────────────────────────────────────────────
+#loading-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: radial-gradient(circle at center, #301460 0%, #110426 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  transition: opacity 0.4s ease, visibility 0.4s;
+
+  &.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .loader-logo {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 28px;
+    font-weight: 900;
+    background: linear-gradient(135deg, $gold-bright, $gold-main, #d97706);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 16px rgba($gold-main, 0.8));
+    animation: pulse-glow 1.5s infinite alternate;
+  }
+
+  .loader-bar-bg {
+    width: 200px;
+    height: 6px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+
+  .loader-bar-fill {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg, #9353ea, $gold-main);
+    border-radius: 999px;
+    animation: load-bar-progress 1.5s ease-out forwards;
+  }
+
+  .loader-text {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.6);
+  }
+}
+
+// ─── Main Root Container (Anchored to Bottom of Screen) ───────────
+#game-root {
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  background: transparent;
+  padding: 0 12px 6px;
+  margin: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  @media (min-width: 451px) {
+    min-height: 100vh;
+    padding: 0 16px 10px;
+    background: transparent;
+  }
+}
+
+// ─── Slot Cabinet Frame (image.png is the main frame) ───────────
+.slot-cabinet {
+  position: relative;
+  width: 100%;
+  max-width: 450px;
+  height: auto;
+  min-height: 100%;
+  background: #0d041a url('/images/bg.jpg') center top / cover no-repeat;
+  box-shadow: 0 0 35px rgba(0, 0, 0, 0.65);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  overflow: visible;
+  margin: 0 auto;
+  padding-bottom: 0;
+  border: none;
+}
+
+// ─── Cabinet Side Neon Tubes (Integrated in Base Art) ────────────
+.cabinet-neon-tube {
+  display: none;
+}
+
+
+
+.live-host-banner {
+  display: none !important;
+}
+
+// ─── Top Nav Bar Controls (Positioned cleanly ABOVE the slot machine) ──
+.top-nav-bar {
+  position: relative;
+  width: 100%;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 20;
+  padding: 0 4px;
+  margin-bottom: 6px;
+
+  .nav-left-cluster {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .round-display {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    background: linear-gradient(180deg, rgba(30, 10, 60, 0.85), rgba(15, 5, 30, 0.95));
+    border: 1.5px solid rgba(168, 85, 247, 0.6);
+    border-radius: 999px;
+    padding: 3px 12px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: #e9d5ff;
+    letter-spacing: 0.5px;
+    text-shadow: 0 0 8px rgba(168, 85, 247, 0.8);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.15);
+
+    .round-number-text {
+      color: #fbbf24;
+      font-weight: 900;
+    }
+  }
+
+  .nav-right-cluster {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .square-icon-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: linear-gradient(145deg, rgba(55, 24, 114, 0.85), rgba(27, 10, 60, 0.95));
+    border: 1.5px solid #6b2ebf;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255,255,255,0.2);
+    color: #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.15s, border-color 0.15s;
+
+    &:active {
+      transform: scale(0.92);
+      border-color: $gold-main;
+    }
+
+    &.close-btn {
+      color: #f87171;
+      border-color: rgba(239, 68, 68, 0.6);
+      &:hover {
+        border-color: #ef4444;
+        box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
+      }
+    }
+
+    &.light-btn {
+      color: #facc15;
+      border-color: rgba(234, 179, 8, 0.6);
+      &:hover {
+        border-color: #eab308;
+        box-shadow: 0 0 8px rgba(234, 179, 8, 0.6);
+      }
+    }
+  }
+
+  .auto-toggle-pill {
+    height: 30px;
+    padding: 0 12px;
+    border-radius: 8px;
+    background: linear-gradient(145deg, #7c3aed, #4c1d95);
+    border: 1.5px solid #c084fc;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+
+    .auto-btn-text {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 11px;
+      font-weight: 900;
+      color: #ffffff;
+      letter-spacing: 0.5px;
+    }
+
+    &.auto-active {
+      background: linear-gradient(145deg, #10b981, #047857);
+      border-color: #6ee7b7;
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.9);
+    }
+
+    &:active {
+      transform: scale(0.92);
+    }
+  }
+
+  .wifi-ping-badge {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    background: rgba(15, 5, 32, 0.8);
+    padding: 2px 6px;
+    border-radius: 999px;
+    border: 1px solid rgba(34, 197, 94, 0.5);
+    font-size: 9px;
+    color: #4ade80;
+    font-weight: 700;
+  }
+}
+
+// ─── REALISTIC 3D ARCADE SLOT MACHINE STAGE ──────────────────────
+.slot-machine-stage {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  aspect-ratio: 576 / 1024;
+  background: url('/images/cabinet/image.png') center bottom / 100% 100% no-repeat;
+  margin: 0 auto;
+  margin-bottom: 0;
+  overflow: hidden;
+  user-select: none;
+  container-type: inline-size;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+// ─── 3. Live Rolling Jackpot Counter Plaque ─────────────────────
+.jackpot-counter-banner {
+  position: absolute;
+  top: 18.6%;
+  left: 24.5%;
+  width: 51.0%;
+  height: 4.2%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 8;
+
+  .jackpot-counter-val {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(14px, 4.0vw, 18px);
+    font-weight: 900;
+    letter-spacing: 1.2px;
+    color: #fef08a;
+    text-shadow: 0 0 12px rgba(254, 240, 138, 0.95), 0 2px 4px #000;
+  }
+}
+
+// ─── Three Animated Mini Multiplier Reels (Hidden - using original background artwork) ─
+.mini-reels-container {
+  display: none !important;
+}
+
+// ─── 4. 3x3 FRUIT ROULETTE BOARD ────────────────────────────────
+.roulette-board-outer {
+  position: absolute;
+  top: 34.8%;
+  left: 11.1%;
+  width: 77.8%;
+  height: 40.2%;
+  z-index: 8;
+  padding: 0;
+
+  .roulette-board-frame {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    background: transparent;
+    border: none;
+    padding: 0;
+    box-shadow: none;
+  }
+
+  // The Moving Neon Runner Frame (Identical to bright neon blue frame in screenshot)
+  .roulette-neon-cursor {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 33.333%;
+    height: 33.333%;
+    border-radius: 14px;
+    border: 3.5px solid $neon-cyan;
+    box-shadow: 
+      0 0 14px $neon-cyan,
+      0 0 28px $neon-blue,
+      inset 0 0 10px rgba($neon-cyan, 0.6);
+    pointer-events: none;
+    z-index: 25;
+    transition: all 0.08s ease-out;
+    display: none;
+
+    &.active {
+      display: block;
+    }
+  }
+
+  .roulette-3x3-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 3.6%;
+    width: 100%;
+    height: 100%;
+
+    .fruit-cell {
+      position: relative;
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2px;
+      cursor: pointer;
+      overflow: visible;
+      transition: transform 0.12s;
+
+      &:active {
+        transform: scale(0.94);
+      }
+
+      &.selected-runner {
+        // Handled by neon cursor
+      }
+
+      &.winning-flash {
+        animation: win-flash-gold 0.5s infinite alternate !important;
+        z-index: 25;
+      }
+
+      .fruit-img-wrap {
+        width: 60%;
+        height: 52%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+
+        .fruit-img {
+          max-width: 100%;
+          max-height: 100%;
+          object-fit: contain;
+          filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.9));
+          transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+      }
+
+      .fruit-mult-label {
+        font-size: clamp(9px, 2.5vw, 11px);
+        font-weight: 800;
+        color: #ffffff;
+        text-shadow: 0 1px 3px #000, 0 0 4px rgba(0,0,0,0.9);
+        margin-top: 2px;
+        letter-spacing: 0.2px;
+
+        &.super-jackpot {
+          color: #ffedd5;
+          text-shadow: 0 0 6px #ef4444, 0 1px 3px #000;
+        }
+      }
+
+      .chip-stack-area {
+        position: absolute;
+        top: 3px;
+        right: 3px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: -8px;
+        pointer-events: none;
+        z-index: 15;
+
+        .placed-chip-token {
+          width: 20px;
+          height: 20px;
+          margin-left: -9px;
+          margin-top: -6px;
+          filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));
+          animation: drop-chip 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+      }
+
+      .user-bet-badge {
+        position: absolute;
+        bottom: 2px;
+        right: 3px;
+        background: linear-gradient(135deg, #f59e0b, #b45309);
+        color: #fff;
+        font-family: 'Orbitron', sans-serif;
+        font-size: 8px;
+        font-weight: 900;
+        padding: 0 4px;
+        border-radius: 999px;
+        border: 1px solid #fef08a;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.6);
+        z-index: 18;
+
+        &.hidden { display: none; }
+      }
+    }
+
+    // CENTER BOX: Dual-Mode Digital Countdown Clock & Live Spinning Fruit Showcase
+    .center-countdown-cell {
+      position: relative;
+      background: radial-gradient(circle at center, rgba(30, 15, 60, 0.75) 0%, rgba(10, 4, 25, 0.92) 100%);
+      border: 1.5px solid rgba(250, 204, 21, 0.45);
+      border-radius: 12px;
+      box-shadow: inset 0 0 16px rgba(0, 0, 0, 0.85), 0 0 14px rgba(168, 85, 247, 0.35);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      z-index: 10;
+      transition: all 0.25s ease;
+
+      .led-dots-chaser {
+        position: absolute;
+        inset: 2px;
+        pointer-events: none;
+        z-index: 5;
+
+        .led-dot {
+          position: absolute;
+          width: 3.5px;
+          height: 3.5px;
+          border-radius: 50%;
+          background: #ef4444;
+          box-shadow: 0 0 4px #ef4444, 0 0 8px #f43f5e;
+          animation: led-chase 0.8s infinite alternate;
+
+          &:nth-child(1) { top: 2px; left: 20%; }
+          &:nth-child(2) { top: 2px; right: 20%; }
+          &:nth-child(3) { right: 2px; top: 40%; }
+          &:nth-child(4) { right: 2px; bottom: 40%; }
+          &:nth-child(5) { bottom: 2px; right: 20%; }
+          &:nth-child(6) { bottom: 2px; left: 20%; }
+          &:nth-child(7) { left: 2px; bottom: 40%; }
+          &:nth-child(8) { left: 2px; top: 40%; }
+        }
+      }
+
+      // Mode 1: Clock Wrap
+      .center-clock-wrap {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        transition: opacity 0.2s ease, transform 0.2s ease;
+
+        &.hidden {
+          display: none;
+        }
+
+        .digital-clock-display {
+          .clock-digits {
+            font-family: 'VT323', 'Orbitron', monospace;
+            font-size: clamp(34px, 9vw, 44px);
+            font-weight: 900;
+            line-height: 1;
+            color: #facc15;
+            text-shadow: 0 0 10px #facc15, 0 0 20px #eab308, 0 0 30px rgba(234, 179, 8, 0.6);
+            letter-spacing: -2px;
+          }
+        }
+
+        .countdown-sub-label {
+          font-family: 'Orbitron', sans-serif;
+          font-size: 8px;
+          font-weight: 800;
+          color: rgba(255, 255, 255, 0.85);
+          letter-spacing: 1px;
+          margin-top: 1px;
+          text-shadow: 0 0 6px rgba(255, 255, 255, 0.5);
+        }
+      }
+
+      // Mode 2: Center Live Spinning Fruit Showcase
+      .center-fruit-showcase {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 6;
+        animation: showcase-in 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+        &.hidden {
+          display: none;
+        }
+
+        .center-showcase-aura {
+          position: absolute;
+          width: 65px;
+          height: 65px;
+          border-radius: 50%;
+          background: radial-gradient(circle, rgba(239, 68, 68, 0.6) 0%, transparent 70%);
+          filter: blur(5px);
+          pointer-events: none;
+          z-index: 1;
+          animation: aura-pulse 0.8s infinite alternate ease-in-out;
+          transition: background 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .center-showcase-img-wrap {
+          position: relative;
+          width: 78%;
+          height: 78%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 2;
+
+          .center-showcase-img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.95)) drop-shadow(0 0 14px rgba(255, 255, 255, 0.75));
+            transition: transform 0.08s ease;
+
+            &.pop-tick {
+              animation: fruit-pop 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+            }
+          }
+        }
+
+        .center-showcase-badge {
+          display: none !important;
+        }
+
+        // When locked on winner
+        &.winner-lock {
+          border-radius: 12px;
+          box-shadow: inset 0 0 20px rgba(250, 204, 21, 0.6), 0 0 22px rgba(250, 204, 21, 0.9);
+
+          .center-showcase-aura {
+            width: 85px;
+            height: 85px;
+            background: radial-gradient(circle, rgba(250, 204, 21, 0.9) 0%, transparent 75%) !important;
+            box-shadow: 0 0 35px #facc15 !important;
+            animation: winner-aura-spin 1.5s infinite linear;
+          }
+
+          .center-showcase-img {
+            animation: winner-fruit-bounce 0.8s infinite alternate ease-in-out;
+            filter: drop-shadow(0 0 16px rgba(250, 204, 21, 1)) drop-shadow(0 6px 12px rgba(0, 0, 0, 0.95)) !important;
+          }
+        }
+      }
+    }
+  }
+}
+
+// ─── 5. RESULT HISTORY ROW ──────────────────────────────────────
+.result-history-panel {
+  position: absolute;
+  top: 76.5%;
+  left: 12.0%;
+  width: 76.0%;
+  height: 5.2%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: none;
+  border-radius: 12px;
+  overflow: hidden;
+  padding: 0 6px;
+  box-shadow: none;
+  z-index: 8;
+
+  .result-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 9px;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    background: linear-gradient(135deg, #7c3aed, #4c1d95);
+    border: 1px solid #c084fc;
+    border-radius: 6px;
+    padding: 3px 6px;
+    box-shadow: 0 0 8px rgba(168, 85, 247, 0.6);
+    flex-shrink: 0;
+  }
+
+  .result-scroll-container {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    &::-webkit-scrollbar { display: none; }
+
+    .result-pill-item {
+      position: relative;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: radial-gradient(circle at center, #4c1d95 0%, #1e0940 100%);
+      border: 1.5px solid #a855f7;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.6), inset 0 1px 2px rgba(255,255,255,0.3);
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+      img {
+        width: 72%;
+        height: 72%;
+        object-fit: contain;
+        filter: drop-shadow(0 2px 3px rgba(0,0,0,0.7));
+      }
+
+      &.is-new-result {
+        border-color: #f59e0b;
+        box-shadow: 0 0 10px rgba(245, 158, 11, 0.9), inset 0 0 6px rgba(245, 158, 11, 0.4);
+        transform: scale(1.08);
+
+        &::after {
+          content: 'NEW';
+          position: absolute;
+          bottom: -4px;
+          left: 50%;
+          transform: translateX(-50%);
+          background: linear-gradient(135deg, #ef4444, #dc2626);
+          color: #fff;
+          font-family: 'Orbitron', sans-serif;
+          font-size: 6px;
+          font-weight: 900;
+          padding: 1px 3px;
+          border-radius: 3px;
+          letter-spacing: 0.4px;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.8);
+        }
+      }
+
+      &.reel-mult-badge {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 9px;
+        font-weight: 900;
+        color: #fef08a;
+        background: radial-gradient(circle at center, #b45309, #78350f);
+        border-color: #f59e0b;
+        box-shadow: 0 0 8px rgba(245, 158, 11, 0.7);
+      }
+    }
+  }
+}
+
+// ─── 6. CHIP SELECTOR ARCADE BUTTONS (Anchored to Bottom Shelf) ──
+.chip-selector-bar {
+  position: absolute;
+  top: 91.8%;
+  left: 4.5%;
+  width: 91.0%;
+  height: 5.8%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 7px;
+  z-index: 10;
+  padding: 0;
+
+  .chip-column.chip-btn {
+    flex: 1;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    border-radius: 999px;
+    cursor: pointer;
+    border: 1.5px solid rgba(255, 255, 255, 0.25);
+    outline: none;
+    padding: 2px 5px;
+    transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    user-select: none;
+    box-shadow:
+      0 3px 0 rgba(0, 0, 0, 0.8),
+      0 5px 8px rgba(0, 0, 0, 0.55),
+      inset 0 1px 1px rgba(255, 255, 255, 0.45),
+      inset 0 -2px 3px rgba(0, 0, 0, 0.4);
+
+    .chip-icon-box {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+
+      .chip-svg-icon {
+        width: clamp(16px, 4.2vw, 20px);
+        height: clamp(16px, 4.2vw, 20px);
+        filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.7));
+      }
+    }
+
+    .chip-label {
+      font-family: 'Orbitron', monospace;
+      font-size: clamp(10px, 2.7vw, 13px);
+      font-weight: 900;
+      color: #ffffff;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9), 0 0 5px rgba(255, 255, 255, 0.5);
+      letter-spacing: 0.5px;
+      line-height: 1;
+    }
+
+    // Color Variations
+    &.chip-50k {
+      background: linear-gradient(180deg, #9333ea 0%, #7e22ce 50%, #581c87 100%);
+      border-color: #c084fc;
+      &:hover {
+        background: linear-gradient(180deg, #a855f7 0%, #9333ea 50%, #6b21a8 100%);
+      }
+    }
+
+    &.chip-100k {
+      background: linear-gradient(180deg, #ea580c 0%, #c2410c 50%, #7c2d12 100%);
+      border-color: #fb923c;
+      &:hover {
+        background: linear-gradient(180deg, #f97316 0%, #ea580c 50%, #9a3412 100%);
+      }
+    }
+
+    &.chip-500k {
+      background: linear-gradient(180deg, #db2777 0%, #be185d 50%, #831843 100%);
+      border-color: #f472b6;
+      &:hover {
+        background: linear-gradient(180deg, #ec4899 0%, #db2777 50%, #9d174d 100%);
+      }
+    }
+
+    &.chip-1m {
+      background: linear-gradient(180deg, #dc2626 0%, #b91c1c 50%, #7f1d1d 100%);
+      border-color: #f87171;
+      &:hover {
+        background: linear-gradient(180deg, #ef4444 0%, #dc2626 50%, #991b1b 100%);
+      }
+    }
+
+    // Active Selection State: Solid arcade button illumination
+    &.active-chip {
+      transform: translateY(-1px);
+      border-width: 2px;
+      border-color: #fde047;
+      box-shadow:
+        0 2px 0 #b45309,
+        0 0 14px rgba(250, 204, 21, 0.8),
+        0 4px 10px rgba(0, 0, 0, 0.7),
+        inset 0 1px 2px rgba(255, 255, 255, 0.7);
+
+      &::after {
+        content: '';
+        position: absolute;
+        inset: -3px;
+        border-radius: 999px;
+        border: 1.5px solid rgba(253, 224, 71, 0.7);
+        pointer-events: none;
+        animation: active-glow-pulse 1.8s infinite alternate;
+      }
+    }
+
+    // Press feedback
+    &:active {
+      transform: translateY(2px);
+      box-shadow:
+        0 1px 0 rgba(0, 0, 0, 0.6),
+        inset 0 2px 4px rgba(0, 0, 0, 0.7);
+    }
+  }
+}
+
+// ─── 7. BOTTOM ACTION STATS (MY COIN & WIN CAPSULES) ────────────
+.bottom-action-tray {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10;
+
+  .pill-stat-btn {
+    pointer-events: auto;
+    position: absolute;
+    top: 87.1%;
+    height: 2.5%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    outline: none;
+    padding: 0;
+    cursor: pointer;
+
+    &.mine-pill {
+      left: 17.5%;
+      width: 28.5%;
+    }
+
+    &.today-win-pill {
+      left: 59.0%;
+      width: 28.5%;
+      cursor: default;
+    }
+
+    .pill-coin-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+
+      .pill-amount {
+        font-family: 'Orbitron', monospace;
+        font-size: clamp(7px, 2.4cqw, 9.2px);
+        font-weight: 800;
+        color: #fffbeb;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9), 0 0 5px rgba(251, 191, 36, 0.6);
+        letter-spacing: -0.25px;
+        text-align: center;
+        line-height: 1;
+        white-space: nowrap;
+        max-width: 98%;
+        overflow: hidden;
+        text-overflow: clip;
+      }
+
+      .pill-amount.gold-highlight {
+        color: #fde047;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9), 0 0 7px rgba(250, 204, 21, 0.85);
+      }
+    }
+
+    &:active {
+      transform: scale(0.97);
+    }
+  }
+}
+
+// ─── Modals (Win Celebration, Rules, Recharge) ──────────────────
+.win-celebration-modal, .rules-modal, .recharge-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+
+  &.open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+.modal-card, .rules-card, .recharge-card {
+  width: 100%;
+  max-width: 380px;
+  background: linear-gradient(180deg, #371872 0%, #1e0940 100%);
+  border: 3px solid #f59e0b;
+  border-radius: 24px;
+  padding: 24px 20px;
+  box-shadow: 0 0 40px rgba(245, 158, 11, 0.6), 0 20px 40px rgba(0,0,0,0.9);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+}
+
+// Win modal specific
+.modal-card {
+  .win-sparkle-emoji { font-size: 54px; animation: bounce 0.6s infinite alternate; }
+  .win-congrats-text {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 28px;
+    font-weight: 900;
+    color: #fef08a;
+    text-shadow: 0 0 12px #f59e0b;
+  }
+  .win-amount-counter {
+    font-family: 'Orbitron', monospace;
+    font-size: 32px;
+    font-weight: 900;
+    color: #4ade80;
+    text-shadow: 0 0 16px rgba(74, 222, 128, 0.8);
+    margin: 8px 0;
+  }
+  .win-multiplier-pill {
+    background: rgba(0,0,0,0.4);
+    border: 1px solid #f59e0b;
+    padding: 4px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+    color: #fed7aa;
+    margin-bottom: 16px;
+  }
+  .collect-win-btn {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: #1a0535;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 16px;
+    font-weight: 900;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.6);
+  }
+}
+
+// Rules & Recharge Header
+.rules-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+
+  .rules-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 16px;
+    font-weight: 800;
+    color: #fef08a;
+  }
+  .close-rules-btn {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 18px;
+    cursor: pointer;
+  }
+}
+
+.multipliers-table {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: left;
+  font-size: 13px;
+  margin-bottom: 14px;
+
+  .rule-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 10px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 8px;
+
+    .r-fruit { font-weight: 600; }
+    .r-mult {
+      font-weight: 800;
+      &.red { color: #f87171; }
+      &.green { color: #4ade80; }
+      &.yellow { color: #facc15; }
+      &.purple { color: #c084fc; }
+      &.lime { color: #a3e635; }
+      &.pink { color: #f472b6; }
+      &.gold { color: #fef08a; font-weight: 900; }
+    }
+  }
+}
+
+.rules-note {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 1.4;
+}
+
+// Recharge card
+.wallet-balance-box {
+  background: rgba(0,0,0,0.4);
+  padding: 12px;
+  border-radius: 12px;
+  width: 100%;
+  margin-bottom: 14px;
+
+  .balance-label { font-size: 11px; color: rgba(255,255,255,0.6); }
+  .balance-large {
+    font-family: 'Orbitron', monospace;
+    font-size: 24px;
+    font-weight: 900;
+    color: #fef08a;
+  }
+}
+
+.quick-recharge-title { font-size: 12px; color: rgba(255,255,255,0.8); margin-bottom: 8px; text-align: left; width: 100%; }
+.quick-add-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  width: 100%;
+  margin-bottom: 14px;
+
+  .quick-add-btn {
+    background: linear-gradient(135deg, #7c3aed, #5b21b6);
+    border: 1px solid #a855f7;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 8px 4px;
+    border-radius: 8px;
+    cursor: pointer;
+    &:active { transform: scale(0.95); }
+  }
+}
+
+.flutter-tip-text {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.6);
+  background: rgba(0,0,0,0.3);
+  padding: 8px;
+  border-radius: 8px;
+  text-align: left;
+  code { color: #38bdf8; }
+}
+
+// ─── Floating Coins Shower & Toasts ─────────────────────────────
+.coins-shower-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 99998;
+  overflow: hidden;
+
+  .coin-shower-item {
+    position: absolute;
+    width: 28px;
+    height: 28px;
+    font-size: 24px;
+    animation: coin-fall 1.8s ease-in forwards;
+  }
+}
+
+.toast-stack {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100000;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  pointer-events: none;
+
+  .toast-item {
+    background: rgba(24, 10, 50, 0.95);
+    border: 1px solid #7c3aed;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: 999px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.8);
+    animation: toast-in 0.3s ease, toast-out 0.3s ease 2.7s forwards;
+    white-space: nowrap;
+
+    &.toast-win { border-color: #f59e0b; color: #fef08a; }
+    &.toast-error { border-color: #ef4444; color: #fca5a5; }
+    &.toast-admin { border-color: #06b6d4; color: #67e8f9; background: rgba(8, 20, 35, 0.95); box-shadow: 0 0 15px rgba(6, 182, 212, 0.6); }
+  }
+}
+
+// ─── Keyframe Animations ────────────────────────────────────────
+@keyframes pulse-glow {
+  0% { transform: scale(1); filter: drop-shadow(0 0 10px rgba($gold-main, 0.6)); }
+  100% { transform: scale(1.05); filter: drop-shadow(0 0 24px rgba($gold-bright, 1)); }
+}
+
+@keyframes load-bar-progress {
+  0% { width: 0%; }
+  100% { width: 100%; }
+}
+
+@keyframes chaser-blink {
+  0% { opacity: 0.3; transform: scale(0.8); }
+  100% { opacity: 1; transform: scale(1.3); }
+}
+
+@keyframes wing-pulse {
+  0% { opacity: 0.6; transform: scale(0.9); }
+  100% { opacity: 1; transform: scale(1.15); }
+}
+
+@keyframes drop-chip {
+  0% { transform: translateY(-16px) scale(1.3); opacity: 0; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+@keyframes reel-blur {
+  0% { transform: translateY(-3px); filter: blur(1px); }
+  100% { transform: translateY(3px); filter: blur(1px); }
+}
+
+@keyframes win-flash-gold {
+  0% {
+    border-color: $gold-bright;
+    box-shadow: 0 0 20px $gold-bright, inset 0 0 15px $gold-bright;
+    transform: scale(1.03);
+  }
+  100% {
+    border-color: #ffffff;
+    box-shadow: 0 0 35px #ffffff, inset 0 0 25px $gold-main;
+    transform: scale(1.06);
+  }
+}
+
+@keyframes led-chase {
+  0% { opacity: 0.2; }
+  100% { opacity: 1; }
+}
+
+@keyframes coin-fall {
+  0% { transform: translateY(-50px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(105vh) rotate(720deg); opacity: 0; }
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes toast-out {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-10px); }
+}
+
+@keyframes fruit-pop {
+  0% { transform: scale(0.85); }
+  50% { transform: scale(1.18); }
+  100% { transform: scale(1); }
+}
+
+@keyframes showcase-in {
+  0% { opacity: 0; transform: scale(0.8); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes aura-pulse {
+  0% { transform: scale(0.9); opacity: 0.65; }
+  100% { transform: scale(1.2); opacity: 1; }
+}
+
+@keyframes winner-fruit-bounce {
+  0% { transform: scale(1) translateY(0); }
+  100% { transform: scale(1.15) translateY(-3px); }
+}
+
+@keyframes winner-aura-spin {
+  0% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(180deg) scale(1.2); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+
+@keyframes active-glow-pulse {
+  0% { opacity: 0.45; transform: scale(1); }
+  100% { opacity: 1; transform: scale(1.02); }
+}

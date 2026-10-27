@@ -1,0 +1,2926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fruit Slot - Admin Command Center (水果老虎机 控制台)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700;800&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <style>
+    :root {
+      --bg-dark: #080b12;
+      --card-bg: rgba(15, 21, 37, 0.88);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --card-hover: rgba(24, 34, 58, 0.95);
+      --primary: #3b82f6;
+      --primary-glow: rgba(59, 130, 246, 0.4);
+      --success: #10b981;
+      --success-glow: rgba(16, 185, 129, 0.35);
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --danger-glow: rgba(239, 68, 68, 0.4);
+      --accent: #8b5cf6;
+      --cyan: #06b6d4;
+      --gold: #facc15;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --font-display: 'Chakra Petch', sans-serif;
+      --font-body: 'Inter', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(ellipse at 15% 0%, rgba(59, 130, 246, 0.14) 0%, transparent 50%),
+        radial-gradient(ellipse at 85% 10%, rgba(139, 92, 246, 0.14) 0%, transparent 50%),
+        radial-gradient(circle at 50% 100%, rgba(6, 182, 212, 0.08) 0%, transparent 50%);
+      color: var(--text);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      padding: 20px;
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 1520px;
+      margin: 0 auto;
+    }
+
+    /* ─── Header ─────────────────────────────────────────────── */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      padding: 18px 26px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      backdrop-filter: blur(16px);
+      margin-bottom: 24px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-icon {
+      font-size: 36px;
+      filter: drop-shadow(0 0 14px rgba(250, 204, 21, 0.6));
+    }
+
+    .brand-title {
+      font-family: var(--font-display);
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      background: linear-gradient(135deg, #fff 0%, #cbd5e1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .conn-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      font-size: 13px;
+      font-weight: 600;
+      color: #34d399;
+      font-family: var(--font-mono);
+    }
+
+    .conn-status.disconnected {
+      background: rgba(239, 68, 68, 0.1);
+      border-color: rgba(239, 68, 68, 0.3);
+      color: #f87171;
+    }
+
+    .conn-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 8px currentColor;
+      animation: pulse 1.5s infinite alternate;
+    }
+
+    .btn-player-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: rgba(59, 130, 246, 0.15);
+      color: #93c5fd;
+      border: 1px solid rgba(59, 130, 246, 0.35);
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .btn-player-link:hover {
+      background: rgba(59, 130, 246, 0.3);
+      border-color: #3b82f6;
+      color: #fff;
+      transform: translateY(-1px);
+    }
+
+    /* ─── Metric Cards Grid ───────────────────────────────────── */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .metric-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 18px 20px;
+      backdrop-filter: blur(12px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .metric-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--card-accent, #3b82f6), transparent);
+    }
+
+    .metric-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .metric-val {
+      font-family: var(--font-display);
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      color: #fff;
+    }
+
+    .phase-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .phase-betting { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
+    .phase-spinning { background: rgba(139, 92, 246, 0.2); color: #c084fc; border: 1px solid rgba(139, 92, 246, 0.4); animation: pulse 0.8s infinite alternate; }
+    .phase-result { background: rgba(250, 204, 21, 0.2); color: #fde047; border: 1px solid rgba(250, 204, 21, 0.4); }
+    .phase-paused { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
+
+    /* ─── Main 2-Column Layout ────────────────────────────────── */
+    .dashboard-layout {
+      display: grid;
+      grid-template-columns: 1fr 390px;
+      gap: 24px;
+    }
+
+    @media (max-width: 1180px) {
+      .dashboard-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ─── Sticky Modern Admin Navbar ─────────────────────────── */
+    .admin-navbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      background: rgba(15, 21, 37, 0.94);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      margin-bottom: 24px;
+      backdrop-filter: blur(20px);
+      position: sticky;
+      top: 14px;
+      z-index: 1000;
+      box-shadow: 0 12px 36px rgba(0,0,0,0.5), 0 0 20px rgba(59, 130, 246, 0.08);
+      overflow-x: auto;
+      scrollbar-width: thin;
+    }
+
+    .admin-navbar::-webkit-scrollbar {
+      height: 4px;
+    }
+    .admin-navbar::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.15);
+      border-radius: 4px;
+    }
+
+    .nav-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 15px;
+      border-radius: 10px;
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      font-family: var(--font-body);
+      user-select: none;
+    }
+
+    .nav-btn:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.12);
+      transform: translateY(-1px);
+    }
+
+    .nav-btn.active {
+      color: #fff;
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.3) 0%, rgba(139, 92, 246, 0.3) 100%);
+      border-color: rgba(99, 102, 241, 0.55);
+      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.25), inset 0 1px 0 rgba(255,255,255,0.15);
+    }
+
+    .nav-icon {
+      font-size: 15px;
+    }
+
+    .nav-badge-pill {
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      color: #cbd5e1;
+      font-weight: 700;
+      font-family: var(--font-mono);
+    }
+
+    .nav-btn.active .nav-badge-pill {
+      background: rgba(59, 130, 246, 0.35);
+      color: #bfdbfe;
+    }
+
+    /* ─── Admin Section Wrapper & Animation ──────────────────── */
+    .admin-section {
+      display: none;
+      animation: sectionFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .admin-section.active {
+      display: block;
+    }
+
+    .show-all-mode .admin-section {
+      display: block !important;
+      margin-bottom: 28px;
+    }
+
+    @keyframes sectionFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .section-header-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      background: linear-gradient(90deg, rgba(15, 21, 37, 0.95) 0%, rgba(24, 34, 58, 0.6) 100%);
+      border: 1px solid var(--card-border);
+      border-left: 4px solid var(--primary);
+      border-radius: 12px;
+      padding: 14px 20px;
+      margin-bottom: 20px;
+      backdrop-filter: blur(12px);
+    }
+
+    .section-header-banner.gold {
+      border-left-color: var(--gold);
+    }
+    .section-header-banner.green {
+      border-left-color: var(--success);
+    }
+    .section-header-banner.purple {
+      border-left-color: var(--accent);
+    }
+    .section-header-banner.cyan {
+      border-left-color: var(--cyan);
+    }
+
+    .section-banner-title {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-banner-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .section-banner-badge {
+      font-size: 11px;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.06);
+      color: #e2e8f0;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    /* ─── Section Boxes ───────────────────────────────────────── */
+    .panel-box {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 22px;
+      margin-bottom: 22px;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    }
+
+    .panel-title {
+      font-family: var(--font-display);
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .panel-title span {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .badge-tag {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .badge-tag.info { background: rgba(59, 130, 246, 0.2); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.4); }
+    .badge-tag.gold { background: rgba(250, 204, 21, 0.2); color: #fde047; border: 1px solid rgba(250, 204, 21, 0.4); }
+    .badge-tag.green { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.4); }
+    .badge-tag.danger { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.4); }
+
+    /* ─── Buttons & Inputs ────────────────────────────────────── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 18px;
+      border-radius: 10px;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+      text-transform: uppercase;
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(59, 130, 246, 0.35);
+    }
+    .btn-primary:hover {
+      box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5);
+      transform: translateY(-1px);
+    }
+
+    .btn-gold {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      color: #0f172a;
+      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
+      font-weight: 800;
+    }
+    .btn-gold:hover {
+      box-shadow: 0 6px 20px rgba(245, 158, 11, 0.5);
+      transform: translateY(-1px);
+    }
+
+    .btn-spin-now {
+      background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+      flex: 1;
+      min-width: 160px;
+    }
+    .btn-spin-now:hover:not(:disabled) {
+      box-shadow: 0 6px 22px rgba(139, 92, 246, 0.6);
+      transform: translateY(-2px);
+    }
+    .btn-spin-now:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .btn-pause {
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      color: #fbbf24;
+      min-width: 130px;
+    }
+    .btn-pause:hover {
+      background: rgba(245, 158, 11, 0.3);
+      color: #fff;
+    }
+    .btn-pause.is-paused {
+      background: rgba(16, 185, 129, 0.2);
+      border-color: rgba(16, 185, 129, 0.5);
+      color: #34d399;
+    }
+
+    .btn-pill {
+      padding: 6px 13px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-muted);
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-pill:hover {
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+    }
+    .btn-pill.active {
+      background: rgba(59, 130, 246, 0.25);
+      border-color: #3b82f6;
+      color: #93c5fd;
+      box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+    }
+
+    .input-cyber {
+      background: rgba(0, 0, 0, 0.45);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 10px;
+      padding: 10px 14px;
+      color: #fff;
+      font-family: var(--font-body);
+      font-size: 14px;
+      outline: none;
+      transition: all 0.2s;
+      width: 100%;
+    }
+    .input-cyber:focus {
+      border-color: var(--cyan);
+      box-shadow: 0 0 12px rgba(6, 182, 212, 0.25);
+      background: rgba(0, 0, 0, 0.65);
+    }
+
+    /* ─── Algorithm Preset Deck ───────────────────────────────── */
+    .presets-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .preset-card {
+      background: rgba(18, 24, 38, 0.7);
+      border: 2px solid rgba(255, 255, 255, 0.06);
+      border-radius: 14px;
+      padding: 14px;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .preset-card:hover {
+      background: rgba(26, 35, 56, 0.9);
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .preset-card.active {
+      border-color: #38bdf8;
+      background: rgba(14, 165, 233, 0.14);
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.3);
+    }
+
+    .preset-card.active.competitive {
+      border-color: #facc15;
+      background: rgba(250, 204, 21, 0.12);
+      box-shadow: 0 0 20px rgba(250, 204, 21, 0.35);
+    }
+
+    .preset-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .preset-title {
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 800;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .preset-badge {
+      font-size: 10px;
+      font-family: var(--font-mono);
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+    .preset-card.active .preset-badge {
+      background: #38bdf8;
+      color: #032030;
+    }
+    .preset-card.active.competitive .preset-badge {
+      background: #facc15;
+      color: #000;
+    }
+
+    .preset-desc {
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .preset-highlight {
+      font-size: 11px;
+      font-weight: 600;
+      color: #38bdf8;
+      font-family: var(--font-mono);
+      margin-top: 2px;
+    }
+
+    /* ─── Live Profit & Outcome Simulation Table ──────────────── */
+    .radar-table-wrapper {
+      overflow-x: auto;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(0, 0, 0, 0.35);
+      margin-top: 12px;
+    }
+
+    .radar-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      text-align: left;
+    }
+
+    .radar-table th {
+      background: rgba(255, 255, 255, 0.04);
+      padding: 10px 14px;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .radar-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      font-family: var(--font-mono);
+    }
+
+    .radar-table tr:hover {
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .radar-table tr.favored-row {
+      background: rgba(250, 204, 21, 0.12) !important;
+      outline: 1px solid rgba(250, 204, 21, 0.4);
+    }
+
+    .radar-table tr.loss-row {
+      background: rgba(239, 68, 68, 0.1) !important;
+    }
+
+    .risk-badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      font-family: var(--font-display);
+    }
+    .risk-safe { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
+    .risk-moderate { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
+    .risk-loss { background: rgba(239, 68, 68, 0.25); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.5); animation: pulse 1s infinite alternate; }
+    .risk-competitive { background: rgba(250, 204, 21, 0.25); color: #facc15; border: 1px solid rgba(250, 204, 21, 0.6); font-weight: 800; }
+
+    /* ─── House Config: Commission & Win Rate ─────────────────── */
+    .config-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    @media (max-width: 768px) {
+      .config-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .slider-card {
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .slider-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .slider-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #e2e8f0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .slider-val-badge {
+      font-family: var(--font-mono);
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--gold);
+    }
+
+    .range-input {
+      width: 100%;
+      height: 6px;
+      -webkit-appearance: none;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 999px;
+      outline: none;
+    }
+
+    .range-input::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #facc15;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(250, 204, 21, 0.7);
+      transition: transform 0.15s;
+    }
+    .range-input::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+    }
+
+    .slider-bounds {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      margin-top: 6px;
+    }
+
+    /* ─── 4 Chip Denominations Manager ────────────────────────── */
+    .chips-edit-deck {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    @media (max-width: 800px) {
+      .chips-edit-deck {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .chip-edit-card {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .chip-badge-preview {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      margin: 0 auto 8px auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-weight: 800;
+      font-size: 13px;
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    }
+    .chip-color-0 { background: radial-gradient(circle, #3b82f6, #1d4ed8); border: 2px dashed #93c5fd; }
+    .chip-color-1 { background: radial-gradient(circle, #10b981, #047857); border: 2px dashed #6ee7b7; }
+    .chip-color-2 { background: radial-gradient(circle, #f59e0b, #b45309); border: 2px dashed #fde68a; }
+    .chip-color-3 { background: radial-gradient(circle, #ef4444, #b91c1c); border: 2px dashed #fca5a5; }
+
+    .chip-input-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+
+    .quick-chip-presets {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    /* ─── 8 Fruit Multipliers Grid (Koto Gun Time Set) ────────── */
+    .multipliers-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    @media (max-width: 960px) {
+      .multipliers-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .mult-edit-card {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .mult-card-img {
+      width: 38px;
+      height: 38px;
+      object-fit: contain;
+    }
+
+    .mult-card-info {
+      flex: 1;
+    }
+
+    .mult-card-name {
+      font-size: 12px;
+      font-weight: 700;
+      color: #e2e8f0;
+      margin-bottom: 4px;
+    }
+
+    .mult-input-wrap {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .mult-input-wrap input {
+      width: 70px;
+      padding: 6px 8px;
+      font-size: 13px;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      text-align: right;
+    }
+
+    /* ─── Rigging Cards Grid ──────────────────────────────────── */
+    .fruit-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    @media (max-width: 900px) {
+      .fruit-cards-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .fruit-card {
+      background: rgba(18, 24, 38, 0.6);
+      border: 2px solid rgba(255, 255, 255, 0.06);
+      border-radius: 14px;
+      padding: 14px;
+      transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+      position: relative;
+      cursor: pointer;
+      overflow: hidden;
+    }
+
+    .fruit-card:hover {
+      background: rgba(26, 35, 56, 0.9);
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .fruit-card.is-forced {
+      border-color: #ef4444;
+      background: rgba(239, 68, 68, 0.12);
+      box-shadow: 0 0 20px rgba(239, 68, 68, 0.35);
+    }
+
+    .fruit-card.is-forced::after {
+      content: 'FORCED WINNER';
+      position: absolute;
+      top: 6px;
+      right: 8px;
+      font-size: 9px;
+      font-weight: 800;
+      color: #ef4444;
+      letter-spacing: 0.5px;
+      font-family: var(--font-display);
+      background: rgba(0, 0, 0, 0.7);
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid rgba(239, 68, 68, 0.4);
+    }
+
+    .fruit-card-top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .fruit-card-img {
+      width: 40px;
+      height: 40px;
+      object-fit: contain;
+    }
+
+    .fruit-card-name {
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .fruit-card-mult {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--gold);
+      font-family: var(--font-mono);
+    }
+
+    .fruit-pool-info {
+      margin-top: 8px;
+    }
+
+    .fruit-pool-nums {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+      font-family: var(--font-mono);
+    }
+
+    .fruit-pool-val {
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .fruit-pool-bar-bg {
+      height: 5px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .fruit-pool-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #3b82f6, #06b6d4);
+      border-radius: 999px;
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    .fruit-force-btn {
+      width: 100%;
+      margin-top: 10px;
+      padding: 6px 8px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--text);
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      font-family: var(--font-display);
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      transition: all 0.2s;
+    }
+
+    .fruit-card:hover .fruit-force-btn {
+      background: rgba(59, 130, 246, 0.2);
+      border-color: #3b82f6;
+      color: #93c5fd;
+    }
+
+    .fruit-card.is-forced .fruit-force-btn {
+      background: #ef4444;
+      border-color: #ef4444;
+      color: #fff;
+      box-shadow: 0 0 12px rgba(239, 68, 68, 0.4);
+    }
+
+    /* ─── Side Column Feed & History ──────────────────────────── */
+    .feed-container {
+      max-height: 420px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding-right: 4px;
+    }
+
+    .feed-container::-webkit-scrollbar {
+      width: 4px;
+    }
+    .feed-container::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 4px;
+    }
+
+    .feed-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 9px 12px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      font-size: 12px;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .feed-item-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .feed-fruit-icon {
+      width: 22px;
+      height: 22px;
+      object-fit: contain;
+    }
+
+    .feed-player {
+      font-weight: 600;
+      color: #e2e8f0;
+    }
+
+    .feed-amt {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: var(--gold);
+    }
+
+    .feed-time {
+      font-size: 10px;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    .history-deck {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .history-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 9px;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 8px;
+      font-size: 11px;
+      font-family: var(--font-mono);
+    }
+
+    .history-pill img {
+      width: 18px;
+      height: 18px;
+      object-fit: contain;
+    }
+
+    .history-pill-mult {
+      color: var(--gold);
+      font-weight: 700;
+    }
+
+    /* Toast Notification */
+    .toast-msg {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      padding: 12px 20px;
+      background: #10b981;
+      color: #042f2e;
+      font-weight: 800;
+      font-family: var(--font-display);
+      border-radius: 10px;
+      box-shadow: 0 10px 25px rgba(16, 185, 129, 0.5);
+      display: none;
+      z-index: 9999;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.6; transform: scale(0.98); }
+      100% { opacity: 1; transform: scale(1.02); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div id="toast" class="toast-msg">Settings Applied Successfully!</div>
+
+  <div class="container">
+    <!-- Header -->
+    <header>
+      <div class="brand">
+        <div class="brand-icon">🎰</div>
+        <div>
+          <h1 class="brand-title">FRUIT SLOT MASTER ADMIN CONSOLE</h1>
+          <div class="brand-sub">Competitive Payout Engine • Live Rake & Multipliers Manager • Slot Rigging</div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <div id="conn-status" class="conn-status">
+          <span class="conn-dot"></span>
+          <span id="conn-text">CONNECTING</span>
+        </div>
+        <a href="/index.html" target="_blank" class="btn-player-link">
+          🎮 Open Game Screen ↗
+        </a>
+      </div>
+    </header>
+
+    <!-- Top Key Metrics -->
+    <div class="metrics-grid">
+      <div class="metric-card" style="--card-accent: #3b82f6;">
+        <div class="metric-label">Round Number</div>
+        <div id="metric-round" class="metric-val">#----</div>
+      </div>
+      <div class="metric-card" style="--card-accent: #10b981;">
+        <div class="metric-label">Engine Phase</div>
+        <div id="metric-phase" class="metric-val">
+          <span class="phase-badge phase-betting">BETTING</span>
+        </div>
+      </div>
+      <div class="metric-card" style="--card-accent: #f59e0b;">
+        <div class="metric-label">Countdown Clock</div>
+        <div id="metric-timer" class="metric-val">12s</div>
+      </div>
+      <div class="metric-card" style="--card-accent: #8b5cf6;">
+        <div class="metric-label">Online Players</div>
+        <div id="metric-players" class="metric-val">1</div>
+      </div>
+      <div class="metric-card" style="--card-accent: #facc15;">
+        <div class="metric-label">Total Round Pool</div>
+        <div id="metric-pool" class="metric-val">0</div>
+      </div>
+      <div class="metric-card" style="--card-accent: #06b6d4;">
+        <div class="metric-label">Active Strategy</div>
+        <div id="metric-preset" class="metric-val" style="font-size: 18px; color: #38bdf8;">COMPETITIVE</div>
+      </div>
+      <div class="metric-card" style="--card-accent: #ec4899;">
+        <div class="metric-label" style="display: flex; justify-content: space-between;">
+          <span>Admin Win Rake</span>
+          <span id="metric-comm-rate" style="color: #f472b6; font-size: 11px; font-weight: 700;">5.0% RAKE</span>
+        </div>
+        <div id="metric-commission" class="metric-val" style="color: #f472b6;">🪙 0</div>
+      </div>
+    </div>
+
+    <!-- ⚡ Quick Admin Action Bar (Easy Controls) -->
+    <div class="easy-quick-bar" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 18px; background: rgba(15, 21, 37, 0.9); border: 1px solid var(--card-border); border-radius: 14px; margin-bottom: 16px; flex-wrap: wrap; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <span style="font-size: 13px; font-weight: 700; color: #facc15; display: flex; align-items: center; gap: 6px;">⚡ Quick Actions:</span>
+        <button class="btn btn-spin" style="padding: 7px 14px; font-size: 12px;" onclick="document.getElementById('btn-spin-now').click()">⚡ Spin Now</button>
+        <button class="btn btn-pause" style="padding: 7px 14px; font-size: 12px;" onclick="document.getElementById('btn-toggle-pause').click()">⏸️ Pause</button>
+      </div>
+      <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+        <span style="font-size: 12px; color: var(--text-muted); font-weight: 600;">1-Click Mode:</span>
+        <button class="btn-pill" style="font-size: 11px; padding: 5px 11px;" onclick="selectPreset('competitive')">🛡️ Safe (Zero Loss)</button>
+        <button class="btn-pill" style="font-size: 11px; padding: 5px 11px;" onclick="selectPreset('fair_rng')">🎲 Fair RNG</button>
+        <button class="btn-pill" style="font-size: 11px; padding: 5px 11px;" onclick="selectPreset('anti_whale')">🐋 Anti-Whale</button>
+        <button class="btn-pill" style="font-size: 11px; padding: 5px 11px;" onclick="applyCommPreset(5)">💰 5% Commission</button>
+        <button class="btn-pill" style="font-size: 11px; padding: 5px 11px;" onclick="applyCommPreset(10)">💰 10% Commission</button>
+      </div>
+    </div>
+
+    <!-- 🧭 Admin Navigation Bar -->
+    <nav class="admin-navbar" id="admin-navbar">
+      <button class="nav-btn active" data-target="overview" onclick="switchSection('overview')">
+        <span class="nav-icon">📊</span>
+        <span>Overview</span>
+      </button>
+      <button class="nav-btn" data-target="algorithm" onclick="switchSection('algorithm')">
+        <span class="nav-icon">🧠</span>
+        <span>Strategy Presets</span>
+        <span id="nav-preset-badge" class="nav-badge-pill">COMPETITIVE</span>
+      </button>
+      <button class="nav-btn" data-target="radar" onclick="switchSection('radar')">
+        <span class="nav-icon">🛡️</span>
+        <span>Payout Radar</span>
+        <span class="nav-badge-pill" style="color: #34d399;">LIVE</span>
+      </button>
+      <button class="nav-btn" data-target="commission" onclick="switchSection('commission')">
+        <span class="nav-icon">💰</span>
+        <span>Win Commission</span>
+        <span id="nav-comm-badge" class="nav-badge-pill" style="color: #f472b6;">5% RAKE</span>
+      </button>
+      <button class="nav-btn" data-target="chips" onclick="switchSection('chips')">
+        <span class="nav-icon">🪙</span>
+        <span>Bet Chips</span>
+      </button>
+      <button class="nav-btn" data-target="multipliers" onclick="switchSection('multipliers')">
+        <span class="nav-icon">✨</span>
+        <span>Multipliers</span>
+        <span class="nav-badge-pill">8 ITEMS</span>
+      </button>
+      <button class="nav-btn" data-target="rigging" onclick="switchSection('rigging')">
+        <span class="nav-icon">🎯</span>
+        <span>Force Fruit</span>
+      </button>
+      <button class="nav-btn" data-target="webhooks" onclick="switchSection('webhooks')">
+        <span class="nav-icon">🔗</span>
+        <span>Webhooks & API</span>
+        <span id="nav-wh-badge" class="nav-badge-pill">API</span>
+      </button>
+      <button class="nav-btn" data-target="wallet" onclick="switchSection('wallet')">
+        <span class="nav-icon">👥</span>
+        <span>Player Wallet</span>
+      </button>
+      <button class="nav-btn" data-target="all" onclick="switchSection('all')">
+        <span class="nav-icon">🌐</span>
+        <span>Show All</span>
+      </button>
+    </nav>
+
+    <!-- Sections Container -->
+    <div id="sections-container">
+
+      <!-- SECTION 1: Overview & Live Telemetry -->
+      <section id="section-overview" class="admin-section active">
+        <div class="section-header-banner">
+          <div>
+            <div class="section-banner-title">📊 Live Room Telemetry & Instant Controls</div>
+            <div class="section-banner-desc">Real-time room activity, manual round actions, announcements, and recent outcome history</div>
+          </div>
+          <div class="section-banner-badge">ROUND MONITOR</div>
+        </div>
+
+        <div class="dashboard-layout">
+          <div class="controls-column">
+            <!-- Instant Round Actions & Reels Manipulation Deck -->
+            <div class="panel-box">
+              <div class="panel-title">
+                <span>⚡ Instant Round Actions & Reels</span>
+                <span style="font-size: 12px; color: var(--text-muted); font-family: var(--font-mono);">LIVE CONTROL</span>
+              </div>
+
+              <div class="quick-controls" style="display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
+                <button id="btn-force-spin" class="btn btn-spin-now">
+                  🚀 Force Spin Now
+                </button>
+                <button id="btn-toggle-pause" class="btn btn-pause">
+                  ⏸️ Pause Game
+                </button>
+                <div class="duration-selector" style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                  <span class="duration-label" style="font-size: 12px; color: var(--text-muted); font-weight: 600;">Timer:</span>
+                  <button class="btn-pill" data-seconds="5">5s</button>
+                  <button class="btn-pill" data-seconds="8">8s</button>
+                  <button class="btn-pill active" data-seconds="12">12s</button>
+                  <button class="btn-pill" data-seconds="15">15s</button>
+                  <button class="btn-pill" data-seconds="20">20s</button>
+                  <button class="btn-pill" data-seconds="30">30s</button>
+                </div>
+              </div>
+
+              <div style="margin-top: 14px;">
+                <div style="font-size: 12px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-bottom: 8px;">
+                  Mini-Reels Multiplier Force:
+                  <span id="reels-status-badge" class="badge-tag green" style="margin-left: 6px;">AUTO / RANDOM</span>
+                </div>
+                <div class="reels-control-group" style="display: flex; gap: 8px; flex-wrap: wrap;">
+                  <button class="btn-pill active" data-reels="null">🎲 Auto / Random</button>
+                  <button class="btn-pill" data-reels="[1,1,1]">×1 Normal (1,1,1)</button>
+                  <button class="btn-pill" data-reels="[2,2,2]">×2 Double (2,2,2)</button>
+                  <button class="btn-pill" data-reels="[3,3,3]">×3 Triple (3,3,3)</button>
+                  <button class="btn-pill" data-reels="[5,5,5]">×5 Mega Jackpot (5,5,5)</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Broadcast Message Banner -->
+            <div class="panel-box">
+              <div class="panel-title">
+                <span>📢 Live In-Game Announcement</span>
+              </div>
+              <form id="broadcast-form" style="display: flex; gap: 10px;">
+                <input type="text" id="broadcast-msg" class="input-cyber" placeholder="Enter message to broadcast to all player screens..." required>
+                <button type="submit" class="btn btn-primary" style="white-space: nowrap;">Send Alert</button>
+              </form>
+            </div>
+          </div>
+
+          <div class="feed-column">
+            <!-- Live Bids Stream -->
+            <div class="panel-box">
+              <div class="panel-title">
+                <span>🔴 Live Real-Time Bids</span>
+                <span id="live-bid-counter" style="font-size: 11px; font-family: var(--font-mono); color: #34d399;">STREAM ACTIVE</span>
+              </div>
+              <div id="live-bids-feed" class="feed-container">
+                <div style="text-align: center; color: var(--text-muted); padding: 30px; font-size: 13px;">
+                  Waiting for live bids...
+                </div>
+              </div>
+            </div>
+
+            <!-- Recent Results -->
+            <div class="panel-box">
+              <div class="panel-title">
+                <span>📜 Recent Outcomes</span>
+              </div>
+              <div id="recent-results-deck" class="history-deck">
+                <!-- Dynamically populated -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 2: Algorithm & Strategy Presets -->
+      <section id="section-algorithm" class="admin-section">
+        <div class="section-header-banner gold">
+          <div>
+            <div class="section-banner-title">🧠 Payout Engine Algorithm Presets</div>
+            <div class="section-banner-desc">Dynamic automated outcome algorithms ensuring zero casino loss, whale mitigation, or target retention</div>
+          </div>
+          <div class="section-banner-badge" style="color: #facc15; border-color: rgba(250,204,21,0.3);">ZERO HOUSE LOSS</div>
+        </div>
+
+        <div class="panel-box">
+          <div class="panel-title">
+            <span>
+              🧠 Payout Engine Algorithm Presets
+              <span id="preset-active-badge" class="badge-tag gold">COMPETITIVE ACTIVE</span>
+            </span>
+            <span style="font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);">ZERO HOUSE LOSS PROTECTION</span>
+          </div>
+
+          <div class="presets-container">
+            <!-- Competitive Preset -->
+            <div class="preset-card competitive active" data-preset="competitive" onclick="selectPreset('competitive')">
+              <div class="preset-header">
+                <span class="preset-title">⚔️ Competitive Mode</span>
+                <span class="preset-badge">PROTECTED</span>
+              </div>
+              <div class="preset-desc">
+                Calculates each item's total payout (Bet × Multiplier). Picks the outcome with the lowest payout while guaranteeing admin profit and eliminating house loss!
+              </div>
+              <div class="preset-highlight">
+                ✓ Auto-prevents 45× whale payouts if pool is exceeded!
+              </div>
+            </div>
+
+            <!-- House Margin Preset -->
+            <div class="preset-card" data-preset="house_margin" onclick="selectPreset('house_margin')">
+              <div class="preset-header">
+                <span class="preset-title">🛡️ House Margin Guard</span>
+                <span class="preset-badge">MIN 15% PROFIT</span>
+              </div>
+              <div class="preset-desc">
+                Enforces a strict minimum house profit margin (15%+). Any outcome generating negative or low profit is strictly disqualified.
+              </div>
+              <div class="preset-highlight">
+                ✓ Guaranteed casino profitability
+              </div>
+            </div>
+
+            <!-- Target Win Rate Preset -->
+            <div class="preset-card" data-preset="target_win_rate" onclick="selectPreset('target_win_rate')">
+              <div class="preset-header">
+                <span class="preset-title">🎯 Win Rate Target</span>
+                <span class="preset-badge">PLAYER RETENTION</span>
+              </div>
+              <div class="preset-desc">
+                Balances outcome probabilities around your set Win Rate % (e.g. 65%), keeping players excited while protecting the house.
+              </div>
+              <div class="preset-highlight">
+                ✓ Tunable player satisfaction
+              </div>
+            </div>
+
+            <!-- Anti-Whale Preset -->
+            <div class="preset-card" data-preset="anti_whale" onclick="selectPreset('anti_whale')">
+              <div class="preset-header">
+                <span class="preset-title">🐋 Anti-Whale Defense</span>
+                <span class="preset-badge">RISK MITIGATION</span>
+              </div>
+              <div class="preset-desc">
+                Prevents large single-fruit whale bets from draining the bankroll. Automatically routes wins away from disproportionately heavy pools.
+              </div>
+              <div class="preset-highlight">
+                ✓ Neutralizes exploit syndicates
+              </div>
+            </div>
+
+            <!-- Fair RNG Preset -->
+            <div class="preset-card" data-preset="fair_rng" onclick="selectPreset('fair_rng')">
+              <div class="preset-header">
+                <span class="preset-title">🎲 Pure Random (RNG)</span>
+                <span class="preset-badge">UNBIASED</span>
+              </div>
+              <div class="preset-desc">
+                Standard classic weighted random fruit distribution (Lemon/Kiwi higher probability, 45× Cherry lower probability).
+              </div>
+              <div class="preset-highlight">
+                ✓ Authentic slot randomness
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 3: Loss Prevention Simulation Radar -->
+      <section id="section-radar" class="admin-section">
+        <div class="section-header-banner green">
+          <div>
+            <div class="section-banner-title">🛡️ Real-Time Outcome & Payout Simulation Radar</div>
+            <div class="section-banner-desc">Evaluates every fruit outcome in real-time on every bet to guarantee the house never sustains a loss</div>
+          </div>
+          <div class="section-banner-badge" style="color: #34d399; border-color: rgba(16,185,129,0.3);">REAL-TIME EVALUATOR</div>
+        </div>
+
+        <div class="panel-box">
+          <div class="panel-title">
+            <span>
+              📊 Real-Time Outcome & Payout Simulation Radar
+              <span class="badge-tag green">LIVE POOL EVALUATOR</span>
+            </span>
+            <span style="font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);">UPDATES ON EVERY BET</span>
+          </div>
+
+          <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">
+            This table evaluates what happens if each of the 8 fruits wins this round. The <strong style="color: #facc15;">Gold highlighted row</strong> represents the fruit favored by your active strategy (e.g., Competitive Mode guarantees the lowest payout & maximum house safety).
+          </p>
+
+          <div class="radar-table-wrapper">
+            <table class="radar-table">
+              <thead>
+                <tr>
+                  <th>Fruit Item</th>
+                  <th>Multiplier</th>
+                  <th>Bet on Item</th>
+                  <th>Total Payout (Bet×Mult)</th>
+                  <th>Commission</th>
+                  <th>House Profit / Loss</th>
+                  <th>Margin %</th>
+                  <th>Status & Verdict</th>
+                </tr>
+              </thead>
+              <tbody id="radar-table-body">
+                <tr>
+                  <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 18px;">
+                    Awaiting round bets...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 4: Admin Winning Commission & Win Rate -->
+      <section id="section-commission" class="admin-section">
+        <div class="section-header-banner" style="border-left-color: #ec4899;">
+          <div>
+            <div class="section-banner-title">👑 Admin Winning Commission & Win Rate Engine</div>
+            <div class="section-banner-desc">Automatically deducts house commission from player winnings directly into your Admin Commission Vault</div>
+          </div>
+          <div class="section-banner-badge" style="color: #f472b6; border-color: rgba(236,72,153,0.3);">WIN REVENUE SHIELD</div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 20px;">
+          <!-- Left Column: Commission Control & Live Simulator -->
+          <div class="panel-box">
+            <div class="panel-title">
+              <span>
+                👑 Winning Commission Rate Manager
+                <span id="comm-active-badge" class="badge-tag gold">5% ACTIVE WIN RAKE</span>
+              </span>
+              <span style="font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);">AUTO CUT ON WIN</span>
+            </div>
+
+            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px; line-height: 1.6;">
+              When a player wins on any fruit, the system automatically deducts this commission percentage from their payout and adds it to your Admin Vault. The remaining net payout is credited to the player's wallet.
+            </p>
+
+            <!-- Range Slider & Direct Input -->
+            <div class="slider-card" style="margin-bottom: 16px;">
+              <div class="slider-header">
+                <span class="slider-title">🏷️ Admin Winning Commission Rate (%)</span>
+                <span id="comm-val-display" class="slider-val-badge" style="background: rgba(236,72,153,0.25); color: #f472b6; border-color: rgba(236,72,153,0.4);">5%</span>
+              </div>
+              <input type="range" id="commission-slider" class="range-input" min="0" max="50" step="0.5" value="5">
+              <div class="slider-bounds">
+                <span>0% (No Cut)</span>
+                <span>10% (Standard)</span>
+                <span>25% (High Revenue)</span>
+                <span>50% (Max)</span>
+              </div>
+
+              <div style="display: flex; gap: 10px; align-items: center; margin-top: 14px; flex-wrap: wrap;">
+                <input type="number" id="commission-input" class="input-cyber" min="0" max="50" step="0.5" value="5" style="width: 100px;">
+                <span style="font-size: 13px; color: var(--text-muted);">% (Percent)</span>
+                <div style="flex: 1;"></div>
+                <button id="btn-save-commission" class="btn btn-primary" style="background: linear-gradient(135deg, #ec4899, #db2777); border-color: #f472b6;">
+                  💾 Apply Winning Commission
+                </button>
+              </div>
+            </div>
+
+            <!-- Deduction Mode Selector -->
+            <div style="margin-bottom: 16px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 14px;">
+              <div style="font-size: 12px; font-weight: 700; color: #fff; margin-bottom: 10px;">
+                ⚙️ Commission Calculation Mode:
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <label id="lbl-mode-gross" style="display: flex; flex-direction: column; gap: 4px; padding: 10px 14px; background: rgba(236,72,153,0.12); border: 1px solid rgba(236,72,153,0.4); border-radius: 10px; cursor: pointer;">
+                  <div style="display: flex; align-items: center; gap: 8px; font-weight: 700; color: #fff; font-size: 13px;">
+                    <input type="radio" name="comm-deduction-type" id="radio-mode-gross" value="gross" checked onchange="setCommDeductionType('gross')">
+                    <span>Gross Payout (Standard)</span>
+                  </div>
+                  <span style="font-size: 11px; color: var(--text-muted);">100K bet, 10× win = 1M total win × 5% = 50K commission</span>
+                </label>
+                <label id="lbl-mode-net" style="display: flex; flex-direction: column; gap: 4px; padding: 10px 14px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; cursor: pointer;">
+                  <div style="display: flex; align-items: center; gap: 8px; font-weight: 700; color: #fff; font-size: 13px;">
+                    <input type="radio" name="comm-deduction-type" id="radio-mode-net" value="net_profit" onchange="setCommDeductionType('net_profit')">
+                    <span>Net Profit (Win minus Bet)</span>
+                  </div>
+                  <span style="font-size: 11px; color: var(--text-muted);">100K bet, 10× win = (1M - 100K) = 900K profit × 5% = 45K commission</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Quick Commission Presets -->
+            <div style="margin-bottom: 16px;">
+              <div style="font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 8px;">
+                Quick Rate Presets:
+              </div>
+              <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button class="btn-pill" onclick="applyCommPreset(0)">0% (No Cut)</button>
+                <button class="btn-pill" onclick="applyCommPreset(2)">2% (Low Rake)</button>
+                <button class="btn-pill active" onclick="applyCommPreset(5)">5% (Standard)</button>
+                <button class="btn-pill" onclick="applyCommPreset(8)">8% (Medium)</button>
+                <button class="btn-pill" onclick="applyCommPreset(10)">10% (Casino Rake)</button>
+                <button class="btn-pill" onclick="applyCommPreset(15)">15% (VIP Rake)</button>
+                <button class="btn-pill" onclick="applyCommPreset(20)">20% (Aggressive)</button>
+              </div>
+            </div>
+
+            <!-- Live Calculation Simulator Box -->
+            <div style="background: rgba(0,0,0,0.4); border: 1px solid rgba(236,72,153,0.3); border-radius: 12px; padding: 14px;">
+              <div style="font-size: 12px; font-weight: 700; color: #f472b6; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                <span>📊 Live Winning Calculation Preview</span>
+              </div>
+              <div style="font-size: 12px; color: #cbd5e1; line-height: 1.8;">
+                If a player bets <strong>🪙 100,000 Coins</strong> on <strong>10× Strawberry</strong> and wins:
+                <div style="display: flex; gap: 16px; margin-top: 6px; flex-wrap: wrap; font-family: var(--font-mono); font-size: 12px;">
+                  <div>• Gross Win: <span style="color: #fff;">1,000,000</span></div>
+                  <div>• Admin Cut (<span id="sim-comm-pct">5%</span>): <strong id="sim-comm-amt" style="color: #f472b6;">🪙 50,000</strong></div>
+                  <div>• Player Receives: <strong id="sim-net-amt" style="color: #34d399;">🪙 950,000</strong></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Vault Revenue Tracker & Win Rate Target -->
+          <div style="display: flex; flex-direction: column; gap: 20px;">
+            <!-- Admin Commission Vault Tracker -->
+            <div class="panel-box">
+              <div class="panel-title">
+                <span>🏦 Admin Commission Vault</span>
+                <span class="badge-tag green">REVENUE</span>
+              </div>
+
+              <div style="background: rgba(0,0,0,0.3); border-radius: 12px; padding: 14px; margin-bottom: 12px;">
+                <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Total Commission Earned</div>
+                <div id="vault-total-comm" style="font-size: 24px; font-weight: 800; color: #f472b6; font-family: var(--font-display); margin-top: 4px;">🪙 0</div>
+              </div>
+
+              <div style="background: rgba(0,0,0,0.3); border-radius: 12px; padding: 14px; margin-bottom: 14px;">
+                <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Last Round Commission</div>
+                <div id="vault-last-comm" style="font-size: 20px; font-weight: 800; color: #38bdf8; font-family: var(--font-display); margin-top: 4px;">🪙 0</div>
+              </div>
+
+              <button id="btn-reset-vault" class="btn" style="width: 100%; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #cbd5e1; font-size: 12px;" onclick="resetCommissionVault()">
+                🔄 Reset Vault Earnings Counter
+              </button>
+            </div>
+
+            <!-- Win Rate Target -->
+            <div class="panel-box">
+              <div class="panel-title">
+                <span>📈 Player Win Rate Target (%)</span>
+              </div>
+              <div class="slider-header" style="margin-bottom: 8px;">
+                <span class="slider-title" style="font-size: 12px;">Target Win Rate</span>
+                <span id="winrate-val-display" class="slider-val-badge">65%</span>
+              </div>
+              <input type="range" id="winrate-slider" class="range-input" min="10" max="95" step="1" value="65">
+              <div class="slider-bounds" style="margin-bottom: 12px;">
+                <span>10% (Tough)</span>
+                <span>50% (Even)</span>
+                <span>95% (High Win)</span>
+              </div>
+              <div style="display: flex; gap: 8px;">
+                <input type="number" id="winrate-input" class="input-cyber" min="10" max="95" step="1" value="65" style="width: 80px;">
+                <button id="btn-save-winrate" class="btn btn-primary" style="flex: 1;">Save Win Rate</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 5: Bid Chips Amount Configuration -->
+      <section id="section-chips" class="admin-section">
+        <div class="section-header-banner gold">
+          <div>
+            <div class="section-banner-title">🪙 Bid Button Amounts (4 Chips Denominations)</div>
+            <div class="section-banner-desc">Customize the 4 bet buttons displayed on all player screens (e.g. 50K, 100K, 500K, 1M) with instant game synchronization</div>
+          </div>
+          <div class="section-banner-badge" style="color: #facc15; border-color: rgba(250,204,21,0.3);">IN-GAME BUTTONS</div>
+        </div>
+
+        <div class="panel-box">
+          <div class="panel-title">
+            <span>🪙 Bid Button Amounts (4 Chips Denominations)</span>
+            <span class="badge-tag gold">IN-GAME BUTTONS</span>
+          </div>
+
+          <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">
+            Set the coin values for the 4 betting chips displayed on all player screens. Changes update immediately across active games!
+          </p>
+
+          <!-- 4 Chip Cards -->
+          <div class="chips-edit-deck">
+            <div class="chip-edit-card">
+              <div class="chip-badge-preview chip-color-0" id="chip-preview-0">50K</div>
+              <div class="chip-input-label">Chip 1 Amount</div>
+              <input type="number" id="chip-input-0" class="input-cyber" value="50000" min="100" step="1000">
+            </div>
+            <div class="chip-edit-card">
+              <div class="chip-badge-preview chip-color-1" id="chip-preview-1">100K</div>
+              <div class="chip-input-label">Chip 2 Amount</div>
+              <input type="number" id="chip-input-1" class="input-cyber" value="100000" min="100" step="1000">
+            </div>
+            <div class="chip-edit-card">
+              <div class="chip-badge-preview chip-color-2" id="chip-preview-2">500K</div>
+              <div class="chip-input-label">Chip 3 Amount</div>
+              <input type="number" id="chip-input-2" class="input-cyber" value="500000" min="100" step="1000">
+            </div>
+            <div class="chip-edit-card">
+              <div class="chip-badge-preview chip-color-3" id="chip-preview-3">1M</div>
+              <div class="chip-input-label">Chip 4 Amount</div>
+              <input type="number" id="chip-input-3" class="input-cyber" value="1000000" min="100" step="1000">
+            </div>
+          </div>
+
+          <!-- Quick Presets for Chips -->
+          <div class="quick-chip-presets">
+            <span style="font-size: 12px; color: var(--text-muted); font-weight: 600;">Presets:</span>
+            <button class="btn-pill" onclick="applyChipPreset([50000, 100000, 500000, 1000000])">Default (50K, 100K, 500K, 1M)</button>
+            <button class="btn-pill" onclick="applyChipPreset([10000, 50000, 100000, 500000])">Micro Stakes (10K - 500K)</button>
+            <button class="btn-pill" onclick="applyChipPreset([100000, 500000, 1000000, 5000000])">High Roller (100K - 5M)</button>
+            <button class="btn-pill" onclick="applyChipPreset([1000000, 5000000, 10000000, 50000000])">VIP Whale (1M - 50M)</button>
+            <div style="flex: 1;"></div>
+            <button id="btn-save-chips" class="btn btn-gold">💾 Apply & Sync Chips to Game</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 6: Fruit Multipliers Manager -->
+      <section id="section-multipliers" class="admin-section">
+        <div class="section-header-banner purple">
+          <div>
+            <div class="section-banner-title">✨ Fruit Multipliers Setting</div>
+            <div class="section-banner-desc">Set custom payout multipliers for each of the 8 fruit items (Lemon, Raspberry, Kiwi, Plum, Strawberry, Banana, Watermelon, Cherry)</div>
+          </div>
+          <div class="section-banner-badge" style="color: #c084fc; border-color: rgba(139,92,246,0.3);">8 FRUITS</div>
+        </div>
+
+        <div class="panel-box">
+          <div class="panel-title">
+            <span>✨ Fruit Multipliers Setting</span>
+            <span class="badge-tag green">8 FRUIT ITEMS</span>
+          </div>
+
+          <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">
+            Set payout multiplier for each fruit item (e.g. 5× Lemon, 10× Strawberry, 45× Cherry).
+          </p>
+
+          <!-- 8 Fruits Multipliers Editor -->
+          <div id="multipliers-edit-grid" class="multipliers-grid">
+            <!-- Dynamically populated -->
+          </div>
+
+          <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <button class="btn-pill" onclick="applyMultPreset([5, 5, 5, 5, 10, 10, 20, 45])">Classic Preset (5x/10x/20x/45x)</button>
+              <button class="btn-pill" onclick="applyMultPreset([5, 6, 8, 10, 15, 20, 30, 50])">Gradual Preset (5x to 50x)</button>
+              <button class="btn-pill" onclick="applyMultPreset([3, 4, 5, 8, 15, 25, 50, 100])">Jackpot 100x Mode</button>
+            </div>
+            <button id="btn-save-multipliers" class="btn btn-primary">💾 Save All Multipliers</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 7: Manual Override Rigging -->
+      <section id="section-rigging" class="admin-section">
+        <div class="section-header-banner gold">
+          <div>
+            <div class="section-banner-title">🎯 Force Winning Fruit (Manual Override Rigging)</div>
+            <div class="section-banner-desc">Directly force any of the 8 fruits to win the next spin, or reset back to algorithm auto mode</div>
+          </div>
+          <div class="section-banner-badge" style="color: #facc15; border-color: rgba(250,204,21,0.3);">MANUAL OVERRIDE</div>
+        </div>
+
+        <div class="panel-box">
+          <div class="panel-title">
+            <span>🎯 Force Winning Fruit (Manual Override Rigging)</span>
+            <button id="btn-fair-play" class="btn-reset-fair" style="padding: 6px 14px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #fff; border-radius: 8px; cursor: pointer;">
+              Reset to Algorithm / Auto
+            </button>
+          </div>
+
+          <div class="override-status-bar" style="display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 12px 18px; margin-bottom: 16px;">
+            <div class="override-status-text" style="display: flex; align-items: center; gap: 10px; font-size: 14px;">
+              <span>Target Override Status:</span>
+              <span id="forced-status-badge" class="badge-tag green">ALGORITHM AUTO MODE</span>
+            </div>
+            <div style="font-size: 12px; color: var(--text-muted);">
+              Click any fruit below to force it to win next spin!
+            </div>
+          </div>
+
+          <!-- 8 Fruits Grid -->
+          <div id="fruit-cards-grid" class="fruit-cards-grid">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 8: Webhooks & External API Engine -->
+      <section id="section-webhooks" class="admin-section">
+        <div class="section-header-banner cyan">
+          <div>
+            <div class="section-banner-title">🔗 External Webhooks & API Integration Engine</div>
+            <div class="section-banner-desc">Connect external mobile apps (Flutter, React Native) and backends with secure HMAC-SHA256 webhooks and REST APIs</div>
+          </div>
+          <div class="section-banner-badge" style="color: #38bdf8; border-color: rgba(6,182,212,0.3);">REST & WEBHOOKS</div>
+        </div>
+
+        <div class="panel-box">
+          <div class="panel-title">
+            <span>
+              🔗 External Webhooks & API Engine
+              <span id="wh-total-badge" class="badge-tag green">0 REGISTERED</span>
+            </span>
+            <span style="font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);">SYNC TO EXTERNAL APPS / BACKENDS</span>
+          </div>
+
+          <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px;">
+            Register your App or External Backend URL to receive instant HTTP POST payloads signed with HMAC-SHA256 whenever a game round starts, bets are placed, reels spin, round results finalize, or player balances change.
+          </p>
+
+          <!-- Register Webhook Form -->
+          <form id="wh-register-form" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 16px; margin-bottom: 16px;">
+            <div style="font-size: 13px; font-weight: 700; color: #fff; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+              <span>➕ Register New Webhook URL</span>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+              <div>
+                <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 4px;">Webhook Endpoint URL *</div>
+                <input type="url" id="wh-url-input" class="input-cyber" placeholder="https://my-backend.com/api/slot-webhook" required>
+              </div>
+              <div>
+                <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 4px;">Webhook Secret (For HMAC-SHA256 Signature)</div>
+                <input type="text" id="wh-secret-input" class="input-cyber" placeholder="live_stream_slot_secret_2024">
+              </div>
+            </div>
+
+            <div style="margin-bottom: 12px;">
+              <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 6px;">Event Subscriptions:</div>
+              <div style="display: flex; gap: 12px; flex-wrap: wrap; font-size: 12px; color: #e2e8f0;">
+                <label style="display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                  <input type="checkbox" id="wh-ev-all" checked onchange="toggleAllWhEvents(this)"> <strong>All Events (*)</strong>
+                </label>
+                <label style="display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                  <input type="checkbox" class="wh-ev-chk" value="round_start" checked> round_start
+                </label>
+                <label style="display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                  <input type="checkbox" class="wh-ev-chk" value="bet_placed" checked> bet_placed
+                </label>
+                <label style="display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                  <input type="checkbox" class="wh-ev-chk" value="spin_start" checked> spin_start
+                </label>
+                <label style="display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                  <input type="checkbox" class="wh-ev-chk" value="round_complete" checked> round_complete
+                </label>
+                <label style="display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                  <input type="checkbox" class="wh-ev-chk" value="player_balance_updated" checked> balance_updated
+                </label>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%;">
+              🚀 Register & Connect Webhook Endpoint
+            </button>
+          </form>
+
+          <!-- List of Registered Webhooks -->
+          <div style="font-size: 13px; font-weight: 700; color: #fff; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between;">
+            <span>📋 Active Webhook Endpoints</span>
+            <button type="button" class="btn-pill" onclick="loadWebhooksList()" style="font-size: 11px; padding: 4px 10px;">🔄 Refresh List</button>
+          </div>
+
+          <div id="wh-list-container" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px;">
+            <div style="text-align: center; color: var(--text-muted); padding: 20px; font-size: 13px; background: rgba(0,0,0,0.2); border-radius: 10px;">
+              No external webhooks registered yet. Add a URL above to connect your backend!
+            </div>
+          </div>
+
+          <!-- Live Webhook Telemetry Stream -->
+          <div style="margin-top: 14px;">
+            <div style="font-size: 13px; font-weight: 700; color: #fff; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
+              <span>📡 Real-Time Webhook Outgoing Dispatch Stream</span>
+              <span id="wh-stream-status" class="badge-tag green">STREAM LIVE</span>
+            </div>
+            <div id="wh-stream-log" class="feed-container" style="max-height: 180px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 10px;">
+              <div style="color: var(--text-muted); font-size: 11px; font-family: var(--font-mono); text-align: center; padding: 10px;">
+                Waiting for game events to dispatch...
+              </div>
+            </div>
+          </div>
+
+          <!-- Developer Integration Accordion Guide -->
+          <details style="margin-top: 16px; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 12px;">
+            <summary style="font-size: 13px; font-weight: 700; color: #38bdf8; cursor: pointer;">
+              📖 External Backend & Flutter API Integration Guide (Click to Expand)
+            </summary>
+            <div style="margin-top: 12px; font-size: 12px; color: var(--text-muted); line-height: 1.6;">
+              <p><strong style="color: #fff;">1. Incoming APIs from your Backend to Game:</strong></p>
+              <ul style="margin-left: 20px; margin-bottom: 10px; font-family: var(--font-mono); font-size: 11px;">
+                <li><code>POST /api/webhook/user/sync-balance</code> - Sync user wallet balance in real-time</li>
+                <li><code>POST /api/webhook/user/add-coins</code> - Add coins to a player</li>
+                <li><code>POST /api/webhook/player/bet</code> - Place bet on behalf of user</li>
+                <li><code>GET /api/game/state</code> - Fetch real-time room state</li>
+                <li><code>GET /api/webhook/docs</code> - View complete event schemas</li>
+              </ul>
+              <p><strong style="color: #fff;">2. Verifying HMAC-SHA256 Signature in your backend (Node.js):</strong></p>
+              <pre style="background: rgba(0,0,0,0.6); padding: 10px; border-radius: 8px; font-family: var(--font-mono); font-size: 11px; color: #93c5fd; overflow-x: auto; margin-top: 6px;">
+const crypto = require('crypto');
+const secret = 'live_stream_slot_secret_2024';
+const expectedSig = crypto.createHmac('sha256', secret).update(rawBody).digest('hex');
+if (req.headers['x-slot-signature'] === expectedSig) {
+  // Signature verified! Process event: req.body.event
+}
+              </pre>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <!-- SECTION 9: Player Wallet & Recharge -->
+      <section id="section-wallet" class="admin-section">
+        <div class="section-header-banner green">
+          <div>
+            <div class="section-banner-title">👥 Player Wallet & Coin Management</div>
+            <div class="section-banner-desc">Recharge player coins, adjust wallet balances, and view real-time player account states</div>
+          </div>
+          <div class="section-banner-badge" style="color: #34d399; border-color: rgba(16,185,129,0.3);">WALLET MANAGER</div>
+        </div>
+
+        <div class="panel-box">
+          <div class="panel-title">
+            <span>🪙 Recharge Player Wallet</span>
+            <span class="badge-tag green">INSTANT BALANCE</span>
+          </div>
+
+          <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px;">
+            Quickly credit in-game coins to any active player in the room. Balance updates instantly on their mobile/web screen.
+          </p>
+
+          <div style="display: flex; flex-direction: column; gap: 12px; max-width: 500px;">
+            <div>
+              <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 4px;">Player ID</div>
+              <input type="text" id="recharge-pid" class="input-cyber" placeholder="Player ID (e.g. Player1)" value="Player1">
+            </div>
+            <div>
+              <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 4px;">Coin Amount to Recharge</div>
+              <select id="recharge-amount" class="input-cyber" style="width: 100%;">
+                <option value="500000">500,000 Coins</option>
+                <option value="1000000" selected>1,000,000 Coins</option>
+                <option value="5000000">5,000,000 Coins</option>
+                <option value="10000000">10,000,000 Coins</option>
+              </select>
+            </div>
+            <button id="btn-recharge" class="btn btn-primary" style="background: rgba(16, 185, 129, 0.25); border: 1px solid rgba(16, 185, 129, 0.5); color: #34d399;">
+              ⚡ Recharge Player Coins
+            </button>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <script>
+    let FRUITS = [
+      { id: 0, index: 0, name: 'lemon', displayName: 'Lemon', emoji: '🍋', multiplier: 5, icon: '/images/fruits/lemon.png' },
+      { id: 1, index: 1, name: 'raspberry', displayName: 'Raspberry', emoji: '🍇', multiplier: 5, icon: '/images/fruits/raspberry.png' },
+      { id: 2, index: 2, name: 'kiwi', displayName: 'Kiwi', emoji: '🥝', multiplier: 5, icon: '/images/fruits/kiwi.png' },
+      { id: 3, index: 3, name: 'plum', displayName: 'Plum', emoji: '🫐', multiplier: 5, icon: '/images/fruits/plum.png' },
+      { id: 4, index: 4, name: 'strawberry', displayName: 'Strawberry', emoji: '🍓', multiplier: 10, icon: '/images/fruits/strawberry.png' },
+      { id: 5, index: 5, name: 'banana', displayName: 'Banana', emoji: '🍌', multiplier: 10, icon: '/images/fruits/banana.png' },
+      { id: 6, index: 6, name: 'watermelon', displayName: 'Watermelon', emoji: '🍉', multiplier: 20, icon: '/images/fruits/watermelon.png' },
+      { id: 7, index: 7, name: 'cherry', displayName: 'Cherry', emoji: '🍒', multiplier: 45, icon: '/images/fruits/cherry.png' },
+    ];
+
+    let adminState = {
+      roundNumber: 0,
+      phase: 'betting',
+      countdown: 12,
+      jackpot: 0,
+      totalPool: 0,
+      fruitPoolBets: [0, 0, 0, 0, 0, 0, 0, 0],
+      fruits: FRUITS,
+      adminControls: {
+        forcedWinner: null,
+        forcedReels: null,
+        isPaused: false,
+        bettingDuration: 12,
+      },
+      gameConfig: {
+        chipDenominations: [
+          { amount: 50000, label: '50K' },
+          { amount: 100000, label: '100K' },
+          { amount: 500000, label: '500K' },
+          { amount: 100000, label: '1M' },
+        ],
+        commissionPercent: 5.0,
+        winRatePercent: 65.0,
+        algorithmPreset: 'competitive',
+        minHouseProfitMargin: 15.0,
+      },
+      evaluations: [],
+      history: [],
+    };
+
+    function fmt(n) {
+      return (n || 0).toLocaleString('en-US');
+    }
+
+    function fmtCompact(n) {
+      if (n >= 1000000) return (n / 1000000).toFixed(n % 1000000 === 0 ? 0 : 1) + 'M';
+      if (n >= 1000) return (n / 1000).toFixed(0) + 'K';
+      return (n || 0).toString();
+    }
+
+    function showToast(text) {
+      const toast = document.getElementById('toast');
+      toast.textContent = text || 'Settings Saved!';
+      toast.style.display = 'block';
+      setTimeout(() => {
+        toast.style.display = 'none';
+      }, 2500);
+    }
+
+    // ─── Section Navigation & Tab Switching ────────────────────────
+    window.switchSection = function(targetId) {
+      if (!targetId) targetId = 'overview';
+      const navBtns = document.querySelectorAll('.nav-btn');
+      const sections = document.querySelectorAll('.admin-section');
+      const container = document.getElementById('sections-container');
+
+      navBtns.forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.target === targetId);
+      });
+
+      if (targetId === 'all') {
+        if (container) container.classList.add('show-all-mode');
+        sections.forEach(sec => sec.classList.add('active'));
+      } else {
+        if (container) container.classList.remove('show-all-mode');
+        sections.forEach(sec => {
+          sec.classList.toggle('active', sec.id === `section-${targetId}`);
+        });
+      }
+
+      try {
+        localStorage.setItem('admin_active_tab', targetId);
+        history.replaceState(null, null, `#${targetId}`);
+      } catch (_) {}
+
+      const activeBtn = document.querySelector(`.nav-btn[data-target="${targetId}"]`);
+      if (activeBtn) {
+        activeBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      }
+    };
+
+    // Connect to backend socket
+    const urlParams = new URLSearchParams(window.location.search);
+    const host = urlParams.get('server') || `${window.location.protocol}//${window.location.hostname}:3001`;
+    const socket = io(host, { transports: ['websocket', 'polling'] });
+
+    const connStatusEl = document.getElementById('conn-status');
+    const connTextEl   = document.getElementById('conn-text');
+
+    socket.on('connect', () => {
+      connStatusEl.classList.remove('disconnected');
+      connTextEl.textContent = 'CONNECTED';
+      socket.emit('admin_join');
+    });
+
+    socket.on('disconnect', () => {
+      connStatusEl.classList.add('disconnected');
+      connTextEl.textContent = 'RECONNECTING';
+    });
+
+    socket.on('admin_state', (data) => {
+      adminState = { ...adminState, ...data };
+      if (data.fruits) {
+        FRUITS = data.fruits;
+      }
+      renderAll();
+    });
+
+    socket.on('config_update', (data) => {
+      if (data.gameConfig) adminState.gameConfig = data.gameConfig;
+      if (data.fruits) {
+        adminState.fruits = data.fruits;
+        FRUITS = data.fruits;
+      }
+      renderAll();
+    });
+
+    socket.on('timer_tick', (data) => {
+      adminState.countdown = data.countdown;
+      adminState.jackpot = data.jackpot;
+      adminState.roundNumber = data.roundNumber;
+      if (data.isPaused) {
+        adminState.phase = 'paused';
+      } else {
+        adminState.phase = data.phase;
+      }
+      renderMetrics();
+    });
+
+    socket.on('round_spin', (data) => {
+      adminState.phase = 'spinning';
+      adminState.countdown = 0;
+      renderMetrics();
+    });
+
+    socket.on('round_start', (data) => {
+      adminState.roundNumber = data.roundNumber;
+      adminState.phase = 'betting';
+      adminState.countdown = data.countdown;
+      adminState.fruitPoolBets = [0, 0, 0, 0, 0, 0, 0, 0];
+      adminState.totalPool = 0;
+      renderAll();
+    });
+
+    socket.on('room_bet', (data) => {
+      if (adminState.fruitPoolBets) {
+        adminState.fruitPoolBets[data.fruitIndex] = data.total;
+        adminState.totalPool = adminState.fruitPoolBets.reduce((a, b) => a + b, 0);
+      }
+      renderFruitCards();
+      renderMetrics();
+      renderSimulationRadar();
+      addLiveBidFeedItem(data.fruitIndex, data.amount);
+    });
+
+    socket.on('admin_webhook_stream', (payload) => {
+      addWebhookStreamLog(payload);
+    });
+
+    // ─── Master Render ─────────────────────────────────────────────
+    let isEditingInputs = false;
+
+    function renderAll() {
+      renderMetrics();
+      renderPresets();
+      renderSimulationRadar();
+      renderCommissionAndWinRate();
+      renderWebhooks();
+      if (!isEditingInputs) {
+        renderChipInputs();
+        renderMultiplierInputs();
+      }
+      renderFruitCards();
+      renderHistory();
+      updateControlButtons();
+    }
+
+    function renderMetrics() {
+      document.getElementById('metric-round').textContent = `#${adminState.roundNumber || '----'}`;
+      document.getElementById('metric-timer').textContent = `${adminState.countdown}s`;
+      document.getElementById('metric-players').textContent = adminState.onlinePlayers || 1;
+      document.getElementById('metric-pool').textContent = fmt(adminState.totalPool || 0);
+
+      const activePreset = adminState.gameConfig?.algorithmPreset || 'competitive';
+      document.getElementById('metric-preset').textContent = activePreset.toUpperCase().replace('_', ' ');
+
+      const commEl = document.getElementById('metric-commission');
+      if (commEl) commEl.textContent = `🪙 ${fmt(adminState.totalCommissionEarned || 0)}`;
+
+      const commRateEl = document.getElementById('metric-comm-rate');
+      if (commRateEl) {
+        const rate = adminState.gameConfig?.commissionPercent || 5;
+        commRateEl.textContent = `${rate}% RAKE`;
+      }
+
+      const phaseEl = document.getElementById('metric-phase');
+      const p = adminState.phase || 'betting';
+      let cls = 'phase-betting';
+      let txt = 'BETTING';
+
+      if (adminState.adminControls?.isPaused || p === 'paused') {
+        cls = 'phase-paused';
+        txt = 'PAUSED';
+      } else if (p === 'spinning') {
+        cls = 'phase-spinning';
+        txt = 'SPINNING';
+      } else if (p === 'result') {
+        cls = 'phase-result';
+        txt = 'RESULT';
+      }
+      phaseEl.innerHTML = `<span class="phase-badge ${cls}">${txt}</span>`;
+
+      const spinBtn = document.getElementById('btn-force-spin');
+      spinBtn.disabled = p !== 'betting';
+
+      const pauseBtn = document.getElementById('btn-toggle-pause');
+      const isPaused = !!adminState.adminControls?.isPaused;
+      pauseBtn.classList.toggle('is-paused', isPaused);
+      pauseBtn.innerHTML = isPaused ? '▶️ Resume Game' : '⏸️ Pause Game';
+    }
+
+    // 1. Render Presets
+    function renderPresets() {
+      const active = adminState.gameConfig?.algorithmPreset || 'competitive';
+      document.querySelectorAll('.preset-card').forEach(card => {
+        const p = card.dataset.preset;
+        card.classList.toggle('active', p === active);
+      });
+      const badge = document.getElementById('preset-active-badge');
+      if (badge) {
+        badge.textContent = `${active.toUpperCase().replace('_', ' ')} ACTIVE`;
+        badge.className = active === 'competitive' ? 'badge-tag gold' : 'badge-tag info';
+      }
+      const navPresetBadge = document.getElementById('nav-preset-badge');
+      if (navPresetBadge) {
+        navPresetBadge.textContent = active.toUpperCase();
+      }
+    }
+
+    window.selectPreset = function(preset) {
+      adminState.gameConfig.algorithmPreset = preset;
+      renderPresets();
+      socket.emit('admin_update_algorithm', { preset });
+      showToast(`Strategy Switched to: ${preset.toUpperCase()}`);
+    };
+
+    // 2. Render Real-Time Outcome Radar Table
+    function renderSimulationRadar() {
+      const tbody = document.getElementById('radar-table-body');
+      const evals = adminState.evaluations || [];
+      const totalPool = adminState.totalPool || 0;
+      const forcedIdx = adminState.adminControls?.forcedWinner;
+      const activePreset = adminState.gameConfig?.algorithmPreset || 'competitive';
+
+      // Determine which fruit would be favored by competitive mode (lowest payout with house safety)
+      let favoredIdx = -1;
+      if (forcedIdx !== null && forcedIdx !== undefined) {
+        favoredIdx = forcedIdx;
+      } else if (evals.length > 0) {
+        // Competitive mode picks lowest payout that keeps house profitable, or least loss
+        const profitable = evals.filter(e => e.houseProfit >= 0);
+        if (profitable.length > 0) {
+          favoredIdx = profitable.reduce((min, cur) => cur.potentialPayout < min.potentialPayout ? cur : min, profitable[0]).fruitIndex;
+        } else {
+          favoredIdx = evals.reduce((max, cur) => cur.houseProfit > max.houseProfit ? cur : max, evals[0]).fruitIndex;
+        }
+      }
+
+      if (!evals || evals.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 18px;">Awaiting bets to calculate outcome margins...</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = evals.map(item => {
+        const fruit = FRUITS[item.fruitIndex] || { displayName: item.fruitName, icon: '/images/fruits/lemon.png' };
+        const isFavored = item.fruitIndex === favoredIdx;
+        const isLoss = item.houseProfit < 0;
+
+        let riskBadge = `<span class="risk-badge risk-safe">PROFITABLE</span>`;
+        if (isFavored && activePreset === 'competitive') {
+          riskBadge = `<span class="risk-badge risk-competitive">⚔️ PICKED (MIN PAYOUT)</span>`;
+        } else if (isLoss) {
+          riskBadge = `<span class="risk-badge risk-loss">⚠️ HOUSE LOSS RISK</span>`;
+        } else if (item.profitMargin < 20) {
+          riskBadge = `<span class="risk-badge risk-moderate">MODERATE</span>`;
+        }
+
+        const profitClass = item.houseProfit >= 0 ? 'color: #34d399;' : 'color: #f87171; font-weight: 800;';
+        const sign = item.houseProfit >= 0 ? '+' : '';
+
+        return `
+          <tr class="${isFavored ? 'favored-row' : (isLoss ? 'loss-row' : '')}">
+            <td style="display: flex; align-items: center; gap: 8px;">
+              <img src="${fruit.icon}" alt="" style="width: 22px; height: 22px; object-fit: contain;">
+              <strong>${fruit.displayName}</strong>
+            </td>
+            <td><strong style="color: var(--gold);">${item.multiplier}×</strong></td>
+            <td>${fmt(item.betPool)}</td>
+            <td style="color: #93c5fd; font-weight: 700;">${fmt(item.potentialPayout)}</td>
+            <td style="color: var(--text-muted);">${fmt(item.commission)}</td>
+            <td style="${profitClass}">${sign}${fmt(item.houseProfit)}</td>
+            <td>${item.profitMargin}%</td>
+            <td>${riskBadge}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // 3. Render Commission & Win Rate
+    function renderCommissionAndWinRate() {
+      const comm = adminState.gameConfig?.commissionPercent || 5;
+      const deductionType = adminState.gameConfig?.commissionDeductionType || 'gross';
+      const winRate = adminState.gameConfig?.winRatePercent || 65;
+
+      const commSlider = document.getElementById('commission-slider');
+      const commInput = document.getElementById('commission-input');
+      const commDisplay = document.getElementById('comm-val-display');
+      const commBadge = document.getElementById('comm-active-badge');
+      const navCommBadge = document.getElementById('nav-comm-badge');
+
+      if (commSlider && !isEditingInputs) commSlider.value = comm;
+      if (commInput && !isEditingInputs) commInput.value = comm;
+      if (commDisplay) commDisplay.textContent = `${comm}%`;
+      if (commBadge) commBadge.textContent = `${comm}% ACTIVE WIN RAKE`;
+      if (navCommBadge) navCommBadge.textContent = `${comm}% WIN RAKE`;
+
+      // Deduction mode radio styling
+      const rGross = document.getElementById('radio-mode-gross');
+      const rNet = document.getElementById('radio-mode-net');
+      const lblGross = document.getElementById('lbl-mode-gross');
+      const lblNet = document.getElementById('lbl-mode-net');
+
+      if (rGross && rNet) {
+        if (deductionType === 'net_profit') {
+          rNet.checked = true;
+          if (lblNet) {
+            lblNet.style.background = 'rgba(236,72,153,0.18)';
+            lblNet.style.borderColor = 'rgba(236,72,153,0.5)';
+          }
+          if (lblGross) {
+            lblGross.style.background = 'rgba(255,255,255,0.03)';
+            lblGross.style.borderColor = 'rgba(255,255,255,0.08)';
+          }
+        } else {
+          rGross.checked = true;
+          if (lblGross) {
+            lblGross.style.background = 'rgba(236,72,153,0.18)';
+            lblGross.style.borderColor = 'rgba(236,72,153,0.5)';
+          }
+          if (lblNet) {
+            lblNet.style.background = 'rgba(255,255,255,0.03)';
+            lblNet.style.borderColor = 'rgba(255,255,255,0.08)';
+          }
+        }
+      }
+
+      // Vault display
+      const vaultTotalEl = document.getElementById('vault-total-comm');
+      const vaultLastEl = document.getElementById('vault-last-comm');
+      if (vaultTotalEl) vaultTotalEl.textContent = `🪙 ${fmt(adminState.totalCommissionEarned || 0)}`;
+      if (vaultLastEl) vaultLastEl.textContent = `🪙 ${fmt(adminState.lastRoundCommission || 0)}`;
+
+      // Update simulation preview
+      updateCommSimulator();
+
+      const winSlider = document.getElementById('winrate-slider');
+      const winInput = document.getElementById('winrate-input');
+      const winDisplay = document.getElementById('winrate-val-display');
+
+      if (winSlider && !isEditingInputs) winSlider.value = winRate;
+      if (winInput && !isEditingInputs) winInput.value = winRate;
+      if (winDisplay) winDisplay.textContent = `${winRate}%`;
+    }
+
+    window.setCommDeductionType = function(type) {
+      if (!adminState.gameConfig) adminState.gameConfig = {};
+      adminState.gameConfig.commissionDeductionType = type;
+      renderCommissionAndWinRate();
+      const val = parseFloat(document.getElementById('commission-input').value) || 5;
+      socket.emit('admin_update_commission', { commission: val, deductionType: type });
+      showToast(`Commission Deduction set to: ${type === 'net_profit' ? 'Net Profit' : 'Gross Payout'}`);
+    };
+
+    window.applyCommPreset = function(rate) {
+      const commSlider = document.getElementById('commission-slider');
+      const commInput = document.getElementById('commission-input');
+      if (commSlider) commSlider.value = rate;
+      if (commInput) commInput.value = rate;
+      updateCommSimulator();
+      const deductionType = document.querySelector('input[name="comm-deduction-type"]:checked')?.value || 'gross';
+      socket.emit('admin_update_commission', { commission: rate, deductionType });
+      showToast(`Winning Commission preset applied: ${rate}%`);
+    };
+
+    function updateCommSimulator() {
+      const commVal = parseFloat(document.getElementById('commission-slider')?.value || document.getElementById('commission-input')?.value || 5);
+      const isNet = document.getElementById('radio-mode-net')?.checked;
+
+      const betAmt = 100000;
+      const mult = 10;
+      const grossWin = betAmt * mult;
+
+      let commAmt = 0;
+      if (isNet) {
+        const netProfit = grossWin - betAmt;
+        commAmt = Math.floor(netProfit * (commVal / 100));
+      } else {
+        commAmt = Math.floor(grossWin * (commVal / 100));
+      }
+      const playerWin = grossWin - commAmt;
+
+      const pctEl = document.getElementById('sim-comm-pct');
+      const cutEl = document.getElementById('sim-comm-amt');
+      const netEl = document.getElementById('sim-net-amt');
+
+      if (pctEl) pctEl.textContent = `${commVal}%`;
+      if (cutEl) cutEl.textContent = `🪙 ${fmt(commAmt)}`;
+      if (netEl) netEl.textContent = `🪙 ${fmt(playerWin)}`;
+    }
+
+    window.resetCommissionVault = function() {
+      if (confirm('Are you sure you want to reset the Commission Vault earnings counter to 0?')) {
+        socket.emit('admin_reset_commission');
+        showToast('Commission Vault Counter Reset to 0');
+      }
+    };
+
+    // 4. Render Chip Inputs
+    function renderChipInputs() {
+      const chips = adminState.gameConfig?.chipDenominations || [
+        { amount: 50000, label: '50K' },
+        { amount: 100000, label: '100K' },
+        { amount: 500000, label: '500K' },
+        { amount: 1000000, label: '1M' },
+      ];
+
+      chips.forEach((c, i) => {
+        const inp = document.getElementById(`chip-input-${i}`);
+        const prev = document.getElementById(`chip-preview-${i}`);
+        if (inp) inp.value = c.amount;
+        if (prev) prev.textContent = c.label || fmtCompact(c.amount);
+      });
+    }
+
+    window.applyChipPreset = function(amounts) {
+      amounts.forEach((amt, i) => {
+        const inp = document.getElementById(`chip-input-${i}`);
+        const prev = document.getElementById(`chip-preview-${i}`);
+        if (inp) inp.value = amt;
+        if (prev) prev.textContent = fmtCompact(amt);
+      });
+      saveChips();
+    };
+
+    function saveChips() {
+      const chips = [];
+      for (let i = 0; i < 4; i++) {
+        const amt = parseInt(document.getElementById(`chip-input-${i}`).value) || 1000;
+        chips.push({ amount: amt, label: fmtCompact(amt) });
+        document.getElementById(`chip-preview-${i}`).textContent = fmtCompact(amt);
+      }
+      adminState.gameConfig.chipDenominations = chips;
+      socket.emit('admin_update_chips', { chips });
+      showToast('✓ 4 Bid Button Chips Updated & Synced to Game Screen!');
+    }
+
+    // 5. Render Fruit Multipliers (Koto Gun Time Set)
+    function renderMultiplierInputs() {
+      const container = document.getElementById('multipliers-edit-grid');
+      container.innerHTML = FRUITS.map((fruit, idx) => {
+        return `
+          <div class="mult-edit-card">
+            <img class="mult-card-img" src="${fruit.icon}" alt="${fruit.displayName}">
+            <div class="mult-card-info">
+              <div class="mult-card-name">${fruit.displayName}</div>
+              <div class="mult-input-wrap">
+                <input type="number" id="fruit-mult-input-${idx}" class="input-cyber" value="${fruit.multiplier}" min="1" max="500">
+                <span style="font-weight: 800; color: var(--gold); font-family: var(--font-mono);">×</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    window.applyMultPreset = function(presetValues) {
+      presetValues.forEach((val, idx) => {
+        const inp = document.getElementById(`fruit-mult-input-${idx}`);
+        if (inp) inp.value = val;
+      });
+      saveMultipliers();
+    };
+
+    function saveMultipliers() {
+      const multipliers = {};
+      FRUITS.forEach((fruit, idx) => {
+        const inp = document.getElementById(`fruit-mult-input-${idx}`);
+        const val = parseInt(inp ? inp.value : fruit.multiplier) || fruit.multiplier;
+        fruit.multiplier = val;
+        multipliers[idx] = val;
+      });
+      socket.emit('admin_update_multipliers', { multipliers });
+      renderFruitCards();
+      renderSimulationRadar();
+      showToast('✓ Fruit Multipliers Updated & Broadcasted!');
+    }
+
+    // 6. Render Fruit Cards for Manual Force Win
+    function renderFruitCards() {
+      const container = document.getElementById('fruit-cards-grid');
+      const forcedIdx = adminState.adminControls?.forcedWinner;
+      const totalPool = Math.max(1, adminState.totalPool || 0);
+
+      const badge = document.getElementById('forced-status-badge');
+      if (forcedIdx !== null && forcedIdx !== undefined && FRUITS[forcedIdx]) {
+        badge.className = 'badge-tag danger';
+        badge.textContent = `FORCED: ${FRUITS[forcedIdx].emoji} ${FRUITS[forcedIdx].displayName} (${FRUITS[forcedIdx].multiplier}×)`;
+      } else {
+        badge.className = 'badge-tag green';
+        badge.textContent = 'ALGORITHM AUTO MODE';
+      }
+
+      container.innerHTML = FRUITS.map(fruit => {
+        const poolBet = adminState.fruitPoolBets?.[fruit.index] || 0;
+        const pct = Math.round((poolBet / totalPool) * 100);
+        const isForced = forcedIdx === fruit.index;
+
+        return `
+          <div class="fruit-card ${isForced ? 'is-forced' : ''}" onclick="forceWinner(${fruit.index})">
+            <div class="fruit-card-top">
+              <img class="fruit-card-img" src="${fruit.icon}" alt="${fruit.displayName}">
+              <div>
+                <div class="fruit-card-name">${fruit.displayName}</div>
+                <div class="fruit-card-mult">${fruit.multiplier}× MULT</div>
+              </div>
+            </div>
+            <div class="fruit-pool-info">
+              <div class="fruit-pool-nums">
+                <span>Bets Pool</span>
+                <span class="fruit-pool-val">${fmtCompact(poolBet)} (${pct}%)</span>
+              </div>
+              <div class="fruit-pool-bar-bg">
+                <div class="fruit-pool-bar-fill" style="width: ${pct}%;"></div>
+              </div>
+            </div>
+            <button class="fruit-force-btn">
+              ${isForced ? '✓ Active Winner' : 'Force Win'}
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // 7. Render History
+    function renderHistory() {
+      const deck = document.getElementById('recent-results-deck');
+      if (!adminState.history || adminState.history.length === 0) {
+        deck.innerHTML = '<span style="color: var(--text-muted); font-size: 12px;">No results yet</span>';
+        return;
+      }
+      deck.innerHTML = adminState.history.slice(0, 12).map(item => {
+        const fruit = FRUITS[item.fruitId] || FRUITS[0];
+        const mult = (fruit.multiplier || 5) * (item.reelMultiplier || 1);
+        return `
+          <div class="history-pill">
+            <img src="${fruit.icon}" alt="${fruit.displayName}">
+            <span>${fruit.displayName}</span>
+            <span class="history-pill-mult">${mult}×</span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function updateControlButtons() {
+      const curDuration = adminState.adminControls?.bettingDuration || 12;
+      document.querySelectorAll('.duration-selector .btn-pill').forEach(btn => {
+        btn.classList.toggle('active', parseInt(btn.dataset.seconds) === curDuration);
+      });
+
+      const curReels = adminState.adminControls?.forcedReels;
+      const reelsBadge = document.getElementById('reels-status-badge');
+      document.querySelectorAll('.reels-control-group .btn-pill').forEach(btn => {
+        const val = btn.dataset.reels;
+        if (val === 'null') {
+          btn.classList.toggle('active', curReels === null || curReels === undefined);
+        } else {
+          btn.classList.toggle('active', JSON.stringify(curReels) === val);
+        }
+      });
+      if (curReels && Array.isArray(curReels)) {
+        reelsBadge.className = 'badge-tag danger';
+        reelsBadge.textContent = `FORCED: [${curReels.join(',')}]`;
+      } else {
+        reelsBadge.className = 'badge-tag green';
+        reelsBadge.textContent = 'AUTO / RANDOM';
+      }
+    }
+
+    function addLiveBidFeedItem(fruitIndex, amount) {
+      const feed = document.getElementById('live-bids-feed');
+      const fruit = FRUITS[fruitIndex] || FRUITS[0];
+      const timeStr = new Date().toLocaleTimeString();
+
+      const item = document.createElement('div');
+      item.className = 'feed-item';
+      item.innerHTML = `
+        <div class="feed-item-left">
+          <img class="feed-fruit-icon" src="${fruit.icon}" alt="${fruit.displayName}">
+          <div>
+            <div class="feed-player">Player bet on ${fruit.displayName}</div>
+            <div class="feed-time">${timeStr}</div>
+          </div>
+        </div>
+        <div class="feed-amt">+${fmt(amount)}</div>
+      `;
+
+      if (feed.children.length === 1 && feed.children[0].textContent.includes('Waiting')) {
+        feed.innerHTML = '';
+      }
+
+      feed.insertBefore(item, feed.firstChild);
+      if (feed.children.length > 25) {
+        feed.removeChild(feed.lastChild);
+      }
+    }
+
+    // ─── Actions & Event Listeners ─────────────────────────────────
+    window.forceWinner = function(fruitIndex) {
+      const current = adminState.adminControls?.forcedWinner;
+      const next = current === fruitIndex ? null : fruitIndex;
+      socket.emit('admin_set_forced_winner', { fruitIndex: next });
+    };
+
+    document.getElementById('btn-fair-play').addEventListener('click', () => {
+      socket.emit('admin_set_forced_winner', { fruitIndex: null });
+      showToast('Manual Override Reset: Engine Algorithm in Control');
+    });
+
+    document.getElementById('btn-force-spin').addEventListener('click', () => {
+      socket.emit('admin_force_spin');
+    });
+
+    document.getElementById('btn-toggle-pause').addEventListener('click', () => {
+      socket.emit('admin_toggle_pause', { isPaused: !adminState.adminControls?.isPaused });
+    });
+
+    document.querySelectorAll('.duration-selector .btn-pill').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const secs = parseInt(btn.dataset.seconds);
+        socket.emit('admin_set_countdown', { seconds: secs });
+      });
+    });
+
+    document.querySelectorAll('.reels-control-group .btn-pill').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const val = btn.dataset.reels;
+        const reels = val === 'null' ? null : JSON.parse(val);
+        socket.emit('admin_set_forced_reels', { reels });
+      });
+    });
+
+    // Commission Controls
+    const commSlider = document.getElementById('commission-slider');
+    const commInput = document.getElementById('commission-input');
+    const commDisplay = document.getElementById('comm-val-display');
+
+    commSlider.addEventListener('input', (e) => {
+      commInput.value = e.target.value;
+      commDisplay.textContent = `${e.target.value}%`;
+      updateCommSimulator();
+    });
+    commInput.addEventListener('input', (e) => {
+      commSlider.value = e.target.value;
+      commDisplay.textContent = `${e.target.value}%`;
+      updateCommSimulator();
+    });
+    document.getElementById('btn-save-commission').addEventListener('click', () => {
+      const val = parseFloat(commInput.value) || 0;
+      const deductionType = document.querySelector('input[name="comm-deduction-type"]:checked')?.value || 'gross';
+      socket.emit('admin_update_commission', { commission: val, deductionType });
+      showToast(`Admin Winning Commission set to ${val}% (${deductionType === 'net_profit' ? 'Net Profit' : 'Gross Win'})`);
+    });
+
+    // Win Rate Controls
+    const winSlider = document.getElementById('winrate-slider');
+    const winInput = document.getElementById('winrate-input');
+    const winDisplay = document.getElementById('winrate-val-display');
+
+    winSlider.addEventListener('input', (e) => {
+      winInput.value = e.target.value;
+      winDisplay.textContent = `${e.target.value}%`;
+    });
+    winInput.addEventListener('input', (e) => {
+      winSlider.value = e.target.value;
+      winDisplay.textContent = `${e.target.value}%`;
+    });
+    document.getElementById('btn-save-winrate').addEventListener('click', () => {
+      const val = parseFloat(winInput.value) || 65;
+      socket.emit('admin_update_win_rate', { winRate: val });
+      showToast(`Win Rate set to ${val}%`);
+    });
+
+    // Chips Save
+    document.getElementById('btn-save-chips').addEventListener('click', saveChips);
+
+    // Multipliers Save
+    document.getElementById('btn-save-multipliers').addEventListener('click', saveMultipliers);
+
+    // Track editing focus so re-renders don't overwrite user typing
+    document.querySelectorAll('.input-cyber').forEach(inp => {
+      inp.addEventListener('focus', () => { isEditingInputs = true; });
+      inp.addEventListener('blur', () => { isEditingInputs = false; });
+    });
+
+    // Broadcast Announcement
+    document.getElementById('broadcast-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const input = document.getElementById('broadcast-msg');
+      const message = input.value.trim();
+      if (!message) return;
+      socket.emit('admin_broadcast_message', { message });
+      input.value = '';
+      showToast('Announcement broadcasted to all active players!');
+    });
+
+    // ─── Webhook Management UI & Telemetry ────────────────────────
+    window.toggleAllWhEvents = function(master) {
+      document.querySelectorAll('.wh-ev-chk').forEach(chk => {
+        chk.checked = master.checked;
+      });
+    };
+
+    function renderWebhooks() {
+      const container = document.getElementById('wh-list-container');
+      const badge = document.getElementById('wh-total-badge');
+      const webhooks = adminState.webhooks || [];
+
+      if (badge) {
+        badge.textContent = `${webhooks.length} REGISTERED`;
+        badge.className = webhooks.length > 0 ? 'badge-tag green' : 'badge-tag info';
+      }
+
+      const navWhBadge = document.getElementById('nav-wh-badge');
+      if (navWhBadge) {
+        navWhBadge.textContent = `${webhooks.length} HOOKS`;
+      }
+
+      if (!webhooks || webhooks.length === 0) {
+        container.innerHTML = `
+          <div style="text-align: center; color: var(--text-muted); padding: 20px; font-size: 13px; background: rgba(0,0,0,0.2); border-radius: 10px;">
+            No external webhooks registered yet. Add a URL above to connect your backend!
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = webhooks.map(wh => {
+        const isOk = wh.lastStatus >= 200 && wh.lastStatus < 300;
+        const statusBadge = wh.isActive
+          ? (wh.lastStatus ? (isOk ? `<span class="badge-tag green">ACTIVE (${wh.lastStatus} OK)</span>` : `<span class="badge-tag danger">HTTP ${wh.lastStatus}</span>`) : `<span class="badge-tag green">ACTIVE</span>`)
+          : `<span class="badge-tag info">PAUSED</span>`;
+
+        const eventsList = (wh.events || ['*']).join(', ');
+        const lastTime = wh.lastDispatchedAt ? new Date(wh.lastDispatchedAt).toLocaleTimeString() : 'Never';
+
+        return `
+          <div style="background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 8px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-family: var(--font-mono); font-size: 13px; font-weight: 700; color: #fff;">${wh.url}</span>
+                ${statusBadge}
+              </div>
+              <div style="display: flex; gap: 6px;">
+                <button type="button" class="btn-pill" onclick="testWebhook('${wh.id}', '${wh.url}')" style="font-size: 11px; padding: 4px 10px; background: rgba(6, 182, 212, 0.2); color: #38bdf8; border-color: rgba(6, 182, 212, 0.4);">
+                  ⚡ Ping Test
+                </button>
+                <button type="button" class="btn-pill" onclick="toggleWebhook('${wh.id}', ${!wh.isActive})" style="font-size: 11px; padding: 4px 10px;">
+                  ${wh.isActive ? '⏸️ Pause' : '▶️ Resume'}
+                </button>
+                <button type="button" class="btn-pill" onclick="deleteWebhook('${wh.id}')" style="font-size: 11px; padding: 4px 10px; background: rgba(239, 68, 68, 0.2); color: #f87171; border-color: rgba(239, 68, 68, 0.4);">
+                  🗑️ Delete
+                </button>
+              </div>
+            </div>
+
+            <div style="display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: var(--text-muted); font-family: var(--font-mono); flex-wrap: wrap; gap: 6px;">
+              <div>
+                <span>Events: <strong style="color: #93c5fd;">${eventsList}</strong></span>
+                <span style="margin-left: 12px;">Secret: <strong style="color: #e2e8f0;">${wh.maskedSecret}</strong></span>
+              </div>
+              <div>
+                <span>Success: <strong style="color: #34d399;">${wh.successCount || 0}</strong></span>
+                <span style="margin-left: 10px;">Fails: <strong style="color: #f87171;">${wh.failCount || 0}</strong></span>
+                <span style="margin-left: 10px;">Last: <strong>${lastTime}</strong></span>
+              </div>
+            </div>
+            ${wh.lastError ? `<div style="font-size: 10px; color: #f87171; font-family: var(--font-mono); background: rgba(239, 68, 68, 0.1); padding: 4px 8px; border-radius: 6px;">Error: ${wh.lastError}</div>` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+
+    window.loadWebhooksList = async function() {
+      try {
+        const res = await fetch('/api/webhook/list');
+        const data = await res.json();
+        if (data.webhooks) {
+          adminState.webhooks = data.webhooks;
+          renderWebhooks();
+          showToast('Webhook list refreshed');
+        }
+      } catch (err) {
+        showToast('Failed to fetch webhooks list');
+      }
+    };
+
+    window.testWebhook = async function(id, url) {
+      showToast('Dispatching test ping to webhook...');
+      try {
+        const res = await fetch('/api/webhook/test', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id, url }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(`✓ Ping Success! HTTP ${data.status} (${data.latencyMs}ms)`);
+        } else {
+          showToast(`⚠️ Ping Failed: ${data.error || 'HTTP ' + data.status}`);
+        }
+        window.loadWebhooksList();
+      } catch (err) {
+        showToast(`Ping error: ${err.message}`);
+      }
+    };
+
+    window.toggleWebhook = async function(id, isActive) {
+      try {
+        const res = await fetch('/api/webhook/toggle', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id, isActive }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(isActive ? 'Webhook Activated' : 'Webhook Paused');
+          window.loadWebhooksList();
+        }
+      } catch (err) {
+        showToast('Toggle failed');
+      }
+    };
+
+    window.deleteWebhook = async function(id) {
+      if (!confirm('Are you sure you want to delete this webhook?')) return;
+      try {
+        const res = await fetch('/api/webhook/unregister', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast('Webhook Deleted');
+          window.loadWebhooksList();
+        }
+      } catch (err) {
+        showToast('Delete failed');
+      }
+    };
+
+    function addWebhookStreamLog(payload) {
+      const feed = document.getElementById('wh-stream-log');
+      if (!feed) return;
+
+      const timeStr = new Date(payload.timestamp || Date.now()).toLocaleTimeString();
+      const item = document.createElement('div');
+      item.className = 'feed-item';
+      item.style.fontSize = '11px';
+      item.style.padding = '6px 10px';
+
+      let detailsStr = '';
+      if (payload.event === 'round_start') detailsStr = `Round #${payload.roundNumber} countdown started`;
+      else if (payload.event === 'bet_placed') detailsStr = `User ${payload.data?.playerId} bet ${fmt(payload.data?.amount)} on ${payload.data?.fruitName}`;
+      else if (payload.event === 'spin_start') detailsStr = `Spinning! Winner: ${payload.data?.winningFruit?.name || payload.data?.winningFruit}`;
+      else if (payload.event === 'round_complete') detailsStr = `Round completed! Won: ${payload.data?.winningFruit?.name} (${payload.data?.totalMultiplier}x)`;
+      else if (payload.event === 'player_balance_updated') detailsStr = `Balance updated: ${payload.data?.playerId}`;
+      else detailsStr = JSON.stringify(payload.data || {}).substring(0, 60);
+
+      item.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span class="badge-tag info" style="font-size: 9px; padding: 2px 6px;">${payload.event}</span>
+          <span style="color: #e2e8f0; font-family: var(--font-mono);">${detailsStr}</span>
+        </div>
+        <div style="color: var(--text-muted); font-family: var(--font-mono); font-size: 10px;">${timeStr}</div>
+      `;
+
+      if (feed.children.length === 1 && feed.children[0].textContent.includes('Waiting')) {
+        feed.innerHTML = '';
+      }
+
+      feed.insertBefore(item, feed.firstChild);
+      if (feed.children.length > 30) {
+        feed.removeChild(feed.lastChild);
+      }
+    }
+
+    // Register Webhook Form Submit
+    const whForm = document.getElementById('wh-register-form');
+    if (whForm) {
+      whForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const urlInput = document.getElementById('wh-url-input');
+        const secretInput = document.getElementById('wh-secret-input');
+        const url = urlInput.value.trim();
+        const secret = secretInput.value.trim() || undefined;
+
+        let events = ['*'];
+        const allChecked = document.getElementById('wh-ev-all').checked;
+        if (!allChecked) {
+          events = [];
+          document.querySelectorAll('.wh-ev-chk:checked').forEach(c => events.push(c.value));
+          if (events.length === 0) events = ['*'];
+        }
+
+        try {
+          const res = await fetch('/api/webhook/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url, secret, events }),
+          });
+          const data = await res.json();
+          if (data.success) {
+            showToast('✓ Webhook Registered Successfully!');
+            urlInput.value = '';
+            window.loadWebhooksList();
+          } else {
+            alert(data.error || 'Failed to register webhook');
+          }
+        } catch (err) {
+          alert('Network error registering webhook: ' + err.message);
+        }
+      });
+    }
+
+    // Auto-load webhook list on mount
+    setTimeout(() => {
+      window.loadWebhooksList();
+    }, 1000);
+
+    // Initial section activation and hash router
+    window.addEventListener('hashchange', () => {
+      const hash = window.location.hash.replace('#', '');
+      if (hash) window.switchSection(hash);
+    });
+
+    const initHash = window.location.hash.replace('#', '');
+    const savedTab = localStorage.getItem('admin_active_tab');
+    window.switchSection(initHash || savedTab || 'overview');
+  </script>
+</body>
+</html>

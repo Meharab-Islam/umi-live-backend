@@ -1,0 +1,246 @@
+{
+  "communities": {
+    "0": [
+      "backend_server",
+      "backend_server_app",
+      "backend_server_cors",
+      "backend_server_dispatchwebhook",
+      "backend_server_express",
+      "backend_server_fruits",
+      "backend_server_gamestate",
+      "backend_server_getplayer",
+      "backend_server_handleroundresult",
+      "backend_server_helmet",
+      "backend_server_http",
+      "backend_server_initdb",
+      "backend_server_io",
+      "backend_server_limiter",
+      "backend_server_memorystore",
+      "backend_server_mysql",
+      "backend_server_ratelimit",
+      "backend_server_resulthistory",
+      "backend_server_saveplayer",
+      "backend_server_selectminireels",
+      "backend_server_selectwinningfruit",
+      "backend_server_server",
+      "backend_server_start",
+      "backend_server_startgameloop"
+    ],
+    "1": [
+      "backend_package_dependencies",
+      "backend_package_dependencies_cors",
+      "backend_package_dependencies_dotenv",
+      "backend_package_dependencies_express",
+      "backend_package_dependencies_express_rate_limit",
+      "backend_package_dependencies_helmet",
+      "backend_package_dependencies_mysql2",
+      "backend_package_dependencies_socket_io",
+      "backend_package_dependencies_uuid",
+      "cors",
+      "dotenv",
+      "express",
+      "express_rate_limit",
+      "helmet",
+      "mysql2",
+      "socket_io",
+      "uuid"
+    ],
+    "2": [
+      "frontend_package",
+      "frontend_package_dependencies",
+      "frontend_package_dependencies_socket_io_client",
+      "frontend_package_description",
+      "frontend_package_devdependencies",
+      "frontend_package_devdependencies_sass",
+      "frontend_package_devdependencies_vite",
+      "frontend_package_name",
+      "frontend_package_scripts",
+      "frontend_package_scripts_build",
+      "frontend_package_scripts_dev",
+      "frontend_package_scripts_preview",
+      "frontend_package_version",
+      "sass",
+      "socket_io_client",
+      "vite"
+    ],
+    "3": [
+      "backend_package",
+      "backend_package_description",
+      "backend_package_devdependencies",
+      "backend_package_devdependencies_nodemon",
+      "backend_package_main",
+      "backend_package_name",
+      "backend_package_scripts",
+      "backend_package_scripts_dev",
+      "backend_package_scripts_start",
+      "backend_package_version",
+      "nodemon"
+    ],
+    "4": [
+      "frontend_src_js_game_addvisualchiptofruit",
+      "frontend_src_js_game_initaudio",
+      "frontend_src_js_game_notifyflutter",
+      "frontend_src_js_game_parseurlparams",
+      "frontend_src_js_game_placebetonfruit",
+      "frontend_src_js_game_pullslotlever",
+      "frontend_src_js_game_selectchip",
+      "frontend_src_js_game_setupeventlisteners",
+      "frontend_src_js_game_showtoast",
+      "frontend_src_js_game_toggleauto",
+      "frontend_src_js_game_togglesound"
+    ],
+    "5": [
+      "frontend_src_js_game",
+      "frontend_src_js_game_cachedom",
+      "frontend_src_js_game_chip_denominations",
+      "frontend_src_js_game_clockwise_fruits",
+      "frontend_src_js_game_dom",
+      "frontend_src_js_game_fmtcompact",
+      "frontend_src_js_game_sound",
+      "frontend_src_js_game_state",
+      "frontend_src_js_game_updateuserbetbadge"
+    ],
+    "6": [
+      "frontend_src_js_game_clearallfruitchips",
+      "frontend_src_js_game_connectsocket",
+      "frontend_src_js_game_renderhistory",
+      "frontend_src_js_game_runroulettewheel",
+      "frontend_src_js_game_spawncoinsshower",
+      "frontend_src_js_game_startminireelsspin",
+      "frontend_src_js_game_stopminireels",
+      "frontend_src_js_game_updateminireels"
+    ],
+    "7": [
+      "frontend_src_js_game_finalizewinner",
+      "frontend_src_js_game_runroulettewheel_step",
+      "frontend_src_js_game_updateneonrunnerposition"
+    ],
+    "8": [
+      "frontend_src_js_game_fmt",
+      "frontend_src_js_game_showwinmodal",
+      "frontend_src_js_game_updateui"
+    ],
+    "9": [
+      "frontend_create_master_cabinet",
+      "frontend_create_master_cabinet_create_master_slot_machine"
+    ],
+    "10": [
+      "frontend_vite_config"
+    ]
+  },
+  "cohesion": {
+    "0": 0.11594202898550725,
+    "1": 0.11764705882352941,
+    "2": 0.125,
+    "3": 0.18181818181818182,
+    "4": 0.3090909090909091,
+    "5": 0.25,
+    "6": 0.25,
+    "7": 0.6666666666666666,
+    "8": 0.6666666666666666,
+    "9": 1.0,
+    "10": 1.0
+  },
+  "gods": [
+    {
+      "id": "frontend_src_js_game_connectsocket",
+      "label": "connectSocket()",
+      "degree": 16
+    },
+    {
+      "id": "frontend_src_js_game_setupeventlisteners",
+      "label": "setupEventListeners()",
+      "degree": 10
+    },
+    {
+      "id": "frontend_src_js_game_placebetonfruit",
+      "label": "placeBetOnFruit()",
+      "degree": 9
+    },
+    {
+      "id": "backend_server_startgameloop",
+      "label": "startGameLoop()",
+      "degree": 6
+    },
+    {
+      "id": "frontend_src_js_game_showtoast",
+      "label": "showToast()",
+      "degree": 6
+    },
+    {
+      "id": "frontend_src_js_game_updateui",
+      "label": "updateUI()",
+      "degree": 6
+    },
+    {
+      "id": "backend_server_handleroundresult",
+      "label": "handleRoundResult()",
+      "degree": 5
+    },
+    {
+      "id": "frontend_src_js_game_initaudio",
+      "label": "initAudio()",
+      "degree": 5
+    },
+    {
+      "id": "frontend_src_js_game_togglesound",
+      "label": "toggleSound()",
+      "degree": 5
+    },
+    {
+      "id": "frontend_src_js_game_fmt",
+      "label": "fmt()",
+      "degree": 5
+    }
+  ],
+  "surprises": [
+    {
+      "source": "placeBetOnFruit()",
+      "target": "updateUserBetBadge()",
+      "source_files": [
+        "frontend/src/js/game.js",
+        "frontend/src/js/game.js"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "note": "Bridges community 5 \u2192 community 4"
+    },
+    {
+      "source": "connectSocket()",
+      "target": "addVisualChipToFruit()",
+      "source_files": [
+        "frontend/src/js/game.js",
+        "frontend/src/js/game.js"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "note": "Bridges community 4 \u2192 community 6"
+    },
+    {
+      "source": "parseUrlParams()",
+      "target": "updateUI()",
+      "source_files": [
+        "frontend/src/js/game.js",
+        "frontend/src/js/game.js"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "note": "Bridges community 4 \u2192 community 8"
+    },
+    {
+      "source": "connectSocket()",
+      "target": "fmt()",
+      "source_files": [
+        "frontend/src/js/game.js",
+        "frontend/src/js/game.js"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "note": "Bridges community 6 \u2192 community 8"
+    }
+  ],
+  "tokens": {
+    "input": 0,
+    "output": 0
+  }
+}

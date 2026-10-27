@@ -1,0 +1,25 @@
+{
+  "name": "roulette-game-backend",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "dependencies": {
+    "cookie-parser": "~1.4.4",
+    "cors": "^2.8.5",
+    "debug": "~2.6.9",
+    "express": "~4.16.1",
+    "http": "^0.0.1-security",
+    "http-errors": "~1.6.3",
+    "jade": "~1.11.0",
+    "mogoose": "^0.0.1-security",
+    "mongodb": "^6.3.0",
+    "mongoose": "^8.0.2",
+    "morgan": "~1.9.1",
+    "nodemon": "^3.0.2",
+    "socket.io": "^4.7.2",
+    "socket.io-client": "^4.8.1"
+  }
+}

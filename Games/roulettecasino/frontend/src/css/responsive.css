@@ -1,0 +1,240 @@
+@media screen and (max-width: 576px) {
+  body {
+    padding: 0px;
+  }
+  .dimond-coin {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 15px !important;
+    margin-right: 20px !important;
+  }
+  .dimond-coin img {
+    width: 22px !important;
+  }
+  .wheel-page {
+    height: 40%;
+  }
+  .wheel-page .roulette-wheel {
+    left: 0;
+    margin-left: 0px;
+    width: 250px;
+    height: 250px;
+    background-size: 250px 250px;
+  }
+  .wheel-page .roulette-wheel svg {
+    width: 250px !important;
+    height: 250px !important;
+  }
+  .wheel-page .roulette-wheel svg circle {
+    cx: 125px;
+    cy: 125px;
+    r: 125px;
+  }
+  .wheel-page .roulette-wheel .layer-2,
+  .wheel-page .roulette-wheel .layer-3,
+  .wheel-page .roulette-wheel .layer-4,
+  .wheel-page .roulette-wheel .layer-5,
+  .wheel-page .roulette-wheel .ball-container {
+    background-size: 250px 250px;
+  }
+  .wheel-page .roulette-wheel .ball {
+    width: 11px;
+    height: 11px;
+    transform: translate(0px, -128.221px) !important;
+    margin: -6px;
+  }
+  .game-main {
+    top: 37%;
+  }
+  .game-main .table-center-data {
+    margin: 10px 19px !important;
+  }
+  .game-main .table-center-data .history-icon {
+    display: none !important;
+  }
+  .coinShow {
+    width: 30px !important;
+    height: 30px !important;
+  }
+  .coinShow .cardShowCoin_ {
+    font-size: 10px;
+  }
+  .dialog .mainDiaogBox {
+    min-width: 366px;
+  }
+  .dialog .mainDiaogBox .dialog-data {
+    max-height: 199px;
+  }
+  .dialog .mainDiaogBox .dialog-data .dialog-head img {
+    width: 123px;
+    margin-top: -64px;
+  }
+  .dialog .mainDiaogBox .dialog-data .dialog-body h6 {
+    margin-top: 16px;
+  }
+  .dialog .mainDiaogBox .dialog-data .dialog-body .chipNumberShow {
+    width: 63px;
+  }
+  .dialog .mainDiaogBox .dialog-data .dialog-body .chipNumberShow img {
+    width: 63px;
+  }
+  .dialog .mainDiaogBox .dialog-data .dialog-body .chipNumberShow span {
+    font-size: 16px;
+  }
+  .dialog .mainDiaogBox .dialog-data .dialog-body h6 {
+    font-size: 14px;
+  }
+  .dialog .mainDiaogBox .dialog-data .show-closeData {
+    width: 22px;
+    height: 22px;
+    font-size: 13px;
+  }
+  .top-btn-show {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+    margin-left: 19px !important;
+  }
+  .helpIcon-button button {
+    width: 40px !important;
+    height: 40px !important;
+  }
+  .helpIcon-button button svg {
+    width: 20px !important;
+  }
+  .sound-icon {
+    margin-left: 0px !important;
+  }
+  .sound-icon button {
+    width: 40px !important;
+    height: 40px !important;
+  }
+  .sound-icon button svg {
+    width: 20px !important;
+  }
+  .history-icon {
+    margin: 8px 0px !important;
+  }
+  .history-icon button {
+    width: 40px !important;
+    height: 40px !important;
+  }
+  .history-icon button i {
+    width: 17px !important;
+  }
+  .user-button {
+    margin-right: 15px !important;
+  }
+  .user-button button {
+    width: 40px !important;
+    height: 40px !important;
+  }
+  .user-button button svg {
+    width: 20px !important;
+    height: 26px !important;
+  }
+  .coin-button-box .coinBtn .cardShowCoin_ {
+    width: 45px !important;
+    height: 45px !important;
+    font-size: 13px !important;
+    font-weight: bolder !important;
+  }
+  .table-timeWatch .time-watch {
+    width: 88px !important;
+    height: 37px !important;
+    margin-top: 1px;
+  }
+  .table-timeWatch .time-watch::after {
+    bottom: -10px !important;
+    width: 44% !important;
+    height: 7px !important;
+    border-radius: 2px 2px 6px 6px !important;
+  }
+  .table-timeWatch .time-watch span {
+    font-size: 14px;
+  }
+  .table-headText h6 {
+    font-size: 14px !important;
+  }
+  .table-oldBet {
+    width: 53px !important;
+  }
+  .table-oldBet h6 {
+    font-size: 12px !important;
+  }
+  .table-oldBet .old-bet-boxNumber {
+    width: 25px !important;
+    height: 25px !important;
+  }
+  .table-oldBet .old-bet-boxNumber span {
+    font-size: 12px;
+  }
+  .rules-model .rulesModelBox {
+    background-size: 300px 300px;
+    width: 300px;
+    height: 300px;
+  }
+  .rules-model .rulesModelBox .model-head h6 {
+    padding-top: 7px;
+    font-size: 17px;
+  }
+  .rules-model .rulesModelBox .model-head .close-icon {
+    top: 4px;
+  }
+  .rules-model .rulesModelBox .model-head .close-icon svg {
+    width: 25px;
+    height: 25px;
+  }
+  .rules-model .rulesModelBox .model-body {
+    max-height: 238px;
+    margin-top: 20px;
+  }
+  .rules-model .rulesModelBox .model-body h4 {
+    font-size: 16px;
+  }
+  .rules-model .rulesModelBox .model-body ol {
+    padding-left: 24px;
+  }
+  .rules-model .rulesModelBox .model-body ol li {
+    font-size: 13px;
+  }
+  .rules-model .rulesModelBox .model-body ul {
+    padding-left: 24px;
+  }
+  .rules-model .rulesModelBox .model-body table thead th {
+    font-size: 14px;
+    padding-bottom: 3px;
+  }
+  .rules-model .rulesModelBox .model-body table tbody td {
+    font-size: 12px;
+  }
+  .winnerModel .winnerModel-bg {
+    height: 250px;
+    background-size: 100% 250px;
+  }
+  .winnerModel .winnerModel-bg .model .model-head img {
+    margin-top: -83px;
+    width: 150px;
+    height: 150px;
+  }
+  .winnerModel .winnerModel-bg .model .model-head .time-count {
+    width: 40px;
+    height: 22px;
+    font-size: 14px;
+  }
+  .winnerModel .winnerModel-bg .model .model-body .winner-fram {
+    width: 150px;
+    height: 40px;
+  }
+  .winnerModel .winnerModel-bg .model .model-body .winner-fram h6 {
+    font-size: 15px;
+  }
+  .winnerModel .winnerModel-bg .model .model-body .winner-fram h6 span {
+    font-size: 19px;
+  }
+  .winnerModel .winnerModel-bg .model .model-body h5 {
+    margin-top: 20px;
+    font-size: 17px;
+  }
+}/*# sourceMappingURL=responsive.css.map */

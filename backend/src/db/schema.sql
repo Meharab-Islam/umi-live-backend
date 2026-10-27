@@ -670,3 +670,27 @@ CREATE TABLE IF NOT EXISTS live_duration_reward_history (
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Integrated Mini-Games Registry & Configuration
+CREATE TABLE IF NOT EXISTS mini_games (
+
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  slug VARCHAR(64) NOT NULL UNIQUE,
+  name VARCHAR(100) NOT NULL,
+  description TEXT,
+  category VARCHAR(50) DEFAULT 'wheel',
+  icon_url VARCHAR(255) DEFAULT '',
+  web_url VARCHAR(255) DEFAULT '',
+  admin_url VARCHAR(255) DEFAULT '',
+  port INT NOT NULL DEFAULT 5060,
+  is_active BOOLEAN DEFAULT TRUE,
+  min_bet INT DEFAULT 100,
+  max_bet INT DEFAULT 100000,
+  chips JSON,
+  settings JSON,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_mini_games_slug (slug),
+  INDEX idx_mini_games_active (is_active)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+

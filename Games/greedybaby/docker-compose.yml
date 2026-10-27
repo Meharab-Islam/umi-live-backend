@@ -1,0 +1,55 @@
+services:
+  mongodb:
+    image: mongo:6.0
+    container_name: greedybaby_mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh --eval 'db.runCommand(\"ping\").ok' --quiet || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    networks:
+      - greedybaby_network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: greedybaby_backend
+    restart: unless-stopped
+    ports:
+      - "5008:5008"
+    environment:
+      - PORT=5008
+      - MONGO_URI=mongodb://mongodb:27017/greedybaby
+      - ADMIN_BASE_URL=https://control.imlive.live/
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - greedybaby_network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: greedybaby_frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - greedybaby_network
+
+volumes:
+  mongodb_data:
+
+networks:
+  greedybaby_network:
+    driver: bridge

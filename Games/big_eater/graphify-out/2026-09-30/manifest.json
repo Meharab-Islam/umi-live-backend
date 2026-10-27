@@ -1,0 +1,26 @@
+{
+  "db/database.js": {
+    "mtime": 1790771180.1601696,
+    "seen": 1790771526.227114,
+    "ast_hash": "fec4fcfb474d7b4d275234a15cf33624",
+    "semantic_hash": "fec4fcfb474d7b4d275234a15cf33624"
+  },
+  "package.json": {
+    "mtime": 1790771492.370145,
+    "seen": 1790771526.227116,
+    "ast_hash": "64b9d245f1670507251a096a048d3b22",
+    "semantic_hash": "64b9d245f1670507251a096a048d3b22"
+  },
+  "public/app.js": {
+    "mtime": 1790772540.4892051,
+    "seen": 1790772558.473522,
+    "ast_hash": "7868eb1302f72758e167cc6df4f93295",
+    "semantic_hash": "7868eb1302f72758e167cc6df4f93295"
+  },
+  "server.js": {
+    "mtime": 1790771224.122079,
+    "seen": 1790771526.227117,
+    "ast_hash": "0268ce920b72c755c279f13c316f5ba8",
+    "semantic_hash": "0268ce920b72c755c279f13c316f5ba8"
+  }
+}

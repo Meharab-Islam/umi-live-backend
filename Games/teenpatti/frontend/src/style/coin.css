@@ -1,0 +1,26 @@
+.coin {
+  display: flex;
+  position: absolute;
+  width: 8vh !important;
+  height: 8vh !important;
+  border-radius: 100%;
+  border: 0px;
+  background-repeat: no-repeat;
+  background-size: cover;
+  transition: all 0.5s;
+  background-position: center;
+}
+
+@media (min-width: 850px) {
+  .coin {
+    width: 35px;
+    height: 35px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .coin {
+    width: 40px;
+    height: 40px;
+  }
+}

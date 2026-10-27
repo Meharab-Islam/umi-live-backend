@@ -1,0 +1,301 @@
+{
+  "communities": {
+    "0": [
+      "public_admin",
+      "public_admin_adjustbalance",
+      "public_admin_clearrig",
+      "public_admin_confirmresethistory",
+      "public_admin_fetchinitialdata",
+      "public_admin_fetchplayers",
+      "public_admin_fetchrounds",
+      "public_admin_filterplayers",
+      "public_admin_forcedraw",
+      "public_admin_promptsetbalance",
+      "public_admin_q",
+      "public_admin_qs",
+      "public_admin_qsa",
+      "public_admin_renderheaderstatus",
+      "public_admin_renderhistorytable",
+      "public_admin_rendermatrixtab",
+      "public_admin_renderoddstab",
+      "public_admin_renderplayerstable",
+      "public_admin_renderrigtab",
+      "public_admin_s",
+      "public_admin_savefoodconfig",
+      "public_admin_savetimers",
+      "public_admin_setmode",
+      "public_admin_setriggedwinner",
+      "public_admin_setuptabs",
+      "public_admin_showtoast",
+      "public_admin_simulatebots",
+      "public_admin_socket",
+      "public_admin_submitauth",
+      "public_admin_toggleautoclear",
+      "public_admin_togglepause"
+    ],
+    "1": [
+      "public_app",
+      "public_app_closehistorymodal",
+      "public_app_closerulemodal",
+      "public_app_dom",
+      "public_app_enabledragtoslide",
+      "public_app_finishsplash",
+      "public_app_formatchipamount",
+      "public_app_getnormalizedhistory",
+      "public_app_openhistorymodal",
+      "public_app_openrulemodal",
+      "public_app_q",
+      "public_app_qs",
+      "public_app_renderhistory",
+      "public_app_renderhistorymodalcontent",
+      "public_app_roulette_order",
+      "public_app_rsbackbtn",
+      "public_app_s",
+      "public_app_session_id",
+      "public_app_socket",
+      "public_app_topbarbackbtn",
+      "public_app_trend_food_list",
+      "public_app_updatebetstats",
+      "public_app_updatesplash",
+      "public_app_updatetrendpolyline"
+    ],
+    "2": [
+      "server",
+      "server_admincontrol",
+      "server_app",
+      "server_calculatefoodoutcomes",
+      "server_cors",
+      "server_demo_avatars",
+      "server_demo_names",
+      "server_determinewinner",
+      "server_express",
+      "server_foods",
+      "server_game",
+      "server_getadminstate",
+      "server_getbetstats",
+      "server_http",
+      "server_io",
+      "server_mockplayer",
+      "server_path",
+      "server_revealresult",
+      "server_server",
+      "server_startgameloop",
+      "server_startround",
+      "server_stmts_processbetstx",
+      "server_weightedrandom"
+    ],
+    "3": [
+      "package",
+      "package_author",
+      "package_description",
+      "package_keywords",
+      "package_license",
+      "package_main",
+      "package_name",
+      "package_scripts",
+      "package_scripts_build_css",
+      "package_scripts_dev",
+      "package_scripts_start",
+      "package_scripts_test",
+      "package_scripts_watch_css",
+      "package_type",
+      "package_version"
+    ],
+    "4": [
+      "autoprefixer",
+      "package_devdependencies",
+      "package_devdependencies_autoprefixer",
+      "package_devdependencies_postcss",
+      "package_devdependencies_sass",
+      "package_devdependencies_socket_io_client",
+      "package_devdependencies_tailwindcss",
+      "package_json_tailwindcss",
+      "postcss",
+      "sass",
+      "socket_io_client"
+    ],
+    "5": [
+      "public_app_animatewinamount",
+      "public_app_animatewinamount_updatenumber",
+      "public_app_closeresult",
+      "public_app_fmt",
+      "public_app_launchconfetti",
+      "public_app_launchconfetti_draw",
+      "public_app_pad4",
+      "public_app_playjackpotfanfare",
+      "public_app_rendertopwinnerspodium",
+      "public_app_setbalance",
+      "public_app_showresultscreen"
+    ],
+    "6": [
+      "better_sqlite3",
+      "cors",
+      "express",
+      "package_dependencies",
+      "package_dependencies_better_sqlite3",
+      "package_dependencies_cors",
+      "package_dependencies_express",
+      "package_dependencies_socket_io",
+      "socket_io"
+    ],
+    "7": [
+      "db_database",
+      "db_database_data_dir",
+      "db_database_database",
+      "db_database_db",
+      "db_database_fs",
+      "db_database_path",
+      "db_database_processbetstx",
+      "db_database_stmts"
+    ],
+    "8": [
+      "public_app_clearallstates",
+      "public_app_clearspinhighlight",
+      "public_app_getitem",
+      "public_app_getsession",
+      "public_app_markwinner",
+      "public_app_runroulettespin",
+      "public_app_runroulettespin_step"
+    ],
+    "9": [
+      "public_app_getaudio",
+      "public_app_playlose",
+      "public_app_playnote",
+      "public_app_playrecharge",
+      "public_app_playtick",
+      "public_app_playwin",
+      "public_app_updatetimer"
+    ],
+    "10": [
+      "public_app_onfoodtap",
+      "public_app_playbet",
+      "public_app_rendergrid",
+      "public_app_restoreselectionui",
+      "public_app_showtoast",
+      "public_app_updatefoodbetbadge"
+    ],
+    "11": [
+      "postcss_config"
+    ],
+    "12": [
+      "tailwind_config"
+    ]
+  },
+  "cohesion": {
+    "0": 0.12043010752688173,
+    "1": 0.10507246376811594,
+    "2": 0.12648221343873517,
+    "3": 0.13333333333333333,
+    "4": 0.18181818181818182,
+    "5": 0.2,
+    "6": 0.2222222222222222,
+    "7": 0.25,
+    "8": 0.38095238095238093,
+    "9": 0.2857142857142857,
+    "10": 0.3333333333333333,
+    "11": 1.0,
+    "12": 1.0
+  },
+  "gods": [
+    {
+      "id": "public_admin_q",
+      "label": "q()",
+      "degree": 14
+    },
+    {
+      "id": "public_admin_showtoast",
+      "label": "showToast()",
+      "degree": 12
+    },
+    {
+      "id": "public_app_playnote",
+      "label": "playNote()",
+      "degree": 9
+    },
+    {
+      "id": "public_app_showresultscreen",
+      "label": "showResultScreen()",
+      "degree": 8
+    },
+    {
+      "id": "public_app_getitem",
+      "label": "getItem()",
+      "degree": 8
+    },
+    {
+      "id": "public_app_renderhistorymodalcontent",
+      "label": "renderHistoryModalContent()",
+      "degree": 6
+    },
+    {
+      "id": "server_revealresult",
+      "label": "revealResult()",
+      "degree": 6
+    },
+    {
+      "id": "package_scripts",
+      "label": "scripts",
+      "degree": 6
+    },
+    {
+      "id": "public_app_onfoodtap",
+      "label": "onFoodTap()",
+      "degree": 5
+    },
+    {
+      "id": "server_getadminstate",
+      "label": "getAdminState()",
+      "degree": 5
+    }
+  ],
+  "surprises": [
+    {
+      "source": "revealResult()",
+      "target": "processBetsTx",
+      "source_files": [
+        "server.js",
+        "db/database.js"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "connects across different repos/directories; bridges separate communities; peripheral node `processBetsTx` unexpectedly reaches hub `revealResult()`"
+    }
+  ],
+  "questions": [
+    {
+      "type": "bridge_node",
+      "question": "Why does `devDependencies` connect `devDependencies` to `package.json`?",
+      "why": "High betweenness centrality (0.024) - this node is a cross-community bridge."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `dependencies` connect `dependencies` to `package.json`?",
+      "why": "High betweenness centrality (0.020) - this node is a cross-community bridge."
+    },
+    {
+      "type": "isolated_nodes",
+      "question": "What connects `S`, `socket`, `DOM` to the rest of the system?",
+      "why": "51 weakly-connected nodes found - possible documentation gaps or missing edges."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `admin.js` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.12043010752688173 - nodes in this community are weakly interconnected."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `app.js` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.10507246376811594 - nodes in this community are weakly interconnected."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `server.js` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.12648221343873517 - nodes in this community are weakly interconnected."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `package.json` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.13333333333333333 - nodes in this community are weakly interconnected."
+    }
+  ]
+}

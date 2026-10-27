@@ -20,6 +20,9 @@ import { testConnection } from './config/db.js';
 import { initializeDatabase } from './db/init.js';
 import { cache } from './config/redis.js';
 import { setupLiveSocket } from './sockets/liveSocket.js';
+import { setupGameSocket } from './sockets/gameSocket.js';
+import { initPubSub } from './services/pubSubService.js';
+
 
 import authRoutes from './routes/authRoutes.js';
 import liveRoutes from './routes/liveRoutes.js';
@@ -29,11 +32,13 @@ import adminRoutes from './routes/adminRoutes.js';
 import packageRoutes from './routes/packageRoutes.js';
 import docsRoutes from './routes/docsRoutes.js';
 import mobileRoutes from './routes/mobile/index.js';
+import gameRoutes from './routes/mobile/gameRoutes.js';
 import configRoutes from './routes/mobile/configRoutes.js';
 import publicRoutes from './routes/publicRoutes.js';
 import { getMaintenanceStatus } from './controllers/mobile/configController.js';
 import { getPublicBanners } from './controllers/bannerController.js';
 import { sqlInjectionGuard } from './middlewares/securityMiddleware.js';
+
 
 const uploadsDir = path.join(__dirname, '../uploads');
 const publicDir = path.join(__dirname, '../public');
@@ -63,6 +68,10 @@ const io = new Server(server, {
 });
 
 setupLiveSocket(io);
+setupGameSocket(io);
+initPubSub(io);
+
+
 
 // Middlewares
 app.use(cors());
@@ -106,6 +115,18 @@ app.use((req, res, next) => {
 
 // Serve public assets (landing page styles, images, scripts)
 app.use(express.static(publicDir));
+
+// Serve Mini-Games web frontends directly under /games/:gameName
+const gamesDir = path.resolve(__dirname, '../../Games');
+app.use('/games/big_eater', express.static(path.join(gamesDir, 'big_eater/public')));
+app.use('/games/slote_mecine', express.static(path.join(gamesDir, 'slote_mecine/frontend/dist')));
+app.use('/games/slote_mecine', express.static(path.join(gamesDir, 'slote_mecine/frontend/public')));
+app.use('/games/ferrywheel', express.static(path.join(gamesDir, 'ferrywheel/backend/public')));
+app.use('/games/greedybaby', express.static(path.join(gamesDir, 'greedybaby/backend/public')));
+app.use('/games/greedylion', express.static(path.join(gamesDir, 'greedylion/backend/public')));
+app.use('/games/roulettecasino', express.static(path.join(gamesDir, 'roulettecasino/backend/public')));
+app.use('/games/teenpatti', express.static(path.join(gamesDir, 'teenpatti/backend/public')));
+
 
 // Public Landing & Compliance Pages (Web Showcase, Privacy Policy, Account Deletion)
 const landingRoutes = [
@@ -275,7 +296,9 @@ app.use('/api/mobile', mobileRoutes);
 app.use('/api/v1', mobileRoutes);
 
 // Legacy/Common API Routes
+app.use('/api/games', gameRoutes);
 app.use('/api/auth', authRoutes);
+
 app.use('/api/live', liveRoutes);
 app.use('/api/gifts', giftRoutes);
 app.use('/api/wallet', walletRoutes);

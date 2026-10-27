@@ -1,0 +1,37 @@
+.userprofile {
+    position: relative;
+    text-align: center;
+    justify-content: center;
+    transition: all 0.5s;
+    align-items: center;
+    color: whitesmoke;
+}
+
+.profileImg {
+    width: 40px;
+    transition: all 0.5s;
+    height: 40px;
+    margin: 0px;
+    border-radius: 100%;
+    border: 1px solid black;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    background-color: white;
+    -webkit-filter: drop-shadow(7px 7px 7px rgba(0, 0, 0, 0.3));
+    filter: drop-shadow(7px 7px 7px rgba(0, 0, 0, 0.3))
+}
+
+@media (min-width: 850px) {
+    .profileImg{
+        width: 45px;
+        height: 45px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .profileImg{
+        width: 50px;
+        height: 50px;
+    }
+} 

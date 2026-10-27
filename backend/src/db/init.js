@@ -1265,6 +1265,152 @@ export async function initializeDatabase() {
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
     `);
 
+    // 18. Ensure mini_games table exists and seed all 7 integrated games
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS mini_games (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        slug VARCHAR(64) NOT NULL UNIQUE,
+        name VARCHAR(100) NOT NULL,
+        description TEXT,
+        category VARCHAR(50) DEFAULT 'wheel',
+        icon_url VARCHAR(255) DEFAULT '',
+        web_url VARCHAR(255) DEFAULT '',
+        admin_url VARCHAR(255) DEFAULT '',
+        port INT NOT NULL DEFAULT 5060,
+        is_active BOOLEAN DEFAULT TRUE,
+        min_bet INT DEFAULT 100,
+        max_bet INT DEFAULT 100000,
+        chips JSON,
+        settings JSON,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        INDEX idx_mini_games_slug (slug),
+        INDEX idx_mini_games_active (is_active)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `);
+
+    const [existingGames] = await connection.query('SELECT COUNT(*) as count FROM mini_games');
+    if (existingGames[0].count === 0) {
+      console.log('✅ [DB Init] Seeding all 7 Integrated Mini-Games...');
+      const gamesToSeed = [
+        {
+          slug: 'big_eater',
+          name: 'Big Eater',
+          description: 'Fast-paced multiplayer food betting game with suspenseful spins, multipliers, and scheduled feast events.',
+          category: 'wheel',
+          icon_url: '/games/big_eater/images/icon.png',
+          web_url: '/games/big_eater',
+          admin_url: '/games/big_eater/admin.html',
+          port: 5061,
+          is_active: 1,
+          min_bet: 500,
+          max_bet: 100000,
+          chips: JSON.stringify([500, 5000, 50000, 100000]),
+          settings: JSON.stringify({ rtp: 95, roundDuration: 15, cooldownDuration: 8 }),
+        },
+        {
+          slug: 'slote_mecine',
+          name: 'Fruit Slot Machine',
+          description: 'Authentic 24-lamp Chinese Fruit Slot with classic Bar, 77, Bell, and Fruit odds and progressive Jackpot.',
+          category: 'slots',
+          icon_url: '/games/slote_mecine/icon.png',
+          web_url: '/games/slote_mecine',
+          admin_url: '/games/slote_mecine/admin.html',
+          port: 5062,
+          is_active: 1,
+          min_bet: 100,
+          max_bet: 50000,
+          chips: JSON.stringify([100, 500, 1000, 5000]),
+          settings: JSON.stringify({ jackpot: 1887773133, preset: 'competitive' }),
+        },
+        {
+          slug: 'ferrywheel',
+          name: 'Ferry Wheel',
+          description: 'High-stakes spinning lucky wheel with 8 prize sectors, customizable odds, and live countdowns.',
+          category: 'wheel',
+          icon_url: '/games/ferrywheel/logo192.png',
+          web_url: '/games/ferrywheel',
+          admin_url: '/games/ferrywheel',
+          port: 5063,
+          is_active: 1,
+          min_bet: 100,
+          max_bet: 100000,
+          chips: JSON.stringify([100, 200, 300, 400, 500]),
+          settings: JSON.stringify({ minWinPercent: 25, maxWinPercent: 100 }),
+        },
+        {
+          slug: 'greedybaby',
+          name: 'Greedy Baby',
+          description: 'Vibrant animal and baby lucky prize wheel with real-time multiplayer rounds and instant payouts.',
+          category: 'wheel',
+          icon_url: '/games/greedybaby/logo192.png',
+          web_url: '/games/greedybaby',
+          admin_url: '/games/greedybaby',
+          port: 5064,
+          is_active: 1,
+          min_bet: 100,
+          max_bet: 100000,
+          chips: JSON.stringify([100, 200, 300, 400, 500]),
+          settings: JSON.stringify({ minWinPercent: 25, maxWinPercent: 100 }),
+        },
+        {
+          slug: 'greedylion',
+          name: 'Greedy Lion',
+          description: 'African safari themed fortune wheel with roar multipliers and competitive leaderboards.',
+          category: 'wheel',
+          icon_url: '/games/greedylion/logo192.png',
+          web_url: '/games/greedylion',
+          admin_url: '/games/greedylion',
+          port: 5065,
+          is_active: 1,
+          min_bet: 100,
+          max_bet: 100000,
+          chips: JSON.stringify([100, 200, 300, 400, 500]),
+          settings: JSON.stringify({ minWinPercent: 25, maxWinPercent: 100 }),
+        },
+        {
+          slug: 'roulettecasino',
+          name: 'Roulette Casino',
+          description: 'Classic European casino roulette wheel with inside and outside number betting and live statistics.',
+          category: 'casino',
+          icon_url: '/games/roulettecasino/logo192.png',
+          web_url: '/games/roulettecasino',
+          admin_url: '/games/roulettecasino',
+          port: 5066,
+          is_active: 1,
+          min_bet: 50,
+          max_bet: 100000,
+          chips: JSON.stringify([50, 100, 500, 1000, 5000]),
+          settings: JSON.stringify({ minWinPercent: 25, maxWinPercent: 100 }),
+        },
+        {
+          slug: 'teenpatti',
+          name: 'Teen Patti Live',
+          description: 'Popular South Asian 3-card poker game with live tables, side bets, and real-time multiplayer play.',
+          category: 'cards',
+          icon_url: '/games/teenpatti/logo192.png',
+          web_url: '/games/teenpatti',
+          admin_url: '/games/teenpatti',
+          port: 5067,
+          is_active: 1,
+          min_bet: 100,
+          max_bet: 100000,
+          chips: JSON.stringify([100, 500, 1000, 5000, 10000]),
+          settings: JSON.stringify({ minWinPercent: 25, maxWinPercent: 100 }),
+        },
+      ];
+
+      for (const g of gamesToSeed) {
+        await connection.query(
+          `INSERT INTO mini_games (slug, name, description, category, icon_url, web_url, admin_url, port, is_active, min_bet, max_bet, chips, settings)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+           ON DUPLICATE KEY UPDATE name=VALUES(name), description=VALUES(description), admin_url=VALUES(admin_url);`,
+          [g.slug, g.name, g.description, g.category, g.icon_url, g.web_url, g.admin_url, g.port, g.is_active, g.min_bet, g.max_bet, g.chips, g.settings]
+        );
+      }
+    }
+
+
     // Big Data Performance Indexing Helper
     const safeAddIndex = async (table, indexName, indexDef, isFulltext = false) => {
       try {

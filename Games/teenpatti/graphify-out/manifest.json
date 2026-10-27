@@ -1,0 +1,1886 @@
+{
+  "backend/config.js": {
+    "mtime": 1790714434.1891844,
+    "seen": 1790714634.619075,
+    "ast_hash": "b7bdf7320bb239330ecb154e07228d13",
+    "semantic_hash": ""
+  },
+  "backend/controllers/gameHistory.controller.js": {
+    "mtime": 1770918354.0,
+    "seen": 1790714214.691332,
+    "ast_hash": "ae0cce013520d77b8c46a8a880b99389",
+    "semantic_hash": "ae0cce013520d77b8c46a8a880b99389"
+  },
+  "backend/helper.js": {
+    "mtime": 1770918354.0,
+    "seen": 1790714214.691333,
+    "ast_hash": "49e167a64170fb2c208301f128780a68",
+    "semantic_hash": "49e167a64170fb2c208301f128780a68"
+  },
+  "backend/index.js": {
+    "mtime": 1790714472.9207764,
+    "seen": 1790714634.619078,
+    "ast_hash": "6e01acc8f7a5604bf4e788533767d51f",
+    "semantic_hash": ""
+  },
+  "backend/model/GameHistorySchema.js": {
+    "mtime": 1770918354.0,
+    "seen": 1790714214.6913338,
+    "ast_hash": "4ed6467fd4527793c80ce07acd3a7c56",
+    "semantic_hash": "4ed6467fd4527793c80ce07acd3a7c56"
+  },
+  "backend/model/cardSchema.js": {
+    "mtime": 1770918354.0,
+    "seen": 1790714214.6913338,
+    "ast_hash": "90c17a75dc8374e5abc24566fcf3fc4d",
+    "semantic_hash": "90c17a75dc8374e5abc24566fcf3fc4d"
+  },
+  "backend/model/gameAdminCoinSchema.js": {
+    "mtime": 1770918354.0,
+    "seen": 1790714214.691335,
+    "ast_hash": "5fba242a15a48ea048b5c88c8414df48",
+    "semantic_hash": "5fba242a15a48ea048b5c88c8414df48"
+  },
+  "backend/model/userSchema.js": {
+    "mtime": 1770918354.0,
+    "seen": 1790714214.691335,
+    "ast_hash": "86ff7eedee400e99fa3e4ad60babab39",
+    "semantic_hash": "86ff7eedee400e99fa3e4ad60babab39"
+  },
+  "backend/model/wallet.js": {
+    "mtime": 1770918354.0,
+    "seen": 1790714214.691336,
+    "ast_hash": "957f995003da4cec5f5e2444d9fb2d02",
+    "semantic_hash": "957f995003da4cec5f5e2444d9fb2d02"
+  },
+  "backend/model/winnerBitSchema.js": {
+    "mtime": 1770918354.0,
+    "seen": 1790714214.691336,
+    "ast_hash": "60b835502a380cabf85252f5ed2ca388",
+    "semantic_hash": "60b835502a380cabf85252f5ed2ca388"
+  },
+  "backend/package.json": {
+    "mtime": 1790714482.5731041,
+    "seen": 1790714634.619083,
+    "ast_hash": "da7a22ee223cfd876a28ade81d560608",
+    "semantic_hash": ""
+  },
+  "backend/public/asset-manifest.json": {
+    "mtime": 1777580816.0,
+    "seen": 1790714214.6913369,
+    "ast_hash": "aa228063d28c9c389050c5d158fc8686",
+    "semantic_hash": "aa228063d28c9c389050c5d158fc8686"
+  },
+  "backend/public/static/js/27.95291165.chunk.js": {
+    "mtime": 1777580816.0,
+    "seen": 1790714214.691338,
+    "ast_hash": "8b5e9d5d955a6d2e27bc153b04d37311",
+    "semantic_hash": "8b5e9d5d955a6d2e27bc153b04d37311"
+  },
+  "backend/public/static/js/main.21695ab2.js": {
+    "mtime": 1777580816.0,
+    "seen": 1790714214.691338,
+    "ast_hash": "625b82be7363486ba2d153abda3fc0a9",
+    "semantic_hash": "625b82be7363486ba2d153abda3fc0a9"
+  },
+  "backend/routes/gameHistory.route.js": {
+    "mtime": 1770918354.0,
+    "seen": 1790714214.691338,
+    "ast_hash": "5dff4eba3ff71e9b504d8fe00ad37b95",
+    "semantic_hash": "5dff4eba3ff71e9b504d8fe00ad37b95"
+  },
+  "backend/routes/routeIndex.js": {
+    "mtime": 1770918354.0,
+    "seen": 1790714214.691339,
+    "ast_hash": "c046361a833dfb0ef84a09bd53e9bbef",
+    "semantic_hash": "c046361a833dfb0ef84a09bd53e9bbef"
+  },
+  "backend/service.js": {
+    "mtime": 1790714442.1267667,
+    "seen": 1790714634.6190872,
+    "ast_hash": "e491f1075b8fe8341ed543e75c56dcd5",
+    "semantic_hash": ""
+  },
+  "frontend/package.json": {
+    "mtime": 1770918354.0,
+    "seen": 1790714214.69134,
+    "ast_hash": "edfae22b77ed9d41c3e5c9e2da283213",
+    "semantic_hash": "edfae22b77ed9d41c3e5c9e2da283213"
+  },
+  "frontend/src/app.js": {
+    "mtime": 1790714504.9406404,
+    "seen": 1790714634.619089,
+    "ast_hash": "891780cd787e9bf1d952689250c0ee8c",
+    "semantic_hash": ""
+  },
+  "frontend/src/components/GameBlock.js": {
+    "mtime": 1770918354.0,
+    "seen": 1790714214.6913412,
+    "ast_hash": "5825ec95ddd268e517f179beb779072b",
+    "semantic_hash": "5825ec95ddd268e517f179beb779072b"
+  },
+  "frontend/src/components/History.js": {
+    "mtime": 1770918354.0,
+    "seen": 1790714214.6913412,
+    "ast_hash": "0d01e83e70ac3af82426fd692b975528",
+    "semantic_hash": "0d01e83e70ac3af82426fd692b975528"
+  },
+  "frontend/src/components/Rulse.js": {
+    "mtime": 1770918354.0,
+    "seen": 1790714214.691342,
+    "ast_hash": "22d151b7bb55459c7ba5b2eb33cb20ba",
+    "semantic_hash": "22d151b7bb55459c7ba5b2eb33cb20ba"
+  },
+  "frontend/src/components/Toast.js": {
+    "mtime": 1770918354.0,
+    "seen": 1790714214.691342,
+    "ast_hash": "00b9e75c8e081af9d52d5e9d69858742",
+    "semantic_hash": "00b9e75c8e081af9d52d5e9d69858742"
+  },
+  "frontend/src/components/card.js": {
+    "mtime": 1770918354.0,
+    "seen": 1790714214.691343,
+    "ast_hash": "c1125a0fb12f5a4627130c36b60688a5",
+    "semantic_hash": "c1125a0fb12f5a4627130c36b60688a5"
+  },
+  "frontend/src/components/coin.js": {
+    "mtime": 1770918354.0,
+    "seen": 1790714214.691343,
+    "ast_hash": "0c2106f63f8a3ae39b5b139fbf80c97a",
+    "semantic_hash": "0c2106f63f8a3ae39b5b139fbf80c97a"
+  },
+  "frontend/src/components/coinBtn.js": {
+    "mtime": 1770918354.0,
+    "seen": 1790714214.691343,
+    "ast_hash": "7f5f1eda876d536cb7a5f1b85c42472c",
+    "semantic_hash": "7f5f1eda876d536cb7a5f1b85c42472c"
+  },
+  "frontend/src/components/frame.js": {
+    "mtime": 1770918354.0,
+    "seen": 1790714214.6913438,
+    "ast_hash": "95448504aa0abe018855e647494d2419",
+    "semantic_hash": "95448504aa0abe018855e647494d2419"
+  },
+  "frontend/src/components/profile.js": {
+    "mtime": 1770918354.0,
+    "seen": 1790714214.6913438,
+    "ast_hash": "50b7bdfd8baf28eb1ae9609b8be52b51",
+    "semantic_hash": "50b7bdfd8baf28eb1ae9609b8be52b51"
+  },
+  "frontend/src/components/userprofile.js": {
+    "mtime": 1770918354.0,
+    "seen": 1790714214.691345,
+    "ast_hash": "8bba1e8536b681ddc18669b3891e0351",
+    "semantic_hash": "8bba1e8536b681ddc18669b3891e0351"
+  },
+  "frontend/src/config.js": {
+    "mtime": 1790714493.9354174,
+    "seen": 1790714634.619095,
+    "ast_hash": "e2e7724e9510e14cb90599994b4dba62",
+    "semantic_hash": ""
+  },
+  "frontend/src/index.js": {
+    "mtime": 1770918354.0,
+    "seen": 1790714214.691346,
+    "ast_hash": "e783e8e9d1705a77e871d6bb9fe2749d",
+    "semantic_hash": "e783e8e9d1705a77e871d6bb9fe2749d"
+  },
+  "frontend/src/reportWebVitals.js": {
+    "mtime": 1770918354.0,
+    "seen": 1790714214.691346,
+    "ast_hash": "b528fd380de9b503eb5c84973639cca4",
+    "semantic_hash": "b528fd380de9b503eb5c84973639cca4"
+  },
+  "frontend/src/setupTests.js": {
+    "mtime": 1770918354.0,
+    "seen": 1790714214.691347,
+    "ast_hash": "72158175c4ba432ede32a7c2ca4143e0",
+    "semantic_hash": "72158175c4ba432ede32a7c2ca4143e0"
+  },
+  "backend/public/static/media/coins-sound.03939f5fd5a7496c0915.mp3": {
+    "mtime": 1777580816.0,
+    "seen": 1790714214.691347,
+    "ast_hash": "a8e7158296262f0062c4d1a7d70d7b3b",
+    "semantic_hash": "a8e7158296262f0062c4d1a7d70d7b3b"
+  },
+  "frontend/src/sounds/coins-sound.mp3": {
+    "mtime": 1770918354.0,
+    "seen": 1790714214.691348,
+    "ast_hash": "a8e7158296262f0062c4d1a7d70d7b3b",
+    "semantic_hash": "a8e7158296262f0062c4d1a7d70d7b3b"
+  },
+  "README.md": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.6190982,
+    "ast_hash": "c43d864bcae64b961ab0afe3e5abcf0f",
+    "semantic_hash": ""
+  },
+  "backend/function.txt": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619099,
+    "ast_hash": "7bdc52db624573c7289ed1a1dfc6b4b7",
+    "semantic_hash": ""
+  },
+  "backend/public/index.html": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.619099,
+    "ast_hash": "10817d10b784665385185a6e8fc3d2bc",
+    "semantic_hash": ""
+  },
+  "backend/public/static/js/main.21695ab2.js.LICENSE.txt": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.6190999,
+    "ast_hash": "11211063c65e8c9340e3ded9e980210e",
+    "semantic_hash": ""
+  },
+  "docker-compose.yml": {
+    "mtime": 1790714541.7623699,
+    "seen": 1790714634.6190999,
+    "ast_hash": "e7bd8fc930cf085f3dc273576965ed30",
+    "semantic_hash": ""
+  },
+  "frontend/README.md": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.6191008,
+    "ast_hash": "ee29ecbe35fdd89c0463d258b4acfa65",
+    "semantic_hash": ""
+  },
+  "frontend/public/index.html": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.6191008,
+    "ast_hash": "80f401d72e7dce2ba084d460190f56f3",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/001Dark.313e7b0e1d34f518ad77.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.619102,
+    "ast_hash": "0e3209687c1904b480b42f655ac60b91",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/001Light.313e7b0e1d34f518ad77.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.619103,
+    "ast_hash": "0e3209687c1904b480b42f655ac60b91",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/002Dark.ae0c68e963e1cbf5f090.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.619103,
+    "ast_hash": "19fb6b2ac4e8da593049c1bcf3f96b3c",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/002Light.ae0c68e963e1cbf5f090.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.619103,
+    "ast_hash": "19fb6b2ac4e8da593049c1bcf3f96b3c",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/003Dark.e4a5e08a4418e1b4b0ed.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.619104,
+    "ast_hash": "b931b32cc33d5e2694295f9ca00a54f6",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/003Light.e4a5e08a4418e1b4b0ed.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.619104,
+    "ast_hash": "b931b32cc33d5e2694295f9ca00a54f6",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/10K.56692beb126a95e1bfaa.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.619105,
+    "ast_hash": "7d3fcfed4301b2d48dcfad7061337ca1",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/10_of_clubs.1e849b9251f1cca97075.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.619105,
+    "ast_hash": "c29b28f3eceb7284d141163e3bd37736",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/10_of_diamonds.f5f2d107605011ac11f3.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.619106,
+    "ast_hash": "4324d71291ce16ef4161df8cf852298e",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/10_of_hearts.bf72f319e7272679bbda.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.619106,
+    "ast_hash": "2e6327a66fbf8d05d379d87d56251a1e",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/10_of_spades.c9f933df0fb58bf52847.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.619107,
+    "ast_hash": "2401fe3648865f6bc3c01a538c512d7c",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/20K.6abc01de0ab57bfa1e4a.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.619107,
+    "ast_hash": "2f59b83d1c2c41a8f35b0c298486ba27",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/2K.a89f7fda99adbd95757f.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.6191082,
+    "ast_hash": "b2c25a3655325d7070299c8e1ab2a4cc",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/2_of_clubs.d5d968ca8003810f50d6.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.6191082,
+    "ast_hash": "c83a7af4125e22d9733f6514295f3d4c",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/2_of_diamonds.a51b192d2f2ba1fc1d53.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.6191092,
+    "ast_hash": "0b5b5249b22ada06106be8b73938be9e",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/2_of_hearts.c2cb81fb3d816683e15a.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.6191092,
+    "ast_hash": "f97ad85b1e89af6a88c70205cdea06f6",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/2_of_spades.b9261a5e22908925e4af.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.6191099,
+    "ast_hash": "2354275da56e304199f694388a8aaae6",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/3_of_clubs.bbea0442d0b02b9f8b3d.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.6191099,
+    "ast_hash": "23a7a6ac76db02bbde27988e49ac5fca",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/3_of_diamonds.b78fe80c763b6f828c0e.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.6191108,
+    "ast_hash": "b529e1c14fef2ffc07c3c4eac94c31f4",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/3_of_hearts.d50c0a08e3608192656a.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.6191108,
+    "ast_hash": "1c16fe1052c3a4d1715ee1288209ebe9",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/3_of_spades.5aea02209cd1850b2085.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.619113,
+    "ast_hash": "ad02dc95b434842c3465a7a4dbaca615",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/4_of_clubs.e6ba95ce4047b4e077d8.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.619114,
+    "ast_hash": "02deab4916f717f0b9478fad476ec40f",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/4_of_diamonds.e86dcc4c46f2f328ebe9.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.619114,
+    "ast_hash": "58bd0a6383829cbce3747c245c0b204c",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/4_of_hearts.436fe356aa88903aedfa.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.619115,
+    "ast_hash": "5ad913da63724447b7c94d1fb2d293a6",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/4_of_spades.8f0668446faa6a9e9852.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.619115,
+    "ast_hash": "df185c634b2fee0418bd613524938832",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/50K.c5f0fb4798ee1ae547c8.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.619116,
+    "ast_hash": "dd9578b8ee392b1f6702ac09273659e4",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/5K.df9386097a7ce5692ffc.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.619116,
+    "ast_hash": "4986d9f21fe0cd4b683afb00c50712b3",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/5_of_clubs.4397c46fc191aad146bb.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.619117,
+    "ast_hash": "3781bf44a82cad8ef837e6ba281427c9",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/5_of_diamonds.ced27ce3f458223d097c.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.619117,
+    "ast_hash": "e27b4b0aadc6a28953f53cfd573e9e2d",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/5_of_hearts.f407aa6fa30d7a8a1683.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.619118,
+    "ast_hash": "8f6a2068fd6f32c372ea8dab0cde6f40",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/5_of_spades.bffe8ee0a4cc67bced90.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.619118,
+    "ast_hash": "aa8a072015826f2e582a59e9606e0cd3",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/6_of_clubs.b44599ca5e9e11e61863.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.6191192,
+    "ast_hash": "9c2fdf6a8916a2b3daea26a7974eed28",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/6_of_diamonds.b19504c11d0b1431a746.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.6191192,
+    "ast_hash": "ee5053d458469b151ef1f4503b5ab12f",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/6_of_hearts.3fff08359c2011f4e988.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.6191201,
+    "ast_hash": "9cd2258c8c8c175ead46f94800741891",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/6_of_spades.1cbd30ed1339258d51c6.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.619122,
+    "ast_hash": "5d221b2a958bb6b66b4e57de437c0906",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/7_of_clubs.efd12036d5769f6b5a56.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.619122,
+    "ast_hash": "112be1dfa65edf2cabf9122b2c49eb22",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/7_of_diamonds.fe13bd1ba1c4b66c99d1.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.619123,
+    "ast_hash": "df3e8e93d277f2b73d2c5ddf348c065c",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/7_of_hearts.fdc0fa83de201b4afbc8.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.619124,
+    "ast_hash": "a9afa10fcea89a4227bb4b81f49a35e8",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/7_of_spades.1517728ea424d193c5a7.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.619124,
+    "ast_hash": "c0f5e5f9013f1d24eccd395ab9312766",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/8_of_clubs.78dfd7432da623ecf09e.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.619125,
+    "ast_hash": "6ed0b85e676230d360186c3469b08cdf",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/8_of_diamonds.b1389da2bd2f2812f55c.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.619125,
+    "ast_hash": "8afee604213ca296067245ce18458af2",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/8_of_hearts.cff7b360d1e2e4a7a364.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.619126,
+    "ast_hash": "e6c01b136dca0b2c3c03a115d4ab21e1",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/8_of_spades.c8c922f0e9779cf2714c.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.619126,
+    "ast_hash": "747667555c7c5d6799ca3545463372b0",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/9_of_clubs.8e317f622f55579618f6.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.619127,
+    "ast_hash": "784ea7703fcff1e10745e014d98a24aa",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/9_of_diamonds.ae87f8c3139247ba2314.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.619127,
+    "ast_hash": "86608eb9bf92b21b9e33a1ffa4c46ccc",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/9_of_hearts.a896f989e7771ab21ac1.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.619128,
+    "ast_hash": "cdb8fda5b30f3973b1ec7f200c24a18f",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/9_of_spades.dcce4a160670652e0ffe.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.619128,
+    "ast_hash": "e5b29fdec7e761281073496181d31ab9",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/Group 1.c3ffaeedabf3cb881b97.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.6191292,
+    "ast_hash": "447e5f0836f9a575c6873a6547d432da",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/Group 3.4a2f33641c152b95f67d.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.6191292,
+    "ast_hash": "38d4e5293c323a6d5bc15ebe1d09c1c3",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/Group 6.9cd647e7850c79d5f29f.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.6191301,
+    "ast_hash": "feb52e46ac2884ea841194ce2382f088",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/Ribbon+Stars.0d7d608362c190018092.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.6191301,
+    "ast_hash": "6edd2b4e851f2166ec1e9b70b3014de9",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/RulesBg.634be5ebc373f4833269.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.6191308,
+    "ast_hash": "b3fb158935c389a291e50fb64444a2a0",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/ace_of_clubs.f2dd09c014f9a968db89.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.6191308,
+    "ast_hash": "07d1c180bead76a0b8cf8e488dfc2755",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/ace_of_diamonds.326a309b8e2a520461bf.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.6191318,
+    "ast_hash": "60b16fdaed475d30edab3bc92f4bd3c9",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/ace_of_hearts.5a72df7d30e47434c2a8.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.6191318,
+    "ast_hash": "41453bfa387b05e68828f2b0159c19d9",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/ace_of_spades.a24049b6038d0a8b2cc2.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.619133,
+    "ast_hash": "ce4f163fc9fddc4e9f173d74b2970cc2",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/back.8dd9fc1bf80558767241.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.619133,
+    "ast_hash": "1ca5d8c45e972318710b49feb0913fdb",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/bg3.ffd5e94c2635ae880f9b.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.619134,
+    "ast_hash": "32636f5ae775005bad7ae94503c93422",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/clock.0e9dade578baa8a361e0.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.619134,
+    "ast_hash": "0254df21709a9c000bb745a93719e48b",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/jack_of_clubs2.316b830335ec4d4b093d.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.619135,
+    "ast_hash": "d96ecf4f3c246b8c781f82d1bb2bd1dc",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/jack_of_diamonds2.afe516e95a5f8a0fb455.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.619135,
+    "ast_hash": "c936f66eb6ca786d62a2c49876367017",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/jack_of_hearts2.f623f209cee34f5f36ea.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.619136,
+    "ast_hash": "9be659a7f009932fe8f49a213c22e439",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/jack_of_spades2.3fa41aad1bac0646b475.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.619136,
+    "ast_hash": "d77ce402c3977e303abeed8ec5bb35a5",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/king.0ad47fcb6719d77e1a3c.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.619137,
+    "ast_hash": "0102fe01c076a5585c1607775bd6b9c8",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/king_of_clubs2.b70624b5c06bb02b555d.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.619137,
+    "ast_hash": "f0dc748d3d36f265ab670c8ce0332e3d",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/king_of_diamonds2.87c79c7e6a6ad495db27.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.619138,
+    "ast_hash": "9588f72f2c9d6898c9af3b20bcde7c2f",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/king_of_hearts2.67c7a87603fdc5b5e2f7.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.619138,
+    "ast_hash": "e8d050e1412d4866d34f9a41b0c48238",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/king_of_spades2.fda148e5425c266a3a81.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.619139,
+    "ast_hash": "aebc913c5eb0ecd7859218636929c8ae",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/music-off.ed9d056d5f0d112dbe37.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.619139,
+    "ast_hash": "6c516eecdb9768b583ba3cad4bd0db66",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/music-on.a566b86054ae0a157d0e.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.619139,
+    "ast_hash": "8eb502238cd560b2a4f6219c8d17a851",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/queen_of_clubs2.ef480115313c1c393699.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.6191401,
+    "ast_hash": "fd943099b2abeb6cf01bebb4dc66cbbe",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/queen_of_diamonds2.911390541adb6dfd350a.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.6191401,
+    "ast_hash": "f91b8d276604290828523a097fd4af26",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/queen_of_hearts2.746a7ee8eaded6c7944b.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.619141,
+    "ast_hash": "8065dc2a89d1be1e9908343fb99d82cc",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/queen_of_spades2.c9de6912454b7282e58b.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.619141,
+    "ast_hash": "445df3cf193554d44a50f43d4597c324",
+    "semantic_hash": ""
+  },
+  "backend/public/static/media/starCoin.e5cce045da81e5846842.png": {
+    "mtime": 1777580816.0,
+    "seen": 1790714634.6191418,
+    "ast_hash": "9f338086715140cb7b0defb6604a9e20",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/001Dark.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.6191418,
+    "ast_hash": "0e3209687c1904b480b42f655ac60b91",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/001Light.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619143,
+    "ast_hash": "0e3209687c1904b480b42f655ac60b91",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/002Dark.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619143,
+    "ast_hash": "19fb6b2ac4e8da593049c1bcf3f96b3c",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/002Light.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619144,
+    "ast_hash": "19fb6b2ac4e8da593049c1bcf3f96b3c",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/003Dark.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619144,
+    "ast_hash": "b931b32cc33d5e2694295f9ca00a54f6",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/003Light.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619145,
+    "ast_hash": "b931b32cc33d5e2694295f9ca00a54f6",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/10K.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619145,
+    "ast_hash": "7d3fcfed4301b2d48dcfad7061337ca1",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/20K.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.6191459,
+    "ast_hash": "2f59b83d1c2c41a8f35b0c298486ba27",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/2K.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.6191459,
+    "ast_hash": "b2c25a3655325d7070299c8e1ab2a4cc",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/50K.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619147,
+    "ast_hash": "dd9578b8ee392b1f6702ac09273659e4",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/5K.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619147,
+    "ast_hash": "4986d9f21fe0cd4b683afb00c50712b3",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/A.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619148,
+    "ast_hash": "8d0a1d424fab80cb43af8a1805f53ed2",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/B.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619148,
+    "ast_hash": "6fbf7b1e7025a265cc19f3f53dadd7dc",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/BG.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619149,
+    "ast_hash": "86947a7844eec58e44dadbcd946df4f1",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/C.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619149,
+    "ast_hash": "7c0577da2a9c7df0b530394963f1ebb3",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/Group 1.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619149,
+    "ast_hash": "447e5f0836f9a575c6873a6547d432da",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/Group 2.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.6191502,
+    "ast_hash": "c460332bf06e7b2b629e722e5b3d55d0",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/Group 3.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.6191502,
+    "ast_hash": "38d4e5293c323a6d5bc15ebe1d09c1c3",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/Group 5.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619151,
+    "ast_hash": "2a250cb95eabbb46163f13fb7b81b701",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/Group 6.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619151,
+    "ast_hash": "feb52e46ac2884ea841194ce2382f088",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/Group 7.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.6191518,
+    "ast_hash": "eb5fd5ea82bea08612d438dbd47e895f",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/Ribbon+Stars.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.6191518,
+    "ast_hash": "6edd2b4e851f2166ec1e9b70b3014de9",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/Ribbon.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.6191528,
+    "ast_hash": "1d0245e0be48dfe502dc8801dfc9780d",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/RulesBg.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.6191528,
+    "ast_hash": "b3fb158935c389a291e50fb64444a2a0",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/bg1.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619154,
+    "ast_hash": "b03a60f28ed199f9512fa9a66463d6ce",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/bg2.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619154,
+    "ast_hash": "f3fe9213045de9cd53c289992e691b2a",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/bg3.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619155,
+    "ast_hash": "32636f5ae775005bad7ae94503c93422",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/10_of_clubs.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619155,
+    "ast_hash": "c29b28f3eceb7284d141163e3bd37736",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/10_of_diamonds.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619156,
+    "ast_hash": "4324d71291ce16ef4161df8cf852298e",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/10_of_hearts.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619156,
+    "ast_hash": "2e6327a66fbf8d05d379d87d56251a1e",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/10_of_spades.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619157,
+    "ast_hash": "2401fe3648865f6bc3c01a538c512d7c",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/2_of_clubs.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619157,
+    "ast_hash": "c83a7af4125e22d9733f6514295f3d4c",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/2_of_diamonds.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619158,
+    "ast_hash": "0b5b5249b22ada06106be8b73938be9e",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/2_of_hearts.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619158,
+    "ast_hash": "f97ad85b1e89af6a88c70205cdea06f6",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/2_of_spades.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619159,
+    "ast_hash": "2354275da56e304199f694388a8aaae6",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/3_of_clubs.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619159,
+    "ast_hash": "23a7a6ac76db02bbde27988e49ac5fca",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/3_of_diamonds.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.6191602,
+    "ast_hash": "b529e1c14fef2ffc07c3c4eac94c31f4",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/3_of_hearts.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.6191602,
+    "ast_hash": "1c16fe1052c3a4d1715ee1288209ebe9",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/3_of_spades.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.6191611,
+    "ast_hash": "ad02dc95b434842c3465a7a4dbaca615",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/4_of_clubs.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.6191611,
+    "ast_hash": "02deab4916f717f0b9478fad476ec40f",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/4_of_diamonds.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619162,
+    "ast_hash": "58bd0a6383829cbce3747c245c0b204c",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/4_of_hearts.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619162,
+    "ast_hash": "5ad913da63724447b7c94d1fb2d293a6",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/4_of_spades.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.6191628,
+    "ast_hash": "df185c634b2fee0418bd613524938832",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/5_of_clubs.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.6191628,
+    "ast_hash": "3781bf44a82cad8ef837e6ba281427c9",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/5_of_diamonds.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619164,
+    "ast_hash": "e27b4b0aadc6a28953f53cfd573e9e2d",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/5_of_hearts.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619164,
+    "ast_hash": "8f6a2068fd6f32c372ea8dab0cde6f40",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/5_of_spades.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619165,
+    "ast_hash": "aa8a072015826f2e582a59e9606e0cd3",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/6_of_clubs.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619165,
+    "ast_hash": "9c2fdf6a8916a2b3daea26a7974eed28",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/6_of_diamonds.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619166,
+    "ast_hash": "ee5053d458469b151ef1f4503b5ab12f",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/6_of_hearts.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619166,
+    "ast_hash": "9cd2258c8c8c175ead46f94800741891",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/6_of_spades.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619167,
+    "ast_hash": "5d221b2a958bb6b66b4e57de437c0906",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/7_of_clubs.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619167,
+    "ast_hash": "112be1dfa65edf2cabf9122b2c49eb22",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/7_of_diamonds.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619168,
+    "ast_hash": "df3e8e93d277f2b73d2c5ddf348c065c",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/7_of_hearts.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619168,
+    "ast_hash": "a9afa10fcea89a4227bb4b81f49a35e8",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/7_of_spades.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619169,
+    "ast_hash": "c0f5e5f9013f1d24eccd395ab9312766",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/8_of_clubs.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.61917,
+    "ast_hash": "6ed0b85e676230d360186c3469b08cdf",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/8_of_diamonds.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.61917,
+    "ast_hash": "8afee604213ca296067245ce18458af2",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/8_of_hearts.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.6191711,
+    "ast_hash": "e6c01b136dca0b2c3c03a115d4ab21e1",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/8_of_spades.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.6191711,
+    "ast_hash": "747667555c7c5d6799ca3545463372b0",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/9_of_clubs.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.6191711,
+    "ast_hash": "784ea7703fcff1e10745e014d98a24aa",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/9_of_diamonds.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619172,
+    "ast_hash": "86608eb9bf92b21b9e33a1ffa4c46ccc",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/9_of_hearts.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619172,
+    "ast_hash": "cdb8fda5b30f3973b1ec7f200c24a18f",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/9_of_spades.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619173,
+    "ast_hash": "e5b29fdec7e761281073496181d31ab9",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/ace_of_clubs.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619173,
+    "ast_hash": "07d1c180bead76a0b8cf8e488dfc2755",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/ace_of_diamonds.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619174,
+    "ast_hash": "60b16fdaed475d30edab3bc92f4bd3c9",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/ace_of_hearts.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619174,
+    "ast_hash": "41453bfa387b05e68828f2b0159c19d9",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/ace_of_spades.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619175,
+    "ast_hash": "ce4f163fc9fddc4e9f173d74b2970cc2",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/back.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619175,
+    "ast_hash": "1ca5d8c45e972318710b49feb0913fdb",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/jack_of_clubs.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619176,
+    "ast_hash": "1861c1e4a50028cb1dfce55e531ff292",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/jack_of_clubs2.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619176,
+    "ast_hash": "d96ecf4f3c246b8c781f82d1bb2bd1dc",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/jack_of_diamonds2.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.6191769,
+    "ast_hash": "c936f66eb6ca786d62a2c49876367017",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/jack_of_hearts2.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.6191769,
+    "ast_hash": "9be659a7f009932fe8f49a213c22e439",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/jack_of_spades2.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619178,
+    "ast_hash": "d77ce402c3977e303abeed8ec5bb35a5",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/king_of_clubs2.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619178,
+    "ast_hash": "f0dc748d3d36f265ab670c8ce0332e3d",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/king_of_diamonds2.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619179,
+    "ast_hash": "9588f72f2c9d6898c9af3b20bcde7c2f",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/king_of_hearts2.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619179,
+    "ast_hash": "e8d050e1412d4866d34f9a41b0c48238",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/king_of_spades2.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.61918,
+    "ast_hash": "aebc913c5eb0ecd7859218636929c8ae",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/10_of_clubs.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.61918,
+    "ast_hash": "c29b28f3eceb7284d141163e3bd37736",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/10_of_diamonds.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.6191812,
+    "ast_hash": "4324d71291ce16ef4161df8cf852298e",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/10_of_hearts.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.6191812,
+    "ast_hash": "2e6327a66fbf8d05d379d87d56251a1e",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/10_of_spades.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619182,
+    "ast_hash": "2401fe3648865f6bc3c01a538c512d7c",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/2_of_clubs.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619182,
+    "ast_hash": "c83a7af4125e22d9733f6514295f3d4c",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/2_of_diamonds.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619182,
+    "ast_hash": "0b5b5249b22ada06106be8b73938be9e",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/2_of_hearts.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619183,
+    "ast_hash": "f97ad85b1e89af6a88c70205cdea06f6",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/2_of_spades.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619183,
+    "ast_hash": "2354275da56e304199f694388a8aaae6",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/3_of_clubs.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619184,
+    "ast_hash": "23a7a6ac76db02bbde27988e49ac5fca",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/3_of_diamonds.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619184,
+    "ast_hash": "b529e1c14fef2ffc07c3c4eac94c31f4",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/3_of_hearts.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619185,
+    "ast_hash": "1c16fe1052c3a4d1715ee1288209ebe9",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/3_of_spades.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619185,
+    "ast_hash": "ad02dc95b434842c3465a7a4dbaca615",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/4_of_clubs.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619186,
+    "ast_hash": "02deab4916f717f0b9478fad476ec40f",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/4_of_diamonds.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.6191869,
+    "ast_hash": "58bd0a6383829cbce3747c245c0b204c",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/4_of_hearts.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.6191869,
+    "ast_hash": "5ad913da63724447b7c94d1fb2d293a6",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/4_of_spades.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619188,
+    "ast_hash": "df185c634b2fee0418bd613524938832",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/5_of_clubs.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619188,
+    "ast_hash": "3781bf44a82cad8ef837e6ba281427c9",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/5_of_diamonds.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619189,
+    "ast_hash": "e27b4b0aadc6a28953f53cfd573e9e2d",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/5_of_hearts.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619189,
+    "ast_hash": "8f6a2068fd6f32c372ea8dab0cde6f40",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/5_of_spades.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.61919,
+    "ast_hash": "aa8a072015826f2e582a59e9606e0cd3",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/6_of_clubs.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.61919,
+    "ast_hash": "9c2fdf6a8916a2b3daea26a7974eed28",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/6_of_diamonds.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619191,
+    "ast_hash": "ee5053d458469b151ef1f4503b5ab12f",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/6_of_hearts.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619191,
+    "ast_hash": "9cd2258c8c8c175ead46f94800741891",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/6_of_spades.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.6191921,
+    "ast_hash": "5d221b2a958bb6b66b4e57de437c0906",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/7_of_clubs.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.6191921,
+    "ast_hash": "112be1dfa65edf2cabf9122b2c49eb22",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/7_of_diamonds.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619193,
+    "ast_hash": "df3e8e93d277f2b73d2c5ddf348c065c",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/7_of_hearts.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619193,
+    "ast_hash": "a9afa10fcea89a4227bb4b81f49a35e8",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/7_of_spades.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619194,
+    "ast_hash": "c0f5e5f9013f1d24eccd395ab9312766",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/8_of_clubs.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619194,
+    "ast_hash": "6ed0b85e676230d360186c3469b08cdf",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/8_of_diamonds.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619195,
+    "ast_hash": "8afee604213ca296067245ce18458af2",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/8_of_hearts.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619195,
+    "ast_hash": "e6c01b136dca0b2c3c03a115d4ab21e1",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/8_of_spades.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619195,
+    "ast_hash": "747667555c7c5d6799ca3545463372b0",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/9_of_clubs.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619196,
+    "ast_hash": "784ea7703fcff1e10745e014d98a24aa",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/9_of_diamonds.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619196,
+    "ast_hash": "86608eb9bf92b21b9e33a1ffa4c46ccc",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/9_of_hearts.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619197,
+    "ast_hash": "cdb8fda5b30f3973b1ec7f200c24a18f",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/9_of_spades.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619197,
+    "ast_hash": "e5b29fdec7e761281073496181d31ab9",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/ace_of_clubs.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.6191978,
+    "ast_hash": "07d1c180bead76a0b8cf8e488dfc2755",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/ace_of_diamonds.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.6191978,
+    "ast_hash": "60b16fdaed475d30edab3bc92f4bd3c9",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/ace_of_hearts.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619199,
+    "ast_hash": "41453bfa387b05e68828f2b0159c19d9",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/ace_of_spades.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619199,
+    "ast_hash": "ce4f163fc9fddc4e9f173d74b2970cc2",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/black_joker.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.6192,
+    "ast_hash": "21cc92db51d5fb7888b97517c51c2d2a",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/jack_of_clubs.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.6192,
+    "ast_hash": "1861c1e4a50028cb1dfce55e531ff292",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/jack_of_clubs2.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619201,
+    "ast_hash": "d96ecf4f3c246b8c781f82d1bb2bd1dc",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/jack_of_diamonds.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619201,
+    "ast_hash": "ac2092c166d2e7cc53f04db33296c851",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/jack_of_diamonds2.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.6192021,
+    "ast_hash": "c936f66eb6ca786d62a2c49876367017",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/jack_of_hearts.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.6192021,
+    "ast_hash": "260cdba6401178e69eee797ee4e31247",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/jack_of_hearts2.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619203,
+    "ast_hash": "9be659a7f009932fe8f49a213c22e439",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/jack_of_spades.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619203,
+    "ast_hash": "92aff04497b99fe80d5d036a41da6529",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/jack_of_spades2.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619204,
+    "ast_hash": "d77ce402c3977e303abeed8ec5bb35a5",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/king_of_clubs.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619204,
+    "ast_hash": "2ad9bff3c6f99adf135499b905017921",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/king_of_clubs2.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.6192052,
+    "ast_hash": "f0dc748d3d36f265ab670c8ce0332e3d",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/king_of_diamonds.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.6192052,
+    "ast_hash": "1a5882a6ed0fb4a79a1f5c4877e432f6",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/king_of_diamonds2.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619206,
+    "ast_hash": "9588f72f2c9d6898c9af3b20bcde7c2f",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/king_of_hearts.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619206,
+    "ast_hash": "37b5b9d756e453abf7c673709c24894c",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/king_of_hearts2.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619207,
+    "ast_hash": "e8d050e1412d4866d34f9a41b0c48238",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/king_of_spades.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619207,
+    "ast_hash": "9b18a729ba5bda5ca4ef62fc6fdb4f62",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/king_of_spades2.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619209,
+    "ast_hash": "aebc913c5eb0ecd7859218636929c8ae",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/queen_of_clubs.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619209,
+    "ast_hash": "9e84dd75995fe4a3b8871bab4cbb3898",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/queen_of_clubs2.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.61921,
+    "ast_hash": "fd943099b2abeb6cf01bebb4dc66cbbe",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/queen_of_diamonds.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.61921,
+    "ast_hash": "d5647c19f6390075fc76d403aa266e0d",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/queen_of_diamonds2.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619211,
+    "ast_hash": "f91b8d276604290828523a097fd4af26",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/queen_of_hearts.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619211,
+    "ast_hash": "cf8946464fc57b3d20bf806522d0e799",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/queen_of_hearts2.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.6192122,
+    "ast_hash": "8065dc2a89d1be1e9908343fb99d82cc",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/queen_of_spades.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.6192122,
+    "ast_hash": "6d100fc31db0f6e10df79f2891aaf8f2",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/queen_of_spades2.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619213,
+    "ast_hash": "445df3cf193554d44a50f43d4597c324",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/new-card/PNG-cards-1.3/red_joker.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619213,
+    "ast_hash": "032874afea49aa79307937f4270c5811",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/queen_of_clubs2.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619214,
+    "ast_hash": "fd943099b2abeb6cf01bebb4dc66cbbe",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/queen_of_diamonds2.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619214,
+    "ast_hash": "f91b8d276604290828523a097fd4af26",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/queen_of_hearts2.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619215,
+    "ast_hash": "8065dc2a89d1be1e9908343fb99d82cc",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/cards/queen_of_spades2.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619215,
+    "ast_hash": "445df3cf193554d44a50f43d4597c324",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/clock.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619216,
+    "ast_hash": "0254df21709a9c000bb745a93719e48b",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/history.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619216,
+    "ast_hash": "fa8587e79cecfce8bb846e4644363638",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/home.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619217,
+    "ast_hash": "7197b51165c2c4da34259c2d67ea3288",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/king.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619217,
+    "ast_hash": "0102fe01c076a5585c1607775bd6b9c8",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/logout.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.6192179,
+    "ast_hash": "819b5f39066fe457092aad05e7ada75b",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/music-off.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.6192179,
+    "ast_hash": "6c516eecdb9768b583ba3cad4bd0db66",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/music-on.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.6192188,
+    "ast_hash": "8eb502238cd560b2a4f6219c8d17a851",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/old-cards/back.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.6192188,
+    "ast_hash": "c59c3bf3e456ee957603d3b44c4a15cd",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/old-cards/black club (10).png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.61922,
+    "ast_hash": "d7eee26bace4d0979bbcf1eddbcb4731",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/old-cards/black club (2).png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.61922,
+    "ast_hash": "cbe95c876587c73389ca2b7a46d77043",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/old-cards/black club (3).png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619221,
+    "ast_hash": "2fbe4e8295f20a04e0bb0880bbb63479",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/old-cards/black club (4).png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619221,
+    "ast_hash": "7c6f7fc9e45051ec97acea1be7470da3",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/old-cards/black club (5).png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619222,
+    "ast_hash": "3c1e70aa4c89b9fc4079c57ebf7ff21f",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/old-cards/black club (6).png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619222,
+    "ast_hash": "d05a10ce2eff5ad12164ca5b6d43aafc",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/old-cards/black club (7).png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619222,
+    "ast_hash": "9a20b6b2161952698f470a2abc9c0d64",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/old-cards/black club (8).png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619223,
+    "ast_hash": "9b3c78eac4a0b314f37401cfd55ba256",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/old-cards/black club (9).png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619223,
+    "ast_hash": "6c1cb55eb5a63f5550bb2809ba312fdb",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/old-cards/black club A.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619224,
+    "ast_hash": "214afaaf20dc3dc638d5a56819738325",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/old-cards/black club J.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619224,
+    "ast_hash": "d363a9887bb2848d913ce4f4abb9658a",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/old-cards/black club K.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619225,
+    "ast_hash": "079da3820b5eb4216860f0c5c01fa1f2",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/old-cards/black club Q.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.6192262,
+    "ast_hash": "e46ae6fa7e5c2e5a224d6208f16df1d1",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/old-cards/red dimond (10).png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.6192262,
+    "ast_hash": "fcfb85566cf186c1530602cb1b5c0984",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/old-cards/red dimond (2).png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.6192262,
+    "ast_hash": "7db9d0c6cda25e57ee974fe748faf3ae",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/old-cards/red dimond (3).png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619227,
+    "ast_hash": "cd4bf27346a188ad06391c71c9f9e8ce",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/old-cards/red dimond (4).png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619227,
+    "ast_hash": "c73f755186d795045aaa076bc7e72a3a",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/old-cards/red dimond (5).png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619228,
+    "ast_hash": "20f046bd90b7a667c4a538906d0b5656",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/old-cards/red dimond (6).png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619228,
+    "ast_hash": "e52be2e9c87c5c48f7dfdc091697479f",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/old-cards/red dimond (7).png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.6192288,
+    "ast_hash": "0bca3c19ea62a6ef61c8f974508c03da",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/old-cards/red dimond (8).png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.6192288,
+    "ast_hash": "912393382a4aa3c5634434b2d4d1af99",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/old-cards/red dimond (9).png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.61923,
+    "ast_hash": "6eb241ed1abdc24de2ff6ef3612a2245",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/old-cards/red dimond A.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.61923,
+    "ast_hash": "4c898eb95fe21dbcdb480ff869f7394a",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/old-cards/red dimond J.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619231,
+    "ast_hash": "fd85cd5ef669d5ba6e201ccfbc0c4a17",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/old-cards/red dimond K.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619231,
+    "ast_hash": "bddf54b3986b8881685445b7510c9314",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/old-cards/red dimond Q.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619232,
+    "ast_hash": "a4dbda432bf7dc36d975845cbfdbc97e",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/old-cards/red heart (10).png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619232,
+    "ast_hash": "5a857e618a6e69f38f6be6664c5a1384",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/old-cards/red heart (2).png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.6192331,
+    "ast_hash": "b21c69d05ebda4768f09d747cf8158bb",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/old-cards/red heart (3).png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.6192331,
+    "ast_hash": "b140f6d186ac8d84b3463d6ba8f5701b",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/old-cards/red heart (4).png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619234,
+    "ast_hash": "6416b39716f479affe1814a344ae9b4e",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/old-cards/red heart (5).png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619234,
+    "ast_hash": "383a4bd190efb3c81b5c591c53261954",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/old-cards/red heart (6).png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619235,
+    "ast_hash": "f5869eab50d53690bd0e671dc529ca03",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/old-cards/red heart (7).png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619235,
+    "ast_hash": "3ad955d5e4afa92ee505f3e6564b06fb",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/old-cards/red heart (8).png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619236,
+    "ast_hash": "2e9666297129c7d3010dd3b43fea5f7f",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/old-cards/red heart (9).png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619236,
+    "ast_hash": "c24c4d4f731c782cab03fcee37c7c2e9",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/old-cards/red heart A.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.6192372,
+    "ast_hash": "0fdfe00cb2d52188ca07bbbdfce84b6d",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/old-cards/red heart J.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.6192372,
+    "ast_hash": "2df70a2d1f0cfd201ce6a3cfada9af58",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/old-cards/red heart K.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.6192372,
+    "ast_hash": "b93cae72dedeb7bbaca57d1b6311859e",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/old-cards/red heart Q.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619238,
+    "ast_hash": "e865ec4749609a65cee7dd36439c5c96",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/rules.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.619238,
+    "ast_hash": "bfcc01a2192782f6260ec970df8a03dc",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/shop.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.6192389,
+    "ast_hash": "3fbd7a3a0fd9d4e16403f4e4b2d93c72",
+    "semantic_hash": ""
+  },
+  "frontend/src/images/starCoin.png": {
+    "mtime": 1770918354.0,
+    "seen": 1790714634.6192389,
+    "ast_hash": "9f338086715140cb7b0defb6604a9e20",
+    "semantic_hash": ""
+  }
+}

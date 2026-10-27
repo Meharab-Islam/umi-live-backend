@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#1a0a2e" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+  <title>🎰 Live Fruit Slot Machine</title>
+  <meta name="description" content="Chinese Live Streaming Fruit Roulette Slot Machine Game for Flutter WebView" />
+
+  <!-- Google Fonts: Orbitron & Exo 2 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;800;900&family=Exo+2:wght@400;600;700;800;900&family=VT323&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            orbitron: ['Orbitron', 'sans-serif'],
+            exo: ['Exo 2', 'sans-serif'],
+            digital: ['VT323', 'monospace'],
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- SCSS compiled by Vite -->
+  <link rel="stylesheet" href="/src/styles/main.scss" />
+</head>
+<body>
+
+<!-- ════ LOADING SCREEN ════ -->
+<div id="loading-screen">
+  <div class="loader-logo">🎰 JACKPOT SLOTS</div>
+  <div class="loader-bar-bg">
+    <div class="loader-bar-fill"></div>
+  </div>
+  <div class="loader-text">Loading live casino stream...</div>
+</div>
+
+<!-- ════ MAIN GAME ROOT (Max 450px centered) ════ -->
+<div id="game-root">
+  <div class="slot-cabinet">
+
+    <!-- ── Cabinet Side Neon LED Tubes ── -->
+    <div class="cabinet-neon-tube tube-left">
+      <span class="neon-led"></span><span class="neon-led"></span><span class="neon-led"></span>
+      <span class="neon-led"></span><span class="neon-led"></span><span class="neon-led"></span>
+      <span class="neon-led"></span><span class="neon-led"></span><span class="neon-led"></span>
+    </div>
+    <div class="cabinet-neon-tube tube-right">
+      <span class="neon-led"></span><span class="neon-led"></span><span class="neon-led"></span>
+      <span class="neon-led"></span><span class="neon-led"></span><span class="neon-led"></span>
+      <span class="neon-led"></span><span class="neon-led"></span><span class="neon-led"></span>
+    </div>
+
+    <!-- Top Bar Controls (Positioned cleanly ABOVE the slot machine) -->
+    <div class="top-nav-bar">
+      <div class="nav-left-cluster">
+        <button class="square-icon-btn close-btn" id="power-btn" title="Exit / Close Game">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M18 6L6 18M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <button class="square-icon-btn sound-btn" id="sound-btn" title="Toggle Sound">
+          <span id="sound-icon">🔊</span>
+        </button>
+        <div class="wifi-ping-badge" id="ping-badge">
+          <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="#22c55e" stroke-width="2.5">
+            <path d="M5 12.55a11 11 0 0 1 14.08 0M1.42 9a16 16 0 0 1 21.16 0M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01" stroke-linecap="round"/>
+          </svg>
+          <span id="ping-text">150ms</span>
+        </div>
+      </div>
+
+      <div class="round-display">
+        Round:<span class="round-number-text" id="round-number">2165</span>
+      </div>
+
+      <div class="nav-right-cluster">
+        <button class="pill-stat-btn auto-toggle-pill" id="auto-btn" title="Toggle Auto Bet">
+          <span class="auto-btn-text" id="auto-btn-text">Auto</span>
+        </button>
+        <button class="square-icon-btn light-btn" id="help-btn" title="Rules & Help">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+            <path d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7zM9 21a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-1H9v1z"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- ── 2. REAL ARCADE SLOT MACHINE STAGE ── -->
+    <div class="slot-machine-stage" id="slot-stage">
+
+      <!-- Live Rolling Jackpot Counter Plaque -->
+      <div class="jackpot-counter-banner" id="jackpot-counter-box">
+        <span class="jackpot-counter-val" id="jackpot-counter">1,887,773,133</span>
+      </div>
+
+      <!-- Three Animated Mini Multiplier Reels (Hidden) -->
+      <div class="mini-reels-container hidden" style="display: none;" aria-hidden="true">
+        <div class="mini-reels-box">
+          <div class="mini-reel-frame" id="mini-reel-1">
+            <span class="reel-val">×2</span>
+          </div>
+          <div class="mini-reel-frame" id="mini-reel-2">
+            <span class="reel-val">×2</span>
+          </div>
+          <div class="mini-reel-frame" id="mini-reel-3">
+            <span class="reel-val">×2</span>
+          </div>
+        </div>
+      </div>
+
+    <!-- ── 4. 3x3 FRUIT ROULETTE BOARD ── -->
+    <div class="roulette-board-outer">
+      <div class="roulette-board-frame">
+
+        <!-- Glowing Neon Runner Box (tracks around 8 fruits) -->
+        <div class="roulette-neon-cursor" id="neon-cursor"></div>
+
+        <div class="roulette-3x3-grid" id="roulette-grid">
+
+          <!-- 0: Lemon (5x) [Top-Left] -->
+          <div class="fruit-cell" data-index="0" id="cell-0">
+            <div class="fruit-img-wrap">
+              <img src="/images/fruits/lemon.png" alt="Lemon" class="fruit-img" />
+            </div>
+            <div class="fruit-mult-label">5 times</div>
+            <div class="chip-stack-area" id="chips-0"></div>
+            <div class="user-bet-badge hidden" id="user-bet-0">0</div>
+          </div>
+
+          <!-- 1: Raspberry (5x) [Top-Center] -->
+          <div class="fruit-cell" data-index="1" id="cell-1">
+            <div class="fruit-img-wrap">
+              <img src="/images/fruits/raspberry.png" alt="Raspberry" class="fruit-img" />
+            </div>
+            <div class="fruit-mult-label">5 times</div>
+            <div class="chip-stack-area" id="chips-1"></div>
+            <div class="user-bet-badge hidden" id="user-bet-1">0</div>
+          </div>
+
+          <!-- 2: Kiwi (5x) [Top-Right] -->
+          <div class="fruit-cell" data-index="2" id="cell-2">
+            <div class="fruit-img-wrap">
+              <img src="/images/fruits/kiwi.png" alt="Kiwi" class="fruit-img" />
+            </div>
+            <div class="fruit-mult-label">5 times</div>
+            <div class="chip-stack-area" id="chips-2"></div>
+            <div class="user-bet-badge hidden" id="user-bet-2">0</div>
+          </div>
+
+          <!-- 7: Cherry (45x) [Mid-Left] -->
+          <div class="fruit-cell" data-index="7" id="cell-7">
+            <div class="fruit-img-wrap">
+              <img src="/images/fruits/cherry.png" alt="Cherry" class="fruit-img" />
+            </div>
+            <div class="fruit-mult-label super-jackpot">45 times</div>
+            <div class="chip-stack-area" id="chips-7"></div>
+            <div class="user-bet-badge hidden" id="user-bet-7">0</div>
+          </div>
+
+          <!-- CENTER: Dual-Mode Digital Countdown Clock & Live Spinning Fruit Showcase -->
+          <div class="center-countdown-cell" id="center-timer-cell">
+            <div class="led-dots-chaser">
+              <span class="led-dot"></span><span class="led-dot"></span><span class="led-dot"></span>
+              <span class="led-dot"></span><span class="led-dot"></span><span class="led-dot"></span>
+              <span class="led-dot"></span><span class="led-dot"></span>
+            </div>
+
+            <!-- Mode 1: Countdown Clock Display (Active during BETTING) -->
+            <div class="center-clock-wrap" id="center-clock-wrap">
+              <div class="digital-clock-display" id="center-clock">
+                <span class="clock-digits" id="countdown-val">12</span>
+              </div>
+              <div class="countdown-sub-label" id="phase-label">BETTING</div>
+            </div>
+
+            <!-- Mode 2: Center Live Spinning Fruit Showcase (Active during SPINNING & RESULT) -->
+            <div class="center-fruit-showcase hidden" id="center-fruit-showcase">
+              <div class="center-showcase-aura" id="center-showcase-aura"></div>
+              <div class="center-showcase-img-wrap">
+                <img src="/images/fruits/strawberry.png" alt="Selected Fruit" class="center-showcase-img" id="center-showcase-img" />
+              </div>
+            </div>
+          </div>
+
+          <!-- 3: Plum (5x) [Mid-Right] -->
+          <div class="fruit-cell" data-index="3" id="cell-3">
+            <div class="fruit-img-wrap">
+              <img src="/images/fruits/plum.png" alt="Plum" class="fruit-img" />
+            </div>
+            <div class="fruit-mult-label">5 times</div>
+            <div class="chip-stack-area" id="chips-3"></div>
+            <div class="user-bet-badge hidden" id="user-bet-3">0</div>
+          </div>
+
+          <!-- 6: Watermelon (20x) [Bottom-Left] -->
+          <div class="fruit-cell" data-index="6" id="cell-6">
+            <div class="fruit-img-wrap">
+              <img src="/images/fruits/watermelon.png" alt="Watermelon" class="fruit-img" />
+            </div>
+            <div class="fruit-mult-label">20 times</div>
+            <div class="chip-stack-area" id="chips-6"></div>
+            <div class="user-bet-badge hidden" id="user-bet-6">0</div>
+          </div>
+
+          <!-- 5: Banana (10x) [Bottom-Center] -->
+          <div class="fruit-cell" data-index="5" id="cell-5">
+            <div class="fruit-img-wrap">
+              <img src="/images/fruits/banana.png" alt="Banana" class="fruit-img" />
+            </div>
+            <div class="fruit-mult-label">10 times</div>
+            <div class="chip-stack-area" id="chips-5"></div>
+            <div class="user-bet-badge hidden" id="user-bet-5">0</div>
+          </div>
+
+          <!-- 4: Strawberry (10x) [Bottom-Right] -->
+          <div class="fruit-cell active-demo" data-index="4" id="cell-4">
+            <div class="fruit-img-wrap">
+              <img src="/images/fruits/strawberry.png" alt="Strawberry" class="fruit-img" />
+            </div>
+            <div class="fruit-mult-label">10 times</div>
+            <div class="chip-stack-area" id="chips-4"></div>
+            <div class="user-bet-badge hidden" id="user-bet-4">0</div>
+          </div>
+
+        </div><!-- /roulette-3x3-grid -->
+      </div>
+    </div>
+
+    <!-- ── 5. RESULT HISTORY ROW ── -->
+    <div class="result-history-panel">
+      <div class="result-title">Result</div>
+      <div class="result-scroll-container" id="result-history-list">
+        <!-- Rendered by JS: fruit badges with 'NEW' tag on latest -->
+      </div>
+    </div>
+
+    <!-- ── 6. CHIP SELECTOR ARCADE BUTTONS (Anchored to Bottom Shelf) ── -->
+    <div class="chip-selector-bar">
+      <!-- 50K -->
+      <button class="chip-column chip-btn chip-50k" data-amount="50000" id="chip-col-50k" aria-label="Bid 50K">
+        <span class="chip-icon-box">
+          <img src="/images/chips/chip-50k.svg" alt="50K" class="chip-svg-icon" />
+        </span>
+        <span class="chip-label">50K</span>
+      </button>
+
+      <!-- 100K (ACTIVE DEFAULT) -->
+      <button class="chip-column chip-btn chip-100k active-chip" data-amount="100000" id="chip-col-100k" aria-label="Bid 100K">
+        <span class="chip-icon-box">
+          <img src="/images/chips/chip-100k.svg" alt="100K" class="chip-svg-icon" />
+        </span>
+        <span class="chip-label">100K</span>
+      </button>
+
+      <!-- 500K -->
+      <button class="chip-column chip-btn chip-500k" data-amount="500000" id="chip-col-500k" aria-label="Bid 500K">
+        <span class="chip-icon-box">
+          <img src="/images/chips/chip-500k.svg" alt="500K" class="chip-svg-icon" />
+        </span>
+        <span class="chip-label">500K</span>
+      </button>
+
+      <!-- 1M -->
+      <button class="chip-column chip-btn chip-1m" data-amount="1000000" id="chip-col-1m" aria-label="Bid 1M">
+        <span class="chip-icon-box">
+          <img src="/images/chips/chip-1m.svg" alt="1M" class="chip-svg-icon" />
+        </span>
+        <span class="chip-label">1M</span>
+      </button>
+    </div>
+
+    <!-- ── 7. BOTTOM ACTION & STATS PILLS (MY COIN & WIN CAPSULES) ── -->
+    <div class="bottom-action-tray">
+      <!-- Mine Balance Pill (Inside MY COIN Gold Slot) -->
+      <button class="pill-stat-btn mine-pill" id="mine-btn" title="View Balance / Recharge">
+        <div class="pill-coin-row">
+          <span class="pill-amount" id="balance-value">3,256,751</span>
+        </div>
+      </button>
+
+      <!-- Today Win Pill (Inside WIN Gold Slot) -->
+      <div class="pill-stat-btn today-win-pill">
+        <div class="pill-coin-row">
+          <span class="pill-amount gold-highlight" id="today-win-value">1,500,000</span>
+        </div>
+      </div>
+    </div><!-- /bottom-action-tray -->
+
+    </div><!-- /slot-machine-stage -->
+  </div><!-- /slot-cabinet -->
+</div><!-- /game-root -->
+
+<!-- ════ WIN CELEBRATION OVERLAY ════ -->
+<div class="win-celebration-modal" id="win-modal">
+  <div class="modal-card">
+    <div class="sunburst-rays"></div>
+    <div class="win-sparkle-emoji">🎉</div>
+    <div class="win-congrats-text">BIG WIN!</div>
+    <div class="win-amount-counter" id="win-counter">+1,000,000</div>
+    <div class="win-multiplier-pill" id="win-multiplier-pill">Strawberry × 10 (Reel ×2)</div>
+    <button class="collect-win-btn" id="collect-btn">COLLECT</button>
+  </div>
+</div>
+
+<!-- ════ RULES & MULTIPLIERS MODAL ════ -->
+<div class="rules-modal" id="rules-modal">
+  <div class="rules-card">
+    <div class="rules-header">
+      <span class="rules-title">🎰 Payout Multipliers</span>
+      <button class="close-rules-btn" id="close-rules-btn">✕</button>
+    </div>
+    <div class="multipliers-table">
+      <div class="rule-row"><span class="r-fruit">🍒 Cherry</span><span class="r-mult red">45× (Super Jackpot)</span></div>
+      <div class="rule-row"><span class="r-fruit">🍉 Watermelon</span><span class="r-mult green">20×</span></div>
+      <div class="rule-row"><span class="r-fruit">🍌 Banana</span><span class="r-mult yellow">10×</span></div>
+      <div class="rule-row"><span class="r-fruit">🍓 Strawberry</span><span class="r-mult red">10×</span></div>
+      <div class="rule-row"><span class="r-fruit">🫐 Plum</span><span class="r-mult purple">5×</span></div>
+      <div class="rule-row"><span class="r-fruit">🥝 Kiwi</span><span class="r-mult lime">5×</span></div>
+      <div class="rule-row"><span class="r-fruit">🍇 Raspberry</span><span class="r-mult pink">5×</span></div>
+      <div class="rule-row"><span class="r-fruit">🍋 Lemon</span><span class="r-mult yellow">5×</span></div>
+      <div class="rule-row mini-reel-rule"><span class="r-fruit">🎰 Top Mini Reels</span><span class="r-mult gold">Multiplies fruit win by 1×, 2×, 3×, 5×!</span></div>
+    </div>
+    <div class="rules-note">
+      Place chips on any fruits during countdown. When the timer hits 00, roulette spins automatically and pays winning bets!
+    </div>
+  </div>
+</div>
+
+<!-- ════ RECHARGE / MINE MODAL ════ -->
+<div class="recharge-modal" id="recharge-modal">
+  <div class="recharge-card">
+    <div class="rules-header">
+      <span class="rules-title">🪙 Player Wallet</span>
+      <button class="close-rules-btn" id="close-recharge-btn">✕</button>
+    </div>
+    <div class="wallet-balance-box">
+      <div class="balance-label">Current Balance</div>
+      <div class="balance-large"><span class="coin-emoji">🪙</span> <span id="modal-balance-text">3,256,751</span></div>
+    </div>
+    <div class="quick-recharge-title">Quick Add Free Test Coins:</div>
+    <div class="quick-add-grid">
+      <button class="quick-add-btn" data-add="1000000">+1,000,000</button>
+      <button class="quick-add-btn" data-add="5000000">+5,000,000</button>
+      <button class="quick-add-btn" data-add="10000000">+10,000,000</button>
+    </div>
+    <div class="flutter-tip-text">
+      💡 In Flutter Live Streaming WebView, balance automatically syncs via <code>window.FlutterChannel</code> or <code>?balance=...</code> query param.
+    </div>
+  </div>
+</div>
+
+<!-- ════ FLOATING COINS & TOASTS ════ -->
+<div class="coins-shower-layer" id="coins-layer"></div>
+<div class="toast-stack" id="toast-stack"></div>
+
+<!-- ════ APPLICATION SCRIPT ════ -->
+<script type="module" src="/src/js/game.js"></script>
+
+</body>
+</html>

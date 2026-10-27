@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <meta name="description" content="Big Eater — Real-time food betting game"/>
+  <title>Big Eater 🍽️</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@700;900&family=Lilita+One&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css"/>
+  <script>
+    // Force clear any stale service workers & caches from other apps previously on localhost:3000
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(function(regs) {
+        regs.forEach(function(r) { r.unregister(); });
+      });
+    }
+    if ('caches' in window) {
+      caches.keys().then(function(keys) {
+        keys.forEach(function(k) { caches.delete(k); });
+      });
+    }
+  </script>
+</head>
+<body>
+
+<!-- ═══ Big Eater Plugin Container (Designed for Mobile App Bottom Sheet WebView) ═══ -->
+<div class="game-app" id="game-app">
+
+  <!-- ═══════════ SPLASH / LOADING SCREEN (Shown on every app launch) ═══════════ -->
+  <div class="splash-screen" id="splash-screen" aria-label="Loading Big Eater">
+    <!-- Ambient light spots -->
+    <div class="splash-glow g1" aria-hidden="true"></div>
+    <div class="splash-glow g2" aria-hidden="true"></div>
+    <div class="splash-glow g3" aria-hidden="true"></div>
+
+    <!-- Center 3D Logo matching reference image -->
+    <div class="splash-center">
+      <div class="splash-logo-box">
+        <span class="splash-food food-tomato" aria-hidden="true">🍅</span>
+        <span class="splash-food food-mushroom" aria-hidden="true">🍄</span>
+        <span class="splash-food food-chicken" aria-hidden="true">🍗</span>
+        <span class="splash-food food-salad" aria-hidden="true">🥗</span>
+        <span class="splash-food food-radish" aria-hidden="true">🌸</span>
+
+        <h1 class="splash-title">
+          <span class="splash-word">Big</span>
+          <span class="splash-word">Eater</span>
+        </h1>
+      </div>
+    </div>
+
+    <!-- Bottom Progress Bar -->
+    <div class="splash-bottom">
+      <div class="splash-status-text" id="splash-status">Loading... 0%</div>
+      <div class="splash-progress-track" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+        <div class="splash-progress-bar" id="splash-bar"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ BOTTOM SECTION: Topbar, Timer, Betting Controls, Balance & History ═══════════ -->
+  <div class="game-bottom-section" id="game-bottom-section">
+    <!-- ── Top Bar: Back Button, Round, Online, Records, Sound, Rules (Positioned right above Timer) ── -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="icon-pill back-btn" id="topbar-back-btn" aria-label="Back">
+          <svg width="9" height="15" viewBox="0 0 9 15" fill="none">
+            <path d="M8 1L1.5 7.5L8 14" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <span class="round-badge" id="round-text">Round 0000</span>
+        <div class="player-pill" id="player-profile-pill" style="display:none;" title="Player Profile">
+          <span class="player-pill-avatar" id="player-profile-avatar">😎</span>
+          <span class="player-pill-name" id="player-profile-name">Player</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <div class="online-pill" id="online-pill">
+          <span class="online-dot"></span>
+          <span id="online-count">1</span>
+        </div>
+        <button class="icon-pill" id="records-btn" aria-label="Results Records" title="Results Records">📋</button>
+        <button class="icon-pill" id="sound-btn" aria-label="Sound" title="Sound Toggle">🎵</button>
+        <button class="icon-pill rule-icon-btn" id="rule-btn" aria-label="Game Rules" title="Rules">❓</button>
+      </div>
+    </header>
+
+    <!-- ── Timer Row: Left is Vegetable Salad, Right is Pizza Slice ── -->
+    <div class="timer-row" role="timer" aria-live="polite" aria-label="Round timer">
+      <div class="timer-side-food" id="timer-food-l" title="Vegetable">🥗</div>
+      <div class="timer-pill-wrap" id="timer-pill">
+        <span class="timer-val" id="timer-val">15s</span>
+      </div>
+      <div class="timer-side-food" id="timer-food-r" title="Pizza">🍕</div>
+    </div>
+
+    <!-- ── Toast Bread Game Card (Slice of Bread Design: Dual Crown, Soft Waist, Rounded Bottom Crust) ── -->
+    <div class="game-card" aria-label="Food betting grid">
+      <svg class="game-card-bg-svg bread-svg" viewBox="0 0 400 240" preserveAspectRatio="none" style="overflow: visible;" aria-hidden="true">
+        <defs>
+          <linearGradient id="breadCrustGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#fff176" />
+            <stop offset="25%" stop-color="#ffd54f" />
+            <stop offset="70%" stop-color="#ffb300" />
+            <stop offset="100%" stop-color="#ff8f00" />
+          </linearGradient>
+          <linearGradient id="breadCrumbGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#fffde7" stop-opacity="0.95" />
+            <stop offset="50%" stop-color="#fff9c4" stop-opacity="0.8" />
+            <stop offset="100%" stop-color="#ffe082" stop-opacity="0.55" />
+          </linearGradient>
+          <filter id="breadDropShadow" x="-10%" y="-10%" width="120%" height="130%">
+            <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="rgba(0, 0, 0, 0.16)" />
+            <feDropShadow dx="0" dy="7" stdDeviation="8" flood-color="rgba(200, 120, 0, 0.3)" />
+          </filter>
+        </defs>
+        <!-- Outer Golden Bread Toast Crust with White Line (Maximized Bold Bread Slice) -->
+        <path class="bread-outer-path"
+              d="M 35 234 C 110 238, 290 238, 365 234 C 388 234, 396 214, 394 184 C 392 146, 386 130, 386 115 C 386 88, 396 60, 380 32 C 365 6, 340 4, 308 4 C 266 4, 234 20, 200 20 C 166 20, 134 4, 92 4 C 60 4, 35 6, 20 32 C 4 60, 14 88, 14 115 C 14 130, 8 146, 6 184 C 4 214, 12 234, 35 234 Z"
+              fill="url(#breadCrustGrad)" stroke="#ffffff" stroke-width="4.5" stroke-linejoin="round" vector-effect="non-scaling-stroke" filter="url(#breadDropShadow)" />
+        <!-- Inner Fluffy Buttery Bread Crumb -->
+        <path class="bread-inner-path"
+              d="M 38 230 C 110 234, 290 234, 362 230 C 382 230, 390 211, 388 182 C 386 146, 380 130, 380 115 C 380 90, 388 64, 374 36 C 360 12, 337 9, 307 9 C 267 9, 234 24, 200 24 C 166 24, 133 9, 93 9 C 63 9, 40 12, 26 36 C 12 64, 20 90, 20 115 C 20 130, 14 146, 12 182 C 10 211, 18 230, 38 230 Z"
+              fill="url(#breadCrumbGrad)" stroke="rgba(255, 255, 255, 0.45)" stroke-width="1.2" vector-effect="non-scaling-stroke" />
+      </svg>
+      <div class="game-card-inner">
+        <ul class="food-grid" id="food-grid" role="list">
+          <!-- Filled by JS -->
+        </ul>
+      </div>
+    </div>
+
+    <!-- ── Bet Amount Buttons ── -->
+    <div class="bet-amounts" id="bet-amounts" role="group" aria-label="Bet amount">
+      <!-- Dynamically rendered by JS -->
+    </div>
+
+    <!-- ── Balance / Recharge / Profits ── -->
+    <div class="info-row">
+      <div class="balance-pill">
+        <span class="coin-emoji" aria-hidden="true">🟡</span>
+        <span class="balance-num" id="balance-num">--</span>
+      </div>
+      <button class="recharge-btn" id="recharge-btn">Recharge</button>
+      <div class="profits-box">
+        <span class="profits-label">Today's profits</span>
+        <span class="profits-val" id="profits-val">0</span>
+      </div>
+    </div>
+
+    <!-- ── History Strip (Positioned at Bottom per reference design) ── -->
+    <div class="history-strip" aria-label="Recent round results">
+      <span class="history-new">NEW</span>
+      <div class="history-scroll" id="history-scroll">
+        <!-- Icons filled by JS -->
+      </div>
+      <button class="history-chart-btn" id="history-chart-btn" aria-label="View history trends" title="History Trends">📈</button>
+    </div>
+  </div>
+
+  <!-- ══════════ GAME RULES MODAL ══════════ -->
+  <div class="modal-overlay" id="rule-modal" aria-hidden="true" style="display:none">
+    <div class="modal-card rule-modal-card" role="dialog" aria-modal="true" aria-labelledby="rule-modal-heading">
+      <div class="modal-header">
+        <div class="modal-title" id="rule-modal-heading">
+          <span class="modal-title-icon">📖</span>
+          <span>Game Rules</span>
+        </div>
+        <button class="modal-close-btn" id="rule-modal-close" aria-label="Close rules">✕</button>
+      </div>
+      <div class="modal-body rule-modal-body">
+        <div class="rule-section">
+          <div class="rule-sec-title">⏱️ Round Timing</div>
+          <p class="rule-text">Each round lasts <strong>18 seconds</strong>: <strong>15 seconds</strong> for betting followed by a <strong>3 seconds</strong> drawing animation.</p>
+        </div>
+        <div class="rule-section">
+          <div class="rule-sec-title">🍽️ Food Multipliers</div>
+          <div class="rule-odds-grid" id="rule-odds-grid">
+            <div class="rule-odd-card meat">
+              <span class="odd-food">🥩 Steak</span>
+              <span class="odd-val">45X</span>
+            </div>
+            <div class="rule-odd-card meat">
+              <span class="odd-food">🦐 Shrimp</span>
+              <span class="odd-val">25X</span>
+            </div>
+            <div class="rule-odd-card meat">
+              <span class="odd-food">🍗 Chicken</span>
+              <span class="odd-val">15X</span>
+            </div>
+            <div class="rule-odd-card meat">
+              <span class="odd-food">🌭 Sausage</span>
+              <span class="odd-val">10X</span>
+            </div>
+            <div class="rule-odd-card veg">
+              <span class="odd-food">🍅 Tomato</span>
+              <span class="odd-val">5X</span>
+            </div>
+            <div class="rule-odd-card veg">
+              <span class="odd-food">🌸 Radish</span>
+              <span class="odd-val">5X</span>
+            </div>
+            <div class="rule-odd-card veg">
+              <span class="odd-food">🍄 Mushroom</span>
+              <span class="odd-val">5X</span>
+            </div>
+            <div class="rule-odd-card veg">
+              <span class="odd-food">🌽 Corn</span>
+              <span class="odd-val">5X</span>
+            </div>
+          </div>
+        </div>
+        <div class="rule-section">
+          <div class="rule-sec-title">🎯 How to Play & Win</div>
+          <p class="rule-text" id="rule-chip-text">1. Choose your chip amount (500, 5,000, 50,000, or 100,000).</p>
+          <p class="rule-text">2. Tap any food items to place bets. Multi-betting on multiple foods is supported!</p>
+          <p class="rule-text">3. If the drawn food matches your bet, you win: <code>Bet Amount × Multiplier</code>.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ TREND DETAILS MODAL (Exact Reference Layout) ══════════ -->
+  <div class="modal-overlay trend-modal-overlay" id="history-modal" aria-hidden="true" style="display:none">
+    <div class="trend-modal-card" role="dialog" aria-modal="true" aria-labelledby="trend-modal-heading">
+      <!-- Top Title with Realtime LIVE indicator and Green Close Button -->
+      <div class="trend-modal-header">
+        <div class="trend-title-wrap">
+          <h2 class="trend-modal-title" id="trend-modal-heading">Trend Details</h2>
+          <span class="trend-live-dot" title="Real-time live updates enabled">● LIVE</span>
+        </div>
+        <button class="trend-modal-close" id="history-modal-close" aria-label="Close trend details">✕</button>
+      </div>
+
+      <!-- Top Winning Sequence Strip (Slideable / Scrollable across past rounds) -->
+      <!-- Static visual background stays fixed; only inner scroll track slides -->
+      <div class="trend-strip-bg" id="trend-strip-bg">
+        <div class="trend-strip-wrapper" id="trend-strip-wrapper">
+          <div class="trend-strip" id="trend-strip">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- "Details" Subtitle with Slide Hint -->
+      <div class="trend-subtitle-row">
+        <div class="trend-subtitle">Details</div>
+        <div class="trend-slide-hint">👈 Slide history 👉</div>
+      </div>
+
+      <!-- Trend Matrix Card with Fixed Options Column and Sliding Graph -->
+      <div class="trend-matrix-card" id="trend-matrix-card">
+        <div class="trend-matrix-layout">
+          <!-- Fixed Left Column: 10 Food Option Badges (Does NOT slide) -->
+          <div class="trend-foods-col" id="trend-foods-col">
+            <div class="trend-food-spacer"></div>
+            <!-- Populated by JS: 10 Food Badges -->
+          </div>
+
+          <!-- Sliding Right Graph Viewport: Only the graph slides! -->
+          <div class="trend-graph-viewport" id="trend-graph-viewport">
+            <div class="trend-graph-inner" id="trend-graph-inner">
+              <svg class="trend-line-svg" id="trend-line-svg" aria-hidden="true">
+                <polyline id="trend-polyline" points="" />
+              </svg>
+              <div class="trend-graph-grid" id="trend-graph-grid">
+                <!-- Populated by JS: Column headers (Round numbers) + 10 food rows -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ RESULT SCREEN (Ultra-Premium Arcade Celebration Modal) ══════════ -->
+  <div class="rs-overlay" id="rs-overlay" aria-hidden="true" style="display:none">
+
+    <!-- Confetti canvas for big wins -->
+    <canvas class="rs-confetti-canvas" id="rs-confetti-canvas"></canvas>
+
+    <!-- Main Card Container: Shaped as a Golden Toast Bread Slice -->
+    <div class="rs-panel" id="rs-panel" role="dialog" aria-modal="true" aria-labelledby="rs-drawing-text">
+
+      <!-- Bread Slice Background SVG (Golden Crust + Butter Crumb + Melting Butter Pat) -->
+      <svg class="rs-bread-bg-svg" viewBox="0 0 320 380" preserveAspectRatio="none" style="overflow: visible;" aria-hidden="true">
+        <defs>
+          <linearGradient id="rsBreadCrustGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#fff59d" />
+            <stop offset="18%" stop-color="#ffd54f" />
+            <stop offset="60%" stop-color="#ffb300" />
+            <stop offset="100%" stop-color="#f57c00" />
+          </linearGradient>
+          <linearGradient id="rsBreadCrumbGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#ffffff" stop-opacity="0.99" />
+            <stop offset="30%" stop-color="#fffdf2" stop-opacity="0.96" />
+            <stop offset="70%" stop-color="#fff8e3" stop-opacity="0.94" />
+            <stop offset="100%" stop-color="#ffe8a3" stop-opacity="0.92" />
+          </linearGradient>
+          <linearGradient id="rsButterGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#fffde7" />
+            <stop offset="50%" stop-color="#fff59d" />
+            <stop offset="100%" stop-color="#fbc02d" />
+          </linearGradient>
+          <filter id="rsBreadShadow" x="-10%" y="-10%" width="125%" height="125%">
+            <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="rgba(0, 0, 0, 0.22)" />
+            <feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="rgba(240, 140, 0, 0.38)" />
+          </filter>
+        </defs>
+        <!-- Outer Toast Crust with Crisp White Outline -->
+        <path class="rs-bread-outer-path"
+              d="M 40 370 C 100 376, 220 376, 280 370 C 304 370, 314 345, 312 285 C 310 220, 302 195, 302 170 C 302 135, 314 95, 300 50 C 286 14, 255 8, 220 8 C 185 8, 168 22, 160 22 C 152 22, 135 8, 100 8 C 65 8, 34 14, 20 50 C 6 95, 18 135, 18 170 C 18 195, 10 220, 8 285 C 6 345, 16 370, 40 370 Z"
+              fill="url(#rsBreadCrustGrad)" stroke="#ffffff" stroke-width="4.5" stroke-linejoin="round" vector-effect="non-scaling-stroke" filter="url(#rsBreadShadow)" />
+        <!-- Inner Fluffy Butter Bread Crumb -->
+        <path class="rs-bread-inner-path"
+              d="M 44 365 C 100 371, 220 371, 276 365 C 298 365, 307 342, 305 285 C 303 220, 296 195, 296 170 C 296 137, 307 98, 294 54 C 281 20, 252 14, 219 14 C 185 14, 168 26, 160 26 C 152 26, 135 14, 101 14 C 68 14, 39 20, 26 54 C 13 98, 24 137, 24 170 C 24 195, 17 220, 15 285 C 13 342, 22 365, 44 365 Z"
+              fill="url(#rsBreadCrumbGrad)" stroke="rgba(255, 255, 255, 0.7)" stroke-width="1.2" vector-effect="non-scaling-stroke" />
+        <!-- Cute Melting Butter Pat on top left shoulder with warm melting drips -->
+        <g class="rs-butter-group">
+          <rect class="rs-butter-pat" x="42" y="30" width="24" height="18" rx="6" fill="url(#rsButterGrad)" stroke="#ffffff" stroke-width="1.8" transform="rotate(-12 42 30)" filter="drop-shadow(0 2px 4px rgba(220,120,0,0.35))" />
+          <circle cx="58" cy="51" r="3.2" fill="#ffe082" stroke="#ffffff" stroke-width="0.8" />
+          <circle cx="64" cy="57" r="2" fill="#ffd54f" />
+        </g>
+      </svg>
+
+      <!-- Inner Content Container -->
+      <div class="rs-panel-inner">
+        <!-- Header Ribbon with Round Label & Countdown (Nestled into top cleft) -->
+        <div class="rs-header-ribbon">
+          <div class="rs-drawing-badge" id="rs-drawing-badge">
+            <span class="rs-drawing-sparkle" aria-hidden="true">✨</span>
+            <span id="rs-drawing-text">ROUND WINNER</span>
+            <span class="rs-drawing-sparkle" aria-hidden="true">✨</span>
+          </div>
+          <span class="rs-cd-badge" id="rs-cd">4s</span>
+        </div>
+
+        <!-- Centerpiece Winner Food Showcase with Sunburst Rays -->
+        <div class="rs-hero-showcase">
+          <div class="rs-rays" aria-hidden="true">
+            <div class="rs-ray" style="--rd:0deg"></div>
+            <div class="rs-ray" style="--rd:30deg"></div>
+            <div class="rs-ray" style="--rd:60deg"></div>
+            <div class="rs-ray" style="--rd:90deg"></div>
+            <div class="rs-ray" style="--rd:120deg"></div>
+            <div class="rs-ray" style="--rd:150deg"></div>
+            <div class="rs-ray" style="--rd:180deg"></div>
+            <div class="rs-ray" style="--rd:210deg"></div>
+            <div class="rs-ray" style="--rd:240deg"></div>
+            <div class="rs-ray" style="--rd:270deg"></div>
+            <div class="rs-ray" style="--rd:300deg"></div>
+            <div class="rs-ray" style="--rd:330deg"></div>
+          </div>
+          <div class="rs-halo-ring" aria-hidden="true"></div>
+
+          <div class="rs-food-display-circle">
+            <div class="rs-fly-food" id="rs-fly-food">🌽</div>
+          </div>
+
+          <div class="rs-winner-pill" id="rs-winner-pill">
+            <span class="rs-winner-name" id="rs-winner-name">Corn</span>
+            <span class="rs-winner-mult" id="rs-winner-mult">5X</span>
+          </div>
+        </div>
+
+        <!-- Result Card Heading for JS Compatibility -->
+        <div class="rs-result-card" id="rs-result-card" style="display:none">
+          <span id="rs-result-label">The round's results:</span>
+          <span id="rs-result-food-icon">🌽</span>
+          <span id="rs-card-mult-badge">5X</span>
+        </div>
+
+        <!-- Outcome Banner (Mascot + Message + Win Coins) -->
+        <div class="rs-outcome-banner" id="rs-emotion-box">
+          <div class="rs-outcome-avatar-wrap">
+            <div class="rs-pin" aria-hidden="true"></div>
+            <span class="rs-emotion-face" id="rs-emotion">😋</span>
+            <span class="rs-tear-drop" id="rs-tear-drop" aria-hidden="true">💧</span>
+            <span class="rs-win-crown" id="rs-win-crown" aria-hidden="true">👑</span>
+          </div>
+          <div class="rs-outcome-text-wrap">
+            <div class="rs-result-msg" id="rs-result-msg">
+              The round has ended!<br>Next round starting soon~
+            </div>
+            <!-- Big Coin Win Callout (When won) -->
+            <div class="rs-win-callout" id="rs-win-callout" style="display:none">
+              <div class="rs-win-coins">
+                <span class="rs-coin-spin" aria-hidden="true">🟡</span>
+                <span class="rs-win-amt" id="rs-win-amt">+0</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Podium Top Winners Section -->
+        <div class="rs-winners-box" id="rs-winners-box">
+          <div class="rs-winners-title">🏆 Top Lucky Players</div>
+          <div class="rs-winners" id="rs-winners">
+            <!-- Filled by JS: real player cards -->
+          </div>
+        </div>
+
+        <!-- Quick Continue / Close Button -->
+        <button class="rs-continue-btn" id="rs-continue-btn" aria-label="Continue">
+          <span id="rs-continue-text">Tap to Continue</span>
+          <div class="rs-continue-progress" id="rs-continue-progress"></div>
+        </button>
+      </div><!-- end .rs-panel-inner -->
+
+    </div><!-- end rs-panel -->
+  </div><!-- end rs-overlay -->
+
+  <!-- ── Toast ── -->
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+</div><!-- end .game-app -->
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

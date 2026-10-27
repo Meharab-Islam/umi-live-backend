@@ -1,0 +1,21 @@
+{
+  "name": "slote-mecine",
+  "version": "1.0.0",
+  "description": "Fruit Slot Machine Game - Backend & Frontend",
+  "private": true,
+  "scripts": {
+    "dev": "node run-dev.js",
+    "start": "node run-dev.js",
+    "backend": "npm --prefix backend start",
+    "frontend": "npm --prefix frontend dev",
+    "build": "npm --prefix frontend build"
+  },
+  "keywords": [
+    "slot-machine",
+    "fruit-slot",
+    "socket.io",
+    "vite"
+  ],
+  "author": "",
+  "license": "ISC"
+}

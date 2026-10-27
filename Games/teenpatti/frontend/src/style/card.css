@@ -1,0 +1,56 @@
+.card {
+  position: relative;
+  width: 15vh !important;
+  margin-top: 1vh !important;
+  margin-left: -10vh;
+  height: 20vh !important;
+  border-radius: 2px;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 95% 95%;
+  background-color: transparent;
+  -webkit-filter: drop-shadow(7px 7px 7px rgba(0, 0, 0, 0.4));
+  filter: drop-shadow(7px 7px 7px rgba(0, 0, 0, 0.4));
+  transition: all 0.5s;
+  border: 0;
+}
+.cardShowCoin_ {
+  font-size: 14px;
+}
+.coinImage_{
+  
+  width: 50px;
+  height: 50px;
+}
+
+@media (min-width: 850px) {
+  .card {
+    margin: 2px;
+    padding: 0px;
+    height: 70px;
+  }
+}
+@media (min-width: 1200px) {
+  .card {
+    margin: 2px;
+    padding: 0px;
+    height: 80px;
+  }
+}
+
+@media (max-width: 420px) {
+
+  .coinImage_{
+    width: 29px;
+    height: 29px;
+  }
+  .cardShowCoin_ {
+    font-size: 8px;
+  }
+}
+
+@media (max-width: 320px) {
+  .card {
+    margin-left: 5px 0 -1vh 0;
+  }
+}

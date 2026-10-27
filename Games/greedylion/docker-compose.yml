@@ -1,0 +1,55 @@
+services:
+  mongodb:
+    image: mongo:6.0
+    container_name: greedylion_mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh --eval 'db.runCommand(\"ping\").ok' --quiet || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    networks:
+      - greedylion_network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: greedylion_backend
+    restart: unless-stopped
+    ports:
+      - "5007:5007"
+    environment:
+      - PORT=5007
+      - MONGO_URI=mongodb://mongodb:27017/greedylion
+      - ADMIN_BASE_URL=https://control.imlive.live/
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - greedylion_network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: greedylion_frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - greedylion_network
+
+volumes:
+  mongodb_data:
+
+networks:
+  greedylion_network:
+    driver: bridge

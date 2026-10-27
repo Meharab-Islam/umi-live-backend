@@ -1,0 +1,804 @@
+@media screen and (max-width: 768px) {
+  .cricle-wheel {
+    width: 80px !important;
+    height: 80px !important;
+    background-size: 80px 80px !important;
+
+    img {
+      width: 24px !important;
+      height: 24px !important;
+    }
+
+    .details-win {
+      h6 {
+        margin-bottom: -8px !important;
+        font-size: 13px !important;
+      }
+
+      span {
+        font-size: 11px !important;
+      }
+
+      .multiplier-text {
+        font-size: 12px !important;
+        text-shadow: 1px 1px 0px #000000 !important;
+        -webkit-text-stroke: 0.5px #8B4513 !important;
+      }
+    }
+  }
+
+  .selected-fram {
+    width: 100% !important;
+    height: 100% !important;
+    background-size: 100% 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    .bet-details {
+      margin: 0 !important;
+      margin-left: 0 !important;
+      width: 100%;
+      text-align: center;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+
+      h6 {
+        font-size: 11px !important;
+        padding: 2px 5px;
+        border-radius: 4px;
+        display: inline-block;
+        color: #FFD700;
+      }
+    }
+  }
+
+  .winnerFram {
+    width: 80px !important;
+    height: 80px !important;
+    background-size: 80px 80px !important;
+  }
+
+  .wheel-text {
+    h6 {
+      font-size: 15px !important;
+
+      span {
+        font-size: 15px !important;
+      }
+    }
+
+    h5 {
+      font-size: 19px !important;
+    }
+  }
+
+  .hand-content {
+    width: 35px !important;
+    height: 35px !important;
+  }
+
+  .result-content {
+    bottom: 4px !important;
+    height: 44px !important;
+
+    h5 {
+      font-size: 16px !important;
+    }
+
+    .gift-reslut {
+      img {
+        width: 25px !important;
+        height: 25px !important;
+      }
+    }
+
+    .new-label {
+      left: 25px !important;
+      padding: 0px 4px !important;
+      font-size: 13px !important;
+
+      &::before {
+        bottom: -5px !important;
+      }
+
+      span {
+        font-size: 10px !important;
+      }
+    }
+  }
+
+  .total-coin-display {
+    top: 5px !important;
+    left: 5px !important;
+    transform: none !important;
+    padding: 2px 8px !important;
+
+    img {
+      width: 18px !important;
+      height: 18px !important;
+      margin-right: 4px !important;
+    }
+
+    h5 {
+      font-size: 15px !important;
+    }
+  }
+
+  .top-button {
+    button {
+      font-size: 13px !important;
+      padding: 3px 8px !important;
+    }
+  }
+
+  .show-table {
+    height: 65% !important;
+    max-width: 350px !important;
+  }
+
+  .dimond-select {
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    bottom: 20% !important;
+    // width: 90% !important;
+
+    .dimond-box {
+      height: 60px !important;
+      max-width: 47px !important;
+
+      img {}
+
+      h6 {
+        font-size: 14px !important;
+      }
+    }
+  }
+
+  .records-dialog {
+    width: 90% !important;
+    height: 786px !important;
+
+    .dialog-box {
+      width: 400px !important;
+      max-width: 400px !important;
+
+      .dialog-head {
+        button {
+          svg {
+            width: 25px !important;
+            height: 25px !important;
+          }
+        }
+
+        h5 {
+          font-size: 19px !important;
+        }
+
+        h6 {
+          font-size: 14px !important;
+        }
+      }
+
+      .dialog-body {
+        padding: 6px 6px !important;
+
+        table {
+          thead {
+            tr {
+              th {
+                padding: 7px 6px !important;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .rules-dialog {
+    width: 90% !important;
+
+    .dialog-box {
+      width: 400px !important;
+      max-width: 400px !important;
+
+      .dialog-head {
+        button {
+          svg {
+            width: 25px !important;
+            height: 25px !important;
+          }
+        }
+
+        h5 {
+          font-size: 19px !important;
+        }
+      }
+
+      .dialog-body {
+        padding: 6px 6px !important;
+
+        ol {
+          li {
+            font-size: 15px !important;
+          }
+        }
+      }
+    }
+  }
+
+  .winner-dialog {
+    width: 90% !important;
+    height: 350px !important;
+    width: 90% !important;
+    height: 260px !important;
+    left: 50% !important;
+    bottom: 0 !important;
+    transform: translateX(-50%);
+
+    .dialog-content {
+
+
+      .result-container {
+        padding-top: 25px;
+
+        .winning-item-container {
+          margin-bottom: 15px;
+
+          .winning-item-img {
+            width: 60px;
+            height: 60px;
+          }
+
+          &::before {
+            width: 100px;
+            height: 100px;
+          }
+        }
+
+        .result-text-info {
+          .round-text {
+            font-size: 13px;
+          }
+
+          .stats-row {
+            span {
+              font-size: 12px;
+            }
+
+            .coin-val {
+
+
+              span {
+                font-size: 14px;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+@media screen and (min-width: 768px) and (max-width: 1400px) {
+  .cricle-wheel {
+    width: 90px !important;
+    height: 90px !important;
+    background-size: 90px 90px !important;
+
+    img {
+      width: 27px !important;
+      height: 27px !important;
+    }
+
+    .details-win {
+      padding-top: 8px !important;
+
+      h6 {
+        margin-bottom: -8px !important;
+        font-size: 13px !important;
+      }
+
+      span {
+        font-size: 11px !important;
+      }
+    }
+  }
+
+  .selected-fram {
+    width: 100% !important;
+    height: 100% !important;
+    background-size: 100% 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    .bet-details {
+      margin: 0 !important;
+      margin-left: 0 !important;
+      width: 100%;
+      text-align: center;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+
+      h6 {
+        font-size: 13px !important;
+        background: rgba(0, 0, 0, 0.5);
+        padding: 2px 5px;
+        border-radius: 4px;
+        display: inline-block;
+        color: #FFD700;
+      }
+    }
+  }
+
+  .winnerFram {
+    width: 90px !important;
+    height: 90px !important;
+    background-size: 90px 90px !important;
+  }
+
+  .wheel-text {
+    h6 {
+      font-size: 15px !important;
+
+      span {
+        font-size: 15px !important;
+      }
+    }
+
+    h5 {
+      font-size: 19px !important;
+    }
+  }
+
+  .result-content {
+    bottom: 8px !important;
+    height: 44px !important;
+
+    h5 {
+      font-size: 16px !important;
+    }
+
+    .gift-reslut {
+      img {
+        width: 25px !important;
+        height: 25px !important;
+      }
+    }
+
+    .new-label {
+      left: 25px !important;
+      padding: 0px 4px !important;
+      font-size: 13px !important;
+
+      &::before {
+        bottom: -5px !important;
+      }
+
+      span {
+        font-size: 10px !important;
+      }
+    }
+  }
+
+  .balance-profile {
+    .balance-box {
+      width: 142px !important;
+      height: 57px !important;
+
+      h6 {
+        margin-bottom: 2px !important;
+      }
+
+      .balance-number {
+        img {
+          width: 20px !important;
+          height: 20px !important;
+          margin-right: 5px !important;
+        }
+
+        h5 {
+          font-size: 14px !important;
+        }
+      }
+    }
+  }
+
+  .show-table {
+    height: 72% !important;
+    max-width: 360px !important;
+    max-height: 574px !important;
+  }
+
+  .dimond-select {
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    bottom: 12% !important;
+    width: 60% !important;
+
+    .dimond-box {
+      height: 60px !important;
+      max-width: 47px !important;
+
+      img {
+        width: 25px !important;
+        height: 25px !important;
+      }
+
+      h6 {
+        font-size: 14px !important;
+      }
+    }
+  }
+
+  .records-dialog {
+    width: 50% !important;
+    height: 56% !important;
+
+    .dialog-box {
+      width: 400px !important;
+      max-width: 400px !important;
+
+      .dialog-head {
+        button {
+          svg {
+            width: 25px !important;
+            height: 25px !important;
+          }
+        }
+
+        h5 {
+          font-size: 19px !important;
+        }
+
+        h6 {
+          font-size: 14px !important;
+        }
+      }
+
+      .dialog-body {
+        padding: 6px 6px !important;
+
+        table {
+          thead {
+            tr {
+              th {
+                padding: 7px 6px !important;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .rules-dialog {
+    width: 50% !important;
+
+    .dialog-box {
+      width: 400px !important;
+      max-width: 400px !important;
+
+      .dialog-head {
+        button {
+          svg {
+            width: 25px !important;
+            height: 25px !important;
+          }
+        }
+
+        h5 {
+          font-size: 19px !important;
+        }
+      }
+
+      .dialog-body {
+        padding: 6px 6px !important;
+
+        ol {
+          li {
+            font-size: 15px !important;
+          }
+        }
+      }
+    }
+  }
+
+  .winner-dialog {
+    width: 60% !important;
+    height: 350px !important;
+    bottom: 0 !important;
+
+    .dialog-content {
+      width: 90% !important;
+      height: 200px !important;
+    }
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .show-game {
+    .wheelContent {
+      .roundNumber {
+        left: 0 !important;
+
+        h6 {
+          font-size: 14px !important;
+        }
+      }
+
+      .top-button {
+        top: 12px;
+        right: 0px !important;
+
+        button {
+          padding: 3px 10px !important;
+          font-size: 14px !important;
+        }
+      }
+
+      .show-table {
+        height: 70% !important;
+        max-width: 100% !important;
+        /* Allow full width up to padding */
+        width: 340px !important;
+        /* Fixed width for consistency */
+        background-size: 100% 100% !important;
+
+        .wheel-text {
+          h6 {
+            font-size: 13px !important;
+          }
+
+          h5 {
+            font-size: 18px !important;
+          }
+
+          .center-container {
+            width: 80px !important;
+            height: 80px !important;
+          }
+
+          .center-image {
+            width: 80px !important;
+            height: 80px !important;
+          }
+
+          .countdown-image {
+            width: 40px !important;
+            height: 40px !important;
+          }
+
+          .countdown-number {
+            font-size: 14px !important;
+          }
+        }
+
+        .cricle-wheel {
+          background-size: 90px 90px !important;
+          height: 90px !important;
+          width: 90px !important;
+
+          img {
+            width: 30px !important;
+            height: 30px !important;
+            margin-top: 0px !important;
+          }
+
+          .details-win {
+            padding-top: 2px !important;
+            padding-bottom: 2px !important;
+
+            img {
+              margin-right: 0px !important;
+              width: 40px !important;
+              height: 40px !important;
+              margin-top: 0px !important;
+              margin-bottom: 2px !important;
+            }
+
+            h6 {
+              font-size: 11px !important;
+              margin-bottom: -2px !important;
+            }
+
+            span {
+              font-size: 10px !important;
+            }
+
+            .multiplier-text {
+              font-size: 13px !important;
+              text-shadow: 1px 1px 0px #000000 !important;
+              -webkit-text-stroke: 0px #8B4513 !important;
+            }
+          }
+
+          .selected-fram {
+            height: 100% !important;
+            width: 100% !important;
+            background-size: 100% 100% !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+
+            .bet-details {
+              margin: 0 !important;
+              margin-left: 0 !important;
+              width: 100%;
+              text-align: center;
+              display: flex !important;
+              align-items: center !important;
+              justify-content: center !important;
+
+              h6 {
+                font-size: 11px !important;
+                padding: 2px 5px;
+                border-radius: 4px;
+                display: inline-block;
+                color: #FFD700;
+              }
+            }
+          }
+
+          .winnerFram {
+            background-size: 70px 70px !important;
+            height: 70px !important;
+            width: 70px !important;
+          }
+        }
+
+        .center-profit-display {
+          padding: 4px 15px !important;
+
+          .profit-label {
+            font-size: 11px !important;
+          }
+
+          .profit-value {
+            font-size: 12px !important;
+            margin-left: 5px !important;
+          }
+        }
+
+        .dimond-select {
+          bottom: 20% !important;
+          padding: 0 5px !important;
+          left: 50% !important;
+          transform: translateX(-50%) !important;
+          // width: 95% !important;
+
+          .dimond-box {
+            height: 50px !important;
+            max-width: 45px !important;
+
+            img {}
+
+            h6 {
+              font-size: 10px !important;
+              margin-top: 5px !important;
+            }
+          }
+
+          /* Handle button element directly if it is one */
+          button.dimond-box {
+            height: 50px !important;
+          }
+        }
+
+        .total-coin-display {
+          top: 10px !important;
+          left: 5px !important;
+
+          img {
+            width: 16px !important;
+            height: 16px !important;
+          }
+
+          h5 {
+            font-size: 14px !important;
+          }
+        }
+
+        .result-content {
+          bottom: 3% !important;
+          height: 35px !important;
+          width: 90% !important;
+
+          .result-box {
+            h5 {
+              margin-left: 10px !important;
+              font-size: 12px !important;
+            }
+
+            .border-line {
+              margin-left: 8px !important;
+            }
+
+            .last-reslut {
+              margin: 0 5px !important;
+
+              .gift-reslut {
+                img {
+                  height: 40px !important;
+                  width: 40px !important;
+                }
+
+                .new-label {
+                  font-size: 8px !important;
+                  padding: 0 3px !important;
+                  top: -12px;
+                  left: 10px !important;
+
+                  &::before {
+                    width: 4px !important;
+                    height: 4px !important;
+                    bottom: -3px !important;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .winner-dialog {
+    width: 98% !important;
+    height: 240px !important;
+    bottom: 0 !important;
+
+    .dialog-content {
+      .lion-container {
+        width: 80px;
+        bottom: 15px;
+      }
+
+      .result-container {
+        padding-top: 20px;
+
+        .winning-item-container {
+          margin-bottom: 10px;
+
+          .winning-item-img {
+            width: 50px;
+            height: 50px;
+          }
+
+          &::before {
+            width: 80px;
+            height: 80px;
+          }
+        }
+
+        .result-text-info {
+          .round-text {
+            font-size: 12px;
+          }
+
+          .stats-row {
+            gap: 5px;
+
+            span {
+              font-size: 11px;
+            }
+
+            .coin-val {
+
+
+              span {
+                font-size: 12px;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

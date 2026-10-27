@@ -1,0 +1,45 @@
+.coinBtn button {
+    position: relative;
+    width: 9vw;
+    height: 9vw;
+    margin: 3px;
+    cursor: pointer;
+    border-radius: 100%;
+    border: 0px;
+    background-repeat: no-repeat;
+    backdrop-filter: blur(10px);
+    transition: all 0.1s;
+    background-size: cover;
+    background-position: center;
+    transition: all 0.5s;
+    -webkit-filter: drop-shadow(7px 7px 7px rgba(0, 0, 0, 0.4));
+    filter: drop-shadow(7px 7px 7px rgba(0, 0, 0, 0.4))
+}
+
+
+.coinBtn button:hover {
+    box-shadow: 1px 1px 0 #bbbbbb, 0 0 10px 4px #f0f0f0, inset 1px 1px 0 #ffffff;
+}
+
+.disabled {
+    pointer-events: none;
+    opacity: 0.8;
+}
+
+.selectedCoin{
+    box-shadow: 1px 1px 0 #bbbbbb, 0 0 10px 4px #f0f0f0, inset 1px 1px 0 #ffffff;
+}
+
+@media (min-width: 850px) {
+    .coinBtn button {
+        width: 6vw;
+        height: 6vw;
+    }
+}
+
+@media (min-width: 1200px) {
+    .coinBtn button {
+        width: 70px;
+        height: 70px;
+    }
+}

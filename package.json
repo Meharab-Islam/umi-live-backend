@@ -4,12 +4,44 @@
   "description": "Umi Live Streaming Platform - Monorepo runner",
   "private": true,
   "type": "module",
+  "workspaces": [
+    "backend",
+    "admin-panel",
+    "Games/big_eater",
+    "Games/slote_mecine",
+    "Games/slote_mecine/backend",
+    "Games/slote_mecine/frontend",
+    "Games/ferrywheel/backend",
+    "Games/ferrywheel/frontend",
+    "Games/greedybaby/backend",
+    "Games/greedybaby/frontend",
+    "Games/greedylion/backend",
+    "Games/greedylion/frontend",
+    "Games/roulettecasino/backend",
+    "Games/roulettecasino/frontend",
+    "Games/teenpatti/backend",
+    "Games/teenpatti/frontend"
+  ],
   "scripts": {
     "dev": "node dev.js",
     "dev:all": "node dev.js",
+    "dev:core": "START_GAMES=false node dev.js",
+    "dev:games": "START_CORE=false START_GAMES=true node dev.js",
     "dev:backend": "npm run dev --prefix backend",
     "dev:admin": "npm run dev --prefix admin-panel",
+    "dev:bigeater": "npm run dev --prefix Games/big_eater",
+    "dev:slot": "npm run dev --prefix Games/slote_mecine",
+    "dev:ferrywheel": "npm run start --prefix Games/ferrywheel/backend",
+    "dev:greedybaby": "npm run start --prefix Games/greedybaby/backend",
+    "dev:greedylion": "npm run start --prefix Games/greedylion/backend",
+    "dev:roulette": "npm run start --prefix Games/roulettecasino/backend",
+    "dev:teenpatti": "npm run start --prefix Games/teenpatti/backend",
     "start": "npm start --prefix backend",
     "build": "npm run build --prefix admin-panel"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "ioredis": "^6.0.0"
   }
 }
+

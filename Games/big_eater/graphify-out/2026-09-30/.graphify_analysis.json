@@ -1,0 +1,211 @@
+{
+  "communities": {
+    "0": [
+      "db_database_processbetstx",
+      "server",
+      "server_app",
+      "server_cors",
+      "server_demo_avatars",
+      "server_demo_names",
+      "server_express",
+      "server_foods",
+      "server_game",
+      "server_getbetstats",
+      "server_http",
+      "server_io",
+      "server_mockplayer",
+      "server_path",
+      "server_revealresult",
+      "server_server",
+      "server_startgameloop",
+      "server_startround",
+      "server_stmts_processbetstx",
+      "server_weightedrandom"
+    ],
+    "1": [
+      "package",
+      "package_author",
+      "package_description",
+      "package_devdependencies",
+      "package_devdependencies_socket_io_client",
+      "package_keywords",
+      "package_license",
+      "package_main",
+      "package_name",
+      "package_scripts",
+      "package_scripts_dev",
+      "package_scripts_start",
+      "package_scripts_test",
+      "package_type",
+      "package_version",
+      "socket_io_client"
+    ],
+    "2": [
+      "public_app",
+      "public_app_dom",
+      "public_app_finishsplash",
+      "public_app_q",
+      "public_app_qs",
+      "public_app_renderhistory",
+      "public_app_rsbackbtn",
+      "public_app_s",
+      "public_app_session_id",
+      "public_app_socket",
+      "public_app_updatebetstats",
+      "public_app_updatesplash"
+    ],
+    "3": [
+      "better_sqlite3",
+      "cors",
+      "express",
+      "package_dependencies",
+      "package_dependencies_better_sqlite3",
+      "package_dependencies_cors",
+      "package_dependencies_express",
+      "package_dependencies_socket_io",
+      "socket_io"
+    ],
+    "4": [
+      "db_database",
+      "db_database_data_dir",
+      "db_database_database",
+      "db_database_db",
+      "db_database_fs",
+      "db_database_path",
+      "db_database_stmts"
+    ],
+    "5": [
+      "public_app_closeresult",
+      "public_app_fmt",
+      "public_app_pad4",
+      "public_app_playwin",
+      "public_app_rendertopwinnerspodium",
+      "public_app_setbalance",
+      "public_app_showresultscreen"
+    ],
+    "6": [
+      "public_app_clearallstates",
+      "public_app_getitem",
+      "public_app_getsession",
+      "public_app_markwinner"
+    ],
+    "7": [
+      "public_app_getaudio",
+      "public_app_playlose",
+      "public_app_playnote",
+      "public_app_playrecharge",
+      "public_app_playtick",
+      "public_app_updatetimer"
+    ],
+    "8": [
+      "public_app_onfoodtap",
+      "public_app_playbet",
+      "public_app_showtoast"
+    ],
+    "9": [
+      "public_app_formatchipamount",
+      "public_app_rendergrid",
+      "public_app_restoreselectionui",
+      "public_app_updatefoodbetbadge"
+    ]
+  },
+  "cohesion": {
+    "0": 0.12631578947368421,
+    "1": 0.125,
+    "2": 0.18181818181818182,
+    "3": 0.2222222222222222,
+    "4": 0.2857142857142857,
+    "5": 0.3333333333333333,
+    "6": 0.5,
+    "7": 0.3333333333333333,
+    "8": 0.6666666666666666,
+    "9": 0.5
+  },
+  "gods": [
+    {
+      "id": "public_app_showresultscreen",
+      "label": "showResultScreen()",
+      "degree": 7
+    },
+    {
+      "id": "public_app_playnote",
+      "label": "playNote()",
+      "degree": 7
+    },
+    {
+      "id": "public_app_getitem",
+      "label": "getItem()",
+      "degree": 6
+    },
+    {
+      "id": "server_revealresult",
+      "label": "revealResult()",
+      "degree": 5
+    },
+    {
+      "id": "public_app_onfoodtap",
+      "label": "onFoodTap()",
+      "degree": 5
+    },
+    {
+      "id": "public_app_fmt",
+      "label": "fmt()",
+      "degree": 4
+    },
+    {
+      "id": "public_app_updatefoodbetbadge",
+      "label": "updateFoodBetBadge()",
+      "degree": 4
+    },
+    {
+      "id": "package_scripts",
+      "label": "scripts",
+      "degree": 4
+    },
+    {
+      "id": "server_startgameloop",
+      "label": "startGameLoop()",
+      "degree": 3
+    },
+    {
+      "id": "public_app_playlose",
+      "label": "playLose()",
+      "degree": 3
+    }
+  ],
+  "surprises": [
+    {
+      "source": "revealResult()",
+      "target": "processBetsTx",
+      "source_files": [
+        "server.js",
+        "db/database.js"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "connects across different repos/directories"
+    }
+  ],
+  "questions": [
+    {
+      "type": "bridge_node",
+      "question": "Why does `dependencies` connect `dependencies` to `package.json`?",
+      "why": "High betweenness centrality (0.041) - this node is a cross-community bridge."
+    },
+    {
+      "type": "isolated_nodes",
+      "question": "What connects `app`, `cors`, `DEMO_AVATARS` to the rest of the system?",
+      "why": "38 weakly-connected nodes found - possible documentation gaps or missing edges."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `server.js` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.12631578947368421 - nodes in this community are weakly interconnected."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `package.json` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.125 - nodes in this community are weakly interconnected."
+    }
+  ]
+}

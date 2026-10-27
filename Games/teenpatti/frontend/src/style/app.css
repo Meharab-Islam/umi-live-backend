@@ -1,0 +1,119 @@
+.board {
+  padding:  0.5em 0;
+  position: absolute;
+  height: 109.18vh;
+  width: 100%;
+  display: inline-block;
+  justify-content: center;
+  transition: all 0.5s;
+  align-items: center;
+  background-image: url("../images/bg3.png");
+  background-size: auto;
+  background-repeat: no-repeat;
+}
+
+
+.login-form-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transition: all 0.5s;
+  transform: translateY(-50%) translateX(-50%);
+  width: 300px;
+  border-radius: 3px;
+  background-color: #272e38;
+  overflow: hidden;
+}
+
+.login-form-container fieldset {
+  border: none;
+}
+
+.login-form-container header {
+  background-color: #202731;
+  color: #ffffff;
+  display: block;
+  padding: 1em;
+  transition: all 0.5s;
+  text-align: center;
+}
+
+.login-form-container .input-wrapper {
+  position: relative;
+  display: block;
+  transition: all 0.5s;
+  margin: 2em auto;
+  border-bottom: 1px solid #fc4848;
+  border-radius: 3px;
+  width: 240px;
+  padding-left: 0px;
+}
+
+
+.login-form-container .input-wrapper input {
+  width: 100%;
+  line-height: 2;
+  color: white;
+  background-color: transparent;
+  transition: all 0.5s;
+  border: none;
+  padding: 0.6em 0em;
+  outline: 0;
+}
+
+.login-form-container .input-wrapper input::-webkit-input-placeholder,
+.login-form-container .input-wrapper input::-moz-placeholder,
+.login-form-container .input-wrapper input:-ms-input-placeholder {
+  color: #9ea2ab;
+}
+
+.login-form-container .input-wrapper:before {
+  font-family: FontAwesome;
+  transition: all 0.5s;
+  position: absolute;
+  display: inline-block;
+  top: 9px;
+  left: 8px;
+  font-size: 10px;
+  color: #fc4848;
+}
+
+.login-form-container button {
+  outline: 0;
+  font-size: 8px;
+  transition: all 0.5s;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  background-color: #fc4848;
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  width: 200px;
+  padding: 1.2em 0;
+  margin: 4em auto;
+  display: block;
+  transition: all 0.5s;
+  border-top: 2px solid transparent;
+  border-bottom: 2px solid transparent;
+}
+
+.login-form-container button:hover {
+  border-bottom-color: #c10303;
+  width: 210px;
+  transition: all 0.5s;
+  font-size: 8.5px;
+}
+
+.card1Width {
+  width: 420px;
+  height:100px;
+}
+
+.disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.disabled:hover {
+  background-color: initial; /* Optional: Remove hover effect */
+}

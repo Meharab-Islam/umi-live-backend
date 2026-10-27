@@ -1,0 +1,30 @@
+{
+  "name": "big_eater",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "build:css": "sass --no-source-map src/styles/main.scss public/style.tmp.css && tailwindcss -i public/style.tmp.css -o public/style.css --minify && rm -f public/style.tmp.css",
+    "watch:css": "sass --watch src/styles/main.scss:public/style.tmp.css & tailwindcss -i public/style.tmp.css -o public/style.css --watch",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "better-sqlite3": "^13.0.3",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "socket.io": "^4.8.4"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.6.1",
+    "postcss": "^8.5.28",
+    "sass": "^1.105.1",
+    "socket.io-client": "^4.8.4",
+    "tailwindcss": "^3.4.19"
+  }
+}

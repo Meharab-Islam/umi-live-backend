@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Big Eater — Master Game Admin & Rig Control</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700;800;900&family=JetBrains+Mono:wght@400;600;800&family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/admin.css">
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+
+  <!-- Auth Overlay (Shown until authenticated) -->
+  <div class="auth-overlay" id="auth-overlay">
+    <div class="auth-card">
+      <div class="auth-icon">🔐</div>
+      <h2>Game Master Access</h2>
+      <p>Enter the master security key to access live game controls, outcome rigging, and player economy.</p>
+      <form id="auth-form" onsubmit="event.preventDefault(); submitAuth();">
+        <input type="password" id="auth-key" placeholder="Enter Admin Secret (default: bigeater888)" autocomplete="current-password" autofocus />
+        <button type="submit" class="btn btn-primary btn-block">Enter Command Center</button>
+      </form>
+      <div class="auth-error" id="auth-error" style="display:none"></div>
+    </div>
+  </div>
+
+  <!-- Main Admin Layout: Clean Professional SaaS Sidebar + Workspace -->
+  <div class="admin-layout" id="admin-layout">
+
+    <!-- Left Fixed Navigation Sidebar -->
+    <aside class="admin-sidebar" id="admin-sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-logo-icon">🎮</div>
+        <div class="brand-info">
+          <h2 class="brand-title">Big Eater</h2>
+          <span class="brand-badge">ADMIN CONSOLE</span>
+        </div>
+      </div>
+
+      <!-- Live Game Round Monitor Card in Sidebar -->
+      <div class="sidebar-live-card" id="pill-phase-wrap">
+        <div class="live-card-top">
+          <span class="live-dot-pulse"></span>
+          <span class="live-phase-label" id="pill-phase">BETTING</span>
+          <span class="live-timer-pill" id="pill-timer">15s</span>
+        </div>
+        <!-- Animated Countdown Progress Bar -->
+        <div class="live-progress-bar-wrap">
+          <div class="live-progress-bar-fill" id="sidebar-progress-fill" style="width: 100%;"></div>
+        </div>
+        <div class="live-card-meta">
+          <span class="meta-pill" id="pill-round">Round #---</span>
+          <span class="meta-pill"><span id="pill-players">0</span> Players</span>
+        </div>
+        <div class="live-card-mode">
+          Mode: <strong id="pill-mode">AUTO</strong>
+        </div>
+      </div>
+
+      <!-- Navigation Menu -->
+      <nav class="sidebar-nav">
+        <button class="nav-item tab-btn active" data-tab="tab-rig">
+          <span class="nav-icon">🎯</span>
+          <span class="nav-text">Outcome & Rigging</span>
+        </button>
+        <button class="nav-item tab-btn" data-tab="tab-scheduler">
+          <span class="nav-icon">⏰</span>
+          <span class="nav-text">Time Scheduler</span>
+        </button>
+        <button class="nav-item tab-btn" data-tab="tab-matrix">
+          <span class="nav-icon">📊</span>
+          <span class="nav-text">Live Bet Matrix</span>
+        </button>
+        <button class="nav-item tab-btn" data-tab="tab-players">
+          <span class="nav-icon">👥</span>
+          <span class="nav-text">Player Manager</span>
+        </button>
+        <button class="nav-item tab-btn" data-tab="tab-odds">
+          <span class="nav-icon">⚙️</span>
+          <span class="nav-text">Odds & Economy</span>
+        </button>
+        <button class="nav-item tab-btn" data-tab="tab-history">
+          <span class="nav-icon">📜</span>
+          <span class="nav-text">Rounds & P&L</span>
+        </button>
+        <button class="nav-item tab-btn" data-tab="tab-docs">
+          <span class="nav-icon">📖</span>
+          <span class="nav-text">App Integration</span>
+        </button>
+      </nav>
+
+      <!-- Sidebar Bottom Clock & Quick Actions -->
+      <div class="sidebar-footer">
+        <div class="sidebar-clock-row">
+          <span class="clock-icon">🕒</span>
+          <span id="sidebar-live-clock">--:--:--</span>
+        </div>
+        <div class="sidebar-actions">
+          <button class="btn btn-warning btn-sm btn-block" id="btn-pause" onclick="togglePause()">
+            <span id="btn-pause-icon">⏸️</span> <span id="btn-pause-text">Pause</span>
+          </button>
+          <button class="btn btn-danger btn-sm btn-block" id="btn-force-draw" onclick="forceDraw()">
+            ⚡ Force Spin
+          </button>
+          <a href="/" target="_blank" class="btn btn-outline btn-sm btn-block">
+            🎲 Open Game ↗
+          </a>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Mobile Sidebar Backdrop Overlay -->
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar(false)"></div>
+
+    <!-- Right Main Workspace -->
+    <div class="admin-main">
+      <!-- Top Workspace Bar -->
+      <header class="workspace-topbar">
+        <div class="topbar-left">
+          <button class="sidebar-toggle-btn" id="btn-sidebar-toggle" onclick="toggleSidebar()" title="Toggle Sidebar Menu">
+            ☰
+          </button>
+          <div class="topbar-title-group">
+            <h1 class="page-title" id="page-title">Live Game Dashboard</h1>
+            <p class="page-desc" id="page-desc">Real-time round participants, live option bids, pool volume, and intelligent outcome controls.</p>
+          </div>
+        </div>
+        <div class="topbar-actions">
+          <div class="status-pill-badge" id="topbar-round-badge">
+            <span class="badge-dot"></span>
+            <span>Round <strong id="topbar-round-text">#---</strong></span>
+          </div>
+          <div class="status-pill-badge" id="topbar-bettors-badge">
+            <span>👥 <strong id="topbar-bettors-text">0 Bettors</strong></span>
+          </div>
+          <div class="status-pill-badge" id="topbar-pool-badge">
+            <span>💰 <strong id="topbar-pool-text" class="text-gold">0 Coins</strong></span>
+          </div>
+          <div class="status-pill-badge" id="topbar-mode-badge">
+            <span class="badge-dot"></span>
+            <span>Mode: <strong id="topbar-mode-text">AUTO</strong></span>
+          </div>
+          <button class="btn btn-danger btn-sm" onclick="forceDraw()">
+            ⚡ Force Spin
+          </button>
+        </div>
+      </header>
+
+      <!-- Workspace Content -->
+      <main class="admin-content" id="admin-content">
+
+      <!-- ══════════ TAB 1: LIVE GAME DASHBOARD & RIGGING ══════════ -->
+      <section class="tab-pane active" id="tab-rig">
+
+        <!-- ══════════ TOP: Real-time Live Round Overview, Metrics & Participants Feed ══════════ -->
+        <div class="admin-card current-round-card" style="margin-bottom: 24px; border: 2px solid #c7d2fe; box-shadow: var(--shadow-sm);">
+          <div class="card-header" style="display:flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; padding: 16px 20px; background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <div class="header-icon" style="background:#e0e7ff; color:var(--primary); font-size:22px; width:44px; height:44px; border-radius:10px; display:flex; align-items:center; justify-content:center;">👥</div>
+              <div>
+                <h3 style="margin:0; font-size:17px; font-weight:800; color:var(--text-main);">Current Round Live Participants & Option Bids</h3>
+                <p style="margin:2px 0 0 0; color:var(--text-muted); font-size:12.5px;">Real-time monitoring of all active players, wagered amounts, and individual option selections</p>
+              </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <div class="status-pill-badge" id="dash-round-pill" style="padding:6px 14px; font-size:12.5px; font-weight:700;">
+                <span>ROUND <strong id="dash-round-title">#---</strong></span>
+              </div>
+              <div class="status-pill-badge" id="dash-phase-pill" style="padding:6px 14px; font-size:12.5px; font-weight:700;">
+                <span class="live-dot-pulse"></span>
+                <span id="dash-phase-text">BETTING (15s)</span>
+              </div>
+              <button class="btn btn-danger btn-sm" onclick="forceDraw()" title="Draw round immediately">
+                ⚡ Force Spin
+              </button>
+            </div>
+          </div>
+
+          <!-- 4 Quick Metric Summary Cards -->
+          <div class="matrix-summary-cards" style="margin-bottom: 16px; padding: 0 16px;">
+            <div class="stat-card">
+              <span class="stat-lbl">ACTIVE PARTICIPANTS</span>
+              <span class="stat-val text-primary" id="dash-participants-count" style="font-size:22px; font-weight:800;">0 Players</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-lbl">CURRENT ROUND POOL</span>
+              <span class="stat-val text-gold" id="dash-total-pool" style="font-size:22px; font-weight:800;">0 COINS</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-lbl">MOST POPULAR OPTION</span>
+              <span class="stat-val" id="dash-top-option" style="font-size:14px;">None yet</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-lbl">LARGEST SINGLE BETTOR</span>
+              <span class="stat-val text-green" id="dash-top-bettor" style="font-size:14px;">None yet</span>
+            </div>
+          </div>
+
+          <!-- Quick 8-Option Live Exposure Chips Strip -->
+          <div class="options-quick-strip" style="margin: 0 16px 16px 16px; padding: 12px 14px; background: #f8fafc; border: 1px solid var(--border-light); border-radius: var(--radius-md);">
+            <div style="font-size: 11.5px; font-weight: 700; color: var(--text-muted); margin-bottom: 8px; display:flex; justify-content:space-between; align-items:center;">
+              <span>🍽️ REAL-TIME BREAKDOWN ACROSS ALL 8 FOOD OPTIONS:</span>
+              <span id="dash-options-total-bets" style="color:var(--primary); font-family:var(--font-mono);">0 Total Bets Placed</span>
+            </div>
+            <div class="options-strip-grid" id="dash-options-strip-grid" style="display:grid; grid-template-columns: repeat(4, 1fr); gap: 8px;">
+              <!-- Populated dynamically with all 8 foods -->
+            </div>
+          </div>
+
+          <!-- Participants & Food Breakdown Table -->
+          <div class="table-container" style="padding: 0 16px 16px 16px;">
+            <div style="font-size: 12.5px; font-weight: 700; color: var(--text-main); margin-bottom: 8px; display:flex; justify-content:space-between; align-items:center;">
+              <span>📋 ACTIVE PLAYERS & INDIVIDUAL OPTION BIDS (REAL-TIME FEED):</span>
+              <span style="font-size:11px; color:#94a3b8; font-weight:normal;">Auto-updates instantly as bids are placed</span>
+            </div>
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>PARTICIPANT</th>
+                  <th>TOTAL WAGERED</th>
+                  <th>OPTIONS CHOSEN & AMOUNTS (FOOD BREAKDOWN)</th>
+                  <th>ROUND SHARE</th>
+                  <th>BALANCE</th>
+                </tr>
+              </thead>
+              <tbody id="dash-participants-table-body">
+                <tr>
+                  <td colspan="5" class="text-center text-muted" style="padding: 24px;">
+                    ⏳ Waiting for players to place bids in this round...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Rig Status Banner -->
+        <div class="rig-banner" id="rig-banner">
+          <div class="rig-status-text">
+            <span>Current Target:</span>
+            <strong id="rig-target-text">🎲 AUTO (Natural Probability)</strong>
+          </div>
+          <div class="rig-options">
+            <label class="toggle-label">
+              <input type="checkbox" id="check-auto-clear" onchange="toggleAutoClear(this.checked)">
+              <span>Auto-reset to Auto after 1 round</span>
+            </label>
+            <button class="btn btn-dark btn-xs" onclick="clearRig()">Clear Rig</button>
+          </div>
+        </div>
+
+        <!-- Special Multi-Drop Combo Triggers (Instant for Next Round) -->
+        <div class="special-combos-panel">
+          <div class="special-combos-header">
+            <span class="special-badge">🔥 SPECIAL MULTI-FOOD COMBOS</span>
+            <span class="special-hint">All bets on the combo group will WIN and receive their full multipliers!</span>
+          </div>
+          <div class="special-combos-grid">
+            <button class="combo-btn combo-veggies" onclick="armSpecialEvent('all_vegetables')">
+              <span class="combo-icon">🥗</span>
+              <div class="combo-details">
+                <strong>Force All Vegetables (Salad)</strong>
+                <small>Tomato 🍅 + Radish 🥕 + Mushroom 🍄 + Corn 🌽 (All 4 Win!)</small>
+              </div>
+              <span class="combo-action-tag">ARM NEXT ROUND</span>
+            </button>
+            <button class="combo-btn combo-pizza" onclick="armSpecialEvent('pizza_fire')">
+              <span class="combo-icon">🍕</span>
+              <div class="combo-details">
+                <strong>Force Pizza Fire (All Meat & Fish)</strong>
+                <small>Sausage 🌭 + Chicken 🍗 + Shrimp 🍤 + Steak 🥩 (All 4 Win!)</small>
+              </div>
+              <span class="combo-action-tag">ARM NEXT ROUND</span>
+            </button>
+          </div>
+          <div class="armed-event-status" id="armed-event-status" style="display:none;">
+            <div class="armed-info">
+              <span class="pulse-indicator"></span>
+              <span id="armed-event-text">Armed: Special Event</span>
+            </div>
+            <button class="btn btn-dark btn-xs" onclick="disarmSpecialEvent()">Cancel Special Event</button>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 12px; display:flex; justify-content:space-between; align-items:flex-end;">
+          <div>
+            <h3 style="font-size:16px; margin:0; font-weight:700;">Food Options & Winner Rigging (8 Foods)</h3>
+            <p style="margin:3px 0 0 0; color:var(--text-muted); font-size:12.5px;">Monitor bettor counts and amounts on each individual food option, or force a target winner</p>
+          </div>
+        </div>
+
+        <!-- 8-Food Cards Grid for Target Selection -->
+        <div class="foods-rig-grid" id="foods-rig-grid">
+          <!-- Populated dynamically via admin.js -->
+        </div>
+
+        <!-- Mode Selectors -->
+        <div style="margin: 24px 0 12px 0;">
+          <h3 style="font-size:16px; margin:0; font-weight:700;">Casino Win/Loss Algorithm Modes</h3>
+          <p style="margin:3px 0 0 0; color:var(--text-muted); font-size:12.5px;">Choose automated casino profit algorithm or manual override</p>
+        </div>
+        <div class="mode-cards-grid">
+          <div class="mode-card" data-mode="auto" onclick="setMode('auto')">
+            <div class="mode-icon">🎲</div>
+            <div class="mode-info">
+              <h3>Normal Random</h3>
+              <p>Natural probability based on food weights.</p>
+            </div>
+            <span class="mode-tag active-tag">SELECTED</span>
+          </div>
+
+          <div class="mode-card" data-mode="manual" onclick="setMode('manual')">
+            <div class="mode-icon">🎯</div>
+            <div class="mode-info">
+              <h3>Manual Rigged</h3>
+              <p>Forced food chosen wins 100% of the time.</p>
+            </div>
+            <span class="mode-tag active-tag">SELECTED</span>
+          </div>
+
+          <div class="mode-card" data-mode="house_profit" onclick="setMode('house_profit')">
+            <div class="mode-icon">💰</div>
+            <div class="mode-info">
+              <h3>Maximum House Profit</h3>
+              <p>Anti-loss AI: selects the food with lowest player payout.</p>
+            </div>
+            <span class="mode-tag active-tag">SELECTED</span>
+          </div>
+
+          <div class="mode-card" data-mode="player_favor" onclick="setMode('player_favor')">
+            <div class="mode-icon">🎁</div>
+            <div class="mode-info">
+              <h3>Player Bonanza</h3>
+              <p>Jackpot mode: selects the food with highest player payout.</p>
+            </div>
+            <span class="mode-tag active-tag">SELECTED</span>
+          </div>
+        </div>
+
+        <!-- Instant Actions Row -->
+        <div class="quick-draw-strip">
+          <div class="draw-info">
+            <span class="pulse-indicator"></span>
+            <span id="countdown-progress-text">Betting Phase Active — 15s remaining</span>
+          </div>
+          <div class="draw-actions">
+            <button class="btn btn-danger btn-lg" onclick="forceDraw()">
+              ⚡ Draw Outcome Right Now (Skip Timer)
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════ TAB: TIME SCHEDULER & SPECIAL DROPS ══════════ -->
+      <section class="tab-pane" id="tab-scheduler">
+        <div class="section-intro">
+          <h2>⏰ Daily Time Scheduler & Special Drops</h2>
+          <p>Schedule automated special drops at specific times of day (e.g. 11:00 AM All Vegetables). When the scheduled round arrives, the specified foods drop and all matching bets win!</p>
+        </div>
+
+        <!-- How Scheduled Drops Work Guide -->
+        <div class="operator-guide-card">
+          <div class="guide-header">
+            <span class="guide-badge">⏰ HOW DAILY TIME DROPS WORK</span>
+            <span class="guide-hint">Automate recurring daily drop events at designated times</span>
+          </div>
+          <div class="guide-steps-grid">
+            <div class="guide-step">
+              <span class="step-badge">STEP 1</span>
+              <h4>Set Daily Time</h4>
+              <p>Choose the exact drop hour & minute (e.g. <code>11:00 AM</code>) using the 24-hour time selector below.</p>
+            </div>
+            <div class="guide-step">
+              <span class="step-badge">STEP 2</span>
+              <h4>Select Drop Outcome</h4>
+              <p>Choose <strong>🥗 All 4 Vegetables</strong>, <strong>🔥 Pizza Fire</strong>, or a single specific food target.</p>
+            </div>
+            <div class="guide-step">
+              <span class="step-badge">STEP 3</span>
+              <h4>Automated Daily Payout</h4>
+              <p>The game server automatically drops this outcome every day! Click <strong>⚡ Test Next Round</strong> to test immediately.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Clock & Active Armed Event Status Header -->
+        <div class="scheduler-clock-card">
+          <div class="clock-display">
+            <span class="clock-icon">🕒</span>
+            <div>
+              <div class="clock-label">CURRENT SERVER TIME (<span id="clock-tz">Asia/Dhaka GMT+6</span>)</div>
+              <div class="clock-time" id="server-live-clock">--:--:--</div>
+            </div>
+          </div>
+          <div class="clock-tz-picker">
+            <label for="sched-tz-select">Timezone:</label>
+            <select id="sched-tz-select" onchange="changeTimezone(this.value)">
+              <option value="Asia/Dhaka">Asia/Dhaka (GMT+6)</option>
+              <option value="Asia/Kolkata">Asia/Kolkata (GMT+5:30)</option>
+              <option value="Asia/Dubai">Asia/Dubai (GMT+4)</option>
+              <option value="UTC">UTC (GMT+0)</option>
+              <option value="America/New_York">America/New_York (EST)</option>
+              <option value="Asia/Bangkok">Asia/Bangkok (GMT+7)</option>
+              <option value="Asia/Singapore">Asia/Singapore (GMT+8)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Armed Banner inside Scheduler -->
+        <div class="armed-scheduler-banner" id="sched-armed-banner" style="display:none;">
+          <div class="armed-content">
+            <span class="pulse-indicator"></span>
+            <div>
+              <strong>⚡ ARMED FOR NEXT IMMEDIATE ROUND:</strong>
+              <span id="sched-armed-name">All Vegetables Feast</span>
+            </div>
+          </div>
+          <button class="btn btn-dark btn-xs" onclick="disarmSpecialEvent()">Cancel Armed Drop</button>
+        </div>
+
+        <!-- Add New Schedule Form -->
+        <div class="admin-card scheduler-form-card">
+          <div class="card-header">
+            <div class="header-icon">➕</div>
+            <div>
+              <h3>Add Scheduled Drop Time</h3>
+              <p>Configure the drop time and outcome to trigger automated special events</p>
+            </div>
+          </div>
+
+          <form id="scheduler-form" onsubmit="event.preventDefault(); submitAddSchedule();">
+            <div class="form-row form-row-3">
+              <div class="form-group">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <label for="sched-time">Drop Time (HH:MM 24-hr):</label>
+                  <div style="display:flex; gap:4px;">
+                    <button type="button" class="btn btn-outline btn-xs" onclick="setQuickSchedTime(1)" title="Set to 1 minute from current server time">+1m</button>
+                    <button type="button" class="btn btn-outline btn-xs" onclick="setQuickSchedTime(5)" title="Set to 5 minutes from current server time">+5m</button>
+                    <button type="button" class="btn btn-outline btn-xs" onclick="setQuickSchedTime(15)" title="Set to 15 minutes from current server time">+15m</button>
+                  </div>
+                </div>
+                <input type="time" id="sched-time" required value="11:00" class="form-input">
+                <small class="form-hint" id="sched-server-time-hint">Current Server Time: --:--:--</small>
+              </div>
+
+              <div class="form-group">
+                <label for="sched-name">Event Name (Optional):</label>
+                <input type="text" id="sched-name" placeholder="e.g. 11:00 AM Veggie Harvest (Auto-generated if empty)" class="form-input">
+                <small class="form-hint">Displayed on player win screens and live announcements</small>
+              </div>
+
+              <div class="form-group">
+                <label for="sched-type">Drop Outcome (Winning Foods):</label>
+                <select id="sched-type" class="form-select" onchange="onScheduleTypeChange(this.value)">
+                  <option value="all_vegetables">🥗 All 4 Vegetables (Tomato, Radish, Mushroom, Corn)</option>
+                  <option value="pizza_fire">🔥 Pizza Fire (Sausage, Chicken, Shrimp, Steak)</option>
+                  <option value="single_food">🎯 Specific Single Food</option>
+                  <option value="custom_combo">🎲 Custom Food Combo</option>
+                </select>
+                <small class="form-hint">All Vegetables or Pizza Fire awards wins to all bets on their respective food groups</small>
+              </div>
+            </div>
+
+            <!-- Single Food Selector (Hidden by default) -->
+            <div class="form-group" id="sched-single-food-group" style="display:none; margin-top:12px;">
+              <label for="sched-target-food">Select Winning Food Target:</label>
+              <select id="sched-target-food" class="form-select">
+                <option value="0">🌭 Sausage (15X)</option>
+                <option value="1">🍗 Chicken (20X)</option>
+                <option value="2">🍤 Shrimp (25X)</option>
+                <option value="3">🥩 Steak (45X)</option>
+                <option value="4">🍅 Tomato (5X)</option>
+                <option value="5">🥕 Radish (5X)</option>
+                <option value="6">🍄 Mushroom (5X)</option>
+                <option value="7">🌽 Corn (5X)</option>
+              </select>
+            </div>
+
+            <!-- Custom Combo Checkboxes (Hidden by default) -->
+            <div class="form-group" id="sched-custom-combo-group" style="display:none; margin-top:12px;">
+              <label>Select Winning Combo Foods:</label>
+              <div class="custom-combo-checkboxes">
+                <label><input type="checkbox" name="custom_combo_food" value="0"> 🌭 Sausage</label>
+                <label><input type="checkbox" name="custom_combo_food" value="1"> 🍗 Chicken</label>
+                <label><input type="checkbox" name="custom_combo_food" value="2"> 🍤 Shrimp</label>
+                <label><input type="checkbox" name="custom_combo_food" value="3"> 🥩 Steak</label>
+                <label><input type="checkbox" name="custom_combo_food" value="4"> 🍅 Tomato</label>
+                <label><input type="checkbox" name="custom_combo_food" value="5"> 🥕 Radish</label>
+                <label><input type="checkbox" name="custom_combo_food" value="6"> 🍄 Mushroom</label>
+                <label><input type="checkbox" name="custom_combo_food" value="7"> 🌽 Corn</label>
+              </div>
+            </div>
+
+            <div class="form-actions-row">
+              <label class="toggle-label">
+                <input type="checkbox" id="sched-repeat" checked>
+                <span>🔁 Repeat Daily (Runs automatically every day at this time)</span>
+              </label>
+
+              <button type="submit" class="btn btn-primary">
+                ➕ Add & Activate Scheduled Drop
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Active Schedules Table -->
+        <div class="admin-card">
+          <div class="card-header">
+            <div class="header-icon">📋</div>
+            <div>
+              <h3>Active Scheduled Drop Events</h3>
+              <p>List of all scheduled drop events. Click "⚡ Test Next Round" anytime to verify immediately.</p>
+            </div>
+          </div>
+
+          <div class="table-container">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>TIME (24H)</th>
+                  <th>EVENT NAME</th>
+                  <th>DROP OUTCOME</th>
+                  <th>SCHEDULE TYPE</th>
+                  <th>LAST TRIGGERED</th>
+                  <th>STATUS</th>
+                  <th>ACTIONS</th>
+                </tr>
+              </thead>
+              <tbody id="schedules-table-body">
+                <tr>
+                  <td colspan="7" class="text-center text-muted" style="padding:24px;">No scheduled events yet. Add one above!</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════ TAB 2: LIVE BET MATRIX ══════════ -->
+      <section class="tab-pane" id="tab-matrix">
+        <div class="section-intro">
+          <h2>Active Round Risk & Payout Matrix</h2>
+          <p>Real-time calculation of house exposure and net profit/loss for all 8 possible winning outcomes.</p>
+        </div>
+
+        <div class="matrix-summary-cards">
+          <div class="stat-card">
+            <span class="stat-lbl">CURRENT ROUND POOL</span>
+            <span class="stat-val text-gold" id="matrix-total-pool">0 COINS</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-lbl">ACTIVE BETTORS</span>
+            <span class="stat-val" id="matrix-bettor-count">0 Players</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-lbl">SAFEST CASINO PICK</span>
+            <span class="stat-val text-green" id="matrix-safest-pick">Calculating...</span>
+          </div>
+        </div>
+
+        <div class="table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>FOOD</th>
+                <th>ODDS</th>
+                <th>BETS PLACED</th>
+                <th>TOTAL WAGERED</th>
+                <th>POTENTIAL PAYOUT</th>
+                <th>HOUSE NET P&L</th>
+                <th>ACTION</th>
+              </tr>
+            </thead>
+            <tbody id="matrix-table-body">
+              <!-- Populated dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ══════════ TAB 3: PLAYER MANAGER ══════════ -->
+      <section class="tab-pane" id="tab-players">
+        <div class="section-intro">
+          <h2>Player Accounts & Balances</h2>
+          <p>Monitor connected players and modify user balances directly in SQLite.</p>
+        </div>
+
+        <div class="table-controls">
+          <input type="text" id="player-search" class="search-input" placeholder="🔍 Search by Session ID..." oninput="filterPlayers()" />
+          <div class="player-filter-chips">
+            <button class="filter-chip active" id="filter-chip-all" onclick="setPlayerFilter('all')">👥 All Players</button>
+            <button class="filter-chip" id="filter-chip-bettors" onclick="setPlayerFilter('bettors')">🎲 Active Bettors</button>
+            <button class="filter-chip" id="filter-chip-winners" onclick="setPlayerFilter('winners')">🏆 Profitable Today</button>
+            <button class="filter-chip" id="filter-chip-high" onclick="setPlayerFilter('high_balance')">💎 Balance > 50K</button>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span class="filter-count-badge" id="player-count-badge">0 Players</span>
+            <button class="btn btn-secondary btn-sm" onclick="fetchPlayers()">🔄 Refresh</button>
+          </div>
+        </div>
+
+        <div class="table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>SESSION ID</th>
+                <th>BALANCE</th>
+                <th>TODAY PROFIT</th>
+                <th>TOTAL BETS</th>
+                <th>TOTAL WINS</th>
+                <th>LAST ACTIVE</th>
+                <th>BALANCE ACTIONS</th>
+              </tr>
+            </thead>
+            <tbody id="players-table-body">
+              <!-- Populated dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ══════════ TAB 4: ODDS & ECONOMY ══════════ -->
+      <section class="tab-pane" id="tab-odds">
+        <div class="section-intro">
+          <h2>Game Economy & Timer Configuration</h2>
+          <p>Fine-tune multipliers, random weight distributions, and round duration.</p>
+        </div>
+
+        <div class="config-grid">
+          <!-- Timers Config -->
+          <div class="config-card">
+            <h3>⏱️ Round Timers</h3>
+            <div class="config-fields">
+              <div class="field-group">
+                <label>Betting Window (Seconds):</label>
+                <input type="number" id="cfg-round-duration" min="5" max="120" value="15" />
+              </div>
+              <div class="field-group">
+                <label>Result / Spin Window (Seconds):</label>
+                <input type="number" id="cfg-cooldown-duration" min="3" max="60" value="8" />
+              </div>
+              <button class="btn btn-primary btn-sm" onclick="saveTimers()">Update Timers</button>
+            </div>
+          </div>
+
+          <!-- Chip / Bid Amounts Config -->
+          <div class="config-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
+              <h3 style="margin: 0;">🪙 Dynamic Bid / Chip Amounts</h3>
+              <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                <button type="button" class="btn btn-outline btn-xs" onclick="applyChipPreset('low')">🌱 Low (100–5K)</button>
+                <button type="button" class="btn btn-outline btn-xs" onclick="applyChipPreset('standard')">⭐ Default (500–100K)</button>
+                <button type="button" class="btn btn-outline btn-xs" onclick="applyChipPreset('high')">🔥 High (5K–500K)</button>
+                <button type="button" class="btn btn-outline btn-xs" onclick="applyChipPreset('whale')">💎 Whale (50K–5M)</button>
+              </div>
+            </div>
+            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">
+              Configure custom betting chip values. Any changes update on the player game screen in real time without refreshing.
+            </p>
+            <div class="config-fields">
+              <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
+                <div class="field-group">
+                  <label>Chip 1 (Min):</label>
+                  <input type="number" id="cfg-chip-1" min="1" step="100" value="500" />
+                </div>
+                <div class="field-group">
+                  <label>Chip 2:</label>
+                  <input type="number" id="cfg-chip-2" min="1" step="500" value="5000" />
+                </div>
+                <div class="field-group">
+                  <label>Chip 3:</label>
+                  <input type="number" id="cfg-chip-3" min="1" step="1000" value="50000" />
+                </div>
+                <div class="field-group">
+                  <label>Chip 4 (Max):</label>
+                  <input type="number" id="cfg-chip-4" min="1" step="5000" value="100000" />
+                </div>
+              </div>
+              <div style="margin-top: 10px; display: flex; justify-content: flex-end;">
+                <button class="btn btn-primary btn-sm" onclick="saveChipAmounts()">💾 Save & Apply Bid Amounts Live</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Multipliers & Weights -->
+          <div class="config-card config-card-wide">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+              <h3 style="margin: 0;">🥩 Food Multipliers & Probability Weights</h3>
+              <button class="btn btn-primary btn-sm" id="btn-save-all-foods" onclick="saveAllFoodsConfig()">
+                💾 Save All Multipliers & Weights Live
+              </button>
+            </div>
+            <div class="table-container">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>FOOD</th>
+                    <th>MULTIPLIER (X)</th>
+                    <th>WEIGHT (Probability)</th>
+                    <th>APPROX CHANCE</th>
+                    <th>ACTION</th>
+                  </tr>
+                </thead>
+                <tbody id="odds-table-body">
+                  <!-- Populated dynamically -->
+                </tbody>
+              </table>
+            </div>
+            <div style="margin-top: 12px; display: flex; justify-content: flex-end;">
+              <button class="btn btn-primary" onclick="saveAllFoodsConfig()">
+                💾 Save All Multipliers & Weights Live
+              </button>
+            </div>
+          </div>
+
+          <!-- Mobile App Webhook Integration -->
+          <div class="config-card config-card-wide">
+            <h3>🔗 Mobile App Webhook Integration</h3>
+            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">
+              Automatically send real-time HTTP POST notifications to your mobile app backend whenever a player places a bet or wins/loses a round.
+            </p>
+            <div class="config-fields">
+              <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px;">
+                <div class="field-group">
+                  <label>Webhook URL (Your App Server):</label>
+                  <input type="url" id="cfg-webhook-url" placeholder="https://api.your-app.com/api/game-webhook" />
+                </div>
+                <div class="field-group">
+                  <label>HMAC Secret Key:</label>
+                  <input type="text" id="cfg-webhook-secret" placeholder="bigeater888_secret" />
+                </div>
+              </div>
+              <div style="display: flex; gap: 10px; margin-top: 8px; align-items: center; flex-wrap: wrap;">
+                <button class="btn btn-primary btn-sm" onclick="saveWebhookSettings()">💾 Save Webhook URL & Secret</button>
+                <button class="btn btn-secondary btn-sm" onclick="testWebhookPing()">⚡ Send Test Ping</button>
+                <button class="btn btn-outline btn-sm" onclick="switchToTab('tab-docs')">📖 View Complete Integration README & Code Examples ↗</button>
+                <span id="webhook-test-status" style="font-size: 12px; font-weight: 700; margin-left: 8px;"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════ TAB 5: ROUNDS & P&L ══════════ -->
+      <section class="tab-pane" id="tab-history">
+        <div class="section-intro">
+          <h2>Financial Audit & Round History</h2>
+          <p>Historical audit of rounds, wagering volume, payouts, and house profitability.</p>
+        </div>
+
+        <div class="matrix-summary-cards" id="stats-summary-cards">
+          <div class="stat-card">
+            <span class="stat-lbl">TOTAL ALL-TIME WAGERED</span>
+            <span class="stat-val text-gold" id="stat-total-volume">0 COINS</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-lbl">TOTAL ALL-TIME PAYOUT</span>
+            <span class="stat-val text-red" id="stat-total-payout">0 COINS</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-lbl">NET CASINO GROSS REVENUE</span>
+            <span class="stat-val text-green" id="stat-net-revenue">0 COINS</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-lbl">CASINO RETENTION %</span>
+            <span class="stat-val" id="stat-margin-pct">0%</span>
+          </div>
+        </div>
+
+        <div class="table-controls">
+          <button class="btn btn-secondary btn-sm" onclick="fetchRounds()">🔄 Refresh Rounds</button>
+          <button class="btn btn-danger btn-sm" onclick="confirmResetHistory()">⚠️ Clear Bet History</button>
+        </div>
+
+        <div class="table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>ROUND #</th>
+                <th>WINNER</th>
+                <th>TOTAL BETS</th>
+                <th>ROUND VOLUME</th>
+                <th>PAID OUT</th>
+                <th>HOUSE P&L</th>
+                <th>ENDED AT</th>
+              </tr>
+            </thead>
+            <tbody id="history-table-body">
+              <!-- Populated dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ══════════ TAB 6: INTEGRATION DOCS & README ══════════ -->
+      <section class="tab-pane" id="tab-docs">
+        <div class="section-intro">
+          <h2>📖 External App & Mobile Integration Guide (README)</h2>
+          <p>Comprehensive developer documentation, webhook payloads, HMAC signature verification, and copy-paste code snippets for integrating Big Eater into Flutter, React Native, iOS, Android, and Web backends.</p>
+        </div>
+
+        <!-- 1. Architecture Overview -->
+        <div class="doc-box">
+          <h3>🚀 1. Integration Architecture Overview</h3>
+          <p>
+            Big Eater provides a <strong>Dual-Layer Integration Architecture</strong> engineered for maximum security, speed, and cross-platform flexibility:
+          </p>
+          <ul style="margin-top: 10px;">
+            <li><strong>Layer 1: Server-to-Server Webhook (Recommended for Wallets & Balances)</strong> — The game server directly triggers authenticated HTTP POST requests to your central API server whenever bets are placed or rounds finish. Transactions cannot be spoofed or bypassed by clients.</li>
+            <li><strong>Layer 2: In-App WebView Bridge (Recommended for UI & Sound FX)</strong> — When running Big Eater inside a Flutter or mobile WebView, the game client dispatches instant <code>FlutterChannel.postMessage</code> events for in-app animations, vibrations, and victory banners without needing a round-trip to the server.</li>
+          </ul>
+        </div>
+
+        <!-- 2. Player Identification -->
+        <div class="doc-box">
+          <h3>👤 2. Passing User / Player ID from your App</h3>
+          <p>
+            When launching the game inside your mobile app's WebView, pass your authenticated user's ID as a URL query parameter (<code>?userId=...</code> or <code>?sessionId=...</code>):
+          </p>
+          <div class="code-block-wrapper">
+            <div class="code-header">
+              <span>URL FORMAT</span>
+              <button class="code-copy-btn" onclick="copySnippet('snippet-url')">📋 Copy</button>
+            </div>
+            <pre class="code-snippet" id="snippet-url">http://YOUR_GAME_HOST:3000/?userId=USER_882910</pre>
+          </div>
+          <p>
+            The game client automatically binds this user ID to the session. All subsequent database bets, socket events, and server Webhook notifications will include <code>sessionId: "USER_882910"</code>, allowing your backend to instantly map results to the user's wallet!
+          </p>
+        </div>
+
+        <!-- 3. Webhook Events & Payloads -->
+        <div class="doc-box">
+          <h3>📦 3. Webhook Event Payloads (Server-to-Server)</h3>
+          <p>
+            Configure your destination URL in <a href="javascript:void(0)" onclick="switchToTab('tab-odds')" style="color:var(--primary); font-weight:700">Odds & Economy</a> tab. Every webhook includes headers:
+            <code>X-BigEater-Event</code> and <code>X-BigEater-Signature</code> (HMAC SHA-256).
+          </p>
+
+          <h4><span class="tag-badge post">POST</span> Event A: <code>bet:placed</code></h4>
+          <p>Triggered immediately whenever any player successfully wagers coins on any food item.</p>
+          <div class="code-block-wrapper">
+            <div class="code-header">
+              <span>JSON PAYLOAD</span>
+              <button class="code-copy-btn" onclick="copySnippet('snippet-bet-payload')">📋 Copy</button>
+            </div>
+            <pre class="code-snippet" id="snippet-bet-payload">{
+  "event": "bet:placed",
+  "timestamp": "2026-10-04T12:30:00.000Z",
+  "data": {
+    "sessionId": "USER_882910",
+    "roundNumber": 390,
+    "foodId": 0,
+    "foodName": "Sausage",
+    "amount": 5000,
+    "foodTotal": 5000,
+    "balanceAfterBet": 45000
+  }
+}</pre>
+          </div>
+
+          <h4><span class="tag-badge post">POST</span> Event B: <code>round:settled</code></h4>
+          <p>Triggered at the end of every round when the spinning wheel stops. Contains winning food details and individual player win/loss payouts.</p>
+          <div class="code-block-wrapper">
+            <div class="code-header">
+              <span>JSON PAYLOAD</span>
+              <button class="code-copy-btn" onclick="copySnippet('snippet-round-payload')">📋 Copy</button>
+            </div>
+            <pre class="code-snippet" id="snippet-round-payload">{
+  "event": "round:settled",
+  "timestamp": "2026-10-04T12:30:23.000Z",
+  "data": {
+    "roundNumber": 390,
+    "winnerId": 0,
+    "winnerFood": {
+      "id": 0,
+      "name": "Sausage",
+      "emoji": "🍖",
+      "multiplier": 10
+    },
+    "totalBets": 150000,
+    "players": [
+      {
+        "sessionId": "USER_882910",
+        "won": true,
+        "winAmount": 50000,
+        "totalBet": 5000,
+        "netProfit": 45000,
+        "newBalance": 95000,
+        "bets": { "0": 5000 }
+      },
+      {
+        "sessionId": "USER_440219",
+        "won": false,
+        "winAmount": 0,
+        "totalBet": 10000,
+        "netProfit": -10000,
+        "newBalance": 15000,
+        "bets": { "3": 10000 }
+      }
+    ]
+  }
+}</pre>
+          </div>
+        </div>
+
+        <!-- 4. Flutter Integration Code -->
+        <div class="doc-box">
+          <h3>📱 4. Flutter Mobile App Integration (webview_flutter)</h3>
+          <p>
+            Copy and paste this Flutter screen into your mobile app. It embeds the game in a WebView, automatically passes the user's ID, and receives real-time bridge messages:
+          </p>
+          <div class="code-block-wrapper">
+            <div class="code-header">
+              <span>FLUTTER DART (GameScreen.dart)</span>
+              <button class="code-copy-btn" onclick="copySnippet('snippet-flutter')">📋 Copy</button>
+            </div>
+            <pre class="code-snippet" id="snippet-flutter">import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:webview_flutter/webview_flutter.dart';
+
+class BigEaterGameScreen extends StatefulWidget {
+  final String userId; // Current logged-in user ID in your app
+
+  const BigEaterGameScreen({Key? key, required this.userId}) : super(key: key);
+
+  @override
+  State&lt;BigEaterGameScreen&gt; createState() =&gt; _BigEaterGameScreenState();
+}
+
+class _BigEaterGameScreenState extends State&lt;BigEaterGameScreen&gt; {
+  late final WebViewController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    final gameUrl = 'http://YOUR_SERVER_IP:3000/?userId=${widget.userId}';
+
+    _controller = WebViewController()
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setBackgroundColor(const Color(0xFF0F1C13))
+      ..addJavaScriptChannel(
+        'FlutterChannel',
+        onMessageReceived: (JavaScriptMessage msg) {
+          try {
+            final data = jsonDecode(msg.message);
+            final event = data['event'];
+
+            if (event == 'bet:placed') {
+              print('🪙 Bet placed: ${data['amount']} coins on ${data['foodName']}');
+            } else if (event == 'round:result') {
+              final bool won = data['won'] ?? false;
+              final int winAmount = data['winAmount'] ?? 0;
+              final int netProfit = data['netProfit'] ?? 0;
+
+              if (won) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    backgroundColor: Colors.amber.shade800,
+                    content: Text('🎉 Congratulations! You won $winAmount coins! (+$netProfit)'),
+                  ),
+                );
+              }
+            } else if (event == 'recharge') {
+              // Open your mobile in-app coin recharge store
+              print('Recharge clicked. Current balance: ${data['currentBalance']}');
+            } else if (event == 'close') {
+              Navigator.of(context).pop();
+            }
+          } catch (e) {
+            print('Bridge message error: $e');
+          }
+        },
+      )
+      ..loadRequest(Uri.parse(gameUrl));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFF0F1C13),
+      body: SafeArea(
+        child: WebViewWidget(controller: _controller),
+      ),
+    );
+  }
+}</pre>
+          </div>
+        </div>
+
+        <!-- 5. Backend Server Implementation (Node.js & PHP) -->
+        <div class="doc-box">
+          <h3>💻 5. Backend Webhook Receiver Implementation</h3>
+          <p>
+            Securely verify the HMAC SHA-256 signature and update player wallets in your database:
+          </p>
+
+          <h4>Node.js / Express</h4>
+          <div class="code-block-wrapper">
+            <div class="code-header">
+              <span>NODE.JS / EXPRESS</span>
+              <button class="code-copy-btn" onclick="copySnippet('snippet-backend-node')">📋 Copy</button>
+            </div>
+            <pre class="code-snippet" id="snippet-backend-node">const express = require('express');
+const crypto  = require('crypto');
+const app     = express();
+
+app.use(express.json());
+
+const WEBHOOK_SECRET = 'bigeater888_secret'; // Set same key in Admin Panel
+
+app.post('/api/bigeater-webhook', (req, res) =&gt; {
+  const signature = req.headers['x-bigeater-signature'];
+  const event     = req.headers['x-bigeater-event'];
+
+  // Verify HMAC-SHA256 signature
+  const expectedSig = crypto
+    .createHmac('sha256', WEBHOOK_SECRET)
+    .update(JSON.stringify(req.body))
+    .digest('hex');
+
+  if (signature !== expectedSig) {
+    return res.status(401).json({ error: 'Unauthorized signature' });
+  }
+
+  const { data } = req.body;
+
+  if (event === 'bet:placed') {
+    console.log(`[BET] User ${data.sessionId} bet ${data.amount} on ${data.foodName}`);
+    // Deduct coins or track in your DB
+  }
+
+  if (event === 'round:settled') {
+    console.log(`[SETTLED] Round #${data.roundNumber} Winner: ${data.winnerFood.name}`);
+    for (const player of data.players) {
+      if (player.won) {
+        console.log(`User ${player.sessionId} won ${player.winAmount}!`);
+        // Credit player wallet in your DB
+      }
+    }
+  }
+
+  res.status(200).json({ received: true });
+});
+
+app.listen(8000, () =&gt; console.log('Webhook server active on port 8000'));</pre>
+          </div>
+
+          <h4>PHP / Laravel</h4>
+          <div class="code-block-wrapper">
+            <div class="code-header">
+              <span>LARAVEL CONTROLLER</span>
+              <button class="code-copy-btn" onclick="copySnippet('snippet-backend-php')">📋 Copy</button>
+            </div>
+            <pre class="code-snippet" id="snippet-backend-php">&lt;?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+
+class GameWebhookController extends Controller
+{
+    public function handle(Request $request)
+    {
+        $secret = 'bigeater888_secret';
+        $signature = $request-&gt;header('X-BigEater-Signature');
+        $event = $request-&gt;header('X-BigEater-Event');
+
+        $computed = hash_hmac('sha256', $request-&gt;getContent(), $secret);
+        if (!hash_equals($signature, $computed)) {
+            return response()-&gt;json(['error' =&gt; 'Invalid Signature'], 401);
+        }
+
+        $data = $request-&gt;json('data');
+
+        if ($event === 'round:settled') {
+            foreach ($data['players'] as $player) {
+                $userId = $player['sessionId'];
+                if ($player['won']) {
+                    // Wallet::credit($userId, $player['winAmount']);
+                }
+            }
+        }
+
+        return response()-&gt;json(['success' =&gt; true]);
+    }
+}</pre>
+          </div>
+        </div>
+
+      </section>
+
+    </main>
+
+    <!-- Notification Toast -->
+    <div class="admin-toast" id="admin-toast"></div>
+
+    </div> <!-- /.admin-main -->
+  </div> <!-- /.admin-layout -->
+
+  <script src="/admin.js"></script>
+</body>
+</html>

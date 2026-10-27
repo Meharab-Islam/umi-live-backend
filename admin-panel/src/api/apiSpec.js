@@ -18,7 +18,13 @@ export const API_SPEC = {
   ],
   "categories": [
     {
+      "id": "games",
+      "name": "🎮 Integrated Mini-Games",
+      "description": "Multiplayer live mini-games catalog, direct web URLs, socket endpoints, round settlement webhooks, and real-time wallet coin synchronization for all 7 integrated games (Big Eater, Fruit Slot, Ferry Wheel, Greedy Baby, Greedy Lion, Roulette, Teen Patti)."
+    },
+    {
       "id": "levels",
+
       "name": "⭐ User Levels & Progression Rewards",
       "description": "Milestone-based level progression engine: min coins spent requirements, wallet bonuses (coins & diamonds), and unlockable items (Entry Effects, Special Thumbnails, and VIP Packages) with expiration durations."
     },
@@ -140,7 +146,186 @@ export const API_SPEC = {
   ],
   "endpoints": [
     {
+      "id": "games-list",
+      "category": "games",
+      "method": "GET",
+      "path": "/api/mobile/games",
+      "summary": "[🎮 Mini-Games] Fetch All 7 Integrated Games Catalog & Socket Endpoints",
+      "description": "Returns full list of all 7 connected mini-games with direct-served web URLs, standalone dedicated socket endpoints, active statuses, chips configuration, and multiplayer indicators.",
+      "requiresAuth": false,
+      "requestHeaders": [],
+      "queryParams": [],
+      "bodyType": "none",
+      "responseStatus": 200,
+      "responseExample": {
+        "success": true,
+        "message": "Games catalog retrieved successfully",
+        "count": 7,
+        "games": [
+          {
+            "id": "big_eater",
+            "slug": "big_eater",
+            "name": "Big Eater",
+            "description": "Fast-paced multiplayer food betting game with suspenseful spins, multipliers, and scheduled feast events.",
+            "category": "wheel",
+            "icon_url": "http://localhost:5050/games/big_eater/images/icon.png",
+            "web_url": "http://localhost:5050/games/big_eater",
+            "dedicated_url": "http://localhost:5061",
+            "socket_url": "http://localhost:5050",
+            "dedicated_socket_url": "http://localhost:5061",
+            "is_multiplayer": true,
+            "is_active": true,
+            "supports_socket": true,
+            "currency": "coins",
+            "chips": [500, 5000, 50000, 100000]
+          },
+          {
+            "id": "slote_mecine",
+            "slug": "slote_mecine",
+            "name": "Fruit Slot Machine",
+            "description": "Authentic 24-lamp Chinese Fruit Slot with classic Bar, 77, Bell, and Fruit odds and progressive Jackpot.",
+            "category": "slots",
+            "icon_url": "http://localhost:5050/games/slote_mecine/icon.png",
+            "web_url": "http://localhost:5050/games/slote_mecine",
+            "dedicated_url": "http://localhost:5062",
+            "socket_url": "http://localhost:5050",
+            "dedicated_socket_url": "http://localhost:5062",
+            "is_multiplayer": true,
+            "is_active": true,
+            "supports_socket": true,
+            "currency": "coins",
+            "chips": [100, 500, 1000, 5000]
+          }
+        ]
+      },
+      "codeSnippets": {
+        "curl": "curl -X GET \"http://localhost:5050/api/mobile/games\"",
+        "flutter": "import 'package:http/http.dart' as http;\nimport 'dart:convert';\n\nfinal response = await http.get(Uri.parse('http://localhost:5050/api/mobile/games'));\nif (response.statusCode == 200) {\n  final data = jsonDecode(response.body);\n  print(data['games']);\n}"
+      }
+    },
+    {
+      "id": "game-details",
+      "category": "games",
+      "method": "GET",
+      "path": "/api/mobile/games/:slug",
+      "summary": "[🎮 Mini-Games] Fetch Detailed Specs & Direct URLs for a Specific Game",
+      "description": "Fetches metadata, icon URL, web play URL, and dedicated Socket.IO server details for a specific game (e.g. big_eater, slote_mecine, ferrywheel, greedybaby, greedylion, roulettecasino, teenpatti).",
+      "requiresAuth": false,
+      "requestHeaders": [],
+      "pathParams": [
+        {
+          "name": "slug",
+          "type": "string",
+          "required": true,
+          "example": "big_eater",
+          "description": "Game slug (big_eater, slote_mecine, ferrywheel, greedybaby, greedylion, roulettecasino, teenpatti)"
+        }
+      ],
+      "bodyType": "none",
+      "responseStatus": 200,
+      "responseExample": {
+        "success": true,
+        "game": {
+          "id": "big_eater",
+          "slug": "big_eater",
+          "name": "Big Eater",
+          "description": "Fast-paced multiplayer food betting game with suspenseful spins, multipliers, and scheduled feast events.",
+          "category": "wheel",
+          "icon_url": "http://localhost:5050/games/big_eater/images/icon.png",
+          "web_url": "http://localhost:5050/games/big_eater",
+          "dedicated_url": "http://localhost:5061",
+          "socket_url": "http://localhost:5050"
+        }
+      },
+      "codeSnippets": {
+        "curl": "curl -X GET \"http://localhost:5050/api/mobile/games/big_eater\"",
+        "flutter": "import 'package:http/http.dart' as http;\n\nfinal response = await http.get(Uri.parse('http://localhost:5050/api/mobile/games/big_eater'));\nprint(response.body);"
+      }
+    },
+    {
+      "id": "admin-games-list",
+      "category": "games",
+      "method": "GET",
+      "path": "/api/admin/games",
+      "summary": "[🎮 Admin] Fetch All Games with Controls & Dedicated URLs",
+      "description": "Admin endpoint to retrieve all 7 mini-games with their active status, direct game admin URLs, chips, and betting limits.",
+      "requiresAuth": true,
+      "requestHeaders": [
+        { "name": "Authorization", "value": "Bearer <admin_token>", "required": true }
+      ],
+      "bodyType": "none",
+      "responseStatus": 200,
+      "responseExample": {
+        "success": true,
+        "count": 7,
+        "games": [
+          {
+            "id": 1,
+            "slug": "big_eater",
+            "name": "Big Eater",
+            "is_active": true,
+            "admin_url": "http://localhost:5050/games/big_eater/admin.html",
+            "web_url": "http://localhost:5050/games/big_eater"
+          }
+        ]
+      },
+      "codeSnippets": {
+        "curl": "curl -X GET \"http://localhost:5050/api/admin/games\" -H \"Authorization: Bearer <token>\""
+      }
+    },
+    {
+      "id": "admin-game-toggle",
+      "category": "games",
+      "method": "PATCH",
+      "path": "/api/admin/games/:id/toggle",
+      "summary": "[🎮 Admin] Toggle Mini-Game Active / Maintenance Status",
+      "description": "Toggles game active state in MySQL and instantly broadcasts status_toggle across isolated servers via Redis Pub/Sub.",
+      "requiresAuth": true,
+      "requestHeaders": [
+        { "name": "Authorization", "value": "Bearer <admin_token>", "required": true }
+      ],
+      "pathParams": [
+        { "name": "id", "type": "string", "required": true, "example": "big_eater" }
+      ],
+      "bodyType": "none",
+      "responseStatus": 200,
+      "responseExample": {
+        "success": true,
+        "message": "Big Eater is now ENABLED (Active)",
+        "gameId": 1,
+        "slug": "big_eater",
+        "isActive": true
+      },
+      "codeSnippets": {
+        "curl": "curl -X PATCH \"http://localhost:5050/api/admin/games/big_eater/toggle\" -H \"Authorization: Bearer <token>\""
+      }
+    },
+    {
+      "id": "game-webhook",
+      "category": "games",
+      "method": "POST",
+      "path": "/api/games/webhook",
+      "summary": "[🎮 Webhook] Settle Bets and Round Winners via Redis Pub/Sub",
+      "description": "Secure webhook called by game engines on bet placement or round settlement. Relays events to Redis Pub/Sub for database-first wallet mutations.",
+      "requiresAuth": false,
+      "requestHeaders": [
+        { "name": "x-game-signature", "value": "<hmac_sha256>", "required": false }
+      ],
+      "bodyType": "json",
+      "requestBodySchema": {
+        "event": { "type": "string", "required": true, "example": "bet:placed" },
+        "gameId": { "type": "string", "required": true, "example": "big_eater" },
+        "data": { "type": "object", "required": true, "example": { "userId": 12, "amount": 500 } }
+      },
+      "responseStatus": 200,
+      "responseExample": { "success": true, "message": "Webhook processed successfully" },
+      "codeSnippets": {
+        "curl": "curl -X POST \"http://localhost:5050/api/games/webhook\" -H \"Content-Type: application/json\" -d '{\"event\":\"bet:placed\",\"gameId\":\"big_eater\",\"data\":{\"userId\":12,\"amount\":500}}'"
+      }
+    },
+    {
       "id": "live-reward-status",
+
       "category": "live-rewards",
       "method": "GET",
       "path": "/api/mobile/live/rooms/:roomId/reward-status",

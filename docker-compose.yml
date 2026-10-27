@@ -75,6 +75,15 @@ services:
       REDIS_TTL_CHAT: ${REDIS_TTL_CHAT:-20}
       REDIS_TTL_FEED: ${REDIS_TTL_FEED:-45}
       FIREBASE_CREDENTIALS_PATH: ${FIREBASE_CREDENTIALS_PATH:-/app/umi_firebase.json}
+      GAME_BIG_EATER_PORT: ${GAME_BIG_EATER_PORT:-5061}
+      GAME_SLOTE_MECINE_PORT: ${GAME_SLOTE_MECINE_PORT:-5062}
+      GAME_FERRYWHEEL_PORT: ${GAME_FERRYWHEEL_PORT:-5063}
+      GAME_GREEDYBABY_PORT: ${GAME_GREEDYBABY_PORT:-5064}
+      GAME_GREEDYLION_PORT: ${GAME_GREEDYLION_PORT:-5065}
+      GAME_ROULETTECASINO_PORT: ${GAME_ROULETTECASINO_PORT:-5066}
+      GAME_TEENPATTI_PORT: ${GAME_TEENPATTI_PORT:-5067}
+      MONGO_URI: ${MONGO_URI:-mongodb://mongodb:27017/umi_games}
+      GAME_WEBHOOK_SECRET: ${GAME_WEBHOOK_SECRET:-umi_game_webhook_secret_key_2026}
     depends_on:
       mysql:
         condition: service_healthy
@@ -83,9 +92,12 @@ services:
     volumes:
       - ./backend/src:/app/src
       - ./backend/uploads:/app/uploads
+      - ./Games:/app/Games
+      - ./Games:/Games
       - ./umi_firebase.json:/app/umi_firebase.json:ro
     networks:
       - app_network
+
 
   # Redis 7 In-Memory Cache Service (Production Grade)
   redis:
@@ -137,12 +149,27 @@ services:
     networks:
       - app_network
 
+  # Optional MongoDB Service for Mini-Games (FerryWheel, Greedy, Roulette, TeenPatti)
+  mongodb:
+    image: mongo:6.0
+    container_name: ${PROJECT_NAME:-umi}_mongodb
+    restart: always
+    ports:
+      - "127.0.0.1:${MONGO_PORT:-27017}:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - app_network
+
 volumes:
   mysql_data:
     name: ${PROJECT_NAME:-umi}_mysql_data
   redis_data:
     name: ${PROJECT_NAME:-umi}_redis_data
+  mongodb_data:
+    name: ${PROJECT_NAME:-umi}_mongodb_data
 
 networks:
   app_network:
     name: ${PROJECT_NAME:-umi}_network
+

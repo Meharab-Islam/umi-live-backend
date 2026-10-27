@@ -1,0 +1,21 @@
+{
+  "files": {
+    "main.css": "/static/css/main.d3fa775b.css",
+    "main.js": "/static/js/main.7955cbf4.js",
+    "static/js/453.1b6cbde4.chunk.js": "/static/js/453.1b6cbde4.chunk.js",
+    "static/media/TableWheel.png": "/static/media/TableWheel.769979b0b72690f99501.png",
+    "static/media/SelectedCricle.png": "/static/media/SelectedCricle.44d144d02cc3353e3b96.png",
+    "static/media/winnerFram.png": "/static/media/winnerFram.188ded2f9f76da1a8237.png",
+    "static/media/CircleWheel.svg": "/static/media/CircleWheel.76ab0733f1e622363029.svg",
+    "index.html": "/index.html",
+    "static/media/CircleBg.svg": "/static/media/CircleBg.9b50b7c1b46c53723753.svg",
+    "static/media/LeftArrow.svg": "/static/media/LeftArrow.6ba9efe774b27dc6ef216d122d47876e.svg",
+    "main.d3fa775b.css.map": "/static/css/main.d3fa775b.css.map",
+    "main.7955cbf4.js.map": "/static/js/main.7955cbf4.js.map",
+    "453.1b6cbde4.chunk.js.map": "/static/js/453.1b6cbde4.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.d3fa775b.css",
+    "static/js/main.7955cbf4.js"
+  ]
+}

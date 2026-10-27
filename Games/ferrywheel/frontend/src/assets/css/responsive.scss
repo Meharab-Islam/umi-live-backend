@@ -1,0 +1,610 @@
+@media screen and (max-width: 768px) {
+  .cricle-wheel {
+    width: 80px !important;
+    height: 80px !important;
+    background-size: 80px 80px !important;
+    img {
+      width: 24px !important;
+      height: 24px !important;
+    }
+    .details-win {
+      h6 {
+        margin-bottom: -8px !important;
+        font-size: 13px !important;
+      }
+      span {
+        font-size: 11px !important;
+      }
+    }
+  }
+  .selected-fram {
+    width: 80px !important;
+    height: 80px !important;
+    background-size: 80px 80px !important;
+    .bet-details {
+      margin-top: 17px !important;
+      img {
+        width: 20px !important;
+        height: 20px !important;
+      }
+      h6 {
+        font-size: 15px !important;
+      }
+    }
+  }
+  .winnerFram {
+    width: 80px !important;
+    height: 80px !important;
+    background-size: 80px 80px !important;
+  }
+  .wheel-text {
+    h6 {
+      font-size: 15px !important;
+      span {
+        font-size: 15px !important;
+      }
+    }
+    h5 {
+      font-size: 19px !important;
+    }
+  }
+  .hand-content {
+    width: 35px !important;
+    height: 35px !important ;
+  }
+  .result-content {
+    bottom: 4px !important;
+    height: 44px !important;
+    h5 {
+      font-size: 16px !important;
+    }
+    .gift-reslut {
+      img {
+        width: 25px !important;
+        height: 25px !important;
+      }
+    }
+    .new-label {
+      left: 25px !important;
+      padding: 0px 4px !important;
+      font-size: 13px !important;
+      &::before {
+        bottom: -5px !important;
+      }
+      span {
+        font-size: 10px !important;
+      }
+    }
+  }
+  .balance-profile {
+    .balance-box {
+      width: 137px !important;
+      height: 52px !important;
+      h6 {
+        margin-bottom: 1px !important;
+        font-size: 13px !important;
+      }
+      .balance-number {
+        img {
+          width: 20px !important;
+          height: 20px !important;
+          margin-right: 5px !important;
+        }
+        h5 {
+          font-size: 13px !important;
+        }
+      }
+    }
+  }
+  .show-table {
+    height: 65% !important;
+    max-width: 350px !important;
+  }
+  .dimond-select {
+    left: -6px !important;
+    .dimond-box {
+      height: 60px !important;
+      max-width: 47px !important;
+      img {
+        width: 25px !important;
+        height: 25px !important;
+      }
+      h6 {
+        font-size: 14px !important;
+      }
+    }
+  }
+
+  .records-dialog {
+    width: 90% !important;
+    height: 786px !important;
+    .dialog-box {
+      width: 400px !important;
+      max-width: 400px !important;
+      .dialog-head {
+        button {
+          svg {
+            width: 25px !important;
+            height: 25px !important;
+          }
+        }
+        h5 {
+          font-size: 19px !important;
+        }
+        h6 {
+          font-size: 14px !important;
+        }
+      }
+      .dialog-body {
+        padding: 6px 6px !important;
+        table {
+          thead {
+            tr {
+              th {
+                padding: 7px 6px !important;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  .rules-dialog {
+    width: 90% !important;
+    .dialog-box {
+      width: 400px !important;
+      max-width: 400px !important;
+      .dialog-head {
+        button {
+          svg {
+            width: 25px !important;
+            height: 25px !important;
+          }
+        }
+        h5 {
+          font-size: 19px !important;
+        }
+      }
+      .dialog-body {
+        padding: 6px 6px !important;
+        ol {
+          li {
+            font-size: 15px !important;
+          }
+        }
+      }
+    }
+  }
+
+  .winner-dialog {
+    width: 70% !important;
+    height: 276px !important;
+    left: 14% !important;
+    .dialogBox {
+      max-width: 317px !important;
+      .user-image {
+        img {
+          width: 70px !important;
+          height: 70px !important;
+        }
+      }
+      .winner-number {
+        padding-top: 51px !important;
+        h6 {
+          font-size: 13px !important;
+        }
+        img {
+          width: 17px !important;
+          height: 17px !important;
+        }
+      }
+      .winner-result {
+        h6 {
+          font-size: 13px !important;
+        }
+        img {
+          width: 20px !important;
+          height: 20px !important;
+          margin-left: 10px !important;
+        }
+      }
+      .dialog-body {
+        .body-head {
+          h6 {
+            font-size: 12px !important;
+          }
+        }
+        .show-result {
+          padding: 0px 8px !important;
+          .user-image {
+            .user-image-fram {
+              width: 55px !important;
+              object-fit: cover !important;
+              height: 55px !important;
+            }
+            .winner-fram {
+              right: -12px !important;
+              img {
+                width: 23px !important;
+                height: 23px !important;
+              }
+            }
+          }
+          .user-show-winner {
+            h5 {
+              font-size: 13px !important;
+            }
+            .winner-coin {
+              img {
+                width: 17px !important;
+                height: 17px !important;
+              }
+              h6 {
+                font-size: 13px !important;
+                margin-left: 2px !important;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+@media screen and (min-device-width: 768px) and (max-device-width: 1400px) {
+  .cricle-wheel {
+    width: 90px !important;
+    height: 90px !important;
+    background-size: 90px 90px !important;
+    img {
+      width: 27px !important;
+      height: 27px !important;
+    }
+    .details-win {
+      padding-top: 8px !important;
+      h6 {
+        margin-bottom: -8px !important;
+        font-size: 13px !important;
+      }
+      span {
+        font-size: 11px !important;
+      }
+    }
+  }
+  .selected-fram {
+    width: 90px !important;
+    height: 90px !important;
+    background-size: 90px 90px !important;
+    .bet-details {
+      margin-top: 17px !important;
+      img {
+        width: 20px !important;
+        height: 20px !important;
+      }
+      h6 {
+        font-size: 15px !important;
+      }
+    }
+  }
+  .winnerFram {
+    width: 90px !important;
+    height: 90px !important;
+    background-size: 90px 90px !important;
+  }
+  .wheel-text {
+    h6 {
+      font-size: 15px !important;
+      span {
+        font-size: 15px !important;
+      }
+    }
+    h5 {
+      font-size: 19px !important;
+    }
+  }
+  .result-content {
+    bottom: 8px !important;
+    height: 44px !important;
+    h5 {
+      font-size: 16px !important;
+    }
+    .gift-reslut {
+      img {
+        width: 25px !important;
+        height: 25px !important;
+      }
+    }
+    .new-label {
+      left: 25px !important;
+      padding: 0px 4px !important;
+      font-size: 13px !important;
+      &::before {
+        bottom: -5px !important;
+      }
+      span {
+        font-size: 10px !important;
+      }
+    }
+  }
+  .balance-profile {
+    .balance-box {
+      width: 142px !important;
+      height: 57px !important;
+      h6 {
+        margin-bottom: 2px !important;
+      }
+      .balance-number {
+        img {
+          width: 20px !important;
+          height: 20px !important;
+          margin-right: 5px !important;
+        }
+        h5 {
+          font-size: 14px !important;
+        }
+      }
+    }
+  }
+  .show-table {
+    height: 72% !important;
+    max-width: 360px !important;
+    max-height: 574px !important;
+  }
+  .dimond-select {
+    left: -6px !important;
+    bottom: 26% !important;
+    .dimond-box {
+      height: 60px !important;
+      max-width: 47px !important;
+      img {
+        width: 25px !important;
+        height: 25px !important;
+      }
+      h6 {
+        font-size: 14px !important;
+      }
+    }
+  }
+
+  .records-dialog {
+    width: 50% !important;
+    height: 56% !important;
+    .dialog-box {
+      width: 400px !important;
+      max-width: 400px !important;
+      .dialog-head {
+        button {
+          svg {
+            width: 25px !important;
+            height: 25px !important;
+          }
+        }
+        h5 {
+          font-size: 19px !important;
+        }
+        h6 {
+          font-size: 14px !important;
+        }
+      }
+      .dialog-body {
+        padding: 6px 6px !important;
+        table {
+          thead {
+            tr {
+              th {
+                padding: 7px 6px !important;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  .rules-dialog {
+    width: 50% !important;
+    .dialog-box {
+      width: 400px !important;
+      max-width: 400px !important;
+      .dialog-head {
+        button {
+          svg {
+            width: 25px !important;
+            height: 25px !important;
+          }
+        }
+        h5 {
+          font-size: 19px !important;
+        }
+      }
+      .dialog-body {
+        padding: 6px 6px !important;
+        ol {
+          li {
+            font-size: 15px !important;
+          }
+        }
+      }
+    }
+  }
+  .winner-dialog {
+    width: 50% !important;
+    height: 276px !important;
+    .dialogBox {
+      max-width: 347px !important;
+      .user-image {
+        img {
+          width: 68px !important;
+          height: 75px !important;
+        }
+      }
+      .winner-number {
+        padding-top: 51px !important;
+        h6 {
+          font-size: 13px !important;
+        }
+        img {
+          width: 17px !important;
+          height: 17px !important;
+        }
+      }
+      .winner-result {
+        h6 {
+          font-size: 13px !important;
+        }
+        img {
+          width: 20px !important;
+          height: 20px !important;
+          margin-left: 10px !important;
+        }
+      }
+      .dialog-body {
+        .body-head {
+          h6 {
+            font-size: 12px !important;
+          }
+        }
+        .show-result {
+          .user-image {
+            .user-image-fram {
+              width: 60px !important;
+              height: 60px !important;
+            }
+            .winner-fram {
+              img {
+                width: 25px !important;
+                height: 25px !important;
+              }
+            }
+            .user-show-winner {
+              h5 {
+                font-size: 13px !important;
+              }
+              .winner-coin {
+                img {
+                  width: 17px !important;
+                  height: 17px !important;
+                }
+                h6 {
+                  font-size: 13px !important;
+                  margin-left: 5px !important;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+@media screen and (min-device-width: 320px) and (max-device-width: 440px) {
+  .show-game {
+    .wheelContent {
+      .roundNumber {
+        left: 0 !important;
+      }
+      .top-button {
+        top: 12px;
+      }
+      .show-table {
+        height: 70% !important;
+        max-width: 260px !important;
+        .wheel-text {
+          h6 {
+            font-size: 13px !important;
+          }
+          h5 {
+            font-size: 18px !important;
+          }
+        }
+        .cricle-wheel {
+          background-size: 68px 68px !important;
+          height: 68px !important;
+          width: 68px !important;
+
+          img {
+            width: 23px !important;
+            height: 23px !important;
+          }
+          .details-win {
+            h6 {
+              font-size: 11px !important;
+              margin-bottom: -9px !important;
+            }
+          }
+          .winnerFram {
+            background-size: 68px 68px !important;
+            height: 68px !important;
+            width: 68px !important;
+          }
+        }
+        .dimond-select {
+          bottom: 25% !important;
+          button {
+            height: 45px !important;
+            max-width: 40px !important;
+            img {
+              width: 20px !important;
+              height: 20px !important;
+            }
+            h6 {
+              font-size: 12px !important;
+              margin-top: 10px !important;
+            }
+          }
+        }
+        .balance-profile {
+          .balance-box {
+            height: 40px !important;
+            width: 120px !important;
+            h6 {
+              font-size: 10px !important;
+              margin-top: 2px !important;
+            }
+            .balance-number {
+              img {
+                height: 15px !important;
+                margin-right: 2px !important;
+                width: 16px !important;
+              }
+            }
+          }
+        }
+        .result-content {
+          bottom: 2px !important;
+          height: 35px !important;
+          .result-box {
+            h5 {
+              margin-left: 11px !important ;
+              font-size: 12px !important;
+            }
+            .border-line {
+              margin-left: 10px !important;
+            }
+            .last-reslut {
+              margin: 0 5px !important;
+              max-width: 307px !important;
+              .gift-reslut {
+                img {
+                  height: 20px !important;
+                  width: 20px !important;
+                }
+                .new-label {
+                  font-size: 4px !important;
+                  padding: 0 3px !important;
+                  top:-6px;
+                  left: 15px !important;
+                  &::before {
+                    width: 5px !important;
+                    height: 5px !important;
+                    bottom: -3px !important;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,242 @@
+{
+  "backend/array.js": {
+    "mtime": 1770918400.0,
+    "seen": 1790713652.0597692,
+    "ast_hash": "9cb30c53510c85d645c1fce4b0ca1763",
+    "semantic_hash": "9cb30c53510c85d645c1fce4b0ca1763"
+  },
+  "backend/config.js": {
+    "mtime": 1777580880.0,
+    "seen": 1790713652.05977,
+    "ast_hash": "6aaa5217d9824014e0f2a4c53999fb2f",
+    "semantic_hash": "6aaa5217d9824014e0f2a4c53999fb2f"
+  },
+  "backend/index.js": {
+    "mtime": 1770918400.0,
+    "seen": 1790713652.0597708,
+    "ast_hash": "e1df43518a2e6fab98e0462ac6a3cc03",
+    "semantic_hash": "e1df43518a2e6fab98e0462ac6a3cc03"
+  },
+  "backend/model/gameAdminCoin.js": {
+    "mtime": 1770918400.0,
+    "seen": 1790713652.0597708,
+    "ast_hash": "ca2a8716ceb7af8acb79bd01d8f06899",
+    "semantic_hash": "ca2a8716ceb7af8acb79bd01d8f06899"
+  },
+  "backend/model/rouletteLastHistory.model.js": {
+    "mtime": 1770918400.0,
+    "seen": 1790713652.059772,
+    "ast_hash": "7e5a07b85e79e898d0db20cb266c3ff9",
+    "semantic_hash": "7e5a07b85e79e898d0db20cb266c3ff9"
+  },
+  "backend/model/roulettegameHistory.model.js": {
+    "mtime": 1770918400.0,
+    "seen": 1790713652.059772,
+    "ast_hash": "b6af17ad0ad8c47622343b173b83a185",
+    "semantic_hash": "b6af17ad0ad8c47622343b173b83a185"
+  },
+  "backend/model/user.model.js": {
+    "mtime": 1770918400.0,
+    "seen": 1790713652.059773,
+    "ast_hash": "86ff7eedee400e99fa3e4ad60babab39",
+    "semantic_hash": "86ff7eedee400e99fa3e4ad60babab39"
+  },
+  "backend/model/wallet.model.js": {
+    "mtime": 1770918400.0,
+    "seen": 1790713652.059773,
+    "ast_hash": "5c6df6ee7dc1f8d3b5f7336edd803b08",
+    "semantic_hash": "5c6df6ee7dc1f8d3b5f7336edd803b08"
+  },
+  "backend/package.json": {
+    "mtime": 1770918400.0,
+    "seen": 1790713652.059774,
+    "ast_hash": "b1d7259c5dd470f307018f7fdf497c43",
+    "semantic_hash": "b1d7259c5dd470f307018f7fdf497c43"
+  },
+  "backend/public/asset-manifest.json": {
+    "mtime": 1777580928.0,
+    "seen": 1790713652.059774,
+    "ast_hash": "f631d34c111e6a6e21c005b05b4c9b69",
+    "semantic_hash": "f631d34c111e6a6e21c005b05b4c9b69"
+  },
+  "backend/public/manifest.json": {
+    "mtime": 1777580916.0,
+    "seen": 1790713652.0597749,
+    "ast_hash": "89be60895176466398d53bd4a693d9f6",
+    "semantic_hash": "89be60895176466398d53bd4a693d9f6"
+  },
+  "backend/public/static/js/27.100b0f61.chunk.js": {
+    "mtime": 1777580928.0,
+    "seen": 1790713652.0597749,
+    "ast_hash": "c026ca1eebaa2aadf01d7134948ee98a",
+    "semantic_hash": "c026ca1eebaa2aadf01d7134948ee98a"
+  },
+  "backend/public/static/js/main.5751c868.js": {
+    "mtime": 1777580928.0,
+    "seen": 1790713652.059776,
+    "ast_hash": "aab799a9977ff3c30dc5de89d7b17885",
+    "semantic_hash": "aab799a9977ff3c30dc5de89d7b17885"
+  },
+  "backend/service.js": {
+    "mtime": 1770918400.0,
+    "seen": 1790713652.059776,
+    "ast_hash": "99bd7e96a16b763396b06d5cbb1102af",
+    "semantic_hash": "99bd7e96a16b763396b06d5cbb1102af"
+  },
+  "frontend/package.json": {
+    "mtime": 1770918400.0,
+    "seen": 1790713652.059777,
+    "ast_hash": "23823b8ae74f1de8eb9e0804af86f979",
+    "semantic_hash": "23823b8ae74f1de8eb9e0804af86f979"
+  },
+  "frontend/public/manifest.json": {
+    "mtime": 1770918400.0,
+    "seen": 1790713652.059778,
+    "ast_hash": "89be60895176466398d53bd4a693d9f6",
+    "semantic_hash": "89be60895176466398d53bd4a693d9f6"
+  },
+  "frontend/src/App.js": {
+    "mtime": 1770918400.0,
+    "seen": 1790713652.059778,
+    "ast_hash": "e0d18786a9c5190a22477a0887341045",
+    "semantic_hash": "e0d18786a9c5190a22477a0887341045"
+  },
+  "frontend/src/App.test.js": {
+    "mtime": 1770918400.0,
+    "seen": 1790713652.059778,
+    "ast_hash": "83ca979af0e840672a4aa673b0c7be01",
+    "semantic_hash": "83ca979af0e840672a4aa673b0c7be01"
+  },
+  "frontend/src/GameMain/BetHistoryModel.js": {
+    "mtime": 1770918400.0,
+    "seen": 1790713652.0597792,
+    "ast_hash": "283578d222bd89e8494760fc0336de22",
+    "semantic_hash": "283578d222bd89e8494760fc0336de22"
+  },
+  "frontend/src/GameMain/CoinButton.js": {
+    "mtime": 1770918400.0,
+    "seen": 1790713652.0597792,
+    "ast_hash": "0f93395d4a82fecafeeee773aa5591dd",
+    "semantic_hash": "0f93395d4a82fecafeeee773aa5591dd"
+  },
+  "frontend/src/GameMain/CoinButtonShow.js": {
+    "mtime": 1770918400.0,
+    "seen": 1790713652.0597801,
+    "ast_hash": "2ce4cefb247da2c246857829e63635e0",
+    "semantic_hash": "2ce4cefb247da2c246857829e63635e0"
+  },
+  "frontend/src/GameMain/Frame.js": {
+    "mtime": 1770918400.0,
+    "seen": 1790713652.0597801,
+    "ast_hash": "fbdbe1f528c27373e8ac35819cdc33e4",
+    "semantic_hash": "fbdbe1f528c27373e8ac35819cdc33e4"
+  },
+  "frontend/src/GameMain/GameTable.js": {
+    "mtime": 1770918400.0,
+    "seen": 1790713652.059781,
+    "ast_hash": "87ae8491a06b535856cd58028306b61b",
+    "semantic_hash": "87ae8491a06b535856cd58028306b61b"
+  },
+  "frontend/src/GameMain/HistoryModel.js": {
+    "mtime": 1770918400.0,
+    "seen": 1790713652.0597818,
+    "ast_hash": "e22c5fafa5d6a7aecce82a5a138b2cd9",
+    "semantic_hash": "e22c5fafa5d6a7aecce82a5a138b2cd9"
+  },
+  "frontend/src/GameMain/Observable.js": {
+    "mtime": 1770918400.0,
+    "seen": 1790713652.0597818,
+    "ast_hash": "90ddbca4abfe04b79e18258ef3f19721",
+    "semantic_hash": "90ddbca4abfe04b79e18258ef3f19721"
+  },
+  "frontend/src/GameMain/RulesModel..js": {
+    "mtime": 1770918400.0,
+    "seen": 1790713652.0597818,
+    "ast_hash": "8891d05fafbc9679cc241455e8f4b24d",
+    "semantic_hash": "8891d05fafbc9679cc241455e8f4b24d"
+  },
+  "frontend/src/GameMain/TableContent.js": {
+    "mtime": 1770918400.0,
+    "seen": 1790713652.059783,
+    "ast_hash": "88434b701cb8cdd8ccd53d42e44ec6c9",
+    "semantic_hash": "88434b701cb8cdd8ccd53d42e44ec6c9"
+  },
+  "frontend/src/GameMain/ToastConent.js": {
+    "mtime": 1770918400.0,
+    "seen": 1790713652.059783,
+    "ast_hash": "4b5124e9e94a8ed003bf4a5d90982d23",
+    "semantic_hash": "4b5124e9e94a8ed003bf4a5d90982d23"
+  },
+  "frontend/src/GameMain/WheeSpin.js": {
+    "mtime": 1770918400.0,
+    "seen": 1790713652.059784,
+    "ast_hash": "fdf9c6c1ac130cb1e87c06bafdccaf18",
+    "semantic_hash": "fdf9c6c1ac130cb1e87c06bafdccaf18"
+  },
+  "frontend/src/GameMain/WinnerModel.js": {
+    "mtime": 1770918400.0,
+    "seen": 1790713652.059784,
+    "ast_hash": "599b70c4aa3f0c1e067ba21dfab5f16c",
+    "semantic_hash": "599b70c4aa3f0c1e067ba21dfab5f16c"
+  },
+  "frontend/src/assets/app.js": {
+    "mtime": 1770918400.0,
+    "seen": 1790713652.059785,
+    "ast_hash": "814c19b67d98cf6b7de13062ed124a4c",
+    "semantic_hash": "814c19b67d98cf6b7de13062ed124a4c"
+  },
+  "frontend/src/config.js": {
+    "mtime": 1777580880.0,
+    "seen": 1790713652.059785,
+    "ast_hash": "f18f6ce5351dcbadec9ae1ed4af216a3",
+    "semantic_hash": "f18f6ce5351dcbadec9ae1ed4af216a3"
+  },
+  "frontend/src/index.js": {
+    "mtime": 1770918400.0,
+    "seen": 1790713652.059786,
+    "ast_hash": "7c496931b019d86df72fe7ef6f4db4d1",
+    "semantic_hash": "7c496931b019d86df72fe7ef6f4db4d1"
+  },
+  "frontend/src/reportWebVitals.js": {
+    "mtime": 1770918400.0,
+    "seen": 1790713652.059786,
+    "ast_hash": "b528fd380de9b503eb5c84973639cca4",
+    "semantic_hash": "b528fd380de9b503eb5c84973639cca4"
+  },
+  "frontend/src/setupTests.js": {
+    "mtime": 1770918400.0,
+    "seen": 1790713652.059787,
+    "ast_hash": "72158175c4ba432ede32a7c2ca4143e0",
+    "semantic_hash": "72158175c4ba432ede32a7c2ca4143e0"
+  },
+  "backend/public/static/media/coinsSound.03939f5fd5a7496c0915.mp3": {
+    "mtime": 1777580928.0,
+    "seen": 1790713652.059787,
+    "ast_hash": "a8e7158296262f0062c4d1a7d70d7b3b",
+    "semantic_hash": "a8e7158296262f0062c4d1a7d70d7b3b"
+  },
+  "backend/public/static/media/wheel.f78c2a820b9c92ea3769.mp3": {
+    "mtime": 1777580928.0,
+    "seen": 1790713652.059788,
+    "ast_hash": "e61674feef0340d3075735917d787f37",
+    "semantic_hash": "e61674feef0340d3075735917d787f37"
+  },
+  "frontend/src/assets/audio/betCoin.mp3": {
+    "mtime": 1770918400.0,
+    "seen": 1790713652.059788,
+    "ast_hash": "5bb2394cbfc3326310512a68178a9971",
+    "semantic_hash": "5bb2394cbfc3326310512a68178a9971"
+  },
+  "frontend/src/assets/audio/coinsSound.mp3": {
+    "mtime": 1770918400.0,
+    "seen": 1790713652.059789,
+    "ast_hash": "a8e7158296262f0062c4d1a7d70d7b3b",
+    "semantic_hash": "a8e7158296262f0062c4d1a7d70d7b3b"
+  },
+  "frontend/src/assets/audio/wheel.mp3": {
+    "mtime": 1770918400.0,
+    "seen": 1790713652.059789,
+    "ast_hash": "e61674feef0340d3075735917d787f37",
+    "semantic_hash": "e61674feef0340d3075735917d787f37"
+  }
+}

@@ -1,0 +1,55 @@
+services:
+  mongodb:
+    image: mongo:6.0
+    container_name: roulettecasino_mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh --eval 'db.runCommand(\"ping\").ok' --quiet || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    networks:
+      - roulettecasino_network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: roulettecasino_backend
+    restart: unless-stopped
+    ports:
+      - "5002:5002"
+    environment:
+      - PORT=5002
+      - MONGO_URI=mongodb://mongodb:27017/roulettecasino
+      - ADMIN_BASE_URL=https://control.imlive.live/
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - roulettecasino_network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: roulettecasino_frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - roulettecasino_network
+
+volumes:
+  mongodb_data:
+
+networks:
+  roulettecasino_network:
+    driver: bridge

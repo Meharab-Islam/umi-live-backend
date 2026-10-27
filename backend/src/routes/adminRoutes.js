@@ -100,6 +100,12 @@ import {
   deleteDeletionRequestRecord,
 } from '../controllers/adminController.js';
 import {
+  getAdminGamesList,
+  toggleGameStatus,
+  updateGameSettings,
+} from '../controllers/mobile/gameController.js';
+
+import {
   getPackageCategories,
   createPackageCategory,
   updatePackageCategory,
@@ -384,4 +390,10 @@ router.post('/deletion-requests/:id/approve', approveDeletionRequest);
 router.post('/deletion-requests/:id/reject', rejectDeletionRequest);
 router.delete('/deletion-requests/:id', deleteDeletionRequestRecord);
 
+// Mini-Games Management & Status Control
+router.get('/games', getAdminGamesList);
+router.patch('/games/:id/toggle', toggleGameStatus);
+router.put('/games/:id', updateGameSettings);
+
 export default router;
+

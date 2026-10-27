@@ -1,0 +1,21 @@
+ new game start when time == -11  game total time = 20 
+
+make the winnerBitSchema : [ high , mid , low ] && winner percentage wise
+make the cardSchema : card combination with the value && percentage wise && lower value is winner
+make gameAdminCoinSchema : for check what amount of coin earn by the game
+
+frontend emit = "bit"  update user , adminCoin & currentGame.UsersBits  
+ currentGame.UsersBits  = {
+    UserId: '644a098e94ba7498d09e9009',
+    Bit: 200,
+    SelectedFrame: 1,
+    Left: 5.859421130987366,
+    Top: 15.547933165545608
+ }
+
+when game start "game" emit from the server side with the random combination
+bitValueDecide function find the highBitValue , midBitValue and lowBitValue
+
+winnerDeclare function find random winner based On adminCoin [  result : "mid" ]
+find the winnerIndex from the 3 selectedFrame basedOn winnerDeclare function result, based on winnerIndex result selectedFrame win [ winnerIndex : 2]
+swapCombination function call based on winnerIndex : lowerValue of combination.value array of index   == winnerIndex

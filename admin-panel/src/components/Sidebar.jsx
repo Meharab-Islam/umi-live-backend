@@ -37,7 +37,9 @@ import {
   UserX,
   FileText,
   MessageSquare,
+  Gamepad2,
 } from 'lucide-react';
+
 import packageApi from '../api/packageApi';
 import { useBranding } from '../context/BrandingContext';
 
@@ -123,6 +125,13 @@ export default function Sidebar({
           { id: 'resellers', label: 'Resellers', icon: ShoppingBag },
         ],
       },
+      {
+        title: 'Gaming & Entertainment',
+        items: [
+          { id: 'games', label: 'Mini-Games', icon: Gamepad2, badge: '7 Live' },
+        ],
+      },
+
       {
         title: 'Store & Appearance',
         items: [

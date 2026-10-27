@@ -12,9 +12,9 @@
     "semantic_hash": ""
   },
   "admin-panel/src/App.jsx": {
-    "mtime": 1793036730.5057087,
-    "seen": 1793036756.870569,
-    "ast_hash": "33e3293b2c6c57509c786c8c6152245c",
+    "mtime": 1793078778.0286224,
+    "seen": 1793078882.795419,
+    "ast_hash": "4688819a5bfcd655fc1c73353ab3b113",
     "semantic_hash": ""
   },
   "admin-panel/src/api.js": {
@@ -30,9 +30,9 @@
     "semantic_hash": ""
   },
   "admin-panel/src/components/Sidebar.jsx": {
-    "mtime": 1793036693.681673,
-    "seen": 1793036756.871288,
-    "ast_hash": "814adf1534cf74436d85ea007f6bf13a",
+    "mtime": 1793078793.678259,
+    "seen": 1793078882.796127,
+    "ast_hash": "0488c2024647c5eeee8a59cc83e53f8b",
     "semantic_hash": ""
   },
   "admin-panel/src/components/StatCard.jsx": {
@@ -144,9 +144,9 @@
     "semantic_hash": ""
   },
   "backend/src/db/init.js": {
-    "mtime": 1793035032.0777574,
-    "seen": 1793035184.1027908,
-    "ast_hash": "45997fdad54459bb394f18c71121dd76",
+    "mtime": 1793078600.3056936,
+    "seen": 1793078882.797676,
+    "ast_hash": "cc741114dfe37667b020365d1aafc45f",
     "semantic_hash": ""
   },
   "backend/src/middlewares/authMiddleware.js": {
@@ -156,9 +156,9 @@
     "semantic_hash": ""
   },
   "backend/src/routes/adminRoutes.js": {
-    "mtime": 1793036554.8265584,
-    "seen": 1793036756.872891,
-    "ast_hash": "c0a27e9a8f9c47a94a587dec16b57ddd",
+    "mtime": 1793078677.7234163,
+    "seen": 1793078882.7977338,
+    "ast_hash": "ff2f4afc385b4521d7ed05cefafadfbd",
     "semantic_hash": ""
   },
   "backend/src/routes/authRoutes.js": {
@@ -186,9 +186,9 @@
     "semantic_hash": ""
   },
   "backend/src/server.js": {
-    "mtime": 1792955610.4259465,
-    "seen": 1792956088.759072,
-    "ast_hash": "fe51e947d48cfaa21cfd443f48229792",
+    "mtime": 1793078528.5594313,
+    "seen": 1793078882.798364,
+    "ast_hash": "ecc5597dd5db9e15d0e3b9565f530c30",
     "semantic_hash": ""
   },
   "backend/src/sockets/liveSocket.js": {
@@ -222,9 +222,9 @@
     "semantic_hash": ""
   },
   "docker-compose.yml": {
-    "mtime": 1792952029.7841313,
-    "seen": 1792952052.376603,
-    "ast_hash": "ec1009a5e4f09e12f3531787e671a2d1",
+    "mtime": 1793077745.7092733,
+    "seen": 1793077825.3273149,
+    "ast_hash": "1863763b54a95d118f4cf513519957b5",
     "semantic_hash": ""
   },
   "admin-panel/public/favicon.svg": {
@@ -528,9 +528,9 @@
     "semantic_hash": ""
   },
   "admin-panel/src/api/apiSpec.js": {
-    "mtime": 1793035097.8731678,
-    "seen": 1793035184.1007318,
-    "ast_hash": "a151ff5d5780dfbc5ad39aae9a708a90",
+    "mtime": 1793078865.3273137,
+    "seen": 1793078882.795501,
+    "ast_hash": "86d9f2723d93ca1c9173c11d44f98cbd",
     "semantic_hash": ""
   },
   "admin-panel/src/pages/ApiDocs.jsx": {
@@ -588,9 +588,9 @@
     "semantic_hash": ""
   },
   "backend/src/routes/mobile/index.js": {
-    "mtime": 1792936563.5230327,
-    "seen": 1792936776.089462,
-    "ast_hash": "397cec2f9e8fb193eb9b642f23c96709",
+    "mtime": 1793077654.7836938,
+    "seen": 1793077825.326248,
+    "ast_hash": "5d643f94dc1895ec80ef932494015067",
     "semantic_hash": ""
   },
   "backend/src/routes/mobile/liveRoutes.js": {
@@ -960,15 +960,15 @@
     "semantic_hash": ""
   },
   "dev.js": {
-    "mtime": 1791885974.5654325,
-    "seen": 1791885994.859576,
-    "ast_hash": "036966ade20677b8205c7327f6c56503",
+    "mtime": 1793077406.2305155,
+    "seen": 1793077825.326733,
+    "ast_hash": "f3b5687d7da398e47e3de4a60bec5c66",
     "semantic_hash": ""
   },
   "package.json": {
-    "mtime": 1791885963.310221,
-    "seen": 1791885994.859576,
-    "ast_hash": "fbb9099c4d17764856d482752e9a73da",
+    "mtime": 1793078809.133622,
+    "seen": 1793078882.798562,
+    "ast_hash": "0f81b0919fde1b901448f2b5e8cc2445",
     "semantic_hash": ""
   },
   "backend/src/controllers/mobile/bannerController.js": {
@@ -1515,6 +1515,4836 @@
     "mtime": 1793036360.8101473,
     "seen": 1793036756.8735218,
     "ast_hash": "71e426c81216d283cf86df02a87a2ed7",
+    "semantic_hash": ""
+  },
+  "Games/big_eater/db/database.js": {
+    "mtime": 1791607554.2130597,
+    "seen": 1793077825.322634,
+    "ast_hash": "0121613888981891e9161f35f34f6515",
+    "semantic_hash": ""
+  },
+  "Games/big_eater/package.json": {
+    "mtime": 1791108655.0262082,
+    "seen": 1793077825.322637,
+    "ast_hash": "d39c157472cae3d1ff381d11e26b07fc",
+    "semantic_hash": ""
+  },
+  "Games/big_eater/postcss.config.js": {
+    "mtime": 1791108594.6132128,
+    "seen": 1793077825.322638,
+    "ast_hash": "8640f9b2e6475cc3f5b1ff4548925765",
+    "semantic_hash": ""
+  },
+  "Games/big_eater/public/admin.js": {
+    "mtime": 1791612581.305798,
+    "seen": 1793077825.322638,
+    "ast_hash": "bea5a385c253950d352ca3e4dc8cbf12",
+    "semantic_hash": ""
+  },
+  "Games/big_eater/public/app.js": {
+    "mtime": 1791608007.9934661,
+    "seen": 1793077825.322639,
+    "ast_hash": "425ae47130df8160722d0a41a099cdea",
+    "semantic_hash": ""
+  },
+  "Games/big_eater/server.js": {
+    "mtime": 1793077448.8488457,
+    "seen": 1793077825.32264,
+    "ast_hash": "b5a533223dafb14dfb0ac42dc82ffeb6",
+    "semantic_hash": ""
+  },
+  "Games/big_eater/tailwind.config.js": {
+    "mtime": 1791108586.914659,
+    "seen": 1793077825.32264,
+    "ast_hash": "34c31926e0df635c917fd664d68280f2",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/backend/config.js": {
+    "mtime": 1793077520.4744086,
+    "seen": 1793077825.3226502,
+    "ast_hash": "49703fa1dce14fc045996af0844a247f",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/backend/helper.js": {
+    "mtime": 1770918386.0,
+    "seen": 1793077825.3226528,
+    "ast_hash": "70f4670ae2706b9eff8e91dc82c4f362",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/backend/index.js": {
+    "mtime": 1790999385.9503586,
+    "seen": 1793077825.322654,
+    "ast_hash": "14638852a39d5a11314cb095fa7f78a3",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/backend/model/ferryWheelGameHistory.model.js": {
+    "mtime": 1770918386.0,
+    "seen": 1793077825.322655,
+    "ast_hash": "66256556bf0b8899b377c4ad208ec0ef",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/backend/model/ferryWheelLastHistory.model.js": {
+    "mtime": 1770918386.0,
+    "seen": 1793077825.322656,
+    "ast_hash": "06e6fa0455a553b87ca819e6c854a050",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/backend/model/ferryroundCounter.model.js": {
+    "mtime": 1770918386.0,
+    "seen": 1793077825.322656,
+    "ast_hash": "6a9bb8bf02cbb36e667334cfe8ff9542",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/backend/model/gameAdminCoin.model.js": {
+    "mtime": 1770918386.0,
+    "seen": 1793077825.322657,
+    "ast_hash": "ca2a8716ceb7af8acb79bd01d8f06899",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/backend/model/user.model.js": {
+    "mtime": 1770918386.0,
+    "seen": 1793077825.322658,
+    "ast_hash": "86ff7eedee400e99fa3e4ad60babab39",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/backend/model/wallet.model.js": {
+    "mtime": 1770918386.0,
+    "seen": 1793077825.322659,
+    "ast_hash": "d3da1fc06f70846dd7113df168c86d8f",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/backend/package.json": {
+    "mtime": 1790712306.0,
+    "seen": 1793077825.322659,
+    "ast_hash": "14d68fb6db3fec899a5243123fa73054",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/backend/public/asset-manifest.json": {
+    "mtime": 1790712392.0,
+    "seen": 1793077825.3226602,
+    "ast_hash": "fc4c6023209a8012e1aa24fc1fe6f41b",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/backend/public/manifest.json": {
+    "mtime": 1790712392.0,
+    "seen": 1793077825.3226602,
+    "ast_hash": "89be60895176466398d53bd4a693d9f6",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/backend/public/static/js/453.1b6cbde4.chunk.js": {
+    "mtime": 1790712392.0,
+    "seen": 1793077825.3226612,
+    "ast_hash": "2899fb5a24124d024c67a0023f103b94",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js": {
+    "mtime": 1790712392.0,
+    "seen": 1793077825.3226619,
+    "ast_hash": "4a676f8775bc51e9c964ac3953791508",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/backend/service.js": {
+    "mtime": 1770918386.0,
+    "seen": 1793077825.3226619,
+    "ast_hash": "b59917dc753c626e2a05389ff8195f00",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/package.json": {
+    "mtime": 1770918386.0,
+    "seen": 1793077825.3226628,
+    "ast_hash": "ac8c1ce9cdd046142dd7bdb38c79eb96",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/public/manifest.json": {
+    "mtime": 1770918386.0,
+    "seen": 1793077825.322664,
+    "ast_hash": "89be60895176466398d53bd4a693d9f6",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/src/App.js": {
+    "mtime": 1790999396.5879207,
+    "seen": 1793077825.322664,
+    "ast_hash": "321de15509680bc0bc561e585c278f5e",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/src/App.test.js": {
+    "mtime": 1770918386.0,
+    "seen": 1793077825.322665,
+    "ast_hash": "83ca979af0e840672a4aa673b0c7be01",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/src/Dialog/RecordsDialog.js": {
+    "mtime": 1791002688.8328722,
+    "seen": 1793077825.3226712,
+    "ast_hash": "6a23bd0270bb1ed69eaef39e659b01ae",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/src/Dialog/RulesDialog.js": {
+    "mtime": 1791002683.1108067,
+    "seen": 1793077825.3226721,
+    "ast_hash": "afb0a69265a54db9b9b7382b1ebd7a81",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/src/Dialog/WinnerDialog.js": {
+    "mtime": 1791002693.301018,
+    "seen": 1793077825.3226721,
+    "ast_hash": "2bce9078f917393a414048c1c1008ae1",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/src/GiftImage.js": {
+    "mtime": 1770918386.0,
+    "seen": 1793077825.3226728,
+    "ast_hash": "bb618743b807639b54d890e9033b5e71",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/src/ToastConent.js": {
+    "mtime": 1770918386.0,
+    "seen": 1793077825.322674,
+    "ast_hash": "a788a597d517757d0e331b6aefd9e2bf",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/src/Wheel/CoinButton.js": {
+    "mtime": 1790998660.993131,
+    "seen": 1793077825.322674,
+    "ast_hash": "908aa41cda85dcd68fd7e9efd195ef80",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/src/Wheel/SelectCricle.js": {
+    "mtime": 1790998648.1315663,
+    "seen": 1793077825.322675,
+    "ast_hash": "2e7c5d79755cd6b54c0a123e74ec349b",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/src/Wheel/WheelContent.js": {
+    "mtime": 1791004417.2645676,
+    "seen": 1793077825.322675,
+    "ast_hash": "fa7887df4b10b5e4d6963e33c623d67b",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/src/config.js": {
+    "mtime": 1790712343.0,
+    "seen": 1793077825.322676,
+    "ast_hash": "47c086bdb97318d3574b2c2077b21d1a",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/src/index.js": {
+    "mtime": 1770918386.0,
+    "seen": 1793077825.322676,
+    "ast_hash": "7c496931b019d86df72fe7ef6f4db4d1",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/src/reportWebVitals.js": {
+    "mtime": 1770918386.0,
+    "seen": 1793077825.322677,
+    "ast_hash": "b528fd380de9b503eb5c84973639cca4",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/src/setupTests.js": {
+    "mtime": 1770918386.0,
+    "seen": 1793077825.322678,
+    "ast_hash": "72158175c4ba432ede32a7c2ca4143e0",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/backend/config.js": {
+    "mtime": 1793077529.4062235,
+    "seen": 1793077825.322678,
+    "ast_hash": "8190cdfb535c27af18b2993e67c765c4",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/backend/helper.js": {
+    "mtime": 1770918386.0,
+    "seen": 1793077825.322679,
+    "ast_hash": "70f4670ae2706b9eff8e91dc82c4f362",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/backend/index.js": {
+    "mtime": 1790712880.3901472,
+    "seen": 1793077825.322679,
+    "ast_hash": "3f96851395823ded82c7bc42e3165838",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/backend/model/ferryWheelGameHistory.model.js": {
+    "mtime": 1770918386.0,
+    "seen": 1793077825.32268,
+    "ast_hash": "66256556bf0b8899b377c4ad208ec0ef",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/backend/model/ferryWheelLastHistory.model.js": {
+    "mtime": 1770918386.0,
+    "seen": 1793077825.32268,
+    "ast_hash": "06e6fa0455a553b87ca819e6c854a050",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/backend/model/ferryroundCounter.model.js": {
+    "mtime": 1770918386.0,
+    "seen": 1793077825.3226812,
+    "ast_hash": "6a9bb8bf02cbb36e667334cfe8ff9542",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/backend/model/gameAdminCoin.model.js": {
+    "mtime": 1770918386.0,
+    "seen": 1793077825.3226812,
+    "ast_hash": "ca2a8716ceb7af8acb79bd01d8f06899",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/backend/model/user.model.js": {
+    "mtime": 1770918386.0,
+    "seen": 1793077825.3226821,
+    "ast_hash": "86ff7eedee400e99fa3e4ad60babab39",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/backend/model/wallet.model.js": {
+    "mtime": 1770918386.0,
+    "seen": 1793077825.3226821,
+    "ast_hash": "d3da1fc06f70846dd7113df168c86d8f",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/backend/package.json": {
+    "mtime": 1790712860.7691445,
+    "seen": 1793077825.3226829,
+    "ast_hash": "806c8ce112c8208ddc566c54b7b61dbb",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/backend/public/asset-manifest.json": {
+    "mtime": 1777581690.0,
+    "seen": 1793077825.3226829,
+    "ast_hash": "10fdb6102785c1fc4006361e963155a4",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/backend/public/manifest.json": {
+    "mtime": 1777581677.0,
+    "seen": 1793077825.3226838,
+    "ast_hash": "89be60895176466398d53bd4a693d9f6",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/backend/public/static/js/453.1c674800.chunk.js": {
+    "mtime": 1777581690.0,
+    "seen": 1793077825.3226838,
+    "ast_hash": "c81fae686fc187122bb3ddbc79b98325",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/backend/public/static/js/main.05634587.js": {
+    "mtime": 1777581690.0,
+    "seen": 1793077825.322685,
+    "ast_hash": "89099660c5fbfcfba35e2ffbacbece17",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/backend/service.js": {
+    "mtime": 1777338110.0,
+    "seen": 1793077825.322685,
+    "ast_hash": "757dbb54ec0ea24c39a84acc8c1d0968",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/package.json": {
+    "mtime": 1757603700.0,
+    "seen": 1793077825.322686,
+    "ast_hash": "ac8c1ce9cdd046142dd7bdb38c79eb96",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/public/manifest.json": {
+    "mtime": 1757603700.0,
+    "seen": 1793077825.322686,
+    "ast_hash": "89be60895176466398d53bd4a693d9f6",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/App.js": {
+    "mtime": 1790712901.0879908,
+    "seen": 1793077825.322687,
+    "ast_hash": "013fead30f353255ae61a0b11f7cde79",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/App.test.js": {
+    "mtime": 1757603700.0,
+    "seen": 1793077825.322687,
+    "ast_hash": "83ca979af0e840672a4aa673b0c7be01",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/Dialog/RecordsDialog.js": {
+    "mtime": 1767235826.0,
+    "seen": 1793077825.322701,
+    "ast_hash": "7d0c36f927bc5b47caeaeeb21fdee8ca",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/Dialog/RulesDialog.js": {
+    "mtime": 1757603700.0,
+    "seen": 1793077825.322706,
+    "ast_hash": "795c24046bfcbe4905477e369b025653",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/Dialog/WinnerDialog.js": {
+    "mtime": 1767493100.0,
+    "seen": 1793077825.322708,
+    "ast_hash": "807b28e62d149ae39fde68ad06bc8e6a",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/GiftImage.js": {
+    "mtime": 1757603700.0,
+    "seen": 1793077825.322709,
+    "ast_hash": "bb618743b807639b54d890e9033b5e71",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/ToastConent.js": {
+    "mtime": 1757603700.0,
+    "seen": 1793077825.322711,
+    "ast_hash": "a788a597d517757d0e331b6aefd9e2bf",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/Wheel/CoinButton.js": {
+    "mtime": 1791005249.5040486,
+    "seen": 1793077825.3227131,
+    "ast_hash": "c37803ee8011179da42dae7a8bd127b6",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/Wheel/SelectCricle.js": {
+    "mtime": 1768091394.0,
+    "seen": 1793077825.322714,
+    "ast_hash": "4864b4cbb50242a6c653330e85e3c364",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/Wheel/WheelContent.js": {
+    "mtime": 1768168060.0,
+    "seen": 1793077825.3227148,
+    "ast_hash": "b8733a0f2285fa71274240807905087b",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/config.js": {
+    "mtime": 1790712895.9757411,
+    "seen": 1793077825.322717,
+    "ast_hash": "69d5f733305ea2b22fee78d3a3abed05",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/index.js": {
+    "mtime": 1757603700.0,
+    "seen": 1793077825.322718,
+    "ast_hash": "7c496931b019d86df72fe7ef6f4db4d1",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/reportWebVitals.js": {
+    "mtime": 1757603700.0,
+    "seen": 1793077825.32272,
+    "ast_hash": "b528fd380de9b503eb5c84973639cca4",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/setupTests.js": {
+    "mtime": 1757603700.0,
+    "seen": 1793077825.322721,
+    "ast_hash": "72158175c4ba432ede32a7c2ca4143e0",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/backend/config.js": {
+    "mtime": 1793077538.7657816,
+    "seen": 1793077825.322722,
+    "ast_hash": "fd3b0457744bfe9ac9235f0dee19e960",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/backend/helper.js": {
+    "mtime": 1770918386.0,
+    "seen": 1793077825.322724,
+    "ast_hash": "70f4670ae2706b9eff8e91dc82c4f362",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/backend/index.js": {
+    "mtime": 1790713311.0817015,
+    "seen": 1793077825.322725,
+    "ast_hash": "23576cc1210fb70240a361ce6cd16a56",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/backend/model/ferryWheelGameHistory.model.js": {
+    "mtime": 1770918386.0,
+    "seen": 1793077825.322727,
+    "ast_hash": "66256556bf0b8899b377c4ad208ec0ef",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/backend/model/ferryWheelLastHistory.model.js": {
+    "mtime": 1770918386.0,
+    "seen": 1793077825.322728,
+    "ast_hash": "06e6fa0455a553b87ca819e6c854a050",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/backend/model/ferryroundCounter.model.js": {
+    "mtime": 1770918386.0,
+    "seen": 1793077825.32273,
+    "ast_hash": "6a9bb8bf02cbb36e667334cfe8ff9542",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/backend/model/gameAdminCoin.model.js": {
+    "mtime": 1770918386.0,
+    "seen": 1793077825.322731,
+    "ast_hash": "ca2a8716ceb7af8acb79bd01d8f06899",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/backend/model/user.model.js": {
+    "mtime": 1770918386.0,
+    "seen": 1793077825.322732,
+    "ast_hash": "86ff7eedee400e99fa3e4ad60babab39",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/backend/model/wallet.model.js": {
+    "mtime": 1770918386.0,
+    "seen": 1793077825.322734,
+    "ast_hash": "d3da1fc06f70846dd7113df168c86d8f",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/backend/package.json": {
+    "mtime": 1790713275.6179843,
+    "seen": 1793077825.322735,
+    "ast_hash": "2f8f37fe5f63df7dfb5f303c21fc3744",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/backend/public/asset-manifest.json": {
+    "mtime": 1777587738.0,
+    "seen": 1793077825.322736,
+    "ast_hash": "81a3d100b011ce5aa05600396ccd6031",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/backend/public/manifest.json": {
+    "mtime": 1777587740.0,
+    "seen": 1793077825.322738,
+    "ast_hash": "89be60895176466398d53bd4a693d9f6",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/backend/public/static/js/453.1c674800.chunk.js": {
+    "mtime": 1777587717.0,
+    "seen": 1793077825.322739,
+    "ast_hash": "c81fae686fc187122bb3ddbc79b98325",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/backend/public/static/js/main.c3c26395.js": {
+    "mtime": 1777587717.0,
+    "seen": 1793077825.322741,
+    "ast_hash": "dce23ba83876d066738337ffaa6fead3",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/backend/service.js": {
+    "mtime": 1770918386.0,
+    "seen": 1793077825.322742,
+    "ast_hash": "b59917dc753c626e2a05389ff8195f00",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/package.json": {
+    "mtime": 1767096508.0,
+    "seen": 1793077825.322743,
+    "ast_hash": "b5acd319b1f6dff5dbd239eda6ae9fd0",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/public/manifest.json": {
+    "mtime": 1757582100.0,
+    "seen": 1793077825.322745,
+    "ast_hash": "89be60895176466398d53bd4a693d9f6",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/src/App.js": {
+    "mtime": 1790713334.1261752,
+    "seen": 1793077825.322746,
+    "ast_hash": "013fead30f353255ae61a0b11f7cde79",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/src/App.test.js": {
+    "mtime": 1757582100.0,
+    "seen": 1793077825.322747,
+    "ast_hash": "83ca979af0e840672a4aa673b0c7be01",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/src/Dialog/RecordsDialog.js": {
+    "mtime": 1767196020.0,
+    "seen": 1793077825.322749,
+    "ast_hash": "7d0c36f927bc5b47caeaeeb21fdee8ca",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/src/Dialog/RulesDialog.js": {
+    "mtime": 1757582100.0,
+    "seen": 1793077825.3227541,
+    "ast_hash": "795c24046bfcbe4905477e369b025653",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/src/Dialog/WinnerDialog.js": {
+    "mtime": 1767451714.0,
+    "seen": 1793077825.322755,
+    "ast_hash": "807b28e62d149ae39fde68ad06bc8e6a",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/src/GiftImage.js": {
+    "mtime": 1757582100.0,
+    "seen": 1793077825.322757,
+    "ast_hash": "bb618743b807639b54d890e9033b5e71",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/src/ToastConent.js": {
+    "mtime": 1757582100.0,
+    "seen": 1793077825.322758,
+    "ast_hash": "a788a597d517757d0e331b6aefd9e2bf",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/src/Wheel/CoinButton.js": {
+    "mtime": 1767195995.0,
+    "seen": 1793077825.322759,
+    "ast_hash": "f3fd39516a9445d082e195a101d1fbe4",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/src/Wheel/SelectCricle.js": {
+    "mtime": 1767452228.0,
+    "seen": 1793077825.3227599,
+    "ast_hash": "1f1bb62871852c30785f219c9530ca03",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/src/Wheel/WheelContent.js": {
+    "mtime": 1790713339.0226197,
+    "seen": 1793077825.322761,
+    "ast_hash": "f0e5f7b77db579e2f18063992ca95cc9",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/src/config.js": {
+    "mtime": 1790713328.4623015,
+    "seen": 1793077825.322763,
+    "ast_hash": "8b4df64f370b0c2bf2feabc0cad21177",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/src/index.js": {
+    "mtime": 1757582100.0,
+    "seen": 1793077825.322765,
+    "ast_hash": "7c496931b019d86df72fe7ef6f4db4d1",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/src/reportWebVitals.js": {
+    "mtime": 1757582100.0,
+    "seen": 1793077825.322766,
+    "ast_hash": "b528fd380de9b503eb5c84973639cca4",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/src/setupTests.js": {
+    "mtime": 1757582100.0,
+    "seen": 1793077825.322767,
+    "ast_hash": "72158175c4ba432ede32a7c2ca4143e0",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/backend/array.js": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.322768,
+    "ast_hash": "9cb30c53510c85d645c1fce4b0ca1763",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/backend/config.js": {
+    "mtime": 1793077547.980078,
+    "seen": 1793077825.3227699,
+    "ast_hash": "51abe362f6e38975b7c31bf02c1f3c35",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/backend/index.js": {
+    "mtime": 1790713880.0312433,
+    "seen": 1793077825.3227708,
+    "ast_hash": "57497cf2729624fec4884c2a1cf3976a",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/backend/model/gameAdminCoin.js": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.322772,
+    "ast_hash": "ca2a8716ceb7af8acb79bd01d8f06899",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/backend/model/rouletteLastHistory.model.js": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.322774,
+    "ast_hash": "7e5a07b85e79e898d0db20cb266c3ff9",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/backend/model/roulettegameHistory.model.js": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.3227751,
+    "ast_hash": "b6af17ad0ad8c47622343b173b83a185",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/backend/model/user.model.js": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.322776,
+    "ast_hash": "86ff7eedee400e99fa3e4ad60babab39",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/backend/model/wallet.model.js": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.3227782,
+    "ast_hash": "5c6df6ee7dc1f8d3b5f7336edd803b08",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/backend/package.json": {
+    "mtime": 1790713862.188429,
+    "seen": 1793077825.322779,
+    "ast_hash": "190bc857f68ccbde65b60ad09a4a9e47",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/backend/public/asset-manifest.json": {
+    "mtime": 1777580928.0,
+    "seen": 1793077825.32278,
+    "ast_hash": "f631d34c111e6a6e21c005b05b4c9b69",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/backend/public/manifest.json": {
+    "mtime": 1777580916.0,
+    "seen": 1793077825.3227808,
+    "ast_hash": "89be60895176466398d53bd4a693d9f6",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/backend/public/static/js/27.100b0f61.chunk.js": {
+    "mtime": 1777580928.0,
+    "seen": 1793077825.322783,
+    "ast_hash": "c026ca1eebaa2aadf01d7134948ee98a",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/backend/public/static/js/main.5751c868.js": {
+    "mtime": 1777580928.0,
+    "seen": 1793077825.322784,
+    "ast_hash": "aab799a9977ff3c30dc5de89d7b17885",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/backend/service.js": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.3227851,
+    "ast_hash": "99bd7e96a16b763396b06d5cbb1102af",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/frontend/package.json": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.322787,
+    "ast_hash": "23823b8ae74f1de8eb9e0804af86f979",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/frontend/public/manifest.json": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.322788,
+    "ast_hash": "89be60895176466398d53bd4a693d9f6",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/frontend/src/App.js": {
+    "mtime": 1790713910.282308,
+    "seen": 1793077825.3227892,
+    "ast_hash": "3419ff63150b9e99a1e7c1970dc9a0d2",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/frontend/src/App.test.js": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.3227909,
+    "ast_hash": "83ca979af0e840672a4aa673b0c7be01",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/frontend/src/GameMain/BetHistoryModel.js": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.322792,
+    "ast_hash": "283578d222bd89e8494760fc0336de22",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/frontend/src/GameMain/CoinButton.js": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.322793,
+    "ast_hash": "0f93395d4a82fecafeeee773aa5591dd",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/frontend/src/GameMain/CoinButtonShow.js": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.322794,
+    "ast_hash": "2ce4cefb247da2c246857829e63635e0",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/frontend/src/GameMain/Frame.js": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.322796,
+    "ast_hash": "fbdbe1f528c27373e8ac35819cdc33e4",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/frontend/src/GameMain/GameTable.js": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.322797,
+    "ast_hash": "87ae8491a06b535856cd58028306b61b",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/frontend/src/GameMain/HistoryModel.js": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.322798,
+    "ast_hash": "e22c5fafa5d6a7aecce82a5a138b2cd9",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/frontend/src/GameMain/Observable.js": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.3227992,
+    "ast_hash": "90ddbca4abfe04b79e18258ef3f19721",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/frontend/src/GameMain/RulesModel..js": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.3228009,
+    "ast_hash": "8891d05fafbc9679cc241455e8f4b24d",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/frontend/src/GameMain/TableContent.js": {
+    "mtime": 1790713924.4502907,
+    "seen": 1793077825.3228018,
+    "ast_hash": "eb377e8d2b5c9a8282a9d495ddee7a06",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/frontend/src/GameMain/ToastConent.js": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.322803,
+    "ast_hash": "4b5124e9e94a8ed003bf4a5d90982d23",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/frontend/src/GameMain/WheeSpin.js": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.322804,
+    "ast_hash": "fdf9c6c1ac130cb1e87c06bafdccaf18",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/frontend/src/GameMain/WinnerModel.js": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.322805,
+    "ast_hash": "599b70c4aa3f0c1e067ba21dfab5f16c",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/frontend/src/assets/app.js": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.322807,
+    "ast_hash": "814c19b67d98cf6b7de13062ed124a4c",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/frontend/src/config.js": {
+    "mtime": 1790713901.4452453,
+    "seen": 1793077825.322808,
+    "ast_hash": "1364071ddb1d6a52b341d2b818152e6d",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/frontend/src/index.js": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.322809,
+    "ast_hash": "7c496931b019d86df72fe7ef6f4db4d1",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/frontend/src/reportWebVitals.js": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.3228102,
+    "ast_hash": "b528fd380de9b503eb5c84973639cca4",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/frontend/src/setupTests.js": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.3228118,
+    "ast_hash": "72158175c4ba432ede32a7c2ca4143e0",
+    "semantic_hash": ""
+  },
+  "Games/slote_mecine/backend/package.json": {
+    "mtime": 1791181618.937599,
+    "seen": 1793077825.322813,
+    "ast_hash": "a6016d93bedd8225f594ea852e87f0a9",
+    "semantic_hash": ""
+  },
+  "Games/slote_mecine/backend/server.js": {
+    "mtime": 1793077807.559728,
+    "seen": 1793077825.322814,
+    "ast_hash": "b7051c5a221947e830b92f04f21d8b9a",
+    "semantic_hash": ""
+  },
+  "Games/slote_mecine/frontend/create_master_cabinet.py": {
+    "mtime": 1791185428.013655,
+    "seen": 1793077825.322815,
+    "ast_hash": "1d38dc1fa8831976fa3f6ee171883206",
+    "semantic_hash": ""
+  },
+  "Games/slote_mecine/frontend/generate_perfect_clean_base.py": {
+    "mtime": 1791186098.4263775,
+    "seen": 1793077825.322817,
+    "ast_hash": "329acb71a7350397e4f7bfb2e98c4b83",
+    "semantic_hash": ""
+  },
+  "Games/slote_mecine/frontend/package.json": {
+    "mtime": 1791181689.2870724,
+    "seen": 1793077825.322818,
+    "ast_hash": "de45a21697a3a0b9275cfb36f11b98c1",
+    "semantic_hash": ""
+  },
+  "Games/slote_mecine/frontend/render_master_v3.py": {
+    "mtime": 1791185911.3393295,
+    "seen": 1793077825.322819,
+    "ast_hash": "97ff7ec1c5f88caee23030571ce42873",
+    "semantic_hash": ""
+  },
+  "Games/slote_mecine/frontend/src/js/game.js": {
+    "mtime": 1791695190.513817,
+    "seen": 1793077825.3228202,
+    "ast_hash": "831f8cec693076d0c598c5ee10b3bef3",
+    "semantic_hash": ""
+  },
+  "Games/slote_mecine/frontend/vite.config.js": {
+    "mtime": 1791696289.7553675,
+    "seen": 1793077825.3228211,
+    "ast_hash": "bee54ca50c3b40a75076388e34f34bde",
+    "semantic_hash": ""
+  },
+  "Games/slote_mecine/package.json": {
+    "mtime": 1791696305.7174735,
+    "seen": 1793077825.3228219,
+    "ast_hash": "922828751f7cfffb02def571340987d5",
+    "semantic_hash": ""
+  },
+  "Games/slote_mecine/run-dev.js": {
+    "mtime": 1791696298.7970998,
+    "seen": 1793077825.3228228,
+    "ast_hash": "f6215d2dfe8a2d51de2534febfbf3056",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/config.js": {
+    "mtime": 1793077558.0685828,
+    "seen": 1793077825.322825,
+    "ast_hash": "fb1eb96ae5e17f18e9288301c1cb8c1e",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/controllers/gameHistory.controller.js": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.322826,
+    "ast_hash": "ae0cce013520d77b8c46a8a880b99389",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/helper.js": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.322827,
+    "ast_hash": "49e167a64170fb2c208301f128780a68",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/index.js": {
+    "mtime": 1790714472.9207764,
+    "seen": 1793077825.322828,
+    "ast_hash": "6e01acc8f7a5604bf4e788533767d51f",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/model/GameHistorySchema.js": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.32283,
+    "ast_hash": "4ed6467fd4527793c80ce07acd3a7c56",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/model/cardSchema.js": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.3228312,
+    "ast_hash": "90c17a75dc8374e5abc24566fcf3fc4d",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/model/gameAdminCoinSchema.js": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.3228319,
+    "ast_hash": "5fba242a15a48ea048b5c88c8414df48",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/model/userSchema.js": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.3228328,
+    "ast_hash": "86ff7eedee400e99fa3e4ad60babab39",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/model/wallet.js": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.322834,
+    "ast_hash": "957f995003da4cec5f5e2444d9fb2d02",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/model/winnerBitSchema.js": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.322835,
+    "ast_hash": "60b835502a380cabf85252f5ed2ca388",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/package.json": {
+    "mtime": 1790714482.5731041,
+    "seen": 1793077825.3228369,
+    "ast_hash": "da7a22ee223cfd876a28ade81d560608",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/asset-manifest.json": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.322838,
+    "ast_hash": "aa228063d28c9c389050c5d158fc8686",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/js/27.95291165.chunk.js": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.322839,
+    "ast_hash": "8b5e9d5d955a6d2e27bc153b04d37311",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/js/main.21695ab2.js": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.32284,
+    "ast_hash": "625b82be7363486ba2d153abda3fc0a9",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/routes/gameHistory.route.js": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.3228412,
+    "ast_hash": "5dff4eba3ff71e9b504d8fe00ad37b95",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/routes/routeIndex.js": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.3228428,
+    "ast_hash": "c046361a833dfb0ef84a09bd53e9bbef",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/service.js": {
+    "mtime": 1790714442.1267664,
+    "seen": 1793077825.3228438,
+    "ast_hash": "e491f1075b8fe8341ed543e75c56dcd5",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/package.json": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.322845,
+    "ast_hash": "edfae22b77ed9d41c3e5c9e2da283213",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/app.js": {
+    "mtime": 1790714504.9406404,
+    "seen": 1793077825.322846,
+    "ast_hash": "891780cd787e9bf1d952689250c0ee8c",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/components/GameBlock.js": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.322847,
+    "ast_hash": "5825ec95ddd268e517f179beb779072b",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/components/History.js": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.322849,
+    "ast_hash": "0d01e83e70ac3af82426fd692b975528",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/components/Rulse.js": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.32285,
+    "ast_hash": "22d151b7bb55459c7ba5b2eb33cb20ba",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/components/Toast.js": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.3228512,
+    "ast_hash": "00b9e75c8e081af9d52d5e9d69858742",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/components/card.js": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.3228521,
+    "ast_hash": "c1125a0fb12f5a4627130c36b60688a5",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/components/coin.js": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.322853,
+    "ast_hash": "0c2106f63f8a3ae39b5b139fbf80c97a",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/components/coinBtn.js": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.322855,
+    "ast_hash": "7f5f1eda876d536cb7a5f1b85c42472c",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/components/frame.js": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.322856,
+    "ast_hash": "95448504aa0abe018855e647494d2419",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/components/profile.js": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.322857,
+    "ast_hash": "50b7bdfd8baf28eb1ae9609b8be52b51",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/components/userprofile.js": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.322858,
+    "ast_hash": "8bba1e8536b681ddc18669b3891e0351",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/config.js": {
+    "mtime": 1790714493.9354174,
+    "seen": 1793077825.322859,
+    "ast_hash": "e2e7724e9510e14cb90599994b4dba62",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/index.js": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.32286,
+    "ast_hash": "e783e8e9d1705a77e871d6bb9fe2749d",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/reportWebVitals.js": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.3228621,
+    "ast_hash": "b528fd380de9b503eb5c84973639cca4",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/setupTests.js": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.322863,
+    "ast_hash": "72158175c4ba432ede32a7c2ca4143e0",
+    "semantic_hash": ""
+  },
+  "backend/src/controllers/mobile/gameController.js": {
+    "mtime": 1793078647.8193734,
+    "seen": 1793078882.7973208,
+    "ast_hash": "77b9faf6590407b20be4b5f14e355b21",
+    "semantic_hash": ""
+  },
+  "backend/src/routes/mobile/gameRoutes.js": {
+    "mtime": 1793077626.821814,
+    "seen": 1793077825.3262038,
+    "ast_hash": "efc361a274bf7c611a3904130a5dc86c",
+    "semantic_hash": ""
+  },
+  "backend/src/sockets/gameSocket.js": {
+    "mtime": 1793077594.3673747,
+    "seen": 1793077825.3266969,
+    "ast_hash": "df2c7a4e30dcdbbd937f787607f3dcaf",
+    "semantic_hash": ""
+  },
+  "Games/big_eater/docker-compose.yml": {
+    "mtime": 1791607612.3220115,
+    "seen": 1793077825.3272169,
+    "ast_hash": "4bc290f960d87ba692c25005f37aeec0",
+    "semantic_hash": ""
+  },
+  "Games/big_eater/public/admin.html": {
+    "mtime": 1791612358.046756,
+    "seen": 1793077825.3272178,
+    "ast_hash": "746042bebfac77b2bf49e091ec5ef173",
+    "semantic_hash": ""
+  },
+  "Games/big_eater/public/index.html": {
+    "mtime": 1791613790.0263577,
+    "seen": 1793077825.3272178,
+    "ast_hash": "c19ba45f6f75072a253dd0dcb4a7734b",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/README.md": {
+    "mtime": 1770918386.0,
+    "seen": 1793077825.327219,
+    "ast_hash": "47731d5d79e63873f27a86d4c4933a47",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/backend/public/index.html": {
+    "mtime": 1790712392.0,
+    "seen": 1793077825.32722,
+    "ast_hash": "3a8649aefbf0cdf15ee7464881cb2979",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/backend/public/robots.txt": {
+    "mtime": 1790712392.0,
+    "seen": 1793077825.327221,
+    "ast_hash": "61c27d2cd39a713f7829422c3d9edcc7",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js.LICENSE.txt": {
+    "mtime": 1790712392.0,
+    "seen": 1793077825.327221,
+    "ast_hash": "b114cc85da504a772f040e3f40f8e46a",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/docker-compose.yml": {
+    "mtime": 1790712507.0,
+    "seen": 1793077825.327222,
+    "ast_hash": "fa6b1e0e8bb48cdcd49e6c3f098b2b67",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/public/index.html": {
+    "mtime": 1770918386.0,
+    "seen": 1793077825.327223,
+    "ast_hash": "7a82a23cf056c6d212d8864331f9c28f",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/public/robots.txt": {
+    "mtime": 1770918386.0,
+    "seen": 1793077825.327224,
+    "ast_hash": "61c27d2cd39a713f7829422c3d9edcc7",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/backend/public/index.html": {
+    "mtime": 1777581690.0,
+    "seen": 1793077825.327224,
+    "ast_hash": "e30356e99b9277df4ee2a6b09846a791",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/backend/public/robots.txt": {
+    "mtime": 1777581677.0,
+    "seen": 1793077825.327225,
+    "ast_hash": "61c27d2cd39a713f7829422c3d9edcc7",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/backend/public/static/js/main.05634587.js.LICENSE.txt": {
+    "mtime": 1777581690.0,
+    "seen": 1793077825.3272262,
+    "ast_hash": "b114cc85da504a772f040e3f40f8e46a",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/docker-compose.yml": {
+    "mtime": 1790712938.850244,
+    "seen": 1793077825.3272262,
+    "ast_hash": "3461ad2faf15b9edc011586df5588db9",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/public/index.html": {
+    "mtime": 1791005186.1881857,
+    "seen": 1793077825.3272269,
+    "ast_hash": "d843e4d290557557980f3be52bd45331",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/public/robots.txt": {
+    "mtime": 1757603700.0,
+    "seen": 1793077825.3272278,
+    "ast_hash": "61c27d2cd39a713f7829422c3d9edcc7",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/README.md": {
+    "mtime": 1770918386.0,
+    "seen": 1793077825.3272278,
+    "ast_hash": "47731d5d79e63873f27a86d4c4933a47",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/backend/public/index.html": {
+    "mtime": 1777587739.0,
+    "seen": 1793077825.327229,
+    "ast_hash": "fb1fe2e8cc1cd46709515b2fb3efc5cf",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/backend/public/robots.txt": {
+    "mtime": 1777587740.0,
+    "seen": 1793077825.32723,
+    "ast_hash": "61c27d2cd39a713f7829422c3d9edcc7",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/backend/public/static/js/main.c3c26395.js.LICENSE.txt": {
+    "mtime": 1777587717.0,
+    "seen": 1793077825.32723,
+    "ast_hash": "b114cc85da504a772f040e3f40f8e46a",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/docker-compose.yml": {
+    "mtime": 1790713362.1711094,
+    "seen": 1793077825.327231,
+    "ast_hash": "37427e278c3757ca789706807281a2a5",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/public/index.html": {
+    "mtime": 1767100932.0,
+    "seen": 1793077825.327232,
+    "ast_hash": "a8d7d4db568c69be59b653416762b121",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/public/robots.txt": {
+    "mtime": 1757582100.0,
+    "seen": 1793077825.327232,
+    "ast_hash": "61c27d2cd39a713f7829422c3d9edcc7",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/README.md": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.327233,
+    "ast_hash": "573e6823cd885b6556266db1ebc8ce69",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/backend/public/index.html": {
+    "mtime": 1777580928.0,
+    "seen": 1793077825.327233,
+    "ast_hash": "592e317da8762b3e18a2ed743c410e0a",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/backend/public/robots.txt": {
+    "mtime": 1777580916.0,
+    "seen": 1793077825.327234,
+    "ast_hash": "61c27d2cd39a713f7829422c3d9edcc7",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/backend/public/static/js/main.5751c868.js.LICENSE.txt": {
+    "mtime": 1777580928.0,
+    "seen": 1793077825.327235,
+    "ast_hash": "b114cc85da504a772f040e3f40f8e46a",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/docker-compose.yml": {
+    "mtime": 1790713948.266501,
+    "seen": 1793077825.327235,
+    "ast_hash": "4b44b8dc9fa3543529bf4ce0069a9551",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/frontend/public/index.html": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.3272362,
+    "ast_hash": "cbea6c29381038b63d00c29f83dd0b81",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/frontend/public/robots.txt": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.3272371,
+    "ast_hash": "61c27d2cd39a713f7829422c3d9edcc7",
+    "semantic_hash": ""
+  },
+  "Games/slote_mecine/README.md": {
+    "mtime": 1791695438.3151498,
+    "seen": 1793077825.3272371,
+    "ast_hash": "d1bde1f7cbf02f562acbc3ef29b5bc4b",
+    "semantic_hash": ""
+  },
+  "Games/slote_mecine/docker-compose.yml": {
+    "mtime": 1791618127.629805,
+    "seen": 1793077825.3272378,
+    "ast_hash": "47f658f10290114176b378fd32b1e69e",
+    "semantic_hash": ""
+  },
+  "Games/slote_mecine/frontend/admin.html": {
+    "mtime": 1791698020.7794235,
+    "seen": 1793077825.3272388,
+    "ast_hash": "fe6743b6019ea2c85450a7c3dd63ba34",
+    "semantic_hash": ""
+  },
+  "Games/slote_mecine/frontend/index.html": {
+    "mtime": 1791627544.2738194,
+    "seen": 1793077825.3272388,
+    "ast_hash": "3b4551884c40c7ea617ce659af4b2b13",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/README.md": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.32724,
+    "ast_hash": "c43d864bcae64b961ab0afe3e5abcf0f",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/function.txt": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327241,
+    "ast_hash": "7bdc52db624573c7289ed1a1dfc6b4b7",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/index.html": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.327242,
+    "ast_hash": "10817d10b784665385185a6e8fc3d2bc",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/js/main.21695ab2.js.LICENSE.txt": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.327242,
+    "ast_hash": "11211063c65e8c9340e3ded9e980210e",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/docker-compose.yml": {
+    "mtime": 1790714541.7623699,
+    "seen": 1793077825.327243,
+    "ast_hash": "e7bd8fc930cf085f3dc273576965ed30",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/README.md": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327243,
+    "ast_hash": "ee29ecbe35fdd89c0463d258b4acfa65",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/public/index.html": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327244,
+    "ast_hash": "80f401d72e7dce2ba084d460190f56f3",
+    "semantic_hash": ""
+  },
+  "Games/big_eater/public/images/bg.jpg": {
+    "mtime": 1791109038.4390242,
+    "seen": 1793077825.327316,
+    "ast_hash": "ddd4ebc70394f37672e9a9028930ad87",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/backend/public/logo192.png": {
+    "mtime": 1790712392.0,
+    "seen": 1793077825.327317,
+    "ast_hash": "33dbdd0177549353eeeb785d02c294af",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/backend/public/logo512.png": {
+    "mtime": 1790712392.0,
+    "seen": 1793077825.327318,
+    "ast_hash": "917515db74ea8d1aee6a246cfbcc0b45",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/backend/public/static/media/CircleBg.9b50b7c1b46c53723753.svg": {
+    "mtime": 1790712392.0,
+    "seen": 1793077825.327318,
+    "ast_hash": "b16bed9d256db690b99932ff1d559be1",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/backend/public/static/media/CircleWheel.76ab0733f1e622363029.svg": {
+    "mtime": 1790712392.0,
+    "seen": 1793077825.3273191,
+    "ast_hash": "8b9055357dcd7c1b0b189c555c09ceb6",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/backend/public/static/media/LeftArrow.6ba9efe774b27dc6ef216d122d47876e.svg": {
+    "mtime": 1790712392.0,
+    "seen": 1793077825.32732,
+    "ast_hash": "d1e2b87d88c677d251528792e4cf0194",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/backend/public/static/media/SelectedCricle.44d144d02cc3353e3b96.png": {
+    "mtime": 1790712392.0,
+    "seen": 1793077825.32732,
+    "ast_hash": "47c543685a4bf700dc36ffd2b154a39b",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/backend/public/static/media/TableWheel.769979b0b72690f99501.png": {
+    "mtime": 1790712392.0,
+    "seen": 1793077825.327321,
+    "ast_hash": "c291fd29cbdfcf69c81cb757171603a4",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/backend/public/static/media/winnerFram.188ded2f9f76da1a8237.png": {
+    "mtime": 1790712392.0,
+    "seen": 1793077825.327321,
+    "ast_hash": "6fd2658c10e6b5e531267648442658a9",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/public/logo192.png": {
+    "mtime": 1770918386.0,
+    "seen": 1793077825.327322,
+    "ast_hash": "33dbdd0177549353eeeb785d02c294af",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/public/logo512.png": {
+    "mtime": 1770918386.0,
+    "seen": 1793077825.327323,
+    "ast_hash": "917515db74ea8d1aee6a246cfbcc0b45",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/src/assets/image/CircleBg.svg": {
+    "mtime": 1770918386.0,
+    "seen": 1793077825.327323,
+    "ast_hash": "b16bed9d256db690b99932ff1d559be1",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/src/assets/image/CircleWheel.png": {
+    "mtime": 1770918386.0,
+    "seen": 1793077825.327324,
+    "ast_hash": "da8289337eb8f8841de674c73d4fa424",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/src/assets/image/CircleWheel.svg": {
+    "mtime": 1770918386.0,
+    "seen": 1793077825.3273249,
+    "ast_hash": "8b9055357dcd7c1b0b189c555c09ceb6",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/src/assets/image/LeftArrow.svg": {
+    "mtime": 1770918386.0,
+    "seen": 1793077825.3273249,
+    "ast_hash": "d1e2b87d88c677d251528792e4cf0194",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/src/assets/image/LineWheel.svg": {
+    "mtime": 1770918386.0,
+    "seen": 1793077825.327326,
+    "ast_hash": "e92e3e7f1d721c76968b7f5d7c824584",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/src/assets/image/Red.png": {
+    "mtime": 1770918386.0,
+    "seen": 1793077825.327326,
+    "ast_hash": "6fd2658c10e6b5e531267648442658a9",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/src/assets/image/SelectedCricle.png": {
+    "mtime": 1770918386.0,
+    "seen": 1793077825.327327,
+    "ast_hash": "47c543685a4bf700dc36ffd2b154a39b",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/src/assets/image/SelectorImage/gift_1.png": {
+    "mtime": 1790998600.452728,
+    "seen": 1793077825.327328,
+    "ast_hash": "219fcd7441702e3297fecc1b8f825c8e",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/src/assets/image/SelectorImage/gift_2.png": {
+    "mtime": 1790998600.4596505,
+    "seen": 1793077825.327328,
+    "ast_hash": "de2e9f13b6ca983df869a9865527b60f",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/src/assets/image/SelectorImage/gift_3.png": {
+    "mtime": 1790998600.467702,
+    "seen": 1793077825.327329,
+    "ast_hash": "ab5a5e0b3dbef01fc19c97220725177f",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/src/assets/image/SelectorImage/gift_4.png": {
+    "mtime": 1790998600.478146,
+    "seen": 1793077825.327329,
+    "ast_hash": "d3ae33fe4837b2c2161fc7ae3ee32bfd",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/src/assets/image/SelectorImage/gift_5.png": {
+    "mtime": 1790998600.484104,
+    "seen": 1793077825.32733,
+    "ast_hash": "b37d07e5c371c6a524ef082d8c204f74",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/src/assets/image/SelectorImage/gift_6.png": {
+    "mtime": 1790998600.4945645,
+    "seen": 1793077825.32733,
+    "ast_hash": "495d0ec692e1fe5dd5b805dd83e1c1fa",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/src/assets/image/SelectorImage/gift_7.png": {
+    "mtime": 1790998600.5047095,
+    "seen": 1793077825.327331,
+    "ast_hash": "512be697dcc1ec9ccff604d020090b62",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/src/assets/image/SelectorImage/gift_8.png": {
+    "mtime": 1790998600.5138628,
+    "seen": 1793077825.327332,
+    "ast_hash": "49070e5816f177f6a8ba15ce74dbb985",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/src/assets/image/TableWheel.png": {
+    "mtime": 1770918386.0,
+    "seen": 1793077825.327332,
+    "ast_hash": "c291fd29cbdfcf69c81cb757171603a4",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/src/assets/image/balloons.png": {
+    "mtime": 1790998600.1612344,
+    "seen": 1793077825.3273332,
+    "ast_hash": "3af5edf26c32c14eb61634aa19de6af1",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/src/assets/image/bg.png": {
+    "mtime": 1770918386.0,
+    "seen": 1793077825.3273332,
+    "ast_hash": "69f384cc4f03f85b4401d40b2cdabd72",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/src/assets/image/bicycle.png": {
+    "mtime": 1790998600.2907076,
+    "seen": 1793077825.327334,
+    "ast_hash": "19e6eaf69acb12cfbdd2dd8510dfe61e",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/src/assets/image/bob_mascot.png": {
+    "mtime": 1790998600.6585689,
+    "seen": 1793077825.327335,
+    "ast_hash": "f8ac4bb2bd35da3c1287beffe73b3f90",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/src/assets/image/car.png": {
+    "mtime": 1790998600.3171506,
+    "seen": 1793077825.327335,
+    "ast_hash": "97216c84a2f633a0492e4b105a228b47",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/src/assets/image/carnival_stage_bg.jpg": {
+    "mtime": 1790998600.670107,
+    "seen": 1793077825.3273358,
+    "ast_hash": "ac1f434c65bdc4f6d0b12426bdfd6834",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/src/assets/image/carrot.png": {
+    "mtime": 1790998600.152563,
+    "seen": 1793077825.3273358,
+    "ast_hash": "db8db1b1b3f87eb6ff02910421005895",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/src/assets/image/closeIcon.png": {
+    "mtime": 1770918386.0,
+    "seen": 1793077825.327337,
+    "ast_hash": "30e0d7573abc47ccb63d7ac98dfc7ee9",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/src/assets/image/coin.png": {
+    "mtime": 1790998600.3493881,
+    "seen": 1793077825.327337,
+    "ast_hash": "761da10cf00dd01db4d6f0303265c019",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/src/assets/image/crown.png": {
+    "mtime": 1790998600.4085677,
+    "seen": 1793077825.327338,
+    "ast_hash": "b22c04e70382808bb24ec80fac131bbe",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/src/assets/image/dimondIcon.png": {
+    "mtime": 1770918386.0,
+    "seen": 1793077825.327339,
+    "ast_hash": "b580e9bf48e9e47e5c984ddac8b1ee88",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/src/assets/image/gamepad.png": {
+    "mtime": 1790998600.3614118,
+    "seen": 1793077825.327339,
+    "ast_hash": "97c68c1c88e839e33babce91598f75d1",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/src/assets/image/hand_point.png": {
+    "mtime": 1790998600.3907669,
+    "seen": 1793077825.3273401,
+    "ast_hash": "525945a6c7be72f80358ad0d1c7f0c95",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/src/assets/image/hand_point_right.png": {
+    "mtime": 1790998600.3988228,
+    "seen": 1793077825.3273401,
+    "ast_hash": "b31ae16e1b3769288d5ba9c7c72cc552",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/src/assets/image/head.png": {
+    "mtime": 1770918386.0,
+    "seen": 1793077825.327341,
+    "ast_hash": "d36ac8d0219e10fd061ff6f689824025",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/src/assets/image/hotdog.png": {
+    "mtime": 1790998600.3377552,
+    "seen": 1793077825.327342,
+    "ast_hash": "69d84c922f9624633874732b53feeaad",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/src/assets/image/meat.png": {
+    "mtime": 1790998600.3278208,
+    "seen": 1793077825.327342,
+    "ast_hash": "16c8df1d4354fa3136585d7c8cdd7874",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/src/assets/image/settings.png": {
+    "mtime": 1790998600.3722787,
+    "seen": 1793077825.327343,
+    "ast_hash": "449933616ba5b4d0a60efa1fda9f5221",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/src/assets/image/star.png": {
+    "mtime": 1790998600.3819199,
+    "seen": 1793077825.327343,
+    "ast_hash": "f11d80d2c2d6100bf282eef58a5df7ad",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/src/assets/image/tomato.png": {
+    "mtime": 1790998600.1400845,
+    "seen": 1793077825.3273442,
+    "ast_hash": "3661a8df6549aacaa482fb930413e581",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/src/assets/image/trophy.png": {
+    "mtime": 1790998600.419573,
+    "seen": 1793077825.3273442,
+    "ast_hash": "19336e345b6f9be9a6b12e8039f9f13c",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/src/assets/image/unicorn.png": {
+    "mtime": 1790998600.2800841,
+    "seen": 1793077825.327345,
+    "ast_hash": "0ec77c214363d2a601c67a7fdd2eae1e",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/src/assets/image/winner1.png": {
+    "mtime": 1770918386.0,
+    "seen": 1793077825.327345,
+    "ast_hash": "620e67f0587fb67ef0c24c9344325d4f",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/src/assets/image/winner2.png": {
+    "mtime": 1770918386.0,
+    "seen": 1793077825.3273458,
+    "ast_hash": "4f3108d6473d7dee3c8530bd6c4ff209",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/src/assets/image/winner3.png": {
+    "mtime": 1770918386.0,
+    "seen": 1793077825.3273458,
+    "ast_hash": "4cc7b2df148f2f465157a2c49af2d3c8",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/src/assets/image/winnerFram.png": {
+    "mtime": 1770918386.0,
+    "seen": 1793077825.327347,
+    "ast_hash": "6fd2658c10e6b5e531267648442658a9",
+    "semantic_hash": ""
+  },
+  "Games/ferrywheel/frontend/src/logo.svg": {
+    "mtime": 1770918386.0,
+    "seen": 1793077825.327348,
+    "ast_hash": "06e733283fa43d1dd57738cfc409adbd",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/backend/public/logo192.png": {
+    "mtime": 1777581677.0,
+    "seen": 1793077825.327348,
+    "ast_hash": "33dbdd0177549353eeeb785d02c294af",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/backend/public/logo512.png": {
+    "mtime": 1777581677.0,
+    "seen": 1793077825.327349,
+    "ast_hash": "917515db74ea8d1aee6a246cfbcc0b45",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/backend/public/static/media/100.e4331c0165d8feb120ac.png": {
+    "mtime": 1777581690.0,
+    "seen": 1793077825.327349,
+    "ast_hash": "93786c67ea38481271dde4bd5db298dd",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/backend/public/static/media/Center.5fdb851ef44918fc1578.png": {
+    "mtime": 1777581690.0,
+    "seen": 1793077825.32735,
+    "ast_hash": "a2e037db2db071a2cd8257845801eda5",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/backend/public/static/media/Circle3.a067a5d501e9e41bd8fb.png": {
+    "mtime": 1777581690.0,
+    "seen": 1793077825.327351,
+    "ast_hash": "fc4d2b873077ac7f15cb718319986aed",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/backend/public/static/media/CircleBg.9b50b7c1b46c53723753.svg": {
+    "mtime": 1777581690.0,
+    "seen": 1793077825.327351,
+    "ast_hash": "b16bed9d256db690b99932ff1d559be1",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/backend/public/static/media/CircleWheel3.bd0e574e85e2a90f1da2.png": {
+    "mtime": 1777581690.0,
+    "seen": 1793077825.327352,
+    "ast_hash": "2409f219c995c48e597d82d370b81073",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/backend/public/static/media/Fruit.10e52f2676707fa0e48b.png": {
+    "mtime": 1777581690.0,
+    "seen": 1793077825.327352,
+    "ast_hash": "5265f8546a9ec5c5debca96e75f77de6",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/backend/public/static/media/HistoryNew.dc11bbc0e513175a9c24.png": {
+    "mtime": 1777581690.0,
+    "seen": 1793077825.327353,
+    "ast_hash": "93b2e8b80d2e2cfcce641c235d01157a",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/backend/public/static/media/LeftArrow.6ba9efe774b27dc6ef216d122d47876e.svg": {
+    "mtime": 1777581690.0,
+    "seen": 1793077825.327353,
+    "ast_hash": "d1e2b87d88c677d251528792e4cf0194",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/backend/public/static/media/MainImg2.64b0688c077cd01c1c2a.png": {
+    "mtime": 1777581690.0,
+    "seen": 1793077825.3273542,
+    "ast_hash": "e3a3e6ce7b000ee855306a46171a33c8",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/backend/public/static/media/Pizza.b0fa94cd33bbcc399107.png": {
+    "mtime": 1777581690.0,
+    "seen": 1793077825.3273542,
+    "ast_hash": "1ab54ab6155bf5221c7c005b3f0c6b3f",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/backend/public/static/media/ResultBg.6a14b5e81c24a5735099.png": {
+    "mtime": 1777581690.0,
+    "seen": 1793077825.327355,
+    "ast_hash": "ee33321416711b1a2f30a2528e8c66f2",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/backend/public/static/media/big.b53bb82940f96e6c338d.png": {
+    "mtime": 1777581690.0,
+    "seen": 1793077825.327355,
+    "ast_hash": "67982d4210a4a715d89237298b6ca35f",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/backend/public/static/media/countdown.5f3cb67f510205a18c9f.png": {
+    "mtime": 1777581690.0,
+    "seen": 1793077825.3273559,
+    "ast_hash": "89af773b20a9e5ef7eecc3d7addcabc5",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/backend/public/static/media/gift_1.b1d99b9a664c3e1c238c.png": {
+    "mtime": 1777581690.0,
+    "seen": 1793077825.3273559,
+    "ast_hash": "7d0be4203887428dd33b4e8e189b6ee2",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/backend/public/static/media/gift_2.650243c5ae4d72962941.png": {
+    "mtime": 1777581690.0,
+    "seen": 1793077825.3273568,
+    "ast_hash": "dced827946136f05cef49547413cd865",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/backend/public/static/media/gift_3.9a270aa019c9ccc27992.png": {
+    "mtime": 1777581690.0,
+    "seen": 1793077825.3273568,
+    "ast_hash": "b7551f54827af4186e710d87f24049d0",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/backend/public/static/media/gift_4.84a2038af5e3e48ede97.png": {
+    "mtime": 1777581690.0,
+    "seen": 1793077825.327358,
+    "ast_hash": "57412e1177b93b8168dd26f6ec0d1e87",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/backend/public/static/media/gift_5.c01925c9b60fdac4dcf6.png": {
+    "mtime": 1777581690.0,
+    "seen": 1793077825.327358,
+    "ast_hash": "c92f4b78ef7cad6a81fd852b226eb623",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/backend/public/static/media/gift_6.c678e03c56830b3b2664.png": {
+    "mtime": 1777581690.0,
+    "seen": 1793077825.327359,
+    "ast_hash": "c7072e6827c117aff805f30122ea3736",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/backend/public/static/media/gift_7.0b4b5e347aff245fd7cb.png": {
+    "mtime": 1777581690.0,
+    "seen": 1793077825.32736,
+    "ast_hash": "405e73b454993f2c4b065441978d8fbb",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/backend/public/static/media/gift_8.41962d8f51395488ab81.png": {
+    "mtime": 1777581690.0,
+    "seen": 1793077825.32736,
+    "ast_hash": "a6f2a68d74902a290667a935593ac2be",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/backend/public/static/media/head.5bcf4b12dda293ddfabd.png": {
+    "mtime": 1777581690.0,
+    "seen": 1793077825.327361,
+    "ast_hash": "0f40697e821776a01611603dc43b6650",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/backend/public/static/media/myhistory.3948e4d7c18e8afc1023.png": {
+    "mtime": 1777581690.0,
+    "seen": 1793077825.327361,
+    "ast_hash": "756363cdeb4d9a6fac7abd21a506dabc",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/public/logo192.png": {
+    "mtime": 1757603700.0,
+    "seen": 1793077825.327362,
+    "ast_hash": "33dbdd0177549353eeeb785d02c294af",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/public/logo512.png": {
+    "mtime": 1757603700.0,
+    "seen": 1793077825.327362,
+    "ast_hash": "917515db74ea8d1aee6a246cfbcc0b45",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/assets/image/100.png": {
+    "mtime": 1768092480.0,
+    "seen": 1793077825.327363,
+    "ast_hash": "93786c67ea38481271dde4bd5db298dd",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/assets/image/Center.png": {
+    "mtime": 1768091680.0,
+    "seen": 1793077825.3273642,
+    "ast_hash": "a2e037db2db071a2cd8257845801eda5",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/assets/image/Center.svg": {
+    "mtime": 1767067396.0,
+    "seen": 1793077825.3273642,
+    "ast_hash": "5e8dbacada6b194b0cad123f4fb737c6",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/assets/image/Circle3.png": {
+    "mtime": 1768088024.0,
+    "seen": 1793077825.3273652,
+    "ast_hash": "fc4d2b873077ac7f15cb718319986aed",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/assets/image/CircleBg.svg": {
+    "mtime": 1757603700.0,
+    "seen": 1793077825.3273652,
+    "ast_hash": "b16bed9d256db690b99932ff1d559be1",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/assets/image/CircleWheel.png": {
+    "mtime": 1757603700.0,
+    "seen": 1793077825.3273659,
+    "ast_hash": "da8289337eb8f8841de674c73d4fa424",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/assets/image/CircleWheel.svg": {
+    "mtime": 1757603700.0,
+    "seen": 1793077825.3273668,
+    "ast_hash": "8b9055357dcd7c1b0b189c555c09ceb6",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/assets/image/CircleWheel2.png": {
+    "mtime": 1766546232.0,
+    "seen": 1793077825.3273668,
+    "ast_hash": "cf0d5a5952d0a2a27aff1762a81a40ba",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/assets/image/CircleWheel3.png": {
+    "mtime": 1768218432.0,
+    "seen": 1793077825.327368,
+    "ast_hash": "2409f219c995c48e597d82d370b81073",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/assets/image/Fruit.png": {
+    "mtime": 1768167712.0,
+    "seen": 1793077825.327368,
+    "ast_hash": "5265f8546a9ec5c5debca96e75f77de6",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/assets/image/HistoryNew.png": {
+    "mtime": 1768167702.0,
+    "seen": 1793077825.327369,
+    "ast_hash": "93b2e8b80d2e2cfcce641c235d01157a",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/assets/image/LeftArrow.svg": {
+    "mtime": 1757603700.0,
+    "seen": 1793077825.327369,
+    "ast_hash": "d1e2b87d88c677d251528792e4cf0194",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/assets/image/LineWheel.svg": {
+    "mtime": 1757603700.0,
+    "seen": 1793077825.32737,
+    "ast_hash": "e92e3e7f1d721c76968b7f5d7c824584",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/assets/image/MainImg2.jpeg": {
+    "mtime": 1768087468.0,
+    "seen": 1793077825.32737,
+    "ast_hash": "8a4ba8b89566da07d7aeef8c9dc2e1ea",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/assets/image/MainImg2.png": {
+    "mtime": 1768087828.0,
+    "seen": 1793077825.3273711,
+    "ast_hash": "e3a3e6ce7b000ee855306a46171a33c8",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/assets/image/NewCircleWheel.png": {
+    "mtime": 1768086696.0,
+    "seen": 1793077825.327372,
+    "ast_hash": "ec8fdf427626f675f0984e4edc6886eb",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/assets/image/Pizza.png": {
+    "mtime": 1768167712.0,
+    "seen": 1793077825.327372,
+    "ast_hash": "1ab54ab6155bf5221c7c005b3f0c6b3f",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/assets/image/ProfitCard.png": {
+    "mtime": 1767068164.0,
+    "seen": 1793077825.327373,
+    "ast_hash": "e60a725e7a67980abc4dec1f1c9b3ebe",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/assets/image/Red.png": {
+    "mtime": 1757603700.0,
+    "seen": 1793077825.327373,
+    "ast_hash": "6fd2658c10e6b5e531267648442658a9",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/assets/image/Result.png": {
+    "mtime": 1768086616.0,
+    "seen": 1793077825.327374,
+    "ast_hash": "8c1749dd3cdcbd494bfc785449f96b55",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/assets/image/ResultBg.jpg": {
+    "mtime": 1767491186.0,
+    "seen": 1793077825.327374,
+    "ast_hash": "51205bc9afefe1bca7fac3e4ae3359ed",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/assets/image/ResultBg.png": {
+    "mtime": 1768218982.0,
+    "seen": 1793077825.3273752,
+    "ast_hash": "ee33321416711b1a2f30a2528e8c66f2",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/assets/image/SelectedCricle.png": {
+    "mtime": 1757603700.0,
+    "seen": 1793077825.3273752,
+    "ast_hash": "47c543685a4bf700dc36ffd2b154a39b",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/assets/image/SelectorImage/gift_1.png": {
+    "mtime": 1768092550.0,
+    "seen": 1793077825.327376,
+    "ast_hash": "7d0be4203887428dd33b4e8e189b6ee2",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/assets/image/SelectorImage/gift_2.png": {
+    "mtime": 1768092592.0,
+    "seen": 1793077825.327376,
+    "ast_hash": "dced827946136f05cef49547413cd865",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/assets/image/SelectorImage/gift_3.png": {
+    "mtime": 1768092616.0,
+    "seen": 1793077825.3273768,
+    "ast_hash": "b7551f54827af4186e710d87f24049d0",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/assets/image/SelectorImage/gift_4.png": {
+    "mtime": 1768092636.0,
+    "seen": 1793077825.3273768,
+    "ast_hash": "57412e1177b93b8168dd26f6ec0d1e87",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/assets/image/SelectorImage/gift_5.png": {
+    "mtime": 1768092670.0,
+    "seen": 1793077825.327378,
+    "ast_hash": "c92f4b78ef7cad6a81fd852b226eb623",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/assets/image/SelectorImage/gift_6.png": {
+    "mtime": 1768092708.0,
+    "seen": 1793077825.327379,
+    "ast_hash": "c7072e6827c117aff805f30122ea3736",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/assets/image/SelectorImage/gift_7.png": {
+    "mtime": 1768092750.0,
+    "seen": 1793077825.327379,
+    "ast_hash": "405e73b454993f2c4b065441978d8fbb",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/assets/image/SelectorImage/gift_8.png": {
+    "mtime": 1768092766.0,
+    "seen": 1793077825.32738,
+    "ast_hash": "a6f2a68d74902a290667a935593ac2be",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/assets/image/Spin.svg": {
+    "mtime": 1767027162.0,
+    "seen": 1793077825.32738,
+    "ast_hash": "be23afdbd915a52a412c1d9e82cc35ee",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/assets/image/TableWheel.png": {
+    "mtime": 1757603700.0,
+    "seen": 1793077825.327381,
+    "ast_hash": "c291fd29cbdfcf69c81cb757171603a4",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/assets/image/TableWheel2.png": {
+    "mtime": 1766546242.0,
+    "seen": 1793077825.327381,
+    "ast_hash": "105484875ddeeaeec71201ed06ee0aea",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/assets/image/TableWheel3.jpg": {
+    "mtime": 1766609296.0,
+    "seen": 1793077825.327382,
+    "ast_hash": "0dbe5f7c3f51c8e9e39b2ee2c11513dd",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/assets/image/TableWheel4.jpg": {
+    "mtime": 1766609288.0,
+    "seen": 1793077825.327382,
+    "ast_hash": "c777c2b22e0334f3d36b227e517c699b",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/assets/image/TableWheel5.jpg": {
+    "mtime": 1766609280.0,
+    "seen": 1793077825.327383,
+    "ast_hash": "58c7217d422da38abe8d9a19de69a918",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/assets/image/bg.png": {
+    "mtime": 1757603700.0,
+    "seen": 1793077825.327383,
+    "ast_hash": "69f384cc4f03f85b4401d40b2cdabd72",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/assets/image/big.png": {
+    "mtime": 1768091044.0,
+    "seen": 1793077825.327384,
+    "ast_hash": "67982d4210a4a715d89237298b6ca35f",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/assets/image/closeIcon.png": {
+    "mtime": 1757603700.0,
+    "seen": 1793077825.327384,
+    "ast_hash": "30e0d7573abc47ccb63d7ac98dfc7ee9",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/assets/image/countdown.png": {
+    "mtime": 1767067600.0,
+    "seen": 1793077825.3273852,
+    "ast_hash": "89af773b20a9e5ef7eecc3d7addcabc5",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/assets/image/dimondIcon.png": {
+    "mtime": 1757603700.0,
+    "seen": 1793077825.3273852,
+    "ast_hash": "b580e9bf48e9e47e5c984ddac8b1ee88",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/assets/image/head.png": {
+    "mtime": 1768217980.0,
+    "seen": 1793077825.3273861,
+    "ast_hash": "0f40697e821776a01611603dc43b6650",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/assets/image/myhistory.png": {
+    "mtime": 1767236160.0,
+    "seen": 1793077825.3273869,
+    "ast_hash": "756363cdeb4d9a6fac7abd21a506dabc",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/assets/image/spin.jpeg": {
+    "mtime": 1767065098.0,
+    "seen": 1793077825.3273869,
+    "ast_hash": "a77d7d9142871e58b087f5a058ee682b",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/assets/image/spin.png": {
+    "mtime": 1767065714.0,
+    "seen": 1793077825.3273878,
+    "ast_hash": "52314f42489442668c8e5e2732b413e2",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/assets/image/svg.svg": {
+    "mtime": 1767147664.0,
+    "seen": 1793077825.3273878,
+    "ast_hash": "4545d85270da012199437d8c7258dfe2",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/assets/image/winner1.png": {
+    "mtime": 1757603700.0,
+    "seen": 1793077825.327389,
+    "ast_hash": "620e67f0587fb67ef0c24c9344325d4f",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/assets/image/winner2.png": {
+    "mtime": 1757603700.0,
+    "seen": 1793077825.32739,
+    "ast_hash": "4f3108d6473d7dee3c8530bd6c4ff209",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/assets/image/winner3.png": {
+    "mtime": 1757603700.0,
+    "seen": 1793077825.32739,
+    "ast_hash": "4cc7b2df148f2f465157a2c49af2d3c8",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/assets/image/winnerFram.png": {
+    "mtime": 1757603700.0,
+    "seen": 1793077825.327391,
+    "ast_hash": "6fd2658c10e6b5e531267648442658a9",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/assets/ui_reference.jpg": {
+    "mtime": 1766545340.0,
+    "seen": 1793077825.327391,
+    "ast_hash": "54f81428bb015f4e5850000aec8571d1",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/assets/wheel_3d.png": {
+    "mtime": 1766545340.0,
+    "seen": 1793077825.327392,
+    "ast_hash": "b025a28d222bd1aad3d9af982fd04b5e",
+    "semantic_hash": ""
+  },
+  "Games/greedybaby/frontend/src/logo.svg": {
+    "mtime": 1757603700.0,
+    "seen": 1793077825.327393,
+    "ast_hash": "06e733283fa43d1dd57738cfc409adbd",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/backend/public/logo192.png": {
+    "mtime": 1777587739.0,
+    "seen": 1793077825.327393,
+    "ast_hash": "33dbdd0177549353eeeb785d02c294af",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/backend/public/logo512.png": {
+    "mtime": 1777587740.0,
+    "seen": 1793077825.327394,
+    "ast_hash": "917515db74ea8d1aee6a246cfbcc0b45",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/backend/public/static/media/100.09b61ab0763d184a101f.png": {
+    "mtime": 1777587717.0,
+    "seen": 1793077825.327394,
+    "ast_hash": "47d6ace81fdf8f9c2ce2c016e57774dc",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/backend/public/static/media/Center.4eaad70ae6073eccbb0fa4d9fddfc1f9.svg": {
+    "mtime": 1777587717.0,
+    "seen": 1793077825.327395,
+    "ast_hash": "5e8dbacada6b194b0cad123f4fb737c6",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/backend/public/static/media/CircleBg.9b50b7c1b46c53723753.svg": {
+    "mtime": 1777587717.0,
+    "seen": 1793077825.327395,
+    "ast_hash": "b16bed9d256db690b99932ff1d559be1",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/backend/public/static/media/CircleWheel2.942e5fe792919184c23b.png": {
+    "mtime": 1777587717.0,
+    "seen": 1793077825.3273962,
+    "ast_hash": "cf0d5a5952d0a2a27aff1762a81a40ba",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/backend/public/static/media/CircleWheel3.99a0b02f3efa0510e3bb.png": {
+    "mtime": 1777587717.0,
+    "seen": 1793077825.3273962,
+    "ast_hash": "0715be8efaf4a5945a1ab83d83e7f278",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/backend/public/static/media/LeftArrow.6ba9efe774b27dc6ef216d122d47876e.svg": {
+    "mtime": 1777587717.0,
+    "seen": 1793077825.327397,
+    "ast_hash": "d1e2b87d88c677d251528792e4cf0194",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/backend/public/static/media/ProfitCard.f11f589882e0da1c107e.png": {
+    "mtime": 1777587717.0,
+    "seen": 1793077825.3273978,
+    "ast_hash": "e60a725e7a67980abc4dec1f1c9b3ebe",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/backend/public/static/media/ResultBg.753d7fe8b852ec9bb745.jpg": {
+    "mtime": 1777587717.0,
+    "seen": 1793077825.3273978,
+    "ast_hash": "51205bc9afefe1bca7fac3e4ae3359ed",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/backend/public/static/media/big.3e538b307517ca96e9cc.png": {
+    "mtime": 1777587717.0,
+    "seen": 1793077825.327399,
+    "ast_hash": "e00903935f2ea33fec8b2a112158a59c",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/backend/public/static/media/countdown.5f3cb67f510205a18c9f.png": {
+    "mtime": 1777587717.0,
+    "seen": 1793077825.3274,
+    "ast_hash": "89af773b20a9e5ef7eecc3d7addcabc5",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/backend/public/static/media/gift_1.f8e698ee74d50b807bcf.png": {
+    "mtime": 1777587717.0,
+    "seen": 1793077825.3274,
+    "ast_hash": "75be63cc764648863e0249b1335cbb9e",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/backend/public/static/media/gift_2.4e357ea3f47315eea2b3.png": {
+    "mtime": 1777587717.0,
+    "seen": 1793077825.327401,
+    "ast_hash": "ccc24e51763b2a77e758c6e424b4cdcf",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/backend/public/static/media/gift_3.8689cad5ad11f3e7ec1f.png": {
+    "mtime": 1777587717.0,
+    "seen": 1793077825.327401,
+    "ast_hash": "6977d04a80b47b361e9fe6ea59d2034a",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/backend/public/static/media/gift_4.e6cc2b95818428123540.png": {
+    "mtime": 1777587717.0,
+    "seen": 1793077825.3274019,
+    "ast_hash": "38ca3a250315850164fc4579c60499e5",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/backend/public/static/media/gift_5.ae3f61380301d28b1fd1.png": {
+    "mtime": 1777587717.0,
+    "seen": 1793077825.3274019,
+    "ast_hash": "4ec80ebaee2ac320405708dfb3aafbc7",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/backend/public/static/media/gift_6.2d942d505cd95e1ed9f9.png": {
+    "mtime": 1777587717.0,
+    "seen": 1793077825.327403,
+    "ast_hash": "21e0b057d9df40ba8f5959b152560996",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/backend/public/static/media/gift_7.69d821d58be80a705a38.png": {
+    "mtime": 1777587717.0,
+    "seen": 1793077825.327403,
+    "ast_hash": "867d475ddbadca6f94f98aa5a071029b",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/backend/public/static/media/gift_8.c6ed960a6a83e9ebc162.png": {
+    "mtime": 1777587717.0,
+    "seen": 1793077825.327404,
+    "ast_hash": "297fe01f9175699e12acd4f96bc2528f",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/backend/public/static/media/greedyBg.4d3e4bbb8f02dd1d9400.png": {
+    "mtime": 1777587717.0,
+    "seen": 1793077825.327404,
+    "ast_hash": "78ec3d0ec7249e750a1518daa508bdd7",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/backend/public/static/media/myhistory.3948e4d7c18e8afc1023.png": {
+    "mtime": 1777587717.0,
+    "seen": 1793077825.327405,
+    "ast_hash": "756363cdeb4d9a6fac7abd21a506dabc",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/backend/public/static/media/spin.e4caaf41ee6be6f9c02a.png": {
+    "mtime": 1777587717.0,
+    "seen": 1793077825.327405,
+    "ast_hash": "52314f42489442668c8e5e2732b413e2",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/public/logo192.png": {
+    "mtime": 1757582100.0,
+    "seen": 1793077825.3274062,
+    "ast_hash": "33dbdd0177549353eeeb785d02c294af",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/public/logo512.png": {
+    "mtime": 1757582100.0,
+    "seen": 1793077825.3274062,
+    "ast_hash": "917515db74ea8d1aee6a246cfbcc0b45",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/src/assets/image/100.png": {
+    "mtime": 1766527224.0,
+    "seen": 1793077825.3274071,
+    "ast_hash": "47d6ace81fdf8f9c2ce2c016e57774dc",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/src/assets/image/Center.svg": {
+    "mtime": 1767045796.0,
+    "seen": 1793077825.327408,
+    "ast_hash": "5e8dbacada6b194b0cad123f4fb737c6",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/src/assets/image/CircleBg.svg": {
+    "mtime": 1757582100.0,
+    "seen": 1793077825.327408,
+    "ast_hash": "b16bed9d256db690b99932ff1d559be1",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/src/assets/image/CircleWheel.png": {
+    "mtime": 1757582100.0,
+    "seen": 1793077825.3274088,
+    "ast_hash": "da8289337eb8f8841de674c73d4fa424",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/src/assets/image/CircleWheel.svg": {
+    "mtime": 1757582100.0,
+    "seen": 1793077825.3274088,
+    "ast_hash": "8b9055357dcd7c1b0b189c555c09ceb6",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/src/assets/image/CircleWheel2.png": {
+    "mtime": 1766524632.0,
+    "seen": 1793077825.32741,
+    "ast_hash": "cf0d5a5952d0a2a27aff1762a81a40ba",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/src/assets/image/CircleWheel3.png": {
+    "mtime": 1767259216.0,
+    "seen": 1793077825.32741,
+    "ast_hash": "0715be8efaf4a5945a1ab83d83e7f278",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/src/assets/image/LeftArrow.svg": {
+    "mtime": 1757582100.0,
+    "seen": 1793077825.327411,
+    "ast_hash": "d1e2b87d88c677d251528792e4cf0194",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/src/assets/image/LineWheel.svg": {
+    "mtime": 1757582100.0,
+    "seen": 1793077825.327411,
+    "ast_hash": "e92e3e7f1d721c76968b7f5d7c824584",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/src/assets/image/ProfitCard.png": {
+    "mtime": 1767046564.0,
+    "seen": 1793077825.327412,
+    "ast_hash": "e60a725e7a67980abc4dec1f1c9b3ebe",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/src/assets/image/Red.png": {
+    "mtime": 1757582100.0,
+    "seen": 1793077825.327412,
+    "ast_hash": "6fd2658c10e6b5e531267648442658a9",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/src/assets/image/ResultBg.jpg": {
+    "mtime": 1767450690.0,
+    "seen": 1793077825.327413,
+    "ast_hash": "51205bc9afefe1bca7fac3e4ae3359ed",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/src/assets/image/SelectedCricle.png": {
+    "mtime": 1757582100.0,
+    "seen": 1793077825.327414,
+    "ast_hash": "47c543685a4bf700dc36ffd2b154a39b",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/src/assets/image/SelectorImage/gift_1.png": {
+    "mtime": 1767006100.0,
+    "seen": 1793077825.327414,
+    "ast_hash": "75be63cc764648863e0249b1335cbb9e",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/src/assets/image/SelectorImage/gift_2.png": {
+    "mtime": 1767006292.0,
+    "seen": 1793077825.327415,
+    "ast_hash": "ccc24e51763b2a77e758c6e424b4cdcf",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/src/assets/image/SelectorImage/gift_3.png": {
+    "mtime": 1767006348.0,
+    "seen": 1793077825.327415,
+    "ast_hash": "6977d04a80b47b361e9fe6ea59d2034a",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/src/assets/image/SelectorImage/gift_4.png": {
+    "mtime": 1767006378.0,
+    "seen": 1793077825.3274162,
+    "ast_hash": "38ca3a250315850164fc4579c60499e5",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/src/assets/image/SelectorImage/gift_5.png": {
+    "mtime": 1767006432.0,
+    "seen": 1793077825.3274162,
+    "ast_hash": "4ec80ebaee2ac320405708dfb3aafbc7",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/src/assets/image/SelectorImage/gift_6.png": {
+    "mtime": 1767006468.0,
+    "seen": 1793077825.3274171,
+    "ast_hash": "21e0b057d9df40ba8f5959b152560996",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/src/assets/image/SelectorImage/gift_7.png": {
+    "mtime": 1767006504.0,
+    "seen": 1793077825.3274171,
+    "ast_hash": "867d475ddbadca6f94f98aa5a071029b",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/src/assets/image/SelectorImage/gift_8.png": {
+    "mtime": 1767006536.0,
+    "seen": 1793077825.327418,
+    "ast_hash": "297fe01f9175699e12acd4f96bc2528f",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/src/assets/image/Spin.svg": {
+    "mtime": 1767005562.0,
+    "seen": 1793077825.327418,
+    "ast_hash": "be23afdbd915a52a412c1d9e82cc35ee",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/src/assets/image/TableWheel.png": {
+    "mtime": 1757582100.0,
+    "seen": 1793077825.3274188,
+    "ast_hash": "c291fd29cbdfcf69c81cb757171603a4",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/src/assets/image/TableWheel2.png": {
+    "mtime": 1766524642.0,
+    "seen": 1793077825.32742,
+    "ast_hash": "105484875ddeeaeec71201ed06ee0aea",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/src/assets/image/TableWheel3.jpg": {
+    "mtime": 1766587696.0,
+    "seen": 1793077825.32742,
+    "ast_hash": "0dbe5f7c3f51c8e9e39b2ee2c11513dd",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/src/assets/image/TableWheel4.jpg": {
+    "mtime": 1766587688.0,
+    "seen": 1793077825.327421,
+    "ast_hash": "c777c2b22e0334f3d36b227e517c699b",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/src/assets/image/TableWheel5.jpg": {
+    "mtime": 1766587680.0,
+    "seen": 1793077825.327421,
+    "ast_hash": "58c7217d422da38abe8d9a19de69a918",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/src/assets/image/bg.png": {
+    "mtime": 1757582100.0,
+    "seen": 1793077825.327422,
+    "ast_hash": "69f384cc4f03f85b4401d40b2cdabd72",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/src/assets/image/big.png": {
+    "mtime": 1766527222.0,
+    "seen": 1793077825.327422,
+    "ast_hash": "e00903935f2ea33fec8b2a112158a59c",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/src/assets/image/closeIcon.png": {
+    "mtime": 1757582100.0,
+    "seen": 1793077825.3274229,
+    "ast_hash": "30e0d7573abc47ccb63d7ac98dfc7ee9",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/src/assets/image/countdown.png": {
+    "mtime": 1767046000.0,
+    "seen": 1793077825.327424,
+    "ast_hash": "89af773b20a9e5ef7eecc3d7addcabc5",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/src/assets/image/dimondIcon.png": {
+    "mtime": 1757582100.0,
+    "seen": 1793077825.327424,
+    "ast_hash": "b580e9bf48e9e47e5c984ddac8b1ee88",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/src/assets/image/greedyBg.png": {
+    "mtime": 1775361245.0,
+    "seen": 1793077825.327425,
+    "ast_hash": "78ec3d0ec7249e750a1518daa508bdd7",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/src/assets/image/head.png": {
+    "mtime": 1757582100.0,
+    "seen": 1793077825.327425,
+    "ast_hash": "d36ac8d0219e10fd061ff6f689824025",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/src/assets/image/myhistory.png": {
+    "mtime": 1767195870.0,
+    "seen": 1793077825.327426,
+    "ast_hash": "756363cdeb4d9a6fac7abd21a506dabc",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/src/assets/image/spin.jpeg": {
+    "mtime": 1767043498.0,
+    "seen": 1793077825.327426,
+    "ast_hash": "a77d7d9142871e58b087f5a058ee682b",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/src/assets/image/spin.png": {
+    "mtime": 1767044114.0,
+    "seen": 1793077825.3274271,
+    "ast_hash": "52314f42489442668c8e5e2732b413e2",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/src/assets/image/winner1.png": {
+    "mtime": 1757582100.0,
+    "seen": 1793077825.327428,
+    "ast_hash": "620e67f0587fb67ef0c24c9344325d4f",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/src/assets/image/winner2.png": {
+    "mtime": 1757582100.0,
+    "seen": 1793077825.327428,
+    "ast_hash": "4f3108d6473d7dee3c8530bd6c4ff209",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/src/assets/image/winner3.png": {
+    "mtime": 1757582100.0,
+    "seen": 1793077825.327429,
+    "ast_hash": "4cc7b2df148f2f465157a2c49af2d3c8",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/src/assets/image/winnerFram.png": {
+    "mtime": 1757582100.0,
+    "seen": 1793077825.327429,
+    "ast_hash": "6fd2658c10e6b5e531267648442658a9",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/src/assets/ui_reference.jpg": {
+    "mtime": 1766523740.0,
+    "seen": 1793077825.3274298,
+    "ast_hash": "54f81428bb015f4e5850000aec8571d1",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/src/assets/wheel_3d.png": {
+    "mtime": 1766523740.0,
+    "seen": 1793077825.3274298,
+    "ast_hash": "b025a28d222bd1aad3d9af982fd04b5e",
+    "semantic_hash": ""
+  },
+  "Games/greedylion/frontend/src/logo.svg": {
+    "mtime": 1757582100.0,
+    "seen": 1793077825.327431,
+    "ast_hash": "06e733283fa43d1dd57738cfc409adbd",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/backend/public/Logo.png": {
+    "mtime": 1777580916.0,
+    "seen": 1793077825.327432,
+    "ast_hash": "d2dacb17de373c2e8004cf8bbe4c1d3a",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/backend/public/logo192.png": {
+    "mtime": 1777580916.0,
+    "seen": 1793077825.327432,
+    "ast_hash": "33dbdd0177549353eeeb785d02c294af",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/backend/public/logo512.png": {
+    "mtime": 1777580916.0,
+    "seen": 1793077825.3274329,
+    "ast_hash": "917515db74ea8d1aee6a246cfbcc0b45",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/backend/public/static/media/10K.56692beb126a95e1bfaa.png": {
+    "mtime": 1777580928.0,
+    "seen": 1793077825.3274329,
+    "ast_hash": "7d3fcfed4301b2d48dcfad7061337ca1",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/backend/public/static/media/20K.6abc01de0ab57bfa1e4a.png": {
+    "mtime": 1777580928.0,
+    "seen": 1793077825.327438,
+    "ast_hash": "2f59b83d1c2c41a8f35b0c298486ba27",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/backend/public/static/media/2K.a89f7fda99adbd95757f.png": {
+    "mtime": 1777580928.0,
+    "seen": 1793077825.327438,
+    "ast_hash": "b2c25a3655325d7070299c8e1ab2a4cc",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/backend/public/static/media/50K.c5f0fb4798ee1ae547c8.png": {
+    "mtime": 1777580928.0,
+    "seen": 1793077825.327439,
+    "ast_hash": "dd9578b8ee392b1f6702ac09273659e4",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/backend/public/static/media/5K.df9386097a7ce5692ffc.png": {
+    "mtime": 1777580928.0,
+    "seen": 1793077825.327439,
+    "ast_hash": "4986d9f21fe0cd4b683afb00c50712b3",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/backend/public/static/media/CloseIcon.5f4866f4afc18e2448a303948fff03f3.svg": {
+    "mtime": 1777580928.0,
+    "seen": 1793077825.3274398,
+    "ast_hash": "7e3e3da8d47b5fefa0a7e5c7f8d6ff2f",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/backend/public/static/media/HistoryModel.b81db94d3dff985b6efe.png": {
+    "mtime": 1777580928.0,
+    "seen": 1793077825.327441,
+    "ast_hash": "a70970073cb0840bc338387fa2efe1b2",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/backend/public/static/media/RulesModel.dcd5886c7a6f0479f86e.png": {
+    "mtime": 1777580928.0,
+    "seen": 1793077825.327441,
+    "ast_hash": "fca2be67d1be669849e07baef8f9a3e2",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/backend/public/static/media/Table.8b75fb5af1bd0ef12e8c.png": {
+    "mtime": 1777580928.0,
+    "seen": 1793077825.327442,
+    "ast_hash": "55b01f49066c52d617854f47b9463f30",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/backend/public/static/media/WinCoin.524cca7cd584c707f7a1.png": {
+    "mtime": 1777580928.0,
+    "seen": 1793077825.327443,
+    "ast_hash": "e83e73a7cd8bab9e5bdfdc6f6058ecc1",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/backend/public/static/media/blackChip.2ca06fb2b260ab9de3f2.png": {
+    "mtime": 1777580928.0,
+    "seen": 1793077825.327443,
+    "ast_hash": "eccdfbf525cd003f1b480d5237cb6ee6",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/backend/public/static/media/diamond.581ba60b36193c13d9cd.png": {
+    "mtime": 1777580928.0,
+    "seen": 1793077825.327444,
+    "ast_hash": "bc1d2406faa659e2ed8dd79871907565",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/backend/public/static/media/felt.a8aec79ddd51e96ff0a9.png": {
+    "mtime": 1777580928.0,
+    "seen": 1793077825.327444,
+    "ast_hash": "38f90307d9047337ed06c1b9d221a895",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/backend/public/static/media/greenChip.c9504e1b84e544cb6f3a.png": {
+    "mtime": 1777580928.0,
+    "seen": 1793077825.327445,
+    "ast_hash": "b55193123254aa1eb148d4cb92a77525",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/backend/public/static/media/questionIcon.a4800f40925a6a13c4e1dca790d054e1.svg": {
+    "mtime": 1777580928.0,
+    "seen": 1793077825.327446,
+    "ast_hash": "6ce52edc8c5b75c4aac9b322d8677be4",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/backend/public/static/media/redChip.456793fa196db2432f59.png": {
+    "mtime": 1777580928.0,
+    "seen": 1793077825.327446,
+    "ast_hash": "f3799e86bbe62d4589a8eb52c96a5f89",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/backend/public/static/media/roulette_1.c2d8bd9bdcdeb1ec697f.jpg": {
+    "mtime": 1777580928.0,
+    "seen": 1793077825.327447,
+    "ast_hash": "2369b143c1172247605402764aeaf960",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/backend/public/static/media/roulette_2.8aba350f004d4fa48370.png": {
+    "mtime": 1777580928.0,
+    "seen": 1793077825.327447,
+    "ast_hash": "0a5903adb9a4cc1057b0b3aadc9a8fb9",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/backend/public/static/media/roulette_3.80d306709cbcb3607f63.png": {
+    "mtime": 1777580928.0,
+    "seen": 1793077825.3274481,
+    "ast_hash": "c291cbe1b0fcd38b0aa8715cb25bf2be",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/backend/public/static/media/roulette_4.32ef967c831aa0cec6ee.png": {
+    "mtime": 1777580928.0,
+    "seen": 1793077825.3274481,
+    "ast_hash": "f87ecc31122c4133b233f781d752559b",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/backend/public/static/media/roulette_5.847412dc95e18e10d6f0.png": {
+    "mtime": 1777580928.0,
+    "seen": 1793077825.327449,
+    "ast_hash": "ab7f7fcb7f06b78c0447633e35066d2c",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/backend/public/static/media/soundMute.494cf0ec2aac6ac5b3bce91ff996d997.svg": {
+    "mtime": 1777580928.0,
+    "seen": 1793077825.327449,
+    "ast_hash": "67ac2251069608993ba7ee3caea31ccf",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/backend/public/static/media/soundUp.247b3904593aa68af88b843553d3c9fe.svg": {
+    "mtime": 1777580928.0,
+    "seen": 1793077825.32745,
+    "ast_hash": "a9bf9be54d6fd6a2880a8cfea45d3d6a",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/backend/public/static/media/usersIcon.eb7016b111a0e04c52c14255f8daac81.svg": {
+    "mtime": 1777580928.0,
+    "seen": 1793077825.32745,
+    "ast_hash": "18d36d7a7e2ec0a0e5718615fc628cab",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/backend/public/static/media/winRibbin.efc250c1c60ff68b4f9d.png": {
+    "mtime": 1777580928.0,
+    "seen": 1793077825.327451,
+    "ast_hash": "ff310ed74eabcc933d7fc0b9989337f4",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/backend/public/static/media/winnerBottom.90e02a49fee10a99d89e.png": {
+    "mtime": 1777580928.0,
+    "seen": 1793077825.327452,
+    "ast_hash": "262e4207d15933d69a06373c671447de",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/backend/public/static/media/winnerRibbin.1dc51e68f96d17cce154.png": {
+    "mtime": 1777580928.0,
+    "seen": 1793077825.327452,
+    "ast_hash": "9b9cbe35a654f8c612e705bf5a923267",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/frontend/public/Logo.png": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.327453,
+    "ast_hash": "d2dacb17de373c2e8004cf8bbe4c1d3a",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/frontend/public/logo192.png": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.327453,
+    "ast_hash": "33dbdd0177549353eeeb785d02c294af",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/frontend/public/logo512.png": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.3274539,
+    "ast_hash": "917515db74ea8d1aee6a246cfbcc0b45",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/frontend/src/assets/10K.png": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.3274539,
+    "ast_hash": "7d3fcfed4301b2d48dcfad7061337ca1",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/frontend/src/assets/20K.png": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.327455,
+    "ast_hash": "2f59b83d1c2c41a8f35b0c298486ba27",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/frontend/src/assets/2K.png": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.327455,
+    "ast_hash": "b2c25a3655325d7070299c8e1ab2a4cc",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/frontend/src/assets/50K.png": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.327456,
+    "ast_hash": "dd9578b8ee392b1f6702ac09273659e4",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/frontend/src/assets/5K.png": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.327457,
+    "ast_hash": "4986d9f21fe0cd4b683afb00c50712b3",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/frontend/src/assets/CloseIcon.svg": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.327457,
+    "ast_hash": "7e3e3da8d47b5fefa0a7e5c7f8d6ff2f",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/frontend/src/assets/HistoryModel.png": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.3274581,
+    "ast_hash": "a70970073cb0840bc338387fa2efe1b2",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/frontend/src/assets/Logo.png": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.3274581,
+    "ast_hash": "d2dacb17de373c2e8004cf8bbe4c1d3a",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/frontend/src/assets/RulesModel.png": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.327459,
+    "ast_hash": "fca2be67d1be669849e07baef8f9a3e2",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/frontend/src/assets/Table.png": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.327459,
+    "ast_hash": "55b01f49066c52d617854f47b9463f30",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/frontend/src/assets/TableNew.png": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.32746,
+    "ast_hash": "bd5d8d7a3a1e0d7a4d5ee8002e23bd6f",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/frontend/src/assets/WinCoin.png": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.327461,
+    "ast_hash": "e83e73a7cd8bab9e5bdfdc6f6058ecc1",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/frontend/src/assets/WinCoin1.png": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.327461,
+    "ast_hash": "48943adcf43d167c4498f9fd22c78206",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/frontend/src/assets/blackChip.png": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.327462,
+    "ast_hash": "eccdfbf525cd003f1b480d5237cb6ee6",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/frontend/src/assets/diamond.png": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.327462,
+    "ast_hash": "bc1d2406faa659e2ed8dd79871907565",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/frontend/src/assets/felt.png": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.327463,
+    "ast_hash": "38f90307d9047337ed06c1b9d221a895",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/frontend/src/assets/greenChip.png": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.327463,
+    "ast_hash": "b55193123254aa1eb148d4cb92a77525",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/frontend/src/assets/historyIcon.svg": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.3274639,
+    "ast_hash": "13d335adac0f1f80ef391035f0221831",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/frontend/src/assets/questionIcon.svg": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.3274639,
+    "ast_hash": "6ce52edc8c5b75c4aac9b322d8677be4",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/frontend/src/assets/redChip.png": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.327465,
+    "ast_hash": "f3799e86bbe62d4589a8eb52c96a5f89",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/frontend/src/assets/roulette_1.jpg": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.327465,
+    "ast_hash": "2369b143c1172247605402764aeaf960",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/frontend/src/assets/roulette_2.png": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.327466,
+    "ast_hash": "0a5903adb9a4cc1057b0b3aadc9a8fb9",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/frontend/src/assets/roulette_3.png": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.327467,
+    "ast_hash": "c291cbe1b0fcd38b0aa8715cb25bf2be",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/frontend/src/assets/roulette_4.png": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.327467,
+    "ast_hash": "f87ecc31122c4133b233f781d752559b",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/frontend/src/assets/roulette_5.png": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.327468,
+    "ast_hash": "ab7f7fcb7f06b78c0447633e35066d2c",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/frontend/src/assets/soundMute.svg": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.327468,
+    "ast_hash": "67ac2251069608993ba7ee3caea31ccf",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/frontend/src/assets/soundUp.svg": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.327469,
+    "ast_hash": "a9bf9be54d6fd6a2880a8cfea45d3d6a",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/frontend/src/assets/usersIcon.svg": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.327469,
+    "ast_hash": "18d36d7a7e2ec0a0e5718615fc628cab",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/frontend/src/assets/winRibbin.png": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.32747,
+    "ast_hash": "ff310ed74eabcc933d7fc0b9989337f4",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/frontend/src/assets/winnerBottom.png": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.32747,
+    "ast_hash": "262e4207d15933d69a06373c671447de",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/frontend/src/assets/winnerRibbin.png": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.327471,
+    "ast_hash": "9b9cbe35a654f8c612e705bf5a923267",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/frontend/src/logo.svg": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.327471,
+    "ast_hash": "06e733283fa43d1dd57738cfc409adbd",
+    "semantic_hash": ""
+  },
+  "Games/slote_mecine/debug_capsule_test.png": {
+    "mtime": 1791626273.5613642,
+    "seen": 1793077825.3274722,
+    "ast_hash": "c97fca5b13c5bf36cdbd911c33a1a5ec",
+    "semantic_hash": ""
+  },
+  "Games/slote_mecine/frontend/public/images/bg.jpg": {
+    "mtime": 1791181599.170763,
+    "seen": 1793077825.3274722,
+    "ast_hash": "f14cabbfe82e61741b8163e843dffc78",
+    "semantic_hash": ""
+  },
+  "Games/slote_mecine/frontend/public/images/cabinet/debug_bottom_retouch.png": {
+    "mtime": 1791624182.6563537,
+    "seen": 1793077825.327473,
+    "ast_hash": "f3b41f442930ff244f5b040eb5b59c3a",
+    "semantic_hash": ""
+  },
+  "Games/slote_mecine/frontend/public/images/cabinet/debug_bottom_section.png": {
+    "mtime": 1791624130.3852415,
+    "seen": 1793077825.327473,
+    "ast_hash": "46f0e87311e1886445850191e68bdfd5",
+    "semantic_hash": ""
+  },
+  "Games/slote_mecine/frontend/public/images/cabinet/debug_capsule_perfect.png": {
+    "mtime": 1791624209.592598,
+    "seen": 1793077825.3274739,
+    "ast_hash": "c147feaeb16e2a7d52692233cf634281",
+    "semantic_hash": ""
+  },
+  "Games/slote_mecine/frontend/public/images/cabinet/debug_circles.png": {
+    "mtime": 1791623890.3997715,
+    "seen": 1793077825.3274739,
+    "ast_hash": "ec6204d80ea8609d1f08d1fc4fc94109",
+    "semantic_hash": ""
+  },
+  "Games/slote_mecine/frontend/public/images/cabinet/debug_circles_cleaned.png": {
+    "mtime": 1791623906.3014472,
+    "seen": 1793077825.3274748,
+    "ast_hash": "52a82f880404dc398cdf1fd3ef3e79d3",
+    "semantic_hash": ""
+  },
+  "Games/slote_mecine/frontend/public/images/cabinet/debug_lower_detail.png": {
+    "mtime": 1791189406.2649207,
+    "seen": 1793077825.3274748,
+    "ast_hash": "3e610ea75724f288616a1780022d780b",
+    "semantic_hash": ""
+  },
+  "Games/slote_mecine/frontend/public/images/cabinet/debug_ui_layout_test.png": {
+    "mtime": 1791189446.1316295,
+    "seen": 1793077825.327476,
+    "ast_hash": "0cdcc7e9eded20e62ad7942295724167",
+    "semantic_hash": ""
+  },
+  "Games/slote_mecine/frontend/public/images/cabinet/final_composite_verified.png": {
+    "mtime": 1791621118.0262992,
+    "seen": 1793077825.327476,
+    "ast_hash": "8ea88b64de7f5507671d682df0278bf2",
+    "semantic_hash": ""
+  },
+  "Games/slote_mecine/frontend/public/images/cabinet/full_game_preview.png": {
+    "mtime": 1791189688.090696,
+    "seen": 1793077825.327477,
+    "ast_hash": "5fd0ad3c9af8feb7eff1c0edb6a2a72e",
+    "semantic_hash": ""
+  },
+  "Games/slote_mecine/frontend/public/images/cabinet/image.png": {
+    "mtime": 1791620552.6400366,
+    "seen": 1793077825.327477,
+    "ast_hash": "aad544a4ef658377a61e260e102050a6",
+    "semantic_hash": ""
+  },
+  "Games/slote_mecine/frontend/public/images/cabinet/image_grid_debug.png": {
+    "mtime": 1791188714.506343,
+    "seen": 1793077825.327478,
+    "ast_hash": "446f32ae198d97fec382a599c735c3bb",
+    "semantic_hash": ""
+  },
+  "Games/slote_mecine/frontend/public/images/cabinet/new_transparent_base.png": {
+    "mtime": 1791620451.4914916,
+    "seen": 1793077825.327478,
+    "ast_hash": "aad544a4ef658377a61e260e102050a6",
+    "semantic_hash": ""
+  },
+  "Games/slote_mecine/frontend/public/images/cabinet/preview_overlay_test.png": {
+    "mtime": 1791189000.175665,
+    "seen": 1793077825.3274791,
+    "ast_hash": "8bc5161a8248e64438073963abdba93b",
+    "semantic_hash": ""
+  },
+  "Games/slote_mecine/frontend/public/images/cabinet/preview_upgraded_chips.png": {
+    "mtime": 1791191469.4446943,
+    "seen": 1793077825.3274791,
+    "ast_hash": "1f7018b22faf45c7fd922d43def4e5da",
+    "semantic_hash": ""
+  },
+  "Games/slote_mecine/frontend/public/images/cabinet/slot_machine_base.png": {
+    "mtime": 1791620552.6500528,
+    "seen": 1793077825.32748,
+    "ast_hash": "aad544a4ef658377a61e260e102050a6",
+    "semantic_hash": ""
+  },
+  "Games/slote_mecine/frontend/public/images/cabinet/test_alignment_preview.png": {
+    "mtime": 1791620609.8824286,
+    "seen": 1793077825.32748,
+    "ast_hash": "07b63dcb12bde641240b77f1147a8e5a",
+    "semantic_hash": ""
+  },
+  "Games/slote_mecine/frontend/public/images/chips/chip-100k.svg": {
+    "mtime": 1791182318.1893475,
+    "seen": 1793077825.327481,
+    "ast_hash": "cf31d52f5d5fb79ca806af472082be01",
+    "semantic_hash": ""
+  },
+  "Games/slote_mecine/frontend/public/images/chips/chip-1m.svg": {
+    "mtime": 1791182318.18953,
+    "seen": 1793077825.327481,
+    "ast_hash": "51dcaf0067877073f06f887d557e1d2c",
+    "semantic_hash": ""
+  },
+  "Games/slote_mecine/frontend/public/images/chips/chip-500k.svg": {
+    "mtime": 1791182318.1894412,
+    "seen": 1793077825.3274822,
+    "ast_hash": "bf09327fcfde5ac89c7f95cd1fd868c0",
+    "semantic_hash": ""
+  },
+  "Games/slote_mecine/frontend/public/images/chips/chip-50k.svg": {
+    "mtime": 1791182318.189206,
+    "seen": 1793077825.327483,
+    "ast_hash": "78379bc94648770e7c9850ebc6c2ca7c",
+    "semantic_hash": ""
+  },
+  "Games/slote_mecine/frontend/public/images/fruits/banana.png": {
+    "mtime": 1791183965.655193,
+    "seen": 1793077825.327483,
+    "ast_hash": "7ddbe5e81ec723adeab8295d229541a0",
+    "semantic_hash": ""
+  },
+  "Games/slote_mecine/frontend/public/images/fruits/cherry.png": {
+    "mtime": 1791183965.4036827,
+    "seen": 1793077825.327484,
+    "ast_hash": "c7c7c352fba4ab74f55d71590e96b8f9",
+    "semantic_hash": ""
+  },
+  "Games/slote_mecine/frontend/public/images/fruits/kiwi.png": {
+    "mtime": 1791183965.324691,
+    "seen": 1793077825.327484,
+    "ast_hash": "121d4028ba5e7ddc714af58d9232bacc",
+    "semantic_hash": ""
+  },
+  "Games/slote_mecine/frontend/public/images/fruits/lemon.png": {
+    "mtime": 1791183965.125927,
+    "seen": 1793077825.3274848,
+    "ast_hash": "a724ea1b4f8a749f5fbde3ec06a52752",
+    "semantic_hash": ""
+  },
+  "Games/slote_mecine/frontend/public/images/fruits/plum.png": {
+    "mtime": 1791183965.4760685,
+    "seen": 1793077825.3274848,
+    "ast_hash": "a1f954dbb998b446a3f3291676043c13",
+    "semantic_hash": ""
+  },
+  "Games/slote_mecine/frontend/public/images/fruits/raspberry.png": {
+    "mtime": 1791183965.2227771,
+    "seen": 1793077825.327486,
+    "ast_hash": "95fe07b478669dfb22879c3d19a6dbaa",
+    "semantic_hash": ""
+  },
+  "Games/slote_mecine/frontend/public/images/fruits/strawberry.png": {
+    "mtime": 1791183965.7286837,
+    "seen": 1793077825.327486,
+    "ast_hash": "72c8c1ad39a548293bccbfea69a0e17b",
+    "semantic_hash": ""
+  },
+  "Games/slote_mecine/frontend/public/images/fruits/watermelon.png": {
+    "mtime": 1791183965.5629761,
+    "seen": 1793077825.327487,
+    "ast_hash": "074163838d7f86de97143105d5722af1",
+    "semantic_hash": ""
+  },
+  "Games/slote_mecine/scratch_capsule.png": {
+    "mtime": 1791626249.0123699,
+    "seen": 1793077825.327487,
+    "ast_hash": "6ba1ab3d886cfdc8fcf8739e6139cdd0",
+    "semantic_hash": ""
+  },
+  "Games/slote_mecine/verify_exact_cavity.png": {
+    "mtime": 1791626327.902556,
+    "seen": 1793077825.327488,
+    "ast_hash": "f24477dfdcca1fa164372275b3185dd4",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/001Dark.313e7b0e1d34f518ad77.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.327488,
+    "ast_hash": "0e3209687c1904b480b42f655ac60b91",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/001Light.313e7b0e1d34f518ad77.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.3274891,
+    "ast_hash": "0e3209687c1904b480b42f655ac60b91",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/002Dark.ae0c68e963e1cbf5f090.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.3274891,
+    "ast_hash": "19fb6b2ac4e8da593049c1bcf3f96b3c",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/002Light.ae0c68e963e1cbf5f090.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.32749,
+    "ast_hash": "19fb6b2ac4e8da593049c1bcf3f96b3c",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/003Dark.e4a5e08a4418e1b4b0ed.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.327491,
+    "ast_hash": "b931b32cc33d5e2694295f9ca00a54f6",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/003Light.e4a5e08a4418e1b4b0ed.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.327491,
+    "ast_hash": "b931b32cc33d5e2694295f9ca00a54f6",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/10K.56692beb126a95e1bfaa.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.327492,
+    "ast_hash": "7d3fcfed4301b2d48dcfad7061337ca1",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/10_of_clubs.1e849b9251f1cca97075.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.327492,
+    "ast_hash": "c29b28f3eceb7284d141163e3bd37736",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/10_of_diamonds.f5f2d107605011ac11f3.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.3274932,
+    "ast_hash": "4324d71291ce16ef4161df8cf852298e",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/10_of_hearts.bf72f319e7272679bbda.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.327494,
+    "ast_hash": "2e6327a66fbf8d05d379d87d56251a1e",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/10_of_spades.c9f933df0fb58bf52847.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.327494,
+    "ast_hash": "2401fe3648865f6bc3c01a538c512d7c",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/20K.6abc01de0ab57bfa1e4a.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.3274949,
+    "ast_hash": "2f59b83d1c2c41a8f35b0c298486ba27",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/2K.a89f7fda99adbd95757f.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.3274949,
+    "ast_hash": "b2c25a3655325d7070299c8e1ab2a4cc",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/2_of_clubs.d5d968ca8003810f50d6.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.327496,
+    "ast_hash": "c83a7af4125e22d9733f6514295f3d4c",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/2_of_diamonds.a51b192d2f2ba1fc1d53.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.327496,
+    "ast_hash": "0b5b5249b22ada06106be8b73938be9e",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/2_of_hearts.c2cb81fb3d816683e15a.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.327497,
+    "ast_hash": "f97ad85b1e89af6a88c70205cdea06f6",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/2_of_spades.b9261a5e22908925e4af.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.327497,
+    "ast_hash": "2354275da56e304199f694388a8aaae6",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/3_of_clubs.bbea0442d0b02b9f8b3d.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.327498,
+    "ast_hash": "23a7a6ac76db02bbde27988e49ac5fca",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/3_of_diamonds.b78fe80c763b6f828c0e.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.327499,
+    "ast_hash": "b529e1c14fef2ffc07c3c4eac94c31f4",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/3_of_hearts.d50c0a08e3608192656a.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.327499,
+    "ast_hash": "1c16fe1052c3a4d1715ee1288209ebe9",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/3_of_spades.5aea02209cd1850b2085.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.3275,
+    "ast_hash": "ad02dc95b434842c3465a7a4dbaca615",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/4_of_clubs.e6ba95ce4047b4e077d8.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.3275,
+    "ast_hash": "02deab4916f717f0b9478fad476ec40f",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/4_of_diamonds.e86dcc4c46f2f328ebe9.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.327501,
+    "ast_hash": "58bd0a6383829cbce3747c245c0b204c",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/4_of_hearts.436fe356aa88903aedfa.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.327501,
+    "ast_hash": "5ad913da63724447b7c94d1fb2d293a6",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/4_of_spades.8f0668446faa6a9e9852.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.327502,
+    "ast_hash": "df185c634b2fee0418bd613524938832",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/50K.c5f0fb4798ee1ae547c8.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.327502,
+    "ast_hash": "dd9578b8ee392b1f6702ac09273659e4",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/5K.df9386097a7ce5692ffc.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.3275032,
+    "ast_hash": "4986d9f21fe0cd4b683afb00c50712b3",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/5_of_clubs.4397c46fc191aad146bb.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.3275032,
+    "ast_hash": "3781bf44a82cad8ef837e6ba281427c9",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/5_of_diamonds.ced27ce3f458223d097c.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.327504,
+    "ast_hash": "e27b4b0aadc6a28953f53cfd573e9e2d",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/5_of_hearts.f407aa6fa30d7a8a1683.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.327504,
+    "ast_hash": "8f6a2068fd6f32c372ea8dab0cde6f40",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/5_of_spades.bffe8ee0a4cc67bced90.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.3275049,
+    "ast_hash": "aa8a072015826f2e582a59e9606e0cd3",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/6_of_clubs.b44599ca5e9e11e61863.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.3275058,
+    "ast_hash": "9c2fdf6a8916a2b3daea26a7974eed28",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/6_of_diamonds.b19504c11d0b1431a746.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.3275058,
+    "ast_hash": "ee5053d458469b151ef1f4503b5ab12f",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/6_of_hearts.3fff08359c2011f4e988.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.327507,
+    "ast_hash": "9cd2258c8c8c175ead46f94800741891",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/6_of_spades.1cbd30ed1339258d51c6.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.327508,
+    "ast_hash": "5d221b2a958bb6b66b4e57de437c0906",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/7_of_clubs.efd12036d5769f6b5a56.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.327508,
+    "ast_hash": "112be1dfa65edf2cabf9122b2c49eb22",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/7_of_diamonds.fe13bd1ba1c4b66c99d1.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.327509,
+    "ast_hash": "df3e8e93d277f2b73d2c5ddf348c065c",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/7_of_hearts.fdc0fa83de201b4afbc8.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.327509,
+    "ast_hash": "a9afa10fcea89a4227bb4b81f49a35e8",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/7_of_spades.1517728ea424d193c5a7.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.32751,
+    "ast_hash": "c0f5e5f9013f1d24eccd395ab9312766",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/8_of_clubs.78dfd7432da623ecf09e.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.32751,
+    "ast_hash": "6ed0b85e676230d360186c3469b08cdf",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/8_of_diamonds.b1389da2bd2f2812f55c.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.327511,
+    "ast_hash": "8afee604213ca296067245ce18458af2",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/8_of_hearts.cff7b360d1e2e4a7a364.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.327511,
+    "ast_hash": "e6c01b136dca0b2c3c03a115d4ab21e1",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/8_of_spades.c8c922f0e9779cf2714c.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.327512,
+    "ast_hash": "747667555c7c5d6799ca3545463372b0",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/9_of_clubs.8e317f622f55579618f6.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.327513,
+    "ast_hash": "784ea7703fcff1e10745e014d98a24aa",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/9_of_diamonds.ae87f8c3139247ba2314.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.3275142,
+    "ast_hash": "86608eb9bf92b21b9e33a1ffa4c46ccc",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/9_of_hearts.a896f989e7771ab21ac1.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.3275142,
+    "ast_hash": "cdb8fda5b30f3973b1ec7f200c24a18f",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/9_of_spades.dcce4a160670652e0ffe.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.327515,
+    "ast_hash": "e5b29fdec7e761281073496181d31ab9",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/Group 1.c3ffaeedabf3cb881b97.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.327515,
+    "ast_hash": "447e5f0836f9a575c6873a6547d432da",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/Group 3.4a2f33641c152b95f67d.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.3275158,
+    "ast_hash": "38d4e5293c323a6d5bc15ebe1d09c1c3",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/Group 6.9cd647e7850c79d5f29f.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.3275158,
+    "ast_hash": "feb52e46ac2884ea841194ce2382f088",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/Ribbon+Stars.0d7d608362c190018092.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.327517,
+    "ast_hash": "6edd2b4e851f2166ec1e9b70b3014de9",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/RulesBg.634be5ebc373f4833269.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.327552,
+    "ast_hash": "b3fb158935c389a291e50fb64444a2a0",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/ace_of_clubs.f2dd09c014f9a968db89.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.327553,
+    "ast_hash": "07d1c180bead76a0b8cf8e488dfc2755",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/ace_of_diamonds.326a309b8e2a520461bf.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.327553,
+    "ast_hash": "60b16fdaed475d30edab3bc92f4bd3c9",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/ace_of_hearts.5a72df7d30e47434c2a8.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.327554,
+    "ast_hash": "41453bfa387b05e68828f2b0159c19d9",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/ace_of_spades.a24049b6038d0a8b2cc2.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.327554,
+    "ast_hash": "ce4f163fc9fddc4e9f173d74b2970cc2",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/back.8dd9fc1bf80558767241.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.3275552,
+    "ast_hash": "1ca5d8c45e972318710b49feb0913fdb",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/bg3.ffd5e94c2635ae880f9b.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.3275552,
+    "ast_hash": "32636f5ae775005bad7ae94503c93422",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/clock.0e9dade578baa8a361e0.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.3275561,
+    "ast_hash": "0254df21709a9c000bb745a93719e48b",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/jack_of_clubs2.316b830335ec4d4b093d.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.3275561,
+    "ast_hash": "d96ecf4f3c246b8c781f82d1bb2bd1dc",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/jack_of_diamonds2.afe516e95a5f8a0fb455.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.327557,
+    "ast_hash": "c936f66eb6ca786d62a2c49876367017",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/jack_of_hearts2.f623f209cee34f5f36ea.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.327557,
+    "ast_hash": "9be659a7f009932fe8f49a213c22e439",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/jack_of_spades2.3fa41aad1bac0646b475.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.3275578,
+    "ast_hash": "d77ce402c3977e303abeed8ec5bb35a5",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/king.0ad47fcb6719d77e1a3c.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.3275578,
+    "ast_hash": "0102fe01c076a5585c1607775bd6b9c8",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/king_of_clubs2.b70624b5c06bb02b555d.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.327559,
+    "ast_hash": "f0dc748d3d36f265ab670c8ce0332e3d",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/king_of_diamonds2.87c79c7e6a6ad495db27.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.327559,
+    "ast_hash": "9588f72f2c9d6898c9af3b20bcde7c2f",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/king_of_hearts2.67c7a87603fdc5b5e2f7.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.32756,
+    "ast_hash": "e8d050e1412d4866d34f9a41b0c48238",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/king_of_spades2.fda148e5425c266a3a81.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.32756,
+    "ast_hash": "aebc913c5eb0ecd7859218636929c8ae",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/music-off.ed9d056d5f0d112dbe37.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.327561,
+    "ast_hash": "6c516eecdb9768b583ba3cad4bd0db66",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/music-on.a566b86054ae0a157d0e.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.327561,
+    "ast_hash": "8eb502238cd560b2a4f6219c8d17a851",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/queen_of_clubs2.ef480115313c1c393699.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.327562,
+    "ast_hash": "fd943099b2abeb6cf01bebb4dc66cbbe",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/queen_of_diamonds2.911390541adb6dfd350a.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.327562,
+    "ast_hash": "f91b8d276604290828523a097fd4af26",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/queen_of_hearts2.746a7ee8eaded6c7944b.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.327563,
+    "ast_hash": "8065dc2a89d1be1e9908343fb99d82cc",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/queen_of_spades2.c9de6912454b7282e58b.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.327563,
+    "ast_hash": "445df3cf193554d44a50f43d4597c324",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/starCoin.e5cce045da81e5846842.png": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.327564,
+    "ast_hash": "9f338086715140cb7b0defb6604a9e20",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/001Dark.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327564,
+    "ast_hash": "0e3209687c1904b480b42f655ac60b91",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/001Light.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327565,
+    "ast_hash": "0e3209687c1904b480b42f655ac60b91",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/002Dark.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327565,
+    "ast_hash": "19fb6b2ac4e8da593049c1bcf3f96b3c",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/002Light.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.3275661,
+    "ast_hash": "19fb6b2ac4e8da593049c1bcf3f96b3c",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/003Dark.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.3275661,
+    "ast_hash": "b931b32cc33d5e2694295f9ca00a54f6",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/003Light.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327567,
+    "ast_hash": "b931b32cc33d5e2694295f9ca00a54f6",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/10K.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327567,
+    "ast_hash": "7d3fcfed4301b2d48dcfad7061337ca1",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/20K.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.3275678,
+    "ast_hash": "2f59b83d1c2c41a8f35b0c298486ba27",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/2K.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.3275678,
+    "ast_hash": "b2c25a3655325d7070299c8e1ab2a4cc",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/50K.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.3275678,
+    "ast_hash": "dd9578b8ee392b1f6702ac09273659e4",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/5K.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327569,
+    "ast_hash": "4986d9f21fe0cd4b683afb00c50712b3",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/A.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327569,
+    "ast_hash": "8d0a1d424fab80cb43af8a1805f53ed2",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/B.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.32757,
+    "ast_hash": "6fbf7b1e7025a265cc19f3f53dadd7dc",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/BG.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.32757,
+    "ast_hash": "86947a7844eec58e44dadbcd946df4f1",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/C.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327571,
+    "ast_hash": "7c0577da2a9c7df0b530394963f1ebb3",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/Group 1.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327571,
+    "ast_hash": "447e5f0836f9a575c6873a6547d432da",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/Group 2.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327571,
+    "ast_hash": "c460332bf06e7b2b629e722e5b3d55d0",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/Group 3.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.3275719,
+    "ast_hash": "38d4e5293c323a6d5bc15ebe1d09c1c3",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/Group 5.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.3275719,
+    "ast_hash": "2a250cb95eabbb46163f13fb7b81b701",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/Group 6.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327573,
+    "ast_hash": "feb52e46ac2884ea841194ce2382f088",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/Group 7.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327573,
+    "ast_hash": "eb5fd5ea82bea08612d438dbd47e895f",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/Ribbon+Stars.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327574,
+    "ast_hash": "6edd2b4e851f2166ec1e9b70b3014de9",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/Ribbon.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327574,
+    "ast_hash": "1d0245e0be48dfe502dc8801dfc9780d",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/RulesBg.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327575,
+    "ast_hash": "b3fb158935c389a291e50fb64444a2a0",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/bg1.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327575,
+    "ast_hash": "b03a60f28ed199f9512fa9a66463d6ce",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/bg2.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.3275762,
+    "ast_hash": "f3fe9213045de9cd53c289992e691b2a",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/bg3.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.3275762,
+    "ast_hash": "32636f5ae775005bad7ae94503c93422",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/10_of_clubs.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.3275762,
+    "ast_hash": "c29b28f3eceb7284d141163e3bd37736",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/10_of_diamonds.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327577,
+    "ast_hash": "4324d71291ce16ef4161df8cf852298e",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/10_of_hearts.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327578,
+    "ast_hash": "2e6327a66fbf8d05d379d87d56251a1e",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/10_of_spades.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327578,
+    "ast_hash": "2401fe3648865f6bc3c01a538c512d7c",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/2_of_clubs.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.3275788,
+    "ast_hash": "c83a7af4125e22d9733f6514295f3d4c",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/2_of_diamonds.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.3275788,
+    "ast_hash": "0b5b5249b22ada06106be8b73938be9e",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/2_of_hearts.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.32758,
+    "ast_hash": "f97ad85b1e89af6a88c70205cdea06f6",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/2_of_spades.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.32758,
+    "ast_hash": "2354275da56e304199f694388a8aaae6",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/3_of_clubs.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327581,
+    "ast_hash": "23a7a6ac76db02bbde27988e49ac5fca",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/3_of_diamonds.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327581,
+    "ast_hash": "b529e1c14fef2ffc07c3c4eac94c31f4",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/3_of_hearts.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327582,
+    "ast_hash": "1c16fe1052c3a4d1715ee1288209ebe9",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/3_of_spades.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327582,
+    "ast_hash": "ad02dc95b434842c3465a7a4dbaca615",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/4_of_clubs.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327583,
+    "ast_hash": "02deab4916f717f0b9478fad476ec40f",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/4_of_diamonds.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327583,
+    "ast_hash": "58bd0a6383829cbce3747c245c0b204c",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/4_of_hearts.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327583,
+    "ast_hash": "5ad913da63724447b7c94d1fb2d293a6",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/4_of_spades.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327584,
+    "ast_hash": "df185c634b2fee0418bd613524938832",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/5_of_clubs.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327584,
+    "ast_hash": "3781bf44a82cad8ef837e6ba281427c9",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/5_of_diamonds.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327585,
+    "ast_hash": "e27b4b0aadc6a28953f53cfd573e9e2d",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/5_of_hearts.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327585,
+    "ast_hash": "8f6a2068fd6f32c372ea8dab0cde6f40",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/5_of_spades.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327586,
+    "ast_hash": "aa8a072015826f2e582a59e9606e0cd3",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/6_of_clubs.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327586,
+    "ast_hash": "9c2fdf6a8916a2b3daea26a7974eed28",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/6_of_diamonds.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.3275871,
+    "ast_hash": "ee5053d458469b151ef1f4503b5ab12f",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/6_of_hearts.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.3275871,
+    "ast_hash": "9cd2258c8c8c175ead46f94800741891",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/6_of_spades.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327588,
+    "ast_hash": "5d221b2a958bb6b66b4e57de437c0906",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/7_of_clubs.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327588,
+    "ast_hash": "112be1dfa65edf2cabf9122b2c49eb22",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/7_of_diamonds.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327588,
+    "ast_hash": "df3e8e93d277f2b73d2c5ddf348c065c",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/7_of_hearts.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327589,
+    "ast_hash": "a9afa10fcea89a4227bb4b81f49a35e8",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/7_of_spades.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327589,
+    "ast_hash": "c0f5e5f9013f1d24eccd395ab9312766",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/8_of_clubs.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.32759,
+    "ast_hash": "6ed0b85e676230d360186c3469b08cdf",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/8_of_diamonds.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.32759,
+    "ast_hash": "8afee604213ca296067245ce18458af2",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/8_of_hearts.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327591,
+    "ast_hash": "e6c01b136dca0b2c3c03a115d4ab21e1",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/8_of_spades.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327591,
+    "ast_hash": "747667555c7c5d6799ca3545463372b0",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/9_of_clubs.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327592,
+    "ast_hash": "784ea7703fcff1e10745e014d98a24aa",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/9_of_diamonds.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327592,
+    "ast_hash": "86608eb9bf92b21b9e33a1ffa4c46ccc",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/9_of_hearts.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327592,
+    "ast_hash": "cdb8fda5b30f3973b1ec7f200c24a18f",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/9_of_spades.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.3275928,
+    "ast_hash": "e5b29fdec7e761281073496181d31ab9",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/ace_of_clubs.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.3275928,
+    "ast_hash": "07d1c180bead76a0b8cf8e488dfc2755",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/ace_of_diamonds.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327594,
+    "ast_hash": "60b16fdaed475d30edab3bc92f4bd3c9",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/ace_of_hearts.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327594,
+    "ast_hash": "41453bfa387b05e68828f2b0159c19d9",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/ace_of_spades.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327595,
+    "ast_hash": "ce4f163fc9fddc4e9f173d74b2970cc2",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/back.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327595,
+    "ast_hash": "1ca5d8c45e972318710b49feb0913fdb",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/jack_of_clubs.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327596,
+    "ast_hash": "1861c1e4a50028cb1dfce55e531ff292",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/jack_of_clubs2.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327596,
+    "ast_hash": "d96ecf4f3c246b8c781f82d1bb2bd1dc",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/jack_of_diamonds2.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327596,
+    "ast_hash": "c936f66eb6ca786d62a2c49876367017",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/jack_of_hearts2.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.3275971,
+    "ast_hash": "9be659a7f009932fe8f49a213c22e439",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/jack_of_spades2.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.3275971,
+    "ast_hash": "d77ce402c3977e303abeed8ec5bb35a5",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/king_of_clubs2.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327598,
+    "ast_hash": "f0dc748d3d36f265ab670c8ce0332e3d",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/king_of_diamonds2.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327598,
+    "ast_hash": "9588f72f2c9d6898c9af3b20bcde7c2f",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/king_of_hearts2.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327599,
+    "ast_hash": "e8d050e1412d4866d34f9a41b0c48238",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/king_of_spades2.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327599,
+    "ast_hash": "aebc913c5eb0ecd7859218636929c8ae",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/10_of_clubs.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.3276002,
+    "ast_hash": "c29b28f3eceb7284d141163e3bd37736",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/10_of_diamonds.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.3276002,
+    "ast_hash": "4324d71291ce16ef4161df8cf852298e",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/10_of_hearts.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327601,
+    "ast_hash": "2e6327a66fbf8d05d379d87d56251a1e",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/10_of_spades.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327601,
+    "ast_hash": "2401fe3648865f6bc3c01a538c512d7c",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/2_of_clubs.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327602,
+    "ast_hash": "c83a7af4125e22d9733f6514295f3d4c",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/2_of_diamonds.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327602,
+    "ast_hash": "0b5b5249b22ada06106be8b73938be9e",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/2_of_hearts.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.3276029,
+    "ast_hash": "f97ad85b1e89af6a88c70205cdea06f6",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/2_of_spades.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.3276029,
+    "ast_hash": "2354275da56e304199f694388a8aaae6",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/3_of_clubs.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327604,
+    "ast_hash": "23a7a6ac76db02bbde27988e49ac5fca",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/3_of_diamonds.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327604,
+    "ast_hash": "b529e1c14fef2ffc07c3c4eac94c31f4",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/3_of_hearts.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327605,
+    "ast_hash": "1c16fe1052c3a4d1715ee1288209ebe9",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/3_of_spades.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327605,
+    "ast_hash": "ad02dc95b434842c3465a7a4dbaca615",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/4_of_clubs.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327606,
+    "ast_hash": "02deab4916f717f0b9478fad476ec40f",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/4_of_diamonds.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327606,
+    "ast_hash": "58bd0a6383829cbce3747c245c0b204c",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/4_of_hearts.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327606,
+    "ast_hash": "5ad913da63724447b7c94d1fb2d293a6",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/4_of_spades.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.3276072,
+    "ast_hash": "df185c634b2fee0418bd613524938832",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/5_of_clubs.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.3276072,
+    "ast_hash": "3781bf44a82cad8ef837e6ba281427c9",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/5_of_diamonds.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327608,
+    "ast_hash": "e27b4b0aadc6a28953f53cfd573e9e2d",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/5_of_hearts.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327608,
+    "ast_hash": "8f6a2068fd6f32c372ea8dab0cde6f40",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/5_of_spades.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327609,
+    "ast_hash": "aa8a072015826f2e582a59e9606e0cd3",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/6_of_clubs.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327609,
+    "ast_hash": "9c2fdf6a8916a2b3daea26a7974eed28",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/6_of_diamonds.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.32761,
+    "ast_hash": "ee5053d458469b151ef1f4503b5ab12f",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/6_of_hearts.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.32761,
+    "ast_hash": "9cd2258c8c8c175ead46f94800741891",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/6_of_spades.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327611,
+    "ast_hash": "5d221b2a958bb6b66b4e57de437c0906",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/7_of_clubs.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327611,
+    "ast_hash": "112be1dfa65edf2cabf9122b2c49eb22",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/7_of_diamonds.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327612,
+    "ast_hash": "df3e8e93d277f2b73d2c5ddf348c065c",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/7_of_hearts.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327612,
+    "ast_hash": "a9afa10fcea89a4227bb4b81f49a35e8",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/7_of_spades.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.3276129,
+    "ast_hash": "c0f5e5f9013f1d24eccd395ab9312766",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/8_of_clubs.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.3276129,
+    "ast_hash": "6ed0b85e676230d360186c3469b08cdf",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/8_of_diamonds.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327614,
+    "ast_hash": "8afee604213ca296067245ce18458af2",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/8_of_hearts.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327614,
+    "ast_hash": "e6c01b136dca0b2c3c03a115d4ab21e1",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/8_of_spades.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327614,
+    "ast_hash": "747667555c7c5d6799ca3545463372b0",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/9_of_clubs.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327615,
+    "ast_hash": "784ea7703fcff1e10745e014d98a24aa",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/9_of_diamonds.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327615,
+    "ast_hash": "86608eb9bf92b21b9e33a1ffa4c46ccc",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/9_of_hearts.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327616,
+    "ast_hash": "cdb8fda5b30f3973b1ec7f200c24a18f",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/9_of_spades.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327616,
+    "ast_hash": "e5b29fdec7e761281073496181d31ab9",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/ace_of_clubs.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327617,
+    "ast_hash": "07d1c180bead76a0b8cf8e488dfc2755",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/ace_of_diamonds.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327617,
+    "ast_hash": "60b16fdaed475d30edab3bc92f4bd3c9",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/ace_of_hearts.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.3276181,
+    "ast_hash": "41453bfa387b05e68828f2b0159c19d9",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/ace_of_spades.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.3276181,
+    "ast_hash": "ce4f163fc9fddc4e9f173d74b2970cc2",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/black_joker.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327619,
+    "ast_hash": "21cc92db51d5fb7888b97517c51c2d2a",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/jack_of_clubs.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327619,
+    "ast_hash": "1861c1e4a50028cb1dfce55e531ff292",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/jack_of_clubs2.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.32762,
+    "ast_hash": "d96ecf4f3c246b8c781f82d1bb2bd1dc",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/jack_of_diamonds.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.32762,
+    "ast_hash": "ac2092c166d2e7cc53f04db33296c851",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/jack_of_diamonds2.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.3276212,
+    "ast_hash": "c936f66eb6ca786d62a2c49876367017",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/jack_of_hearts.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.3276212,
+    "ast_hash": "260cdba6401178e69eee797ee4e31247",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/jack_of_hearts2.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327622,
+    "ast_hash": "9be659a7f009932fe8f49a213c22e439",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/jack_of_spades.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327622,
+    "ast_hash": "92aff04497b99fe80d5d036a41da6529",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/jack_of_spades2.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327623,
+    "ast_hash": "d77ce402c3977e303abeed8ec5bb35a5",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/king_of_clubs.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327623,
+    "ast_hash": "2ad9bff3c6f99adf135499b905017921",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/king_of_clubs2.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.3276238,
+    "ast_hash": "f0dc748d3d36f265ab670c8ce0332e3d",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/king_of_diamonds.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.3276238,
+    "ast_hash": "1a5882a6ed0fb4a79a1f5c4877e432f6",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/king_of_diamonds2.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.3276238,
+    "ast_hash": "9588f72f2c9d6898c9af3b20bcde7c2f",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/king_of_hearts.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327625,
+    "ast_hash": "37b5b9d756e453abf7c673709c24894c",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/king_of_hearts2.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327625,
+    "ast_hash": "e8d050e1412d4866d34f9a41b0c48238",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/king_of_spades.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327626,
+    "ast_hash": "9b18a729ba5bda5ca4ef62fc6fdb4f62",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/king_of_spades2.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327626,
+    "ast_hash": "aebc913c5eb0ecd7859218636929c8ae",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/queen_of_clubs.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327627,
+    "ast_hash": "9e84dd75995fe4a3b8871bab4cbb3898",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/queen_of_clubs2.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327627,
+    "ast_hash": "fd943099b2abeb6cf01bebb4dc66cbbe",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/queen_of_diamonds.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.3276281,
+    "ast_hash": "d5647c19f6390075fc76d403aa266e0d",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/queen_of_diamonds2.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.3276281,
+    "ast_hash": "f91b8d276604290828523a097fd4af26",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/queen_of_hearts.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327629,
+    "ast_hash": "cf8946464fc57b3d20bf806522d0e799",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/queen_of_hearts2.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327629,
+    "ast_hash": "8065dc2a89d1be1e9908343fb99d82cc",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/queen_of_spades.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.32763,
+    "ast_hash": "6d100fc31db0f6e10df79f2891aaf8f2",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/queen_of_spades2.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.32763,
+    "ast_hash": "445df3cf193554d44a50f43d4597c324",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/new-card/PNG-cards-1.3/red_joker.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327631,
+    "ast_hash": "032874afea49aa79307937f4270c5811",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/queen_of_clubs2.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327631,
+    "ast_hash": "fd943099b2abeb6cf01bebb4dc66cbbe",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/queen_of_diamonds2.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327631,
+    "ast_hash": "f91b8d276604290828523a097fd4af26",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/queen_of_hearts2.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327632,
+    "ast_hash": "8065dc2a89d1be1e9908343fb99d82cc",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/cards/queen_of_spades2.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327632,
+    "ast_hash": "445df3cf193554d44a50f43d4597c324",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/clock.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327633,
+    "ast_hash": "0254df21709a9c000bb745a93719e48b",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/history.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327633,
+    "ast_hash": "fa8587e79cecfce8bb846e4644363638",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/home.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.3276339,
+    "ast_hash": "7197b51165c2c4da34259c2d67ea3288",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/king.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.3276339,
+    "ast_hash": "0102fe01c076a5585c1607775bd6b9c8",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/logout.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327635,
+    "ast_hash": "819b5f39066fe457092aad05e7ada75b",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/music-off.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327635,
+    "ast_hash": "6c516eecdb9768b583ba3cad4bd0db66",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/music-on.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327636,
+    "ast_hash": "8eb502238cd560b2a4f6219c8d17a851",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/old-cards/back.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327636,
+    "ast_hash": "c59c3bf3e456ee957603d3b44c4a15cd",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/old-cards/black club (10).png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327637,
+    "ast_hash": "d7eee26bace4d0979bbcf1eddbcb4731",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/old-cards/black club (2).png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327637,
+    "ast_hash": "cbe95c876587c73389ca2b7a46d77043",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/old-cards/black club (3).png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327638,
+    "ast_hash": "2fbe4e8295f20a04e0bb0880bbb63479",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/old-cards/black club (4).png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327638,
+    "ast_hash": "7c6f7fc9e45051ec97acea1be7470da3",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/old-cards/black club (5).png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327639,
+    "ast_hash": "3c1e70aa4c89b9fc4079c57ebf7ff21f",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/old-cards/black club (6).png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327639,
+    "ast_hash": "d05a10ce2eff5ad12164ca5b6d43aafc",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/old-cards/black club (7).png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.32764,
+    "ast_hash": "9a20b6b2161952698f470a2abc9c0d64",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/old-cards/black club (8).png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.32764,
+    "ast_hash": "9b3c78eac4a0b314f37401cfd55ba256",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/old-cards/black club (9).png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327641,
+    "ast_hash": "6c1cb55eb5a63f5550bb2809ba312fdb",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/old-cards/black club A.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327641,
+    "ast_hash": "214afaaf20dc3dc638d5a56819738325",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/old-cards/black club J.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327641,
+    "ast_hash": "d363a9887bb2848d913ce4f4abb9658a",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/old-cards/black club K.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.3276422,
+    "ast_hash": "079da3820b5eb4216860f0c5c01fa1f2",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/old-cards/black club Q.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327643,
+    "ast_hash": "e46ae6fa7e5c2e5a224d6208f16df1d1",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/old-cards/red dimond (10).png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327643,
+    "ast_hash": "fcfb85566cf186c1530602cb1b5c0984",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/old-cards/red dimond (2).png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327643,
+    "ast_hash": "7db9d0c6cda25e57ee974fe748faf3ae",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/old-cards/red dimond (3).png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.3276439,
+    "ast_hash": "cd4bf27346a188ad06391c71c9f9e8ce",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/old-cards/red dimond (4).png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.3276439,
+    "ast_hash": "c73f755186d795045aaa076bc7e72a3a",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/old-cards/red dimond (5).png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.3276448,
+    "ast_hash": "20f046bd90b7a667c4a538906d0b5656",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/old-cards/red dimond (6).png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.3276448,
+    "ast_hash": "e52be2e9c87c5c48f7dfdc091697479f",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/old-cards/red dimond (7).png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327646,
+    "ast_hash": "0bca3c19ea62a6ef61c8f974508c03da",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/old-cards/red dimond (8).png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327646,
+    "ast_hash": "912393382a4aa3c5634434b2d4d1af99",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/old-cards/red dimond (9).png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327647,
+    "ast_hash": "6eb241ed1abdc24de2ff6ef3612a2245",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/old-cards/red dimond A.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327647,
+    "ast_hash": "4c898eb95fe21dbcdb480ff869f7394a",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/old-cards/red dimond J.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327648,
+    "ast_hash": "fd85cd5ef669d5ba6e201ccfbc0c4a17",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/old-cards/red dimond K.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327648,
+    "ast_hash": "bddf54b3986b8881685445b7510c9314",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/old-cards/red dimond Q.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327649,
+    "ast_hash": "a4dbda432bf7dc36d975845cbfdbc97e",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/old-cards/red heart (10).png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327649,
+    "ast_hash": "5a857e618a6e69f38f6be6664c5a1384",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/old-cards/red heart (2).png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.32765,
+    "ast_hash": "b21c69d05ebda4768f09d747cf8158bb",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/old-cards/red heart (3).png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.32765,
+    "ast_hash": "b140f6d186ac8d84b3463d6ba8f5701b",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/old-cards/red heart (4).png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327651,
+    "ast_hash": "6416b39716f479affe1814a344ae9b4e",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/old-cards/red heart (5).png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327651,
+    "ast_hash": "383a4bd190efb3c81b5c591c53261954",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/old-cards/red heart (6).png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327651,
+    "ast_hash": "f5869eab50d53690bd0e671dc529ca03",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/old-cards/red heart (7).png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327652,
+    "ast_hash": "3ad955d5e4afa92ee505f3e6564b06fb",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/old-cards/red heart (8).png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327652,
+    "ast_hash": "2e9666297129c7d3010dd3b43fea5f7f",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/old-cards/red heart (9).png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.3276532,
+    "ast_hash": "c24c4d4f731c782cab03fcee37c7c2e9",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/old-cards/red heart A.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.3276532,
+    "ast_hash": "0fdfe00cb2d52188ca07bbbdfce84b6d",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/old-cards/red heart J.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327654,
+    "ast_hash": "2df70a2d1f0cfd201ce6a3cfada9af58",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/old-cards/red heart K.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327654,
+    "ast_hash": "b93cae72dedeb7bbaca57d1b6311859e",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/old-cards/red heart Q.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.3276548,
+    "ast_hash": "e865ec4749609a65cee7dd36439c5c96",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/rules.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.3276548,
+    "ast_hash": "bfcc01a2192782f6260ec970df8a03dc",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/shop.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327656,
+    "ast_hash": "3fbd7a3a0fd9d4e16403f4e4b2d93c72",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/images/starCoin.png": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.327656,
+    "ast_hash": "9f338086715140cb7b0defb6604a9e20",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/backend/public/static/media/coinsSound.03939f5fd5a7496c0915.mp3": {
+    "mtime": 1777580928.0,
+    "seen": 1793077825.328524,
+    "ast_hash": "a8e7158296262f0062c4d1a7d70d7b3b",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/backend/public/static/media/wheel.f78c2a820b9c92ea3769.mp3": {
+    "mtime": 1777580928.0,
+    "seen": 1793077825.328525,
+    "ast_hash": "e61674feef0340d3075735917d787f37",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/frontend/src/assets/audio/betCoin.mp3": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.328526,
+    "ast_hash": "5bb2394cbfc3326310512a68178a9971",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/frontend/src/assets/audio/coinsSound.mp3": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.328526,
+    "ast_hash": "a8e7158296262f0062c4d1a7d70d7b3b",
+    "semantic_hash": ""
+  },
+  "Games/roulettecasino/frontend/src/assets/audio/wheel.mp3": {
+    "mtime": 1770918400.0,
+    "seen": 1793077825.3285272,
+    "ast_hash": "e61674feef0340d3075735917d787f37",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/static/media/coins-sound.03939f5fd5a7496c0915.mp3": {
+    "mtime": 1777580816.0,
+    "seen": 1793077825.3285272,
+    "ast_hash": "a8e7158296262f0062c4d1a7d70d7b3b",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/frontend/src/sounds/coins-sound.mp3": {
+    "mtime": 1770918354.0,
+    "seen": 1793077825.328528,
+    "ast_hash": "a8e7158296262f0062c4d1a7d70d7b3b",
+    "semantic_hash": ""
+  },
+  "admin-panel/src/api/gameApi.js": {
+    "mtime": 1793078697.116925,
+    "seen": 1793078882.795634,
+    "ast_hash": "cc7e45f043789da90449744a170eec36",
+    "semantic_hash": ""
+  },
+  "admin-panel/src/pages/GamesManagement.jsx": {
+    "mtime": 1793078745.8093965,
+    "seen": 1793078882.796484,
+    "ast_hash": "24551d8b9eaf7166f0ac938aa1bad6a5",
+    "semantic_hash": ""
+  },
+  "backend/src/services/pubSubService.js": {
+    "mtime": 1793078507.5337567,
+    "seen": 1793078882.798476,
+    "ast_hash": "caefa007b0f24a2ca4f5b451e4e616b2",
     "semantic_hash": ""
   }
 }
