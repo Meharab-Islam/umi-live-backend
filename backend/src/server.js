@@ -122,6 +122,8 @@ const gamesDir = path.resolve(__dirname, '../../Games');
 app.use('/games/big_eater', express.static(path.join(gamesDir, 'big_eater/public')));
 app.use('/games/slote_mecine', express.static(path.join(gamesDir, 'slote_mecine/frontend/dist')));
 app.use('/games/slote_mecine', express.static(path.join(gamesDir, 'slote_mecine/frontend/public')));
+app.use('/games/assets', express.static(path.join(gamesDir, 'slote_mecine/frontend/dist/assets')));
+app.use('/assets', express.static(path.join(gamesDir, 'slote_mecine/frontend/dist/assets')));
 app.use('/games/ferrywheel', express.static(path.join(gamesDir, 'ferrywheel/backend/public')));
 app.use('/games/greedybaby', express.static(path.join(gamesDir, 'greedybaby/backend/public')));
 app.use('/games/greedylion', express.static(path.join(gamesDir, 'greedylion/backend/public')));
