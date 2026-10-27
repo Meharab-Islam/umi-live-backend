@@ -1536,15 +1536,15 @@
     "semantic_hash": ""
   },
   "Games/big_eater/public/admin.js": {
-    "mtime": 1793081541.675316,
-    "seen": 1793081659.459775,
-    "ast_hash": "4f477a93edebfc207b13524d138419f9",
+    "mtime": 1793083217.386754,
+    "seen": 1793084050.83416,
+    "ast_hash": "cc72d2b109267616fcf40d216890600e",
     "semantic_hash": ""
   },
   "Games/big_eater/public/app.js": {
-    "mtime": 1793082094.580884,
-    "seen": 1793082220.669771,
-    "ast_hash": "b7aaa6890333657f0e8f43dfc78405dc",
+    "mtime": 1793083204.5561159,
+    "seen": 1793084050.83416,
+    "ast_hash": "725c37265083f9086712c61ef63b4cdb",
     "semantic_hash": ""
   },
   "Games/big_eater/server.js": {
@@ -1638,9 +1638,9 @@
     "semantic_hash": ""
   },
   "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js": {
-    "mtime": 1793082036.9689214,
-    "seen": 1793082220.670091,
-    "ast_hash": "868226ea1e8454ee910dd60e7fccc919",
+    "mtime": 1793083741.104791,
+    "seen": 1793084050.834486,
+    "ast_hash": "b797bb79bf7ede5a6b06ed0157d97dd2",
     "semantic_hash": ""
   },
   "Games/ferrywheel/backend/service.js": {
@@ -1662,9 +1662,9 @@
     "semantic_hash": ""
   },
   "Games/ferrywheel/frontend/src/App.js": {
-    "mtime": 1790999396.5879207,
-    "seen": 1793077825.322664,
-    "ast_hash": "321de15509680bc0bc561e585c278f5e",
+    "mtime": 1793083759.0823593,
+    "seen": 1793084050.834549,
+    "ast_hash": "cc1ab65541a0bcfc928738b72760e59b",
     "semantic_hash": ""
   },
   "Games/ferrywheel/frontend/src/App.test.js": {
@@ -1722,9 +1722,9 @@
     "semantic_hash": ""
   },
   "Games/ferrywheel/frontend/src/config.js": {
-    "mtime": 1790712343.0,
-    "seen": 1793077825.322676,
-    "ast_hash": "47c086bdb97318d3574b2c2077b21d1a",
+    "mtime": 1793083747.5686934,
+    "seen": 1793084050.83475,
+    "ast_hash": "9c51145788aef395579df98456f00152",
     "semantic_hash": ""
   },
   "Games/ferrywheel/frontend/src/index.js": {
@@ -1824,9 +1824,9 @@
     "semantic_hash": ""
   },
   "Games/greedybaby/backend/public/static/js/main.05634587.js": {
-    "mtime": 1793082048.3952918,
-    "seen": 1793082220.670728,
-    "ast_hash": "b14ccf0816d6f065c4b6f3d6c8d5a136",
+    "mtime": 1793083682.414967,
+    "seen": 1793084050.835087,
+    "ast_hash": "3dfc177eeb9afdc0de4439a5e0a887a8",
     "semantic_hash": ""
   },
   "Games/greedybaby/backend/service.js": {
@@ -1848,9 +1848,9 @@
     "semantic_hash": ""
   },
   "Games/greedybaby/frontend/src/App.js": {
-    "mtime": 1790712901.0879908,
-    "seen": 1793077825.322687,
-    "ast_hash": "013fead30f353255ae61a0b11f7cde79",
+    "mtime": 1793083790.8649578,
+    "seen": 1793084050.8351529,
+    "ast_hash": "e4add950f2b63d3aef9cf3c3660cf17e",
     "semantic_hash": ""
   },
   "Games/greedybaby/frontend/src/App.test.js": {
@@ -1908,9 +1908,9 @@
     "semantic_hash": ""
   },
   "Games/greedybaby/frontend/src/config.js": {
-    "mtime": 1790712895.9757411,
-    "seen": 1793077825.322717,
-    "ast_hash": "69d5f733305ea2b22fee78d3a3abed05",
+    "mtime": 1793083770.0273366,
+    "seen": 1793084050.835356,
+    "ast_hash": "46f0447c9db97d87793744910c1c2cbe",
     "semantic_hash": ""
   },
   "Games/greedybaby/frontend/src/index.js": {
@@ -2010,9 +2010,9 @@
     "semantic_hash": ""
   },
   "Games/greedylion/backend/public/static/js/main.c3c26395.js": {
-    "mtime": 1793082048.395888,
-    "seen": 1793082220.671354,
-    "ast_hash": "f74180721d2e0f9ecd0549c1af2d6c0a",
+    "mtime": 1793083682.4155126,
+    "seen": 1793084050.8357,
+    "ast_hash": "185f18b5a45114cc5b30d5f746b41797",
     "semantic_hash": ""
   },
   "Games/greedylion/backend/service.js": {
@@ -2034,9 +2034,9 @@
     "semantic_hash": ""
   },
   "Games/greedylion/frontend/src/App.js": {
-    "mtime": 1790713334.1261752,
-    "seen": 1793077825.322746,
-    "ast_hash": "013fead30f353255ae61a0b11f7cde79",
+    "mtime": 1793083812.1175795,
+    "seen": 1793084050.8357608,
+    "ast_hash": "e4add950f2b63d3aef9cf3c3660cf17e",
     "semantic_hash": ""
   },
   "Games/greedylion/frontend/src/App.test.js": {
@@ -2094,9 +2094,9 @@
     "semantic_hash": ""
   },
   "Games/greedylion/frontend/src/config.js": {
-    "mtime": 1790713328.4623015,
-    "seen": 1793077825.322763,
-    "ast_hash": "8b4df64f370b0c2bf2feabc0cad21177",
+    "mtime": 1793083798.6571467,
+    "seen": 1793084050.835961,
+    "ast_hash": "205b556746056aa5048ba2771761919d",
     "semantic_hash": ""
   },
   "Games/greedylion/frontend/src/index.js": {
@@ -2190,9 +2190,9 @@
     "semantic_hash": ""
   },
   "Games/roulettecasino/backend/public/static/js/main.5751c868.js": {
-    "mtime": 1793082048.396511,
-    "seen": 1793082220.671969,
-    "ast_hash": "d2279bbaddaff2325b2e41086e193057",
+    "mtime": 1793083682.4159684,
+    "seen": 1793084050.8362792,
+    "ast_hash": "e781d6943b20851888de6c778d711a2e",
     "semantic_hash": ""
   },
   "Games/roulettecasino/backend/service.js": {
@@ -2214,9 +2214,9 @@
     "semantic_hash": ""
   },
   "Games/roulettecasino/frontend/src/App.js": {
-    "mtime": 1790713910.282308,
-    "seen": 1793077825.3227892,
-    "ast_hash": "3419ff63150b9e99a1e7c1970dc9a0d2",
+    "mtime": 1793083838.7485023,
+    "seen": 1793084050.836341,
+    "ast_hash": "90ca62aac9f6147dede38df10d42d2ec",
     "semantic_hash": ""
   },
   "Games/roulettecasino/frontend/src/App.test.js": {
@@ -2304,9 +2304,9 @@
     "semantic_hash": ""
   },
   "Games/roulettecasino/frontend/src/config.js": {
-    "mtime": 1790713901.4452453,
-    "seen": 1793077825.322808,
-    "ast_hash": "1364071ddb1d6a52b341d2b818152e6d",
+    "mtime": 1793083819.5932715,
+    "seen": 1793084050.83665,
+    "ast_hash": "69d35a6f724e85a73a6c14cd4f9b129d",
     "semantic_hash": ""
   },
   "Games/roulettecasino/frontend/src/index.js": {
@@ -2364,9 +2364,9 @@
     "semantic_hash": ""
   },
   "Games/slote_mecine/frontend/src/js/game.js": {
-    "mtime": 1793082063.114849,
-    "seen": 1793082220.672562,
-    "ast_hash": "04bf75f650001fa41ec35e0e5a189fab",
+    "mtime": 1793083231.6354191,
+    "seen": 1793084050.836834,
+    "ast_hash": "6b5a1059aa3425a6b3a254094cd0446b",
     "semantic_hash": ""
   },
   "Games/slote_mecine/frontend/vite.config.js": {
@@ -2466,9 +2466,9 @@
     "semantic_hash": ""
   },
   "Games/teenpatti/backend/public/static/js/main.21695ab2.js": {
-    "mtime": 1793082036.973206,
-    "seen": 1793082220.6729002,
-    "ast_hash": "1b5407f41b3483e161ec76c88c883ac4",
+    "mtime": 1793083682.416597,
+    "seen": 1793084050.837164,
+    "ast_hash": "d813e849ba47253770c994ca6f1e27c8",
     "semantic_hash": ""
   },
   "Games/teenpatti/backend/routes/gameHistory.route.js": {
@@ -2496,9 +2496,9 @@
     "semantic_hash": ""
   },
   "Games/teenpatti/frontend/src/app.js": {
-    "mtime": 1790714504.9406404,
-    "seen": 1793077825.322846,
-    "ast_hash": "891780cd787e9bf1d952689250c0ee8c",
+    "mtime": 1793083877.3137257,
+    "seen": 1793084050.837245,
+    "ast_hash": "7d0cc7603118b1be4c7b94a95c3d645b",
     "semantic_hash": ""
   },
   "Games/teenpatti/frontend/src/components/GameBlock.js": {
@@ -2562,9 +2562,9 @@
     "semantic_hash": ""
   },
   "Games/teenpatti/frontend/src/config.js": {
-    "mtime": 1790714493.9354174,
-    "seen": 1793077825.322859,
-    "ast_hash": "e2e7724e9510e14cb90599994b4dba62",
+    "mtime": 1793083847.2382476,
+    "seen": 1793084050.83747,
+    "ast_hash": "b3519525bd78faf94ee07947f8584d5a",
     "semantic_hash": ""
   },
   "Games/teenpatti/frontend/src/index.js": {
@@ -2796,9 +2796,9 @@
     "semantic_hash": ""
   },
   "Games/slote_mecine/frontend/admin.html": {
-    "mtime": 1793081572.5848875,
-    "seen": 1793081659.467953,
-    "ast_hash": "147929cbfeab04ea4a18af262a1fae2a",
+    "mtime": 1793083246.5195293,
+    "seen": 1793084050.841919,
+    "ast_hash": "27b9064ce6607d8aa55f766f013e6690",
     "semantic_hash": ""
   },
   "Games/slote_mecine/frontend/index.html": {

@@ -15,14 +15,14 @@ import { io } from 'socket.io-client';
 // 6: Watermelon (20x) [Bottom-Left]
 // 7: Cherry (45x)     [Mid-Left]
 const CLOCKWISE_FRUITS = [
-  { index: 0, id: 'lemon',      name: 'Lemon',      mult: 5,  icon: '/images/fruits/lemon.png'      },
-  { index: 1, id: 'raspberry',  name: 'Raspberry',  mult: 5,  icon: '/images/fruits/raspberry.png'  },
-  { index: 2, id: 'kiwi',       name: 'Kiwi',       mult: 5,  icon: '/images/fruits/kiwi.png'       },
-  { index: 3, id: 'plum',       name: 'Plum',       mult: 5,  icon: '/images/fruits/plum.png'       },
-  { index: 4, id: 'strawberry', name: 'Strawberry', mult: 10, icon: '/images/fruits/strawberry.png' },
-  { index: 5, id: 'banana',     name: 'Banana',     mult: 10, icon: '/images/fruits/banana.png'     },
-  { index: 6, id: 'watermelon', name: 'Watermelon', mult: 20, icon: '/images/fruits/watermelon.png' },
-  { index: 7, id: 'cherry',     name: 'Cherry',     mult: 45, icon: '/images/fruits/cherry.png'     },
+  { index: 0, id: 'lemon',      name: 'Lemon',      mult: 5,  icon: "images/fruits/lemon.png'      },
+  { index: 1, id: 'raspberry',  name: 'Raspberry',  mult: 5,  icon: "images/fruits/raspberry.png'  },
+  { index: 2, id: 'kiwi',       name: 'Kiwi',       mult: 5,  icon: "images/fruits/kiwi.png'       },
+  { index: 3, id: 'plum',       name: 'Plum',       mult: 5,  icon: "images/fruits/plum.png'       },
+  { index: 4, id: 'strawberry', name: 'Strawberry', mult: 10, icon: "images/fruits/strawberry.png' },
+  { index: 5, id: 'banana',     name: 'Banana',     mult: 10, icon: "images/fruits/banana.png'     },
+  { index: 6, id: 'watermelon', name: 'Watermelon', mult: 20, icon: "images/fruits/watermelon.png' },
+  { index: 7, id: 'cherry',     name: 'Cherry',     mult: 45, icon: "images/fruits/cherry.png'     },
 ];
 
 const FRUIT_AURA_COLORS = {
@@ -37,10 +37,10 @@ const FRUIT_AURA_COLORS = {
 };
 
 const CHIP_DENOMINATIONS = [
-  { amount: 50000,   label: '50K',  svg: '/images/chips/chip-50k.svg'  },
-  { amount: 100000,  label: '100K', svg: '/images/chips/chip-100k.svg' },
-  { amount: 500000,  label: '500K', svg: '/images/chips/chip-500k.svg' },
-  { amount: 1000000, label: '1M',   svg: '/images/chips/chip-1m.svg'   },
+  { amount: 50000,   label: '50K',  svg: "images/chips/chip-50k.svg'  },
+  { amount: 100000,  label: '100K', svg: "images/chips/chip-100k.svg' },
+  { amount: 500000,  label: '500K', svg: "images/chips/chip-500k.svg' },
+  { amount: 1000000, label: '1M',   svg: "images/chips/chip-1m.svg'   },
 ];
 
 // ─── Game State ───────────────────────────────────────────────
@@ -601,10 +601,10 @@ function addVisualChipToFruit(fruitIndex, amount) {
   const chipImg = document.createElement('img');
   chipImg.className = 'placed-chip-token';
 
-  if (amount >= 1000000) chipImg.src = '/images/chips/chip-1m.svg';
-  else if (amount >= 500000) chipImg.src = '/images/chips/chip-500k.svg';
-  else if (amount >= 100000) chipImg.src = '/images/chips/chip-100k.svg';
-  else chipImg.src = '/images/chips/chip-50k.svg';
+  if (amount >= 1000000) chipImg.src = "images/chips/chip-1m.svg';
+  else if (amount >= 500000) chipImg.src = "images/chips/chip-500k.svg';
+  else if (amount >= 100000) chipImg.src = "images/chips/chip-100k.svg';
+  else chipImg.src = "images/chips/chip-50k.svg';
 
   // Limit visual chips to 6 to prevent DOM bloat
   if (chipArea.children.length > 5) {

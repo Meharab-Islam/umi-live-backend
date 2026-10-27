@@ -1952,14 +1952,14 @@ if (req.headers['x-slot-signature'] === expectedSig) {
 
   <script>
     let FRUITS = [
-      { id: 0, index: 0, name: 'lemon', displayName: 'Lemon', emoji: '🍋', multiplier: 5, icon: '/images/fruits/lemon.png' },
-      { id: 1, index: 1, name: 'raspberry', displayName: 'Raspberry', emoji: '🍇', multiplier: 5, icon: '/images/fruits/raspberry.png' },
-      { id: 2, index: 2, name: 'kiwi', displayName: 'Kiwi', emoji: '🥝', multiplier: 5, icon: '/images/fruits/kiwi.png' },
-      { id: 3, index: 3, name: 'plum', displayName: 'Plum', emoji: '🫐', multiplier: 5, icon: '/images/fruits/plum.png' },
-      { id: 4, index: 4, name: 'strawberry', displayName: 'Strawberry', emoji: '🍓', multiplier: 10, icon: '/images/fruits/strawberry.png' },
-      { id: 5, index: 5, name: 'banana', displayName: 'Banana', emoji: '🍌', multiplier: 10, icon: '/images/fruits/banana.png' },
-      { id: 6, index: 6, name: 'watermelon', displayName: 'Watermelon', emoji: '🍉', multiplier: 20, icon: '/images/fruits/watermelon.png' },
-      { id: 7, index: 7, name: 'cherry', displayName: 'Cherry', emoji: '🍒', multiplier: 45, icon: '/images/fruits/cherry.png' },
+      { id: 0, index: 0, name: 'lemon', displayName: 'Lemon', emoji: '🍋', multiplier: 5, icon: 'images/fruits/lemon.png' },
+      { id: 1, index: 1, name: 'raspberry', displayName: 'Raspberry', emoji: '🍇', multiplier: 5, icon: 'images/fruits/raspberry.png' },
+      { id: 2, index: 2, name: 'kiwi', displayName: 'Kiwi', emoji: '🥝', multiplier: 5, icon: 'images/fruits/kiwi.png' },
+      { id: 3, index: 3, name: 'plum', displayName: 'Plum', emoji: '🫐', multiplier: 5, icon: 'images/fruits/plum.png' },
+      { id: 4, index: 4, name: 'strawberry', displayName: 'Strawberry', emoji: '🍓', multiplier: 10, icon: 'images/fruits/strawberry.png' },
+      { id: 5, index: 5, name: 'banana', displayName: 'Banana', emoji: '🍌', multiplier: 10, icon: 'images/fruits/banana.png' },
+      { id: 6, index: 6, name: 'watermelon', displayName: 'Watermelon', emoji: '🍉', multiplier: 20, icon: 'images/fruits/watermelon.png' },
+      { id: 7, index: 7, name: 'cherry', displayName: 'Cherry', emoji: '🍒', multiplier: 45, icon: 'images/fruits/cherry.png' },
     ];
 
     let adminState = {
@@ -2238,7 +2238,7 @@ if (req.headers['x-slot-signature'] === expectedSig) {
       }
 
       tbody.innerHTML = evals.map(item => {
-        const fruit = FRUITS[item.fruitIndex] || { displayName: item.fruitName, icon: '/images/fruits/lemon.png' };
+        const fruit = FRUITS[item.fruitIndex] || { displayName: item.fruitName, icon: 'images/fruits/lemon.png' };
         const isFavored = item.fruitIndex === favoredIdx;
         const isLoss = item.houseProfit < 0;
 
