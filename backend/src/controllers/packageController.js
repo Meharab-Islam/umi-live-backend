@@ -5,6 +5,51 @@ import { cache } from '../config/redis.js';
 // PACKAGE CATEGORIES CONTROLLERS & PRIVILEGE HELPERS
 // ==========================================
 
+export const MASTER_PRIVILEGES_CATALOG = [
+  {
+    key: 'cant_be_removed',
+    name: 'Anti-Kick',
+    icon: '🛡️',
+    description: 'Cannot be kicked or removed from live room by hosts or moderators',
+    badge: 'Protection',
+  },
+  {
+    key: 'cant_be_banned',
+    name: 'Anti-Ban',
+    icon: '🚫',
+    description: 'Immune to room bans, blocklists, and entry denials',
+    badge: 'Protection',
+  },
+  {
+    key: 'self_seat_accept',
+    name: 'Auto-Seat Approval',
+    icon: '🎙️',
+    description: 'Instantly occupy mic guest seat without waiting for host confirmation',
+    badge: 'Voice Stage',
+  },
+  {
+    key: 'top_live_list',
+    name: 'Top Live Ranking',
+    icon: '🚀',
+    description: 'Pinned at the very top of room audience and discovery lists',
+    badge: 'Visibility',
+  },
+  {
+    key: 'anti_mute',
+    name: 'Anti-Mute',
+    icon: '🔇',
+    description: 'Immune to microphone silencing and host mutes during live streams',
+    badge: 'Voice Stage',
+  },
+  {
+    key: 'special_entry',
+    name: 'VIP Luxury Entrance',
+    icon: '✨',
+    description: 'Luxury dynamic arrival banner and animated announcement when entering any room',
+    badge: 'Animation',
+  },
+];
+
 export function formatCategoryPrivileges(category) {
   const privileges = {
     cant_be_removed: Boolean(category.cant_be_removed),
@@ -12,7 +57,7 @@ export function formatCategoryPrivileges(category) {
     self_seat_accept: Boolean(category.self_seat_accept),
     top_live_list: Boolean(category.top_live_list),
     anti_mute: Boolean(category.anti_mute),
-    special_entry: false,
+    special_entry: Boolean(category.special_entry),
   };
 
   const privilegeList = [
@@ -51,12 +96,30 @@ export function formatCategoryPrivileges(category) {
       description: 'Immune to microphone muting by room hosts',
       enabled: privileges.anti_mute,
     },
+    {
+      key: 'special_entry',
+      name: 'VIP Luxury Entrance',
+      icon: '✨',
+      description: 'Luxury dynamic arrival banner broadcasted when entering any live room',
+      enabled: privileges.special_entry,
+    },
   ];
+
+  let customPrivileges = [];
+  if (category.custom_privileges) {
+    try {
+      customPrivileges = typeof category.custom_privileges === 'string'
+        ? JSON.parse(category.custom_privileges)
+        : category.custom_privileges;
+    } catch {
+      customPrivileges = [];
+    }
+  }
 
   return {
     privileges,
     privilege_list: privilegeList,
-    custom_privileges: [],
+    custom_privileges: Array.isArray(customPrivileges) ? customPrivileges : [],
   };
 }
 
@@ -256,6 +319,241 @@ export async function getPackageCategories(req, res) {
   } catch (err) {
     console.error('getPackageCategories error:', err);
     return res.status(500).json({ success: false, message: 'Failed to fetch package categories.', error: err.message });
+  }
+}
+
+/**
+ * Fast, cached VIP Packages & Privilege Specifications API for Mobile App Bootstrapping
+ * GET /api/mobile/packages/privileges or GET /api/mobile/vip/privileges
+ * 
+ * Returns all active VIP categories/tiers, their privileges (as booleans, visual lists, and descriptions),
+ * available purchase packages/passes, master privilege catalog, and the user's active VIP status (if token provided).
+ */
+export async function getVipPrivilegesCatalog(req, res) {
+  try {
+    const userId = req.user?.id || (req.query.user_id ? parseInt(req.query.user_id, 10) : null) || (req.query.userId ? parseInt(req.query.userId, 10) : null);
+
+    // 1. Fetch from Redis Cache (TTL: 120s)
+    const baseCatalog = await cache.getOrSet('packages:vip:privileges_catalog', 120, async () => {
+      const categories = await query(`
+        SELECT 
+          pc.id,
+          pc.name,
+          pc.badge_icon,
+          pc.color_code,
+          pc.display_order,
+          pc.cant_be_removed,
+          pc.cant_be_banned,
+          pc.self_seat_accept,
+          pc.top_live_list,
+          pc.anti_mute,
+          pc.special_entry,
+          pc.custom_privileges,
+          pc.is_active,
+          pc.created_at,
+          pc.updated_at,
+          (SELECT COUNT(*) FROM privilege_packages pp WHERE pp.category_id = pc.id AND pp.is_active = 1) as package_count,
+          (SELECT COUNT(*) FROM user_package_subscriptions ups 
+           WHERE ups.category_id = pc.id AND ups.status = 'active' AND ups.expires_at > NOW()) as active_subscribers_count
+        FROM package_categories pc
+        WHERE pc.is_active = 1
+        ORDER BY pc.display_order ASC, pc.id ASC
+      `);
+
+      const packages = await query(`
+        SELECT 
+          pp.id,
+          pp.category_id,
+          pp.name,
+          pp.image_url,
+          pp.validity_days,
+          pp.price,
+          pp.currency,
+          pp.description,
+          pp.color,
+          pp.is_active,
+          (SELECT COUNT(*) FROM user_package_subscriptions ups
+           WHERE ups.package_id = pp.id AND ups.status = 'active' AND ups.expires_at > NOW()) as active_users_count
+        FROM privilege_packages pp
+        WHERE pp.is_active = 1
+        ORDER BY pp.category_id ASC, pp.price ASC
+      `);
+
+      const packagesByCategory = {};
+      for (const p of packages || []) {
+        if (!packagesByCategory[p.category_id]) {
+          packagesByCategory[p.category_id] = [];
+        }
+        packagesByCategory[p.category_id].push({
+          id: p.id,
+          category_id: p.category_id,
+          name: p.name,
+          image_url: p.image_url || '',
+          validity_days: p.validity_days,
+          price: p.price,
+          currency: p.currency || 'coins',
+          description: p.description || '',
+          color: p.color || '#8b5cf6',
+          is_active: Boolean(p.is_active),
+          active_users_count: p.active_users_count || 0,
+        });
+      }
+
+      const tiers = (categories || []).map((cat) => {
+        const priv = formatCategoryPrivileges(cat);
+        let customPrivs = [];
+        if (cat.custom_privileges) {
+          try {
+            customPrivs = typeof cat.custom_privileges === 'string'
+              ? JSON.parse(cat.custom_privileges)
+              : cat.custom_privileges;
+          } catch (e) {
+            customPrivs = [];
+          }
+        }
+
+        const pkgs = packagesByCategory[cat.id] || [];
+        const startingPrice = pkgs.length > 0 ? Math.min(...pkgs.map(p => p.price)) : null;
+
+        return {
+          id: cat.id,
+          name: cat.name,
+          badge_icon: cat.badge_icon || '👑',
+          color_code: cat.color_code || '#f59e0b',
+          display_order: cat.display_order,
+          is_active: Boolean(cat.is_active),
+          package_count: pkgs.length,
+          starting_price: startingPrice,
+          starting_price_currency: 'coins',
+          privileges: priv.privileges,
+          privilege_list: priv.privilege_list,
+          custom_privileges: Array.isArray(customPrivs) ? customPrivs : [],
+          packages: pkgs,
+        };
+      });
+
+      return {
+        tiers,
+        privilege_catalog: MASTER_PRIVILEGES_CATALOG,
+      };
+    });
+
+    // 2. If user is authenticated, enrich with their active subscription & equipped tier
+    let myVip = {
+      is_vip: false,
+      has_active_vip: false,
+      current_tier: null,
+      equipped_package: null,
+      effective_privileges: {
+        cant_be_removed: false,
+        cant_be_banned: false,
+        self_seat_accept: false,
+        top_live_list: false,
+        anti_mute: false,
+        special_entry: false,
+      },
+      active_privilege_keys: [],
+      days_remaining: 0,
+      seconds_remaining: 0,
+      expires_at: null,
+    };
+
+    let userTiers = baseCatalog.tiers;
+
+    if (userId) {
+      const subsMap = await getUserActiveSubscriptionsMap(userId);
+      const activeSubs = Object.values(subsMap.byPackageId || {});
+      const equippedSub = activeSubs.find(s => s.is_equipped) || activeSubs[0] || null;
+
+      if (equippedSub) {
+        // Find tier
+        const matchingTier = baseCatalog.tiers.find(t => t.id === equippedSub.category_id);
+        const effectivePrivs = matchingTier ? matchingTier.privileges : {
+          cant_be_removed: false,
+          cant_be_banned: false,
+          self_seat_accept: false,
+          top_live_list: false,
+          anti_mute: false,
+          special_entry: false,
+        };
+
+        const activeKeys = Object.entries(effectivePrivs)
+          .filter(([_, v]) => Boolean(v))
+          .map(([k]) => k);
+
+        myVip = {
+          is_vip: true,
+          has_active_vip: true,
+          current_tier: matchingTier ? {
+            id: matchingTier.id,
+            name: matchingTier.name,
+            badge_icon: matchingTier.badge_icon,
+            color_code: matchingTier.color_code,
+          } : null,
+          equipped_package: {
+            id: equippedSub.package_id,
+            name: equippedSub.package_name,
+            category_id: equippedSub.category_id,
+            subscription_id: equippedSub.subscription_id,
+            start_date: equippedSub.start_date,
+            expires_at: equippedSub.expires_at,
+            days_remaining: equippedSub.days_remaining,
+            seconds_remaining: equippedSub.seconds_remaining,
+          },
+          effective_privileges: effectivePrivs,
+          active_privilege_keys: activeKeys,
+          days_remaining: equippedSub.days_remaining,
+          seconds_remaining: equippedSub.seconds_remaining,
+          expires_at: equippedSub.expires_at,
+        };
+      }
+
+      // Enrich tiers with user subscription status
+      userTiers = baseCatalog.tiers.map(t => {
+        const isSubscribedToTier = Boolean(subsMap.byCategoryId?.[t.id]);
+        const tierActiveSub = subsMap.byCategoryId?.[t.id] || null;
+        return {
+          ...t,
+          is_user_subscribed: isSubscribedToTier,
+          user_subscription: tierActiveSub ? {
+            subscription_id: tierActiveSub.subscription_id,
+            package_id: tierActiveSub.package_id,
+            package_name: tierActiveSub.package_name,
+            expires_at: tierActiveSub.expires_at,
+            days_remaining: tierActiveSub.days_remaining,
+            is_equipped: tierActiveSub.is_equipped,
+          } : null,
+          packages: t.packages.map(p => {
+            const isPurchased = Boolean(subsMap.byPackageId?.[p.id]);
+            const pkgSub = subsMap.byPackageId?.[p.id] || null;
+            return {
+              ...p,
+              is_purchased: isPurchased,
+              days_remaining: pkgSub ? pkgSub.days_remaining : null,
+              expires_at: pkgSub ? pkgSub.expires_at : null,
+              is_equipped: pkgSub ? Boolean(pkgSub.is_equipped) : false,
+            };
+          }),
+        };
+      });
+    }
+
+    return res.json({
+      success: true,
+      message: 'VIP packages and privileges loaded successfully.',
+      timestamp: new Date().toISOString(),
+      my_vip: myVip,
+      tiers: userTiers,
+      privilege_catalog: baseCatalog.privilege_catalog,
+      total_tiers: userTiers.length,
+    });
+  } catch (err) {
+    console.error('getVipPrivilegesCatalog error:', err);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to fetch VIP privileges catalog.',
+      error: err.message,
+    });
   }
 }
 

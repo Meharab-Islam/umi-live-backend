@@ -6995,6 +6995,215 @@ export const API_SPEC = {
       ]
     },
     {
+      "id": "vip-privileges-catalog",
+      "category": "vip",
+      "method": "GET",
+      "path": "/api/mobile/packages/privileges",
+      "summary": "Get VIP Packages & Privileges Bootstrap Catalog",
+      "description": "Dedicated high-performance API designed for mobile app startup/bootstrap. Caches in Redis ('packages:vip:privileges_catalog', TTL 120s). Returns all active VIP tiers with exact privilege capabilities (Anti-Kick, Anti-Ban, Auto-Seat Approval, Top Live Ranking, Anti-Mute, VIP Luxury Entrance), visual icon privilege lists, available packages/pricing, master privilege definition catalog, and user active VIP status (my_vip).",
+      "requiresAuth": false,
+      "requestHeaders": [
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>",
+          "required": false,
+          "description": "Optional Bearer JWT token. When provided, automatically resolves the user's active VIP status (my_vip) and personal subscription flags."
+        }
+      ],
+      "parameters": [
+        {
+          "name": "user_id",
+          "in": "query",
+          "type": "integer",
+          "required": false,
+          "description": "Optional user ID to resolve VIP subscription status if Authorization header is not passed."
+        }
+      ],
+      "requestBody": null,
+      "responses": [
+        {
+          "status": 200,
+          "description": "VIP packages, privilege specifications, and active status retrieved successfully.",
+          "example": {
+            "success": true,
+            "message": "VIP packages and privileges loaded successfully.",
+            "timestamp": "2026-10-27T14:20:00.000Z",
+            "my_vip": {
+              "is_vip": true,
+              "has_active_vip": true,
+              "current_tier": {
+                "id": 1,
+                "name": "Royal Crown VIP",
+                "badge_icon": "👑",
+                "color_code": "#f59e0b"
+              },
+              "equipped_package": {
+                "id": 1,
+                "name": "Royal 30-Day Pass",
+                "category_id": 1,
+                "subscription_id": 104,
+                "start_date": "2026-10-26T12:00:00.000Z",
+                "expires_at": "2026-11-25T12:00:00.000Z",
+                "days_remaining": 30,
+                "seconds_remaining": 2592000
+              },
+              "effective_privileges": {
+                "cant_be_removed": true,
+                "cant_be_banned": true,
+                "self_seat_accept": true,
+                "top_live_list": true,
+                "anti_mute": true,
+                "special_entry": true
+              },
+              "active_privilege_keys": [
+                "cant_be_removed",
+                "cant_be_banned",
+                "self_seat_accept",
+                "top_live_list",
+                "anti_mute",
+                "special_entry"
+              ],
+              "days_remaining": 30,
+              "seconds_remaining": 2592000,
+              "expires_at": "2026-11-25T12:00:00.000Z"
+            },
+            "tiers": [
+              {
+                "id": 1,
+                "name": "Royal Crown VIP",
+                "badge_icon": "👑",
+                "color_code": "#f59e0b",
+                "display_order": 1,
+                "is_active": true,
+                "package_count": 2,
+                "starting_price": 50000,
+                "starting_price_currency": "coins",
+                "privileges": {
+                  "cant_be_removed": true,
+                  "cant_be_banned": true,
+                  "self_seat_accept": true,
+                  "top_live_list": true,
+                  "anti_mute": true,
+                  "special_entry": true
+                },
+                "privilege_list": [
+                  {
+                    "key": "cant_be_removed",
+                    "name": "Anti-Kick",
+                    "icon": "🛡️",
+                    "description": "Cannot be kicked or removed from live room by hosts or moderators",
+                    "enabled": true
+                  },
+                  {
+                    "key": "cant_be_banned",
+                    "name": "Anti-Ban",
+                    "icon": "🚫",
+                    "description": "Immune to room bans and blacklists",
+                    "enabled": true
+                  },
+                  {
+                    "key": "self_seat_accept",
+                    "name": "Auto-Seat Approval",
+                    "icon": "🎙️",
+                    "description": "Instantly occupy mic seat without waiting for host approval",
+                    "enabled": true
+                  },
+                  {
+                    "key": "top_live_list",
+                    "name": "Top Live Ranking",
+                    "icon": "🚀",
+                    "description": "Pinned at top of audience and host exploration rankings",
+                    "enabled": true
+                  },
+                  {
+                    "key": "anti_mute",
+                    "name": "Anti-Mute",
+                    "icon": "🔇",
+                    "description": "Immune to microphone muting by room hosts",
+                    "enabled": true
+                  },
+                  {
+                    "key": "special_entry",
+                    "name": "VIP Luxury Entrance",
+                    "icon": "✨",
+                    "description": "Luxury dynamic arrival banner broadcasted when entering any live room",
+                    "enabled": true
+                  }
+                ],
+                "custom_privileges": [
+                  "Exclusive Animated Chat Bubble",
+                  "VIP Gift Discount"
+                ],
+                "packages": [
+                  {
+                    "id": 1,
+                    "category_id": 1,
+                    "name": "Royal 30-Day Pass",
+                    "image_url": "https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=300",
+                    "validity_days": 30,
+                    "price": 50000,
+                    "currency": "coins",
+                    "description": "30 days of supreme Royal VIP status and privileges.",
+                    "color": "#f59e0b",
+                    "is_active": true,
+                    "active_users_count": 12,
+                    "is_purchased": true,
+                    "days_remaining": 30
+                  }
+                ],
+                "is_user_subscribed": true
+              }
+            ],
+            "privilege_catalog": [
+              {
+                "key": "cant_be_removed",
+                "name": "Anti-Kick",
+                "icon": "🛡️",
+                "description": "Cannot be kicked or removed from live room by hosts or moderators",
+                "badge": "Protection"
+              },
+              {
+                "key": "cant_be_banned",
+                "name": "Anti-Ban",
+                "icon": "🚫",
+                "description": "Immune to room bans, blocklists, and entry denials",
+                "badge": "Protection"
+              },
+              {
+                "key": "self_seat_accept",
+                "name": "Auto-Seat Approval",
+                "icon": "🎙️",
+                "description": "Instantly occupy mic guest seat without waiting for host confirmation",
+                "badge": "Voice Stage"
+              },
+              {
+                "key": "top_live_list",
+                "name": "Top Live Ranking",
+                "icon": "🚀",
+                "description": "Pinned at the very top of room audience and discovery lists",
+                "badge": "Visibility"
+              },
+              {
+                "key": "anti_mute",
+                "name": "Anti-Mute",
+                "icon": "🔇",
+                "description": "Immune to microphone silencing and host mutes during live streams",
+                "badge": "Voice Stage"
+              },
+              {
+                "key": "special_entry",
+                "name": "VIP Luxury Entrance",
+                "icon": "✨",
+                "description": "Luxury dynamic arrival banner and animated announcement when entering any room",
+                "badge": "Animation"
+              }
+            ],
+            "total_tiers": 3
+          }
+        }
+      ]
+    },
+    {
       "id": "vip-categories",
       "category": "vip",
       "method": "GET",

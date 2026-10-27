@@ -7,12 +7,15 @@ import {
   getMyPackages,
   togglePackageActive,
   getPackagesByCategory,
+  getVipPrivilegesCatalog,
 } from '../../controllers/mobile/packageController.js';
 import { requireAuth, optionalAuth } from '../../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
 // VIP Packages & Categories (Supports optional user auth to identify purchased packages)
+router.get('/privileges', optionalAuth, getVipPrivilegesCatalog); // Dedicated VIP packages & privileges specs for app bootstrap
+router.get('/catalog', optionalAuth, getVipPrivilegesCatalog);    // Alias
 router.get('/categories', optionalAuth, getPackageCategories);
 router.get('/categories/:categoryId', optionalAuth, getPackagesByCategory);
 router.get('/categories/:categoryId/packages', optionalAuth, getPackagesByCategory); // packages under a specific category

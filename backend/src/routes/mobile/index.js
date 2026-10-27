@@ -60,6 +60,7 @@ router.use('/live', liveRoutes);
 router.use('/gifts', giftRoutes);
 router.use('/wallet', walletRoutes);
 router.use('/packages', packageRoutes);
+router.use('/vip', packageRoutes);
 router.use('/entry-effects', entryEffectRoutes);
 router.use('/thumbnails', thumbnailRoutes);
 router.use('/reseller', resellerRoutes);

@@ -6,10 +6,15 @@ import {
   getUserPrivileges,
   checkRoomActionPrivilege,
   getPackagesByCategory,
+  getVipPrivilegesCatalog,
 } from '../controllers/packageController.js';
 import { requireAuth, optionalAuth } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
+
+// Fast VIP Packages & Privileges Bootstrap for Mobile App
+router.get('/privileges', optionalAuth, getVipPrivilegesCatalog);
+router.get('/catalog', optionalAuth, getVipPrivilegesCatalog);
 
 // Public / Mobile app endpoints to view packages (optional auth to identify purchased items)
 router.get('/categories', optionalAuth, getPackageCategories);
