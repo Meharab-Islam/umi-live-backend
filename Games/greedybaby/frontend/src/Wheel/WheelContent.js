@@ -367,7 +367,7 @@ export default function WheelContent(props) {
         selectedFram[selectedFrameIndex].Bit += bitcoin;
       } else {
         ToastConent(
-          "You don't enough diamond now, please  recharge first!",
+          "You don't have enough coins now, please recharge first!",
           "warning"
         );
       }
@@ -402,7 +402,7 @@ export default function WheelContent(props) {
           <div className="wheelContent">
             <div className="cricle-bg1"></div>
             <div className="total-coin-display">
-              <img src={DimondIcon} alt="diamond" />
+              <img src={DimondIcon} alt="coin" />
               <h5>
                 {userData?.diamond ? userData?.diamond?.toLocaleString() : 0}
               </h5>

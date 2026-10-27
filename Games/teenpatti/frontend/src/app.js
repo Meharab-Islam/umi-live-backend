@@ -510,7 +510,7 @@ function App() {
           SelectedFrame: myframe,
         });
       } else {
-        Toast("You don't enough diamond now, please  recharge first!");
+        Toast("You don't have enough coins now, please recharge first!");
       }
     } else {
       Toast("Missing to select any Coin");
@@ -697,7 +697,7 @@ function App() {
                       <span>
                         Right On! you Win
                         <span style={{ color: "#dd1054" }}>{" " + parseInt(winCoin) + " "}</span>
-                        Diamonds
+                        Coins
                       </span>
                     </div>
                   </>

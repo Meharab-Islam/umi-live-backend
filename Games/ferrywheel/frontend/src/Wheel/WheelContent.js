@@ -226,7 +226,7 @@ export default function WheelContent(props) {
           setFramesState([...selectedFramGlobal]);
         }
       } else {
-        ToastConent("You don't have enough diamonds now, please recharge!", "warning");
+        ToastConent("You don't have enough coins now, please recharge!", "warning");
       }
     } else {
       ToastConent("Please select a coin amount first", "info");
@@ -250,7 +250,7 @@ export default function WheelContent(props) {
     const currentBetAmount = selectedCoin || gameCoin[1] || 100;
     const totalCost = currentBetAmount * frames.length;
     if ((userData?.diamond || 0) < totalCost) {
-      ToastConent("You don't have enough diamonds for this category bet!", "warning");
+      ToastConent("You don't have enough coins for this category bet!", "warning");
       return;
     }
     frames.forEach((f) => {
@@ -540,7 +540,7 @@ export default function WheelContent(props) {
                 <span className="stats-amount-val">
                   {userData?.diamond !== undefined
                     ? userData?.diamond?.toLocaleString()
-                    : "2227"}
+                    : "0"}
                 </span>
               </div>
             </div>

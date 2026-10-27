@@ -417,7 +417,7 @@ export default function TableContent(props) {
         );
         totalMineBetCoin = totalMintBet;
       } else {
-        ToastConent("You don't enough diamond now, please  recharge first!");
+        ToastConent("You don't have enough coins now, please recharge first!");
       }
     } else {
       ToastConent("Missing to select any Coin");

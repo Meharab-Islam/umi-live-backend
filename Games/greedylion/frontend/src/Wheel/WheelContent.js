@@ -363,7 +363,7 @@ export default function WheelContent(props) {
         selectedFram[selectedFrameIndex].Bit += bitcoin;
       } else {
         ToastConent(
-          "You don't enough diamond now, please  recharge first!",
+          "You don't have enough coins now, please recharge first!",
           "warning"
         );
       }

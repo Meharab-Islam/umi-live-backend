@@ -346,18 +346,8 @@ function connectSocket() {
     }
     if (data.miniReels) updateMiniReels(data.miniReels);
 
-    // Sync active chips on fruits for late joiners!
-    if (Array.isArray(data.fruitPoolBets)) {
-      clearAllFruitChips();
-      data.fruitPoolBets.forEach((poolBet, fIdx) => {
-        if (poolBet > 0) {
-          const chipCounts = Math.min(4, Math.max(1, Math.floor(poolBet / 100000)));
-          for (let c = 0; c < chipCounts; c++) {
-            addVisualChipToFruit(fIdx, poolBet);
-          }
-        }
-      });
-    }
+    // Clear any previous round chips
+    clearAllFruitChips();
 
     // Late joiner handling when joining mid-spin or during result
     if (data.phase === 'spinning') {
@@ -521,13 +511,11 @@ function connectSocket() {
   });
 
   socket.on('room_bet', (data) => {
-    // Add visual chip to fruit cell from room
-    addVisualChipToFruit(data.fruitIndex, data.amount);
+    // Only update jackpot if included, do not drop fake chips on user's grid
     if (data.jackpot) {
       state.jackpot = data.jackpot;
       if (dom.jackpotCounter) dom.jackpotCounter.textContent = fmt(state.jackpot);
     }
-    Sound.chip();
     notifyFlutter('room_bet', data);
   });
 
