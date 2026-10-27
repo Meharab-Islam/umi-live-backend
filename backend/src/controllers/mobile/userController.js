@@ -3,6 +3,7 @@ import { cache } from '../../config/redis.js';
 import { sendNewFollowerPushNotification } from '../../config/firebase.js';
 import { notifyFollow } from '../../services/notificationService.js';
 import { ensureFeedSchema } from './feedController.js';
+import { getUserSpecialPrivileges } from '../../services/userPrivilegeService.js';
 
 /**
  * Mobile User & Follow Controller
@@ -184,6 +185,7 @@ export async function getUserProfile(req, res) {
           is_equipped: Boolean(profile.package_is_equipped),
         } : null,
         created_at: profile.created_at,
+        ...await getUserSpecialPrivileges(profile.id, profile.role),
       },
     });
   } catch (err) {

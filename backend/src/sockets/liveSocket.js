@@ -5,6 +5,7 @@ import { handleUserSeatDeparture } from '../controllers/mobile/liveController.js
 import { sendChatPushNotification } from '../config/firebase.js';
 import { handleLiveEndedNotifications } from '../services/notificationService.js';
 import { enqueueRoomGift, clearRoomGiftQueue } from '../services/giftQueueService.js';
+import { checkUserInvisibleRoomEnterPrivilege } from '../services/userPrivilegeService.js';
 
 // Store connected viewers: roomId -> Set of socket IDs (Module-level scope)
 const roomViewers = new Map();
@@ -718,13 +719,23 @@ export function setupLiveSocket(io) {
           socket.join(String(numericRoomId));
         }
 
-        // Host is never counted as a viewer
+        // Invisible / Stealth room entry check (for moderators / admins with silent_room_entry permission)
+        let isStealth = false;
+        if (currentUser?.id) {
+          const hasInvisiblePrivilege = await checkUserInvisibleRoomEnterPrivilege(currentUser.id, currentUser.role);
+          if (hasInvisiblePrivilege) {
+            const explicitDisable = data?.is_invisible === false || data?.is_stealth === false || data?.invisible === false;
+            isStealth = !explicitDisable;
+          }
+        }
+
+        // Host is never counted as a viewer, and neither is an invisible moderator in stealth mode
         const isHost = room && (Number(currentUser.id) === Number(room.host_id) || Number(socket.userId) === Number(room.host_id));
 
         if (!roomViewers.has(canonicalRoomId)) {
           roomViewers.set(canonicalRoomId, new Set());
         }
-        if (!isHost) {
+        if (!isHost && !isStealth) {
           roomViewers.get(canonicalRoomId).add(socket.id);
 
           // Seated Guest Reconnect Handler: If a grace timer is active for this user, cancel it immediately!
@@ -786,9 +797,9 @@ export function setupLiveSocket(io) {
           : await query('SELECT viewer_count, is_comment_disabled, is_reaction_disabled FROM live_rooms WHERE room_id = ?', [canonicalRoomId]);
         const activeCount = dbCountRow ? Math.max(0, dbCountRow.viewer_count) : roomViewers.get(canonicalRoomId).size;
 
-        // Emit updated viewer count to room ONLY if changed
+        // Emit updated viewer count to room ONLY if changed and user is NOT invisible
         const lastCount = roomLastViewerCount.get(canonicalRoomId);
-        if (lastCount !== activeCount) {
+        if (!isStealth && lastCount !== activeCount) {
           roomLastViewerCount.set(canonicalRoomId, activeCount);
           io.to(canonicalRoomId).emit('viewer-count-update', { roomId: canonicalRoomId, count: activeCount, viewer_count: activeCount });
           io.emit('room_stats_update', { roomId: canonicalRoomId, numericRoomId, viewer_count: activeCount, count: activeCount });
@@ -850,11 +861,11 @@ export function setupLiveSocket(io) {
           console.warn('Late joiner seat sync warning:', seatSyncErr.message);
         }
 
-        // Emit user joined welcome notice ONLY if not host and not announced within 20s
+        // Emit user joined welcome notice ONLY if not host, not invisible stealth, and not announced within 20s
         const userKey = `${canonicalRoomId}_${currentUser.id}`;
         const lastAnnounced = roomUserJoinAnnounced.get(userKey);
         const now = Date.now();
-        const shouldAnnounceJoin = !isHost && currentUser?.id && (!lastAnnounced || (now - lastAnnounced > 20000));
+        const shouldAnnounceJoin = !isHost && !isStealth && currentUser?.id && (!lastAnnounced || (now - lastAnnounced > 20000));
         if (shouldAnnounceJoin) {
           roomUserJoinAnnounced.set(userKey, now);
           const joinedPayload = {
@@ -880,6 +891,14 @@ export function setupLiveSocket(io) {
             timestamp: new Date().toISOString(),
           };
           io.to(canonicalRoomId).emit('user-joined', joinedPayload);
+        } else if (isStealth) {
+          // Notify the connecting socket directly that they are in stealth mode
+          socket.emit('stealth_mode_active', {
+            roomId: canonicalRoomId,
+            is_invisible: true,
+            invisible_room_enter: true,
+            message: 'You have entered in Ghost Mode (Invisible entry). You are not shown in viewers or counts.',
+          });
         }
       } catch (err) {
         console.error('Socket join-room error:', err.message);

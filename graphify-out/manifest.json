@@ -120,9 +120,9 @@
     "semantic_hash": ""
   },
   "backend/src/controllers/authController.js": {
-    "mtime": 1792831027.957765,
-    "seen": 1792831316.8473291,
-    "ast_hash": "e2b00099a83e697ed9a917a7b3bcd21a",
+    "mtime": 1793111827.0469031,
+    "seen": 1793111947.7662148,
+    "ast_hash": "bd71fbb98ccf190e1d7e718e31d26223",
     "semantic_hash": ""
   },
   "backend/src/controllers/giftController.js": {
@@ -192,9 +192,9 @@
     "semantic_hash": ""
   },
   "backend/src/sockets/liveSocket.js": {
-    "mtime": 1793035862.6749647,
-    "seen": 1793035877.3507211,
-    "ast_hash": "d47e5632dc80e20aa7c83bd9071703c9",
+    "mtime": 1793111903.9800923,
+    "seen": 1793111947.7676642,
+    "ast_hash": "07dbfe28b7143112a6ec23a51fc6028a",
     "semantic_hash": ""
   },
   "admin-panel/src/pages/Agencies.jsx": {
@@ -528,9 +528,9 @@
     "semantic_hash": ""
   },
   "admin-panel/src/api/apiSpec.js": {
-    "mtime": 1793110881.2782166,
-    "seen": 1793110944.9698188,
-    "ast_hash": "22067109a701cc290b7c6712d07862bf",
+    "mtime": 1793111921.275274,
+    "seen": 1793111947.764578,
+    "ast_hash": "3666c494497dca1026f7efd46fbab217",
     "semantic_hash": ""
   },
   "admin-panel/src/pages/ApiDocs.jsx": {
@@ -546,9 +546,9 @@
     "semantic_hash": ""
   },
   "backend/src/controllers/mobile/authController.js": {
-    "mtime": 1792869468.1836708,
-    "seen": 1792923944.344696,
-    "ast_hash": "5546cb979ff4cc106a55c531b861f668",
+    "mtime": 1793111816.2015927,
+    "seen": 1793111947.766293,
+    "ast_hash": "28c1532159dd5bb1c342a8468832b446",
     "semantic_hash": ""
   },
   "backend/src/controllers/mobile/giftController.js": {
@@ -558,9 +558,9 @@
     "semantic_hash": ""
   },
   "backend/src/controllers/mobile/liveController.js": {
-    "mtime": 1793035160.6943965,
-    "seen": 1793035184.102543,
-    "ast_hash": "e32dc5536632d7328b5318a45f9d43db",
+    "mtime": 1793111874.4730954,
+    "seen": 1793111947.7665138,
+    "ast_hash": "3649847cadb8954c38ed34fa77ac78d8",
     "semantic_hash": ""
   },
   "backend/src/controllers/mobile/packageController.js": {
@@ -942,9 +942,9 @@
     "semantic_hash": ""
   },
   "backend/src/controllers/mobile/userController.js": {
-    "mtime": 1792928850.9249747,
-    "seen": 1792929389.134024,
-    "ast_hash": "7fe1883e208f159790e9827d3f6b7408",
+    "mtime": 1793111845.0760832,
+    "seen": 1793111947.766635,
+    "ast_hash": "e1f8fd4e582e51e9f5336e34fc31064d",
     "semantic_hash": ""
   },
   "backend/src/routes/mobile/userRoutes.js": {
@@ -6345,6 +6345,12 @@
     "mtime": 1793095305.8571973,
     "seen": 1793095420.7352462,
     "ast_hash": "5eabea8722002ebeaf1213a4a2c3bebb",
+    "semantic_hash": ""
+  },
+  "backend/src/services/userPrivilegeService.js": {
+    "mtime": 1793111630.7484972,
+    "seen": 1793111947.767643,
+    "ast_hash": "a1ce775d8c9f7ab293939d31e19ef266",
     "semantic_hash": ""
   }
 }

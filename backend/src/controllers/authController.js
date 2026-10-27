@@ -10,6 +10,7 @@ import {
   executeDummyTimingCheck,
   isWeakDictionaryPassword,
 } from '../middlewares/securityMiddleware.js';
+import { getUserSpecialPrivileges } from '../services/userPrivilegeService.js';
 
 export async function register(req, res) {
   try {
@@ -247,9 +248,12 @@ export async function getMe(req, res) {
       return res.status(404).json({ success: false, message: 'User not found.' });
     }
 
+    const specialPrivileges = await getUserSpecialPrivileges(userId, user.role);
+    const fullUser = { ...user, ...specialPrivileges };
+
     return res.json({
       success: true,
-      user,
+      user: fullUser,
     });
   } catch (err) {
     console.error('getMe error:', err);

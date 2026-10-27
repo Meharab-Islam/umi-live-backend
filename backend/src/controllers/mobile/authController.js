@@ -11,6 +11,7 @@ import {
   executeDummyTimingCheck,
   isWeakDictionaryPassword,
 } from '../../middlewares/securityMiddleware.js';
+import { getUserSpecialPrivileges } from '../../services/userPrivilegeService.js';
 
 /**
  * Mobile User Registration
@@ -82,6 +83,9 @@ export async function register(req, res) {
       is_banned: false,
       created_at: new Date().toISOString(),
     };
+
+    const specialPrivileges = await getUserSpecialPrivileges(newUserId, finalRole);
+    Object.assign(userObj, specialPrivileges);
 
     // 2. Instant Redis Synchronization
     await cache.set(`user:${newUserId}`, userObj, 300);
@@ -209,6 +213,9 @@ export async function login(req, res) {
 
     user.followers_count = Number(followCounts?.followers_count) || 0;
     user.following_count = Number(followCounts?.following_count) || 0;
+
+    const specialPrivileges = await getUserSpecialPrivileges(user.id, user.role);
+    Object.assign(user, specialPrivileges);
 
     // Cache authenticated user profile in Redis
     await cache.set(`user:${user.id}`, user, 300);
@@ -475,6 +482,9 @@ export async function googleLogin(req, res) {
     user.followers_count = Number(followCounts?.followers_count) || 0;
     user.following_count = Number(followCounts?.following_count) || 0;
 
+    const specialPrivileges = await getUserSpecialPrivileges(user.id, user.role);
+    Object.assign(user, specialPrivileges);
+
     // Cache authenticated user profile in Redis
     await cache.set(`user:${user.id}`, user, 300);
 
@@ -653,6 +663,7 @@ export async function getMe(req, res) {
       agency_id: userProfile.agency_id,
       is_banned: !!userProfile.is_banned,
       created_at: userProfile.created_at,
+      ...await getUserSpecialPrivileges(userId, userProfile.role),
     };
 
     return res.json({
@@ -1005,6 +1016,9 @@ export async function verifyOtp(req, res) {
       await cache.delByPattern('admin:users*');
       await cache.delByPattern('admin:dashboard*');
     }
+
+    const specialPrivileges = await getUserSpecialPrivileges(userObj.id, userObj.role);
+    Object.assign(userObj, specialPrivileges);
 
     // Cache user session
     await cache.set(`user:${userObj.id}`, userObj, 300);

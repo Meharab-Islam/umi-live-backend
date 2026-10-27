@@ -3708,6 +3708,10 @@ export const API_SPEC = {
               "diamonds": 350,
               "is_diamond_mode": true,
               "coin_to_diamond_ratio": 1,
+              "accept_my_own_video_live_seat_request": true,
+              "acceppt_my_own_video_live_seat_requst": true,
+              "invisible_room_enter": false,
+              "invigible_room_enter": false,
               "created_at": "2026-10-11T21:40:00.000Z"
             }
           }

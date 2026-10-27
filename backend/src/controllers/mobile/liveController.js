@@ -6,6 +6,7 @@ import { sendLiveRoomStartedPushNotification } from '../../config/firebase.js';
 import { cancelHostDisconnectGraceTimer, hostDisconnectGraceTimers, clearRoomMemoryState } from '../../sockets/liveSocket.js';
 import { checkStreamRewardStatus, claimAndAwardLiveReward } from '../../services/liveRewardService.js';
 import { notifyLiveStarted, handleLiveEndedNotifications } from '../../services/notificationService.js';
+import { checkUserSelfSeatAcceptPrivilege, checkUserInvisibleRoomEnterPrivilege } from '../../services/userPrivilegeService.js';
 
 /**
  * Format elapsed seconds into standard timer format:
@@ -859,8 +860,17 @@ export async function joinRoom(req, res) {
       }
     }
 
-    // 1. DB-First: Record user in live_room_viewers (EXCLUDE HOST)
-    if (currentUser.id !== room.host_id) {
+    // Stealth / Invisible room entry check for moderators & admins
+    const hasInvisiblePrivilege = await checkUserInvisibleRoomEnterPrivilege(currentUser.id, currentUser.role);
+    const requestedInvisible = Boolean(
+      req.body.is_invisible || req.body.invisible || req.body.is_stealth || req.body.stealth ||
+      req.query.is_invisible || req.query.invisible || req.query.is_stealth || req.query.stealth ||
+      req.headers['x-invisible-entry'] === 'true'
+    );
+    const isInvisible = hasInvisiblePrivilege && (requestedInvisible || (req.body.is_invisible !== false && req.query.is_invisible !== 'false'));
+
+    // 1. DB-First: Record user in live_room_viewers (EXCLUDE HOST AND INVISIBLE/STEALTH MODERATORS)
+    if (currentUser.id !== room.host_id && !isInvisible) {
       await query(
         `INSERT INTO live_room_viewers (room_id, user_id, joined_at, last_active_at)
          VALUES (?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
@@ -899,10 +909,9 @@ export async function joinRoom(req, res) {
 
     // 3. Socket broadcast: join notification is handled by socket 'join-room' event.
     // HTTP API only syncs viewer count and joins socket room to prevent duplicate welcome messages.
-    if (req.io) {
+    // If user entered in invisible stealth mode, suppress viewer-count-update broadcast!
+    if (req.io && !isInvisible) {
       req.io.to(canonicalRoomId).emit('viewer-count-update', { roomId: canonicalRoomId, count: currentViewerCount, viewer_count: currentViewerCount });
-
-// Sockets join room explicitly via socket event join-room
     }
 
     // 4. Build comprehensive room response with seats and duration
@@ -910,9 +919,12 @@ export async function joinRoom(req, res) {
 
     return res.json({
       success: true,
-      message: 'Joined live room successfully.',
+      message: isInvisible ? 'Joined live room in invisible stealth mode.' : 'Joined live room successfully.',
       room: roomData,
       viewer_count: currentViewerCount,
+      is_invisible: isInvisible,
+      invisible_room_enter: isInvisible,
+      invigible_room_enter: isInvisible,
     });
   } catch (err) {
     console.error('Mobile joinRoom error:', err);
@@ -2353,15 +2365,10 @@ export async function approveSeatRequest(req, res) {
     const { seatNumber, seat_number } = req.body;
     const hostId = req.user.id;
 
-    // Verify requester is host or room admin
+    // Verify room is live
     const rooms = await query('SELECT host_id, total_seats FROM live_rooms WHERE room_id = ? AND status = "live"', [roomId]);
     if (rooms.length === 0) return res.status(404).json({ success: false, message: 'Live room not active.' });
     const room = rooms[0];
-
-    if (hostId !== room.host_id && req.user.role !== 'admin' && req.user.role !== 'superadmin') {
-      const adminRows = await query('SELECT id FROM live_room_admins WHERE room_id = ? AND user_id = ?', [roomId, hostId]);
-      if (adminRows.length === 0) return res.status(403).json({ success: false, message: 'Only host or room admin can approve seat requests.' });
-    }
 
     const requestRows = await query('SELECT * FROM live_room_seat_requests WHERE id = ? AND room_id = ? AND status = "pending"', [requestId, roomId]);
     if (requestRows.length === 0) {
@@ -2369,6 +2376,35 @@ export async function approveSeatRequest(req, res) {
     }
     const requestRow = requestRows[0];
     const targetUserId = requestRow.user_id;
+
+    // Authorization:
+    // 1. Host or Room Admin or System Admin/Superadmin
+    // 2. OR Self-approval if user is accepting their own seat request and possesses self_seat_accept privilege
+    const isSelfApproval = Number(targetUserId) === Number(req.user.id);
+    let isAuthorized = hostId === room.host_id || req.user.role === 'admin' || req.user.role === 'superadmin';
+
+    if (!isAuthorized && isSelfApproval) {
+      const canSelfAccept = await checkUserSelfSeatAcceptPrivilege(req.user.id);
+      if (canSelfAccept) {
+        isAuthorized = true;
+      }
+    }
+
+    if (!isAuthorized) {
+      const adminRows = await query('SELECT id FROM live_room_admins WHERE room_id = ? AND user_id = ?', [roomId, hostId]);
+      if (adminRows.length > 0) {
+        isAuthorized = true;
+      }
+    }
+
+    if (!isAuthorized) {
+      return res.status(403).json({
+        success: false,
+        message: isSelfApproval
+          ? 'Your active VIP package does not have privilege to self-accept seat requests.'
+          : 'Only host or room admin can approve seat requests.',
+      });
+    }
 
     // Determine seat number
     let assignSeatNum = parseInt(seat_number || seatNumber || requestRow.seat_number, 10);
