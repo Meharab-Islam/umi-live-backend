@@ -158,28 +158,24 @@ function updateSplash(val) {
 
   if (splashProgress >= 100 && !splashDone) {
     splashDone = true;
-    clearInterval(splashInterval);
-    setTimeout(() => {
-      if (DOM.splashScreen) {
-        DOM.splashScreen.classList.add('fade-out');
-        setTimeout(() => DOM.splashScreen.style.display = 'none', 520);
-      }
-    }, 320);
+    if (splashInterval) clearInterval(splashInterval);
+    if (DOM.splashScreen) {
+      DOM.splashScreen.classList.add('fade-out');
+      setTimeout(() => { if (DOM.splashScreen) DOM.splashScreen.style.display = 'none'; }, 180);
+    }
   }
 }
 
-// Initial smooth progress progression
+// Snappy progress progression
 splashInterval = setInterval(() => {
   if (splashProgress < 90) {
-    const inc = Math.floor(Math.random() * 9) + 6;
+    const inc = Math.floor(Math.random() * 15) + 12;
     updateSplash(splashProgress + inc);
   }
-}, 110);
+}, 30);
 
 function finishSplash() {
-  // Ensure visual progress reaches 100% smoothly
-  setTimeout(() => updateSplash(96), 100);
-  setTimeout(() => updateSplash(100), 280);
+  updateSplash(100);
 }
 
 // ─── Formatting ───────────────────────────────────────────────────────────────

@@ -250,10 +250,13 @@ document.addEventListener('DOMContentLoaded', () => {
   updateNeonRunnerPosition(state.currentRunnerPos);
   connectSocket();
 
-  // Hide loader after brief warm-up
-  setTimeout(() => {
-    if (dom.loading) dom.loading.classList.add('hidden');
-  }, 1200);
+  // Instant smooth loader dismissal
+  requestAnimationFrame(() => {
+    if (dom.loading) {
+      dom.loading.classList.add('hidden');
+      setTimeout(() => dom.loading.remove(), 250);
+    }
+  });
 });
 
 // ─── URL Parameters for Flutter Integration ───────────────────
