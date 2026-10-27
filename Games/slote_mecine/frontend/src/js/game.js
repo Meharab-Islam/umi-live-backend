@@ -37,28 +37,28 @@ const FRUIT_AURA_COLORS = {
 };
 
 const CHIP_DENOMINATIONS = [
-  { amount: 50000,   label: '50K',  svg: "images/chips/chip-50k.svg'  },
-  { amount: 100000,  label: '100K', svg: "images/chips/chip-100k.svg' },
-  { amount: 500000,  label: '500K', svg: "images/chips/chip-500k.svg' },
-  { amount: 1000000, label: '1M',   svg: "images/chips/chip-1m.svg'   },
+  { amount: 100,   label: '100',  svg: 'images/chips/chip-50k.svg'  },
+  { amount: 500,   label: '500',  svg: 'images/chips/chip-100k.svg' },
+  { amount: 1000,  label: '1K',   svg: 'images/chips/chip-500k.svg' },
+  { amount: 5000,  label: '5K',   svg: 'images/chips/chip-1m.svg'   },
 ];
 
 // ─── Game State ───────────────────────────────────────────────
 let state = {
-  playerId: 'user_' + Math.random().toString(36).substring(2, 8),
-  username: 'LuckyPlayer',
-  balance: 3256751,
-  todayWin: 1500000,
-  jackpot: 1887773133,
-  roundNumber: 2165,
+  playerId: null,
+  username: 'Player',
+  balance: 0,
+  todayWin: 0,
+  jackpot: 0,
+  roundNumber: 1,
   phase: 'betting', // 'betting' | 'spinning' | 'result'
-  countdown: 12,
-  selectedChip: 100000, // 100K default
+  countdown: 15,
+  selectedChip: 100,
   userBets: {}, // { [fruitIndex]: totalBetAmount }
   lastRoundBets: {}, // For auto-betting
   isAuto: false,
   isMuted: false,
-  currentRunnerPos: 4, // Starts on Strawberry
+  currentRunnerPos: 0,
   isSpinning: false,
   pendingHistory: null,
   socket: null,

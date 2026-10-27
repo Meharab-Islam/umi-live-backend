@@ -35,7 +35,7 @@ export const INTEGRATED_GAMES = [
     min_bet: 100,
     max_bet: 50000,
     chips: [100, 500, 1000, 5000],
-    settings: { jackpot: 1887773133, preset: 'competitive' },
+    settings: { jackpot: 0, preset: 'competitive' },
   },
   {
     id: 3,

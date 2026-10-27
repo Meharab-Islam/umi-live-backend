@@ -95,14 +95,14 @@ mongoose
       if (!existingUser) {
         await User.create({
           _id: DEMO_USER_ID,
-          name: "Demo Player",
-          username: "demoplayer",
-          diamond: 100000,
-          rCoin: 50000,
+          name: "Guest Player",
+          username: "guestplayer",
+          diamond: 0,
+          rCoin: 0,
           gender: "male",
           country: "Global",
         });
-        console.log("Demo user created with ID:", DEMO_USER_ID);
+        console.log("Guest user created with ID:", DEMO_USER_ID);
       }
     } catch (e) {
       console.log("Demo user seed note:", e.message);
@@ -196,10 +196,10 @@ io.on("connection", async (socket) => {
     if (!user && targetUserId === "6579c2980cb6184131234567") {
       user = await User.create({
         _id: "6579c2980cb6184131234567",
-        name: "Demo Player",
-        username: "demoplayer",
-        diamond: 100000,
-        rCoin: 50000,
+        name: "Guest Player",
+        username: "guestplayer",
+        diamond: 0,
+        rCoin: 0,
         gender: "male",
         country: "Global",
       });

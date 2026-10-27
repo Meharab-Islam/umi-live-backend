@@ -60,7 +60,7 @@ const SESSION_ID = getSession();
 
 // ─── State ────────────────────────────────────────────────────────────────────
 const S = {
-  balance:            10000,
+  balance:            0,
   todayProfit:        0,
   selectedAmt:        parseInt(localStorage.getItem(AMOUNT_KEY)) || 50000,
   bets:               {},       // { [foodId]: amount } — multi-bet across all 8 foods!

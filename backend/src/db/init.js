@@ -1355,7 +1355,7 @@ export async function initializeDatabase() {
           min_bet: 100,
           max_bet: 50000,
           chips: JSON.stringify([100, 500, 1000, 5000]),
-          settings: JSON.stringify({ jackpot: 1887773133, preset: 'competitive' }),
+          settings: JSON.stringify({ jackpot: 0, preset: 'competitive' }),
         },
         {
           slug: 'ferrywheel',

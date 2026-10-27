@@ -19,7 +19,7 @@ db.pragma('cache_size = -8000');
 db.exec(`
   CREATE TABLE IF NOT EXISTS players (
     session_id   TEXT PRIMARY KEY,
-    balance      INTEGER NOT NULL DEFAULT 10000,
+    balance      INTEGER NOT NULL DEFAULT 0,
     today_profit INTEGER NOT NULL DEFAULT 0,
     total_bets   INTEGER NOT NULL DEFAULT 0,
     total_wins   INTEGER NOT NULL DEFAULT 0,

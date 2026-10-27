@@ -4,9 +4,14 @@ backend/uploads/*
 node_modules/
 **/node_modules/
 .env
+**/.env
+**/.env.*
 admin-panel/.env
 .DS_Store
 **/.DS_Store
 graphify-out/cache/
+**/*.db-shm
+**/*.db-wal
+**/build/
 
 

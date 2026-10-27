@@ -105,14 +105,14 @@ mongoose
     if (!existingUser) {
       await User.create({
         _id: DEMO_USER_ID,
-        name: "Demo Player",
-        username: "demoplayer",
-        diamond: 100000,
-        rCoin: 50000,
+        name: "Guest Player",
+        username: "guestplayer",
+        diamond: 0,
+        rCoin: 0,
         gender: "male",
         country: "Global",
       });
-      console.log("Demo user created with ID:", DEMO_USER_ID);
+      console.log("Guest user created with ID:", DEMO_USER_ID);
     }
 
     // Seed default settings if not present

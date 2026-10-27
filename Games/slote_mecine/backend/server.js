@@ -78,8 +78,8 @@ const memoryStore = {
   players: new Map(),
   rounds: [],
   bets: [],
-  jackpot: 1887773133,
-  roundNumber: 2165,
+  jackpot: 0,
+  roundNumber: 1,
   webhookUrls: new Set(),
   webhooks: new Map(), // webhookId -> { id, url, secret, events, isActive, successCount, failCount, lastStatus, lastDispatchedAt, lastError }
 };
@@ -127,6 +127,52 @@ async function initDb() {
     } catch (whErr) {
       console.warn('⚠️ Webhooks table init warning:', whErr.message);
     }
+
+    // Sync state with main project database
+    try {
+      // 1. Load round number from mini_game_rounds
+      const [maxRound] = await pool.query(
+        "SELECT MAX(round_number) as max_round FROM mini_game_rounds WHERE game_slug = 'slote_mecine'"
+      );
+      if (maxRound && maxRound[0]?.max_round) {
+        gameState.roundNumber = parseInt(maxRound[0].max_round) + 1;
+      } else {
+        gameState.roundNumber = 1;
+      }
+
+      // 2. Load recent round history
+      const [rounds] = await pool.query(
+        "SELECT * FROM mini_game_rounds WHERE game_slug = 'slote_mecine' ORDER BY id DESC LIMIT 10"
+      );
+      resultHistory = (rounds || []).map((r) => {
+        const fruit = FRUITS.find((f) => f.name.toLowerCase() === r.winner_outcome.toLowerCase()) || FRUITS[0];
+        let details = {};
+        try { details = typeof r.details === 'string' ? JSON.parse(r.details) : (r.details || {}); } catch(_) {}
+        return {
+          fruitId: fruit.id,
+          fruit,
+          multiplier: fruit.multiplier,
+          reelMultiplier: details.reelMultiplier || 1,
+        };
+      });
+
+      // 3. Load jackpot and settings from mini_games
+      const [games] = await pool.query(
+        "SELECT * FROM mini_games WHERE slug = 'slote_mecine' LIMIT 1"
+      );
+      if (games && games.length > 0) {
+        let set = games[0].settings;
+        if (typeof set === 'string') {
+          try { set = JSON.parse(set); } catch(_) { set = {}; }
+        }
+        if (set?.jackpot !== undefined) {
+          gameState.jackpot = parseInt(set.jackpot) || 0;
+        }
+      }
+      console.log(`🎰 [Slot Machine] Synced with Main DB: Round #${gameState.roundNumber}, History count: ${resultHistory.length}, Jackpot: ${gameState.jackpot}`);
+    } catch (syncErr) {
+      console.warn('⚠️ Main DB sync warning:', syncErr.message);
+    }
   } catch (err) {
     console.warn(`⚠️ MySQL not reachable (${err.message}). Using in-memory store for game rounds & players.`);
     useMemoryDb = true;
@@ -151,22 +197,14 @@ const FRUITS = [
   { id: 7, index: 7, name: 'cherry',     displayName: 'Cherry',     emoji: '🍒', multiplier: 45, color: '#dc2626', weight: 3,  icon: '/images/fruits/cherry.png'     },
 ];
 
-let resultHistory = [
-  { fruitId: 1, fruit: FRUITS[1], multiplier: 5, reelMultiplier: 1 },
-  { fruitId: 3, fruit: FRUITS[3], multiplier: 5, reelMultiplier: 1 },
-  { fruitId: 1, fruit: FRUITS[1], multiplier: 5, reelMultiplier: 1 },
-  { fruitId: 1, fruit: FRUITS[1], multiplier: 5, reelMultiplier: 1 },
-  { fruitId: 1, fruit: FRUITS[1], multiplier: 5, reelMultiplier: 1 },
-  { fruitId: 0, fruit: FRUITS[0], multiplier: 5, reelMultiplier: 1 },
-  { fruitId: 2, fruit: FRUITS[2], multiplier: 5, reelMultiplier: 2 },
-];
+let resultHistory = [];
 
 let gameConfig = {
   chipDenominations: [
-    { amount: 50000, label: '50K' },
-    { amount: 100000, label: '100K' },
-    { amount: 500000, label: '500K' },
-    { amount: 1000000, label: '1M' },
+    { amount: 100, label: '100' },
+    { amount: 500, label: '500' },
+    { amount: 1000, label: '1K' },
+    { amount: 5000, label: '5K' },
   ],
   commissionPercent: 5,             // Winning commission % for admin (0..50)
   commissionDeductionType: 'gross', // 'gross' (from total win) | 'net_profit' (from profit)
@@ -179,22 +217,22 @@ let adminControls = {
   forcedWinner: null,   // null = random/fair, 0..7 = forced fruit
   forcedReels: null,    // null = random, or [2, 2, 2]
   isPaused: false,
-  bettingDuration: 12,
+  bettingDuration: 15,
   spinDurationMs: 4200,
 };
 
 let gameState = {
-  roundNumber: 2165,
-  jackpot: 1887773133,
+  roundNumber: 1,
+  jackpot: 0,
   phase: 'betting', // 'betting' | 'spinning' | 'result'
-  countdown: 12,
-  winningIndex: 4,
-  miniReels: [2, 2, 2],
-  reelMultiplier: 2,
+  countdown: 15,
+  winningIndex: 0,
+  miniReels: [1, 1, 1],
+  reelMultiplier: 1,
   spinStartTime: 0,
   spinDurationMs: 4200,
   currentBets: new Map(), // playerId -> { [fruitIndex]: totalBetAmount }
-  fruitPoolBets: [150000, 250000, 100000, 200000, 350000, 150000, 100000, 50000],
+  fruitPoolBets: [0, 0, 0, 0, 0, 0, 0, 0],
   onlinePlayers: 1,
   totalCommissionEarned: 0, // Cumulative admin earnings from player winnings
   lastRoundCommission: 0,   // Commission collected in the last round
@@ -714,16 +752,6 @@ function startGameLoop() {
 
     if (gameState.phase === 'betting') {
       gameState.countdown--;
-      gameState.jackpot += Math.floor(Math.random() * 500) + 100;
-
-      // Simulated active room bets
-      if (Math.random() < 0.4) {
-        const randFruit = Math.floor(Math.random() * 8);
-        const amounts = [50000, 100000, 500000];
-        const addBet = amounts[Math.floor(Math.random() * amounts.length)];
-        gameState.fruitPoolBets[randFruit] += addBet;
-        io.emit('room_bet', { fruitIndex: randFruit, amount: addBet, total: gameState.fruitPoolBets[randFruit] });
-      }
 
       io.emit('timer_tick', {
         countdown: gameState.countdown,
@@ -783,6 +811,28 @@ async function handleRoundResult() {
       if (winAmount > 0) player.total_won += winAmount;
       await savePlayer(player);
 
+      // Record bet outcomes in main DB (mini_game_bets)
+      if (pool && player.userId) {
+        try {
+          if (betOnWinner > 0) {
+            await pool.query(
+              `UPDATE mini_game_bets 
+               SET status = 'won', win_amount = ? 
+               WHERE user_id = ? AND game_slug = 'slote_mecine' AND round_id = ? AND selection = ?`,
+              [winAmount, player.userId, String(gameState.roundNumber), winningFruit.name]
+            );
+          }
+          await pool.query(
+            `UPDATE mini_game_bets 
+             SET status = 'lost', win_amount = 0 
+             WHERE user_id = ? AND game_slug = 'slote_mecine' AND round_id = ? AND status = 'pending'`,
+            [player.userId, String(gameState.roundNumber)]
+          );
+        } catch (betDbErr) {
+          console.warn('⚠️ Error updating mini_game_bets in main DB:', betDbErr.message);
+        }
+      }
+
       playerResults.push({
         playerId,
         betOnWinner,
@@ -813,6 +863,41 @@ async function handleRoundResult() {
   // Accumulate admin commission into house vault
   gameState.totalCommissionEarned = (gameState.totalCommissionEarned || 0) + roundCommissionTotal;
   gameState.lastRoundCommission = roundCommissionTotal;
+
+  // Save completed round history in main DB (mini_game_rounds)
+  if (pool) {
+    try {
+      const totalBetsThisRound = gameState.fruitPoolBets.reduce((a, b) => a + b, 0);
+      const totalPayoutThisRound = playerResults.reduce((a, p) => a + (p.winAmount || 0), 0);
+      await pool.query(
+        `INSERT INTO mini_game_rounds (game_slug, round_number, winner_outcome, total_bets, total_payout, details)
+         VALUES ('slote_mecine', ?, ?, ?, ?, ?)`,
+        [
+          gameState.roundNumber,
+          winningFruit.name,
+          totalBetsThisRound,
+          totalPayoutThisRound,
+          JSON.stringify({
+            fruitId: winningFruit.id,
+            fruitName: winningFruit.displayName,
+            multiplier: fruitMult,
+            miniReels: gameState.miniReels,
+            reelMultiplier: gameState.reelMultiplier,
+            totalMultiplier: totalMult,
+            roundCommission: roundCommissionTotal,
+          }),
+        ]
+      );
+
+      // Update jackpot in mini_games table in main DB
+      await pool.query(
+        `UPDATE mini_games SET settings = JSON_SET(COALESCE(settings, '{}'), '$.jackpot', ?) WHERE slug = 'slote_mecine'`,
+        [gameState.jackpot]
+      );
+    } catch (roundDbErr) {
+      console.warn('⚠️ Error saving mini_game_rounds to main DB:', roundDbErr.message);
+    }
+  }
 
   io.emit('round_result', {
     roundNumber: gameState.roundNumber,
@@ -851,7 +936,7 @@ async function handleRoundResult() {
   broadcastAdminUpdate();
 
   gameState.currentBets.clear();
-  gameState.fruitPoolBets = [120000, 200000, 90000, 160000, 280000, 140000, 80000, 40000];
+  gameState.fruitPoolBets = [0, 0, 0, 0, 0, 0, 0, 0];
 
   setTimeout(() => {
     gameState.roundNumber++;
@@ -907,47 +992,83 @@ function broadcastAdminUpdate() {
   io.to('admin').emit('admin_state', getAdminState());
 }
 
-// ─── Player Storage Helpers ─────────────────────────────────────────────────
+// ─── Player Storage Helpers (Integrated with Main Project Database) ───────────
 async function getPlayer(playerId) {
-  if (useMemoryDb || !pool) {
-    if (!memoryStore.players.has(playerId)) {
-      memoryStore.players.set(playerId, {
-        player_id: playerId,
-        username: 'Player',
-        balance: 3256751,
-        total_won: 1500000,
-        total_bet: 0,
-      });
+  const numericId = parseInt(playerId, 10);
+
+  if (pool) {
+    try {
+      let user = null;
+      if (!isNaN(numericId) && numericId > 0) {
+        const [users] = await pool.query(
+          'SELECT id, name, username, coins, diamonds, avatar FROM users WHERE id = ?',
+          [numericId]
+        );
+        if (users && users.length > 0) user = users[0];
+      }
+      if (!user) {
+        const [users] = await pool.query(
+          'SELECT id, name, username, coins, diamonds, avatar FROM users WHERE username = ? OR id = ?',
+          [String(playerId), String(playerId)]
+        );
+        if (users && users.length > 0) user = users[0];
+      }
+
+      if (user) {
+        let todayWon = 0;
+        try {
+          const [wins] = await pool.query(
+            `SELECT COALESCE(SUM(win_amount), 0) as total_win 
+             FROM mini_game_bets 
+             WHERE user_id = ? AND game_slug = 'slote_mecine' AND status = 'won' 
+             AND created_at >= CURDATE()`,
+            [user.id]
+          );
+          todayWon = parseInt(wins[0]?.total_win) || 0;
+        } catch (_) {}
+
+        return {
+          player_id: String(user.id),
+          userId: user.id,
+          username: user.name || user.username || 'Player',
+          balance: parseInt(user.coins) || 0,
+          total_won: todayWon,
+          total_bet: 0,
+          isRealUser: true,
+        };
+      }
+    } catch (err) {
+      console.warn('⚠️ Error querying main users table:', err.message);
     }
-    return memoryStore.players.get(playerId);
   }
 
-  try {
-    const [rows] = await pool.query('SELECT * FROM players WHERE player_id=?', [playerId]);
-    if (rows.length > 0) return rows[0];
-    await pool.query(
-      'INSERT INTO players (player_id, username, balance, total_won) VALUES (?, ?, ?, ?)',
-      [playerId, 'Player', 3256751, 1500000]
-    );
-    const [created] = await pool.query('SELECT * FROM players WHERE player_id=?', [playerId]);
-    return created[0];
-  } catch (e) {
-    useMemoryDb = true;
-    return getPlayer(playerId);
+  // Fallback for guest/demo: Default balance is 0 (No fake millions)
+  if (!memoryStore.players.has(playerId)) {
+    memoryStore.players.set(playerId, {
+      player_id: String(playerId),
+      userId: !isNaN(numericId) ? numericId : null,
+      username: 'Player',
+      balance: 0,
+      total_won: 0,
+      total_bet: 0,
+      isRealUser: false,
+    });
   }
+  return memoryStore.players.get(playerId);
 }
 
 async function savePlayer(player) {
-  if (useMemoryDb || !pool) {
-    memoryStore.players.set(player.player_id || player.playerId, player);
-    return;
+  if (player.isRealUser && pool && player.userId) {
+    try {
+      await pool.query(
+        'UPDATE users SET coins = ? WHERE id = ?',
+        [Math.max(0, player.balance), player.userId]
+      );
+    } catch (e) {
+      console.warn('⚠️ Error updating user coins in main DB:', e.message);
+    }
   }
-  try {
-    await pool.query(
-      'UPDATE players SET balance=?, total_won=?, total_bet=? WHERE player_id=?',
-      [player.balance, player.total_won, player.total_bet || 0, player.player_id || player.playerId]
-    );
-  } catch (e) { /* fallback silently */ }
+  memoryStore.players.set(player.player_id, player);
 }
 
 // ─── Socket.IO Handler ──────────────────────────────────────────────────────
@@ -1002,7 +1123,7 @@ io.on('connection', (socket) => {
   socket.on('place_bet', async (data) => {
     const pid = data?.playerId || socket.playerId || socket.id;
     const fruitIndex = parseInt(data?.fruitIndex);
-    const amount = parseInt(data?.amount) || 50000;
+    const amount = parseInt(data?.amount) || 100;
 
     if (gameState.phase !== 'betting') {
       socket.emit('bet_error', { message: 'Betting is closed for this round!' });
@@ -1023,6 +1144,19 @@ io.on('connection', (socket) => {
     player.balance -= amount;
     player.total_bet = (player.total_bet || 0) + amount;
     await savePlayer(player);
+
+    // Record bet into main DB (mini_game_bets)
+    if (pool && player.userId) {
+      try {
+        await pool.query(
+          `INSERT INTO mini_game_bets (user_id, game_slug, round_id, bet_amount, win_amount, selection, multiplier, status)
+           VALUES (?, 'slote_mecine', ?, ?, 0, ?, ?, 'pending')`,
+          [player.userId, String(gameState.roundNumber), amount, FRUITS[fruitIndex].name, FRUITS[fruitIndex].multiplier]
+        );
+      } catch (betDbErr) {
+        console.warn('⚠️ Error inserting mini_game_bet into main DB:', betDbErr.message);
+      }
+    }
 
     if (!gameState.currentBets.has(pid)) {
       gameState.currentBets.set(pid, {});
