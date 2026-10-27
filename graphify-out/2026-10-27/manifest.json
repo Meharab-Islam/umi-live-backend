@@ -1536,9 +1536,9 @@
     "semantic_hash": ""
   },
   "Games/big_eater/public/admin.js": {
-    "mtime": 1791612581.305798,
-    "seen": 1793077825.322638,
-    "ast_hash": "bea5a385c253950d352ca3e4dc8cbf12",
+    "mtime": 1793081541.675316,
+    "seen": 1793081659.459775,
+    "ast_hash": "4f477a93edebfc207b13524d138419f9",
     "semantic_hash": ""
   },
   "Games/big_eater/public/app.js": {
@@ -1548,9 +1548,9 @@
     "semantic_hash": ""
   },
   "Games/big_eater/server.js": {
-    "mtime": 1793077448.8488457,
-    "seen": 1793077825.32264,
-    "ast_hash": "b5a533223dafb14dfb0ac42dc82ffeb6",
+    "mtime": 1793081558.5930195,
+    "seen": 1793081659.459798,
+    "ast_hash": "c4f03a75a45b4ec96eab39ff9137d310",
     "semantic_hash": ""
   },
   "Games/big_eater/tailwind.config.js": {
@@ -2610,9 +2610,9 @@
     "semantic_hash": ""
   },
   "Games/big_eater/public/admin.html": {
-    "mtime": 1791612358.046756,
-    "seen": 1793077825.3272178,
-    "ast_hash": "746042bebfac77b2bf49e091ec5ef173",
+    "mtime": 1793081524.7706392,
+    "seen": 1793081659.467319,
+    "ast_hash": "e7f54a38e68d534d411c2986369e202e",
     "semantic_hash": ""
   },
   "Games/big_eater/public/index.html": {
@@ -2796,9 +2796,9 @@
     "semantic_hash": ""
   },
   "Games/slote_mecine/frontend/admin.html": {
-    "mtime": 1791698020.7794235,
-    "seen": 1793077825.3272388,
-    "ast_hash": "fe6743b6019ea2c85450a7c3dd63ba34",
+    "mtime": 1793081572.5848875,
+    "seen": 1793081659.467953,
+    "ast_hash": "147929cbfeab04ea4a18af262a1fae2a",
     "semantic_hash": ""
   },
   "Games/slote_mecine/frontend/index.html": {
@@ -6336,9 +6336,9 @@
     "semantic_hash": ""
   },
   "admin-panel/src/pages/GamesManagement.jsx": {
-    "mtime": 1793080976.563849,
-    "seen": 1793081006.520784,
-    "ast_hash": "83ef14986b8580f65d713ff4422ae2a8",
+    "mtime": 1793081638.3893182,
+    "seen": 1793081659.464721,
+    "ast_hash": "76833119a13fd3eaad4cd3443160f10e",
     "semantic_hash": ""
   },
   "backend/src/services/pubSubService.js": {

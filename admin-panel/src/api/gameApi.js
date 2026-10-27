@@ -4,6 +4,12 @@ export const gameApi = {
   /**
    * Fetch all mini-games with their active status and admin controls
    */
+  getAdminGames: async () => {
+    return await request('/admin/games', {
+      method: 'GET',
+    });
+  },
+
   getGames: async () => {
     return await request('/admin/games', {
       method: 'GET',

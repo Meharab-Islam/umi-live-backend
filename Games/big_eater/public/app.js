@@ -1150,12 +1150,24 @@ function renderTopWinnersPodium(topWinners) {
 // ════════════════════════════════════════════════════════
 //   SOCKET.IO REALTIME EVENTS
 // ════════════════════════════════════════════════════════
-const socket = io({
+const urlParams = new URLSearchParams(window.location.search);
+const serverPort = urlParams.get('port') || '5061';
+const socketHost = urlParams.get('server') || `${window.location.protocol}//${window.location.hostname}:${serverPort}`;
+
+const socket = io(socketHost, {
   transports: ['websocket', 'polling'],
   reconnectionAttempts: Infinity,
   reconnectionDelay: 1000,
   reconnectionDelayMax: 5000,
 });
+
+// Safety timer: Never let the player get stuck indefinitely on the loading splash screen
+setTimeout(() => {
+  if (!splashDone) {
+    console.log('[Big Eater] Finishing splash screen via fallback timer');
+    finishSplash();
+  }
+}, 3200);
 
 // ── Connected ──
 socket.on('connect', () => {

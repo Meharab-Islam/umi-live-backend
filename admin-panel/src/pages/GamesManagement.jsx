@@ -125,6 +125,11 @@ export default function GamesManagement({ onToast }) {
     }
     if (!path.startsWith('/')) path = '/' + path;
 
+    // Ensure directory routes have trailing slash so relative CSS and JS links load correctly
+    if (!path.includes('.') && !path.endsWith('/')) {
+      path = path + '/';
+    }
+
     // Use current browser window location origin to prevent port 80 ERR_EMPTY_RESPONSE
     const urlObj = new URL(path, window.location.origin);
 

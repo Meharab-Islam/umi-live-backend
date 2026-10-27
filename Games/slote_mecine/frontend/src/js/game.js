@@ -300,7 +300,8 @@ function parseUrlParams() {
 // ─── Socket.IO Connection ─────────────────────────────────────
 function connectSocket() {
   const urlParams = new URLSearchParams(window.location.search);
-  const host = urlParams.get('server') || `${window.location.protocol}//${window.location.hostname}:3001`;
+  const serverPort = urlParams.get('port') || '5062';
+  const host = urlParams.get('server') || `${window.location.protocol}//${window.location.hostname}:${serverPort}`;
 
   const socket = io(host, {
     transports: ['websocket', 'polling'],
