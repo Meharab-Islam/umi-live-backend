@@ -186,9 +186,9 @@
     "semantic_hash": ""
   },
   "backend/src/server.js": {
-    "mtime": 1793079447.2069504,
-    "seen": 1793079557.8528872,
-    "ast_hash": "777024b95a4425b89a2aa5a1835d2951",
+    "mtime": 1793086771.4737856,
+    "seen": 1793086874.598655,
+    "ast_hash": "744aad82c9f98f07df767a7847246d53",
     "semantic_hash": ""
   },
   "backend/src/sockets/liveSocket.js": {
@@ -2364,15 +2364,15 @@
     "semantic_hash": ""
   },
   "Games/slote_mecine/frontend/src/js/game.js": {
-    "mtime": 1793085707.8643959,
-    "seen": 1793086123.941786,
-    "ast_hash": "9838281625b2d5a65aa7814626eba9ed",
+    "mtime": 1793086277.6399233,
+    "seen": 1793086874.5946822,
+    "ast_hash": "62dad084d3b63137af355ceb831e2df5",
     "semantic_hash": ""
   },
   "Games/slote_mecine/frontend/vite.config.js": {
-    "mtime": 1791696289.7553675,
-    "seen": 1793077825.3228211,
-    "ast_hash": "bee54ca50c3b40a75076388e34f34bde",
+    "mtime": 1793086744.708778,
+    "seen": 1793086874.5946822,
+    "ast_hash": "10f8921e569e848071919d83f56aa36b",
     "semantic_hash": ""
   },
   "Games/slote_mecine/package.json": {
@@ -6351,6 +6351,30 @@
     "mtime": 1793079422.7081547,
     "seen": 1793079557.852907,
     "ast_hash": "7f6f21fc8d4731f324869850a8a63bb3",
+    "semantic_hash": ""
+  },
+  "Games/big_eater/public/images/icon.png": {
+    "mtime": 1793087162.1816933,
+    "seen": 1793087241.128372,
+    "ast_hash": "8a68a9e0fc31bc2eacd4f5992882f88e",
+    "semantic_hash": ""
+  },
+  "Games/slote_mecine/frontend/public/icon.png": {
+    "mtime": 1793087162.1928368,
+    "seen": 1793087241.134827,
+    "ast_hash": "f388520e5e83ed4e3e0e2f8c039a3497",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/icon.png": {
+    "mtime": 1793087162.188172,
+    "seen": 1793087241.135572,
+    "ast_hash": "e3ca23d91773806bbf8154770b4dfc12",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/logo192.png": {
+    "mtime": 1793087162.1854923,
+    "seen": 1793087241.135573,
+    "ast_hash": "e3ca23d91773806bbf8154770b4dfc12",
     "semantic_hash": ""
   }
 }
