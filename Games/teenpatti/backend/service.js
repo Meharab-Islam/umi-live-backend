@@ -7,6 +7,7 @@ const Wallet = require("./model/wallet.js");
 
 const { highCoinValue, HighCardCombination, PairCombination, ColorCombination, SequenceCombination, PureCombination, TrioCombinations } = require("./helper.js");
 const { adminBaseURL } = require("./config.js");
+const gameUserBridge = require("../../gameUserBridge.js");
 
 const io = require("socket.io-client");
 const mainBackendSocket = io(adminBaseURL, { reconnectionAttempts: 3, timeout: 5000 });
@@ -502,21 +503,27 @@ exports.allUserHistory = async (currentGame, result) => {
       resultBitData = resultArray[index1].BitData[resultFrameIndex];
       winCoinPercent = parseInt(resultBitData?.Bit * 2.9);
       console.log("winCoinPercent :", winCoinPercent);
-      const user = await User.findById(element?.userId);
-      console.log("user?.diamond : ", user?.diamond);
-      const user2 = await User.findOneAndUpdate(
-        { _id: element?.userId },
-        {
-          $inc: { diamond: winCoinPercent },
-        },
-        { new: true }
-      );
+      let winningUser = null;
+      if (!isNaN(parseInt(element?.userId)) && parseInt(element?.userId) > 0) {
+        await gameUserBridge.addCoins(element?.userId, winCoinPercent, 'teenpatti', 'Win on Teen Patti');
+        winningUser = await gameUserBridge.getUser(element?.userId);
+      } else if (element?.userId && mongoose.isValidObjectId(element?.userId)) {
+        const user = await User.findById(element?.userId);
+        console.log("user?.diamond : ", user?.diamond);
+        winningUser = await User.findOneAndUpdate(
+          { _id: element?.userId },
+          {
+            $inc: { diamond: winCoinPercent },
+          },
+          { new: true }
+        );
+      }
 
       const highCoinValue = global?.setting?.coinForGameAnnouncement;
-      if (winCoinPercent >= highCoinValue) {
+      if (winCoinPercent >= highCoinValue && winningUser) {
         mainBackendSocket.emit("highBit", {
           coin: winCoinPercent,
-          user: user2,
+          user: winningUser,
           game: "Teenpatti",
         });
       }

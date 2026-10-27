@@ -6,6 +6,7 @@ const FerryWheelLastHistory = require("./model/ferryWheelLastHistory.model");
 const FerryWheelRoundCounter = require("./model/ferryroundCounter.model");
 const helper = require("./helper");
 const config = require("./config");
+const gameUserBridge = require("../../gameUserBridge.js");
 
 const io = require("socket.io-client");
 const mainBackendSocket = io(config.adminBaseURL); // Use your adminBaseURL here
@@ -366,19 +367,25 @@ exports.allUserHistory = async (currentGame, result) => {
       }
 
       if (winCoinPercent > 0) {
-        const user = await User.findById(element?.userId).select({
-          name: "$name",
-          image: "$image",
-          avatarFrameImage: "$avatarFrameImage",
-        });
-        const user1 = await User.findOneAndUpdate(
-          { _id: user?._id },
-          {
-            $inc: { diamond: winCoinPercent },
-          },
-          { new: true }
-        );
-        winnerUserArrayG.push({ ...user._doc, userWinCoin: winCoinPercent });
+        let winningUser = null;
+        if (!isNaN(parseInt(element?.userId)) && parseInt(element?.userId) > 0) {
+          await gameUserBridge.addCoins(element?.userId, winCoinPercent, 'ferrywheel', 'Win on Ferry Wheel');
+          winningUser = await gameUserBridge.getUser(element?.userId);
+        } else if (element?.userId && mongoose.isValidObjectId(element?.userId)) {
+          const user = await User.findById(element?.userId).select({
+            name: "$name",
+            image: "$image",
+            avatarFrameImage: "$avatarFrameImage",
+          });
+          winningUser = await User.findOneAndUpdate(
+            { _id: user?._id },
+            {
+              $inc: { diamond: winCoinPercent },
+            },
+            { new: true }
+          );
+          if (user) winnerUserArrayG.push({ ...user._doc, userWinCoin: winCoinPercent });
+        }
 
         console.log("global.setting?.coinForGameAnnouncement -----", global.setting?.coinForGameAnnouncement);
 

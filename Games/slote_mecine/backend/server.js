@@ -1001,14 +1001,14 @@ async function getPlayer(playerId) {
       let user = null;
       if (!isNaN(numericId) && numericId > 0) {
         const [users] = await pool.query(
-          'SELECT id, name, username, coins, diamonds, avatar FROM users WHERE id = ?',
+          'SELECT id, email, full_name, coins, diamonds, avatar_url FROM users WHERE id = ?',
           [numericId]
         );
         if (users && users.length > 0) user = users[0];
       }
       if (!user) {
         const [users] = await pool.query(
-          'SELECT id, name, username, coins, diamonds, avatar FROM users WHERE username = ? OR id = ?',
+          'SELECT id, email, full_name, coins, diamonds, avatar_url FROM users WHERE email = ? OR id = ?',
           [String(playerId), String(playerId)]
         );
         if (users && users.length > 0) user = users[0];
@@ -1030,8 +1030,9 @@ async function getPlayer(playerId) {
         return {
           player_id: String(user.id),
           userId: user.id,
-          username: user.name || user.username || 'Player',
+          username: user.full_name || user.email?.split('@')[0] || 'Player',
           balance: parseInt(user.coins) || 0,
+          diamonds: parseInt(user.diamonds) || 0,
           total_won: todayWon,
           total_bet: 0,
           isRealUser: true,
@@ -1103,11 +1104,12 @@ io.on('connection', (socket) => {
     socket.join(pid);
 
     const player = await getPlayer(pid);
-    if (data?.username) player.username = data.username;
-    if (data?.externalBalance !== undefined && data.externalBalance !== null) {
+    if (data?.username && !player.isRealUser) player.username = data.username;
+    // Database is Single Source of Truth for real users. Never overwrite real user balance with externalBalance!
+    if (!player.isRealUser && data?.externalBalance !== undefined && data.externalBalance !== null && !isNaN(parseInt(data.externalBalance))) {
       player.balance = parseInt(data.externalBalance);
+      await savePlayer(player);
     }
-    await savePlayer(player);
 
     socket.emit('player_joined', {
       success: true,

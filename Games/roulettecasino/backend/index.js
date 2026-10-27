@@ -9,6 +9,7 @@ const port = config.PORT;
 const http = require("http");
 const { Server } = require("socket.io");
 const User = require("./model/user.model");
+const gameUserBridge = require("../../gameUserBridge.js");
 const GameAdminCoin = require("./model/gameAdminCoin");
 const RouletteLastHistory = require("./model/rouletteLastHistory.model");
 
@@ -191,9 +192,22 @@ io.on("connection", async (socket) => {
       : "6579c2980cb6184131234567";
 
   let user = null;
-  try {
-    user = await User.findById(targetUserId);
-    if (!user && targetUserId === "6579c2980cb6184131234567") {
+  if (globalRoom && globalRoom !== "null" && globalRoom !== "undefined") {
+    try {
+      user = await gameUserBridge.getUser(globalRoom);
+    } catch (_) {}
+  }
+
+  if (!user && targetUserId && mongoose.isValidObjectId(targetUserId)) {
+    try {
+      user = await User.findById(targetUserId);
+    } catch (e) {
+      console.log("Error querying user:", e.message);
+    }
+  }
+
+  if (!user && targetUserId === "6579c2980cb6184131234567") {
+    try {
       user = await User.create({
         _id: "6579c2980cb6184131234567",
         name: "Guest Player",
@@ -203,14 +217,23 @@ io.on("connection", async (socket) => {
         gender: "male",
         country: "Global",
       });
-    }
-  } catch (e) {
-    console.log("Error querying user:", e.message);
+    } catch (_) {}
   }
 
   socket.on("startGame", async (obj) => {
+    if (globalRoom && globalRoom !== "null" && globalRoom !== "undefined") {
+      try {
+        const freshUser = await gameUserBridge.getUser(globalRoom);
+        if (freshUser) user = freshUser;
+      } catch (_) {}
+    }
     if (user) {
-      console.log("------------------------------user in game start-------------------------------", user?.diamond);
+      console.log(
+        "------------------------------user in game start-------------------------------",
+        user?.name,
+        "balance:",
+        user?.diamond
+      );
       socket.emit("start", user);
       console.log("--user--", user.name);
       io.emit("game", currentGame);
@@ -220,13 +243,27 @@ io.on("connection", async (socket) => {
       socket.emit("start", null);
     }
   });
+
   socket.on("bit", async (obj) => {
-    const userDb = await updateUser(obj);
-    console.log("BIT ============== ");
-    if (userDb.diamond < 0) {
-      userDb.diamond = 0;
-      await userDb.save();
-      io.emit("start", userDb);
+    const bitAmount = parseInt(obj.Bit) || 0;
+    const uid = obj.User?._id || obj.User?.id || globalRoom;
+    let userDb;
+
+    if (obj.User?.isRealUser || (!isNaN(parseInt(uid)) && parseInt(uid) > 0)) {
+      await gameUserBridge.deductCoins(uid, bitAmount, 'roulettecasino', 'Bet on Roulette Casino');
+      userDb = await gameUserBridge.getUser(uid);
+      if (userDb) {
+        user = userDb;
+        socket.emit("start", userDb);
+      }
+    } else {
+      userDb = await updateUser(obj);
+      console.log("BIT ============== ");
+      if (userDb && userDb.diamond < 0) {
+        userDb.diamond = 0;
+        await userDb.save();
+        io.emit("start", userDb);
+      }
     }
     var objToModify = currentGame.cardBitCoin.find((val) => val.selectFrame === obj.SelectedFrame);
 

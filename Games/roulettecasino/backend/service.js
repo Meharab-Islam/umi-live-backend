@@ -6,6 +6,7 @@ const GameAdminCoin = require("./model/gameAdminCoin");
 const HistoryWinnerNumber = require("./model/rouletteLastHistory.model");
 
 const config = require("./config");
+const gameUserBridge = require("../../gameUserBridge.js");
 const io = require("socket.io-client");
 
 const mainBackendSocket = io(config.adminBaseURL); // Use your adminBaseURL here
@@ -393,18 +394,25 @@ exports.allUserHistory = async (currentGame, resultObj) => {
 
     await new Wallet(history).save();
 
-    const user = await User.findById(bet[findBetIndex]?.userId);
-    console.log("user.diamond------------------", user.diamond);
+    const uid = bet[findBetIndex]?.userId;
+    let winningUser = null;
+    if (!isNaN(parseInt(uid)) && parseInt(uid) > 0) {
+      await gameUserBridge.addCoins(uid, winCoinPercent, 'roulettecasino', 'Win on Roulette Casino');
+      winningUser = await gameUserBridge.getUser(uid);
+    } else if (uid && mongoose.isValidObjectId(uid)) {
+      const user = await User.findById(uid);
+      if (user) {
+        winningUser = await User.findOneAndUpdate({ _id: user._id }, { $inc: { diamond: winCoinPercent } }, { new: true });
+      }
+    }
 
-    const user2 = await User.findOneAndUpdate({ _id: user._id }, { $inc: { diamond: winCoinPercent } }, { new: true });
-
-    highCoinValue = global.setting.coinForGameAnnouncement;
-    if (winCoinPercent >= highCoinValue) {
+    highCoinValue = global.setting?.coinForGameAnnouncement || 1000;
+    if (winCoinPercent >= highCoinValue && winningUser) {
       console.log("highCoinValue--------------", highCoinValue);
 
       mainBackendSocket.emit("highBit", {
         coin: winCoinPercent,
-        user: user2,
+        user: winningUser,
         game: "Roullete Casino 🎡",
       });
     }

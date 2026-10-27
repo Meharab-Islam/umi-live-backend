@@ -12,6 +12,7 @@ dotenv.config({ path: path.resolve(__dirname, '.env') });
 dotenv.config();
 
 const { stmts, processBetsTx, getSetting, setSetting } = require('./db/database');
+const gameUserBridge = require('../gameUserBridge.js');
 
 const app    = express();
 const server = http.createServer(app);
@@ -592,6 +593,9 @@ function revealResult() {
 
   // Notify each player of their personal result
   for (const [sessionId, result] of Object.entries(betResults)) {
+    if (result.won && result.winAmount > 0 && !isNaN(parseInt(sessionId, 10)) && parseInt(sessionId, 10) > 0) {
+      gameUserBridge.addCoins(sessionId, result.winAmount, 'big_eater', 'Win on Big Eater');
+    }
     io.to(`player:${sessionId}`).emit('player:result', {
       ...result,
       winnerId,
@@ -668,19 +672,34 @@ io.on('connection', (socket) => {
   io.emit('stats:players', { count: playerCount });
 
   // ── Join ──
-  socket.on('player:join', ({ sessionId, name, avatar, balance }) => {
+  socket.on('player:join', async ({ sessionId, name, avatar, balance }) => {
     if (!sessionId || typeof sessionId !== 'string') return;
     const cleanName = (name && typeof name === 'string' && name.trim()) ? name.trim().slice(0, 30) : null;
     const cleanAvatar = (avatar && typeof avatar === 'string' && avatar.trim()) ? avatar.trim() : null;
 
-    stmts.upsertPlayer.run({
-      sessionId,
-      name: cleanName || 'Player',
-      avatar: cleanAvatar || '😎',
-    });
+    let realUser = null;
+    if (!isNaN(parseInt(sessionId, 10)) && parseInt(sessionId, 10) > 0) {
+      try {
+        realUser = await gameUserBridge.getUser(sessionId);
+      } catch (_) {}
+    }
 
-    if (typeof balance === 'number' && balance >= 0) {
-      stmts.syncBalance.run(Math.floor(balance), sessionId);
+    if (realUser) {
+      stmts.upsertPlayer.run({
+        sessionId,
+        name: realUser.name || cleanName || 'Player',
+        avatar: realUser.avatar || cleanAvatar || '😎',
+      });
+      stmts.syncBalance.run(Math.floor(realUser.balance), sessionId);
+    } else {
+      stmts.upsertPlayer.run({
+        sessionId,
+        name: cleanName || 'Player',
+        avatar: cleanAvatar || '😎',
+      });
+      if (typeof balance === 'number' && balance >= 0) {
+        stmts.syncBalance.run(Math.floor(balance), sessionId);
+      }
     }
 
     const player = stmts.getPlayer.get(sessionId);
@@ -716,6 +735,10 @@ io.on('connection', (socket) => {
 
     const player = stmts.getPlayer.get(sessionId);
     if (!player || player.balance < amt) { socket.emit('bet:error', { message: '💸 Not enough balance — tap Recharge!' }); return; }
+
+    if (!isNaN(parseInt(sessionId, 10)) && parseInt(sessionId, 10) > 0) {
+      gameUserBridge.deductCoins(sessionId, amt, 'big_eater', 'Bet on Big Eater');
+    }
 
     stmts.deductBalance.run(amt, sessionId);
     stmts.insertBet.run(sessionId, game.roundNumber, fid, amt);

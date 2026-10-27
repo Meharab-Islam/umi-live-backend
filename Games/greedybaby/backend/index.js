@@ -11,6 +11,7 @@ const http = require("http");
 const cors = require("cors");
 const { Server } = require("socket.io");
 const User = require("./model/user.model");
+const gameUserBridge = require("../../gameUserBridge.js");
 
 const {
   selectFrame,
@@ -191,13 +192,35 @@ io.on("connection", async (socket) => {
 
   console.log("globalRoom connect =====", globalRoom);
   let todayProfitCoin = 0;
-  const user = await User.findById(globalRoom);
-  todayProfitCoin = await todayProfit(globalRoom);
+  let user = null;
+
+  if (globalRoom) {
+    try {
+      user = await gameUserBridge.getUser(globalRoom);
+    } catch (_) {}
+    if (!user && mongoose.isValidObjectId(globalRoom)) {
+      try {
+        user = await User.findById(globalRoom);
+      } catch (_) {}
+    }
+    try {
+      todayProfitCoin = await gameUserBridge.getTodayProfit(globalRoom);
+    } catch (_) {}
+  }
+
   //Start game
   socket.on("startGame", async (obj) => {
+    if (globalRoom) {
+      try {
+        const freshUser = await gameUserBridge.getUser(globalRoom);
+        if (freshUser) user = freshUser;
+      } catch (_) {}
+    }
     if (user) {
       console.log(
         "------------------------------user in game start-------------------------------",
+        user?.name,
+        "balance:",
         user?.diamond
       );
       socket.emit("start", user);
@@ -218,13 +241,27 @@ io.on("connection", async (socket) => {
       socket.emit("start", null);
     }
   });
+
   socket.on("bit", async (obj) => {
-    const userDb = await updateUser(obj);
-    console.log("BIT ==============  obj.SelectedFrame", obj.SelectedFrame);
-    if (userDb?.diamond < 0) {
-      userDb.diamond = 0;
-      await userDb.save(); // @toDo
-      io.emit("start", userDb);
+    const bitAmount = parseInt(obj.Bit) || 0;
+    const uid = obj.User?._id || obj.User?.id || globalRoom;
+    let userDb;
+
+    if (obj.User?.isRealUser || (!isNaN(parseInt(uid)) && parseInt(uid) > 0)) {
+      await gameUserBridge.deductCoins(uid, bitAmount, 'greedybaby', 'Bet on Greedy Baby');
+      userDb = await gameUserBridge.getUser(uid);
+      if (userDb) {
+        user = userDb;
+        socket.emit("start", userDb);
+      }
+    } else {
+      userDb = await updateUser(obj);
+      console.log("BIT ==============  obj.SelectedFrame", obj.SelectedFrame);
+      if (userDb?.diamond < 0) {
+        userDb.diamond = 0;
+        await userDb.save();
+        io.emit("start", userDb);
+      }
     }
     var objToModify = currentGame.frameBitCoin.find(
       (val) => val.selectFrame === obj.SelectedFrame

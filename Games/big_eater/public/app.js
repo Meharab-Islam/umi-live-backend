@@ -12,7 +12,14 @@ const SOUND_KEY   = 'be_sound';
 function getSession() {
   try {
     const params = new URLSearchParams(window.location.search);
-    const customId = params.get('userId') || params.get('sessionId') || params.get('uid');
+    const customId =
+      params.get('id') ||
+      params.get('userId') ||
+      params.get('sessionId') ||
+      params.get('uid') ||
+      params.get('playerId') ||
+      params.get('player_id') ||
+      localStorage.getItem('umi_user_id');
     if (customId && customId.trim().length > 0) {
       const cleanId = customId.trim();
       localStorage.setItem(SESSION_KEY, cleanId);

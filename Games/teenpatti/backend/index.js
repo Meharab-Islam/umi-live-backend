@@ -9,6 +9,7 @@ var ObjectID = require("mongodb").ObjectID;
 const { cardUpdateSplice, win, allUserHistory, gameAdminCoin } = require("./service.js");
 const User = require("./model/userSchema.js");
 const config = require('./config.js');
+const gameUserBridge = require("../../gameUserBridge.js");
 const DEMO_USER_ID = "6579c2980cb6184131234567";
 
 global.highBitValue = 0;
@@ -179,7 +180,20 @@ io.on("connection", async (socket) => {
       ? rawUserId
       : DEMO_USER_ID;
 
-  if (userId && mongoose.isValidObjectId(userId)) {
+  // 1. Check real MySQL user database first
+  if (rawUserId && rawUserId !== "null" && rawUserId !== "undefined") {
+    try {
+      const realUser = await gameUserBridge.getUser(rawUserId);
+      if (realUser) {
+        user = realUser;
+      }
+    } catch (err) {
+      console.log("Real user lookup note:", err.message);
+    }
+  }
+
+  // 2. Fallback to MongoDB if not found in MySQL
+  if (!user && userId && mongoose.isValidObjectId(userId)) {
     try {
       user = await User.findById(userId);
     } catch (err) {
@@ -187,7 +201,7 @@ io.on("connection", async (socket) => {
     }
   }
 
-  // Fallback to demo user if not found
+  // 3. Fallback to demo user if not found
   if (!user) {
     try {
       user = await User.findById(DEMO_USER_ID);
@@ -196,6 +210,12 @@ io.on("connection", async (socket) => {
 
   //Start game
   socket.on("startGame", async (obj) => {
+    if (rawUserId && rawUserId !== "null" && rawUserId !== "undefined") {
+      try {
+        const freshUser = await gameUserBridge.getUser(rawUserId);
+        if (freshUser) user = freshUser;
+      } catch (_) {}
+    }
     if (!user && userId && mongoose.isValidObjectId(userId)) {
       try {
         user = await User.findById(userId);
@@ -215,7 +235,9 @@ io.on("connection", async (socket) => {
       if (user) {
         console.log(
           "------------------------------user in game start-------------------------------",
-          user?.name
+          user?.name,
+          "balance:",
+          user?.diamond
         );
 
         socket.emit("start", user);
@@ -251,15 +273,25 @@ io.on("connection", async (socket) => {
 
   //Bit
   socket.on("bit", async (obj) => {
-    await Promise.resolve(updateUser(obj));
+    const bitAmount = parseInt(obj.Bit) || 0;
+    const uid = obj.User?._id || obj.User?.id || userId;
+    let userDb;
 
-
-
-    const userDb = await User.findById(obj.User._id);
-    if (userDb.diamond < 0) {
-      userDb.diamond = 0;
-      await userDb.save();
-      io.emit("start", userDb);
+    if (obj.User?.isRealUser || (!isNaN(parseInt(uid)) && parseInt(uid) > 0)) {
+      await gameUserBridge.deductCoins(uid, bitAmount, 'teenpatti', 'Bet on Teen Patti');
+      userDb = await gameUserBridge.getUser(uid);
+      if (userDb) {
+        user = userDb;
+        socket.emit("start", userDb);
+      }
+    } else {
+      await Promise.resolve(updateUser(obj));
+      userDb = await User.findById(obj.User._id);
+      if (userDb && userDb.diamond < 0) {
+        userDb.diamond = 0;
+        await userDb.save();
+      }
+      if (userDb) io.emit("start", userDb);
     }
     var objToModify = currentGame.cardBitCoin.find(
       (val) => val.selectFrame === obj.SelectedFrame
@@ -394,8 +426,15 @@ const updateUser = async (obj) => {
 };
 
 const finalUpdateUser = async (obj) => {
-  const userDb = await User.findById(obj.User._id);
-  return userDb;
+  const uid = obj.User?._id || obj.User?.id;
+  if (!isNaN(parseInt(uid)) && parseInt(uid) > 0) {
+    const dbUser = await gameUserBridge.getUser(uid);
+    if (dbUser) return dbUser;
+  }
+  if (obj.User?._id && mongoose.isValidObjectId(obj.User._id)) {
+    return await User.findById(obj.User._id);
+  }
+  return obj.User;
 };
 
 const addBet = (diamond, id) => {

@@ -263,15 +263,16 @@ document.addEventListener('DOMContentLoaded', () => {
 function parseUrlParams() {
   const urlParams = new URLSearchParams(window.location.search);
 
-  const pid = urlParams.get('playerId') || urlParams.get('player_id') || urlParams.get('id') || urlParams.get('userId');
+  const pid = urlParams.get('playerId') || urlParams.get('player_id') || urlParams.get('id') || urlParams.get('userId') || localStorage.getItem('umi_user_id');
   if (pid) {
     state.playerId = pid;
+    localStorage.setItem('umi_user_id', pid);
   }
   if (urlParams.get('username')) {
     state.username = urlParams.get('username');
   }
-  if (urlParams.get('balance')) {
-    state.balance = parseInt(urlParams.get('balance')) || state.balance;
+  if (urlParams.get('coins') || urlParams.get('balance')) {
+    state.balance = parseInt(urlParams.get('coins') || urlParams.get('balance')) || state.balance;
   }
   if (urlParams.get('muted') === 'true') {
     state.isMuted = true;
@@ -321,7 +322,7 @@ function connectSocket() {
     socket.emit('join_game', {
       playerId: state.playerId,
       username: state.username,
-      externalBalance: state.balance,
+      ...(state.balance > 0 ? { externalBalance: state.balance } : {}),
     });
     if (dom.pingText) dom.pingText.textContent = '120ms';
   });

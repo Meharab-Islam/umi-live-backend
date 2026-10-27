@@ -66,7 +66,13 @@ let arrCards = [
 let arrCoins = [[], [], []];
 
 const queryParams = new URLSearchParams(window.location.search);
-const userId = queryParams.get("id") || "6579c2980cb6184131234567";
+const userId =
+  queryParams.get("id") ||
+  queryParams.get("userId") ||
+  queryParams.get("player_id") ||
+  queryParams.get("playerId") ||
+  localStorage.getItem("umi_user_id") ||
+  "6579c2980cb6184131234567";
 
 const socket = io.connect(baseURL, {
   path: socketPath,
