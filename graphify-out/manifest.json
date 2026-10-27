@@ -186,9 +186,9 @@
     "semantic_hash": ""
   },
   "backend/src/server.js": {
-    "mtime": 1793079447.2069504,
-    "seen": 1793079557.8528872,
-    "ast_hash": "777024b95a4425b89a2aa5a1835d2951",
+    "mtime": 1793086771.4737856,
+    "seen": 1793086874.598655,
+    "ast_hash": "744aad82c9f98f07df767a7847246d53",
     "semantic_hash": ""
   },
   "backend/src/sockets/liveSocket.js": {
@@ -2364,15 +2364,15 @@
     "semantic_hash": ""
   },
   "Games/slote_mecine/frontend/src/js/game.js": {
-    "mtime": 1793085707.8643959,
-    "seen": 1793086123.941786,
-    "ast_hash": "9838281625b2d5a65aa7814626eba9ed",
+    "mtime": 1793086277.6399233,
+    "seen": 1793086874.5946822,
+    "ast_hash": "62dad084d3b63137af355ceb831e2df5",
     "semantic_hash": ""
   },
   "Games/slote_mecine/frontend/vite.config.js": {
-    "mtime": 1791696289.7553675,
-    "seen": 1793077825.3228211,
-    "ast_hash": "bee54ca50c3b40a75076388e34f34bde",
+    "mtime": 1793086744.708778,
+    "seen": 1793086874.5946822,
+    "ast_hash": "10f8921e569e848071919d83f56aa36b",
     "semantic_hash": ""
   },
   "Games/slote_mecine/package.json": {
