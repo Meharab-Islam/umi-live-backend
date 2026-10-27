@@ -6352,5 +6352,29 @@
     "seen": 1793079557.852907,
     "ast_hash": "7f6f21fc8d4731f324869850a8a63bb3",
     "semantic_hash": ""
+  },
+  "Games/big_eater/public/images/icon.png": {
+    "mtime": 1793087162.1816933,
+    "seen": 1793087241.128372,
+    "ast_hash": "8a68a9e0fc31bc2eacd4f5992882f88e",
+    "semantic_hash": ""
+  },
+  "Games/slote_mecine/frontend/public/icon.png": {
+    "mtime": 1793087162.1928368,
+    "seen": 1793087241.134827,
+    "ast_hash": "f388520e5e83ed4e3e0e2f8c039a3497",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/icon.png": {
+    "mtime": 1793087162.188172,
+    "seen": 1793087241.135572,
+    "ast_hash": "e3ca23d91773806bbf8154770b4dfc12",
+    "semantic_hash": ""
+  },
+  "Games/teenpatti/backend/public/logo192.png": {
+    "mtime": 1793087162.1854923,
+    "seen": 1793087241.135573,
+    "ast_hash": "e3ca23d91773806bbf8154770b4dfc12",
+    "semantic_hash": ""
   }
 }
