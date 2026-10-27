@@ -18,8 +18,6 @@ module.exports = {
     : process.env.PORT
     ? parseInt(process.env.PORT, 10)
     : 5065,
-  mongoDbConnectionString:
-    process.env.MONGO_URI ||
-    "mongodb://admin:lUrXdgertg4OZwerswee333erdsq@178.128.99.229:27017/imlive?authSource=admin",
 };
+
 

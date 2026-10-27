@@ -1,158 +1,99 @@
 const { numberArray, rouletteWheelNumbers } = require("./array");
-const RouletteGameHistory = require("./model/roulettegameHistory.model");
-const Wallet = require("./model/wallet.model");
-const User = require("./model/user.model");
-const GameAdminCoin = require("./model/gameAdminCoin");
-const HistoryWinnerNumber = require("./model/rouletteLastHistory.model");
-
 const config = require("./config");
 const gameUserBridge = require("../../gameUserBridge.js");
 const io = require("socket.io-client");
 
-const mainBackendSocket = io(config.adminBaseURL); // Use your adminBaseURL here
+const mainBackendSocket = io(config.adminBaseURL, { reconnectionAttempts: 3, timeout: 5000 });
 mainBackendSocket.on("connect", () => {
-  console.log("Connected to main backend from game backend");
+  console.log("Connected to main backend from roulette backend");
+});
+mainBackendSocket.on("connect_error", (err) => {
+  console.log("Main backend socket notice:", err.message);
 });
 
-exports.generateShuffledArray = () => {
-  const highCount = 100 - 30;
-
-  let result = [];
-  for (let i = 0; i < lowCount; i++) {
-    result.push("low");
-  }
-  for (let i = 0; i < highCount; i++) {
-    result.push("high");
-  }
-  const iterations = 100;
-  for (let k = 0; k < iterations; k++) {
-    for (let i = result.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [result[i], result[j]] = [result[j], result[i]];
-    }
-  }
-  return result;
-};
-
-let gameCounter = 0; // Global variable to track the number of games played
-let nextForcedWinGame = Math.floor(Math.random() * 50) + 100; // Randomly choose a game between 100 and 150 for 36 to win
+let gameCounter = 0;
+let nextForcedWinGame = Math.floor(Math.random() * 50) + 100;
 
 exports.RandomResult = async () => {
-  gameCounter++; // Increment the game counter
-  console.log(`Game Counter: ${gameCounter}, Next Forced Win Game: ${nextForcedWinGame}`);
-
-  const casinoSettings = global.setting && Object.keys(global.setting).length !== 0 ? global.setting.game.find((game) => game.name === "casino") : null;
+  gameCounter++;
+  const casinoSettings =
+    global.setting && Object.keys(global.setting).length !== 0
+      ? global.setting.game?.find((game) => game.name === "casino" || game.name === "roulette")
+      : null;
 
   const minWinPercent = casinoSettings ? casinoSettings.minWinPercent / 100 : 0.25;
   const maxWinPercent = casinoSettings ? casinoSettings.maxWinPercent / 100 : 1;
 
-  console.log(`Fetched minWinPercent: ${minWinPercent * 100}%`);
-  console.log(`Fetched maxWinPercent: ${maxWinPercent * 100}%`);
-
   if (currentGame.UsersBits?.length !== 0) {
-    const gameAdminCoin = await GameAdminCoin.findOne({});
-    console.log("Current gameAdminCoin:", gameAdminCoin?.coin);
-
-    // Calculate total bets amount
     const totalBetAmount = currentGame.UsersBits.reduce((sum, userBit) => sum + userBit.Bit, 0);
-    console.log("Total Bets Amount:", totalBetAmount);
-
-    // Define min and max payout range dynamically
     const minPayout = minWinPercent * totalBetAmount;
     const maxPayout = maxWinPercent * totalBetAmount;
-    console.log(`Payout Range: Min=${minPayout}, Max=${maxPayout}`);
 
-    // Function to calculate the potential payout if a given number wins
     function calculatePayoutForNumber(numberInfo) {
       let totalPayout = 0;
-
       currentGame.UsersBits.forEach((userBit) => {
         let payout = 0;
         const selectedFrame = currentGame.cardBitCoin.find((frame) => frame.selectFrame === userBit.SelectedFrame);
 
         if (selectedFrame) {
-          // Check and calculate payout based on the correct frame sequence
-          if(selectedFrame.selectFrame === 1 && numberInfo.no == 0){
-            payout += userBit.Bit * 36; // 36x payout for 0
-          } else
-          if (selectedFrame.selectFrame === 2 && numberInfo.no >= 1 && numberInfo.no <= 12) {
-            payout += userBit.Bit * 3; // 3x payout for 1-12 range
+          if (selectedFrame.selectFrame === 1 && numberInfo.no == 0) {
+            payout += userBit.Bit * 36;
+          } else if (selectedFrame.selectFrame === 2 && numberInfo.no >= 1 && numberInfo.no <= 12) {
+            payout += userBit.Bit * 3;
           } else if (selectedFrame.selectFrame === 3 && numberInfo.no >= 13 && numberInfo.no <= 24) {
-            payout += userBit.Bit * 3; // 3x payout for 13-24 range
+            payout += userBit.Bit * 3;
           } else if (selectedFrame.selectFrame === 4 && numberInfo.no >= 25 && numberInfo.no <= 36) {
-            payout += userBit.Bit * 3; // 3x payout for 25-36 range
-          }
-        
-          // Check and calculate payout for color bets (red, black)
-          if (selectedFrame.selectFrame === 5 && numberInfo.color === "red") {
-            payout += userBit.Bit * 2; // 2x payout for red
-          } else if (selectedFrame.selectFrame === 6 && numberInfo.color === "black") {
-            payout += userBit.Bit * 2; // 2x payout for black
+            payout += userBit.Bit * 3;
           }
 
-          // Check and calculate payout for odd/even bets
+          if (selectedFrame.selectFrame === 5 && numberInfo.color === "red") {
+            payout += userBit.Bit * 2;
+          } else if (selectedFrame.selectFrame === 6 && numberInfo.color === "black") {
+            payout += userBit.Bit * 2;
+          }
+
           if (selectedFrame.selectFrame === 7 && numberInfo.oddAndEven === "odd") {
-            payout += userBit.Bit * 2; // 2x payout for odd
+            payout += userBit.Bit * 2;
           } else if (selectedFrame.selectFrame === 8 && numberInfo.oddAndEven === "even") {
-            payout += userBit.Bit * 2; // 2x payout for even
+            payout += userBit.Bit * 2;
           }
         }
-
-        // Sum the payout for this particular number
         totalPayout += payout;
       });
-
       return totalPayout;
     }
 
-    // Calculate payouts for all possible numbers, excluding 0 and 1
     const potentialNumbers = rouletteWheelNumbers
       .filter((num) => num !== 0 && num !== 1)
       .map((number) => {
         const numberInfo = numberArray.find((num) => num.no === number);
         const totalPayout = calculatePayoutForNumber(numberInfo);
-        console.log(`Potential Payout for Number ${number}: ${totalPayout}`);
         return { number, totalPayout };
       });
 
-    console.log("potentialNumbers-->" , potentialNumbers);
-
-    // Filter numbers within the min-max range
     const eligibleNumbers = potentialNumbers.filter((num) => num.totalPayout >= minPayout && num.totalPayout <= maxPayout);
-    console.log("Eligible Numbers (Within Payout Range):", eligibleNumbers);
 
-    // If it's time for the forced win of 36
     if (gameCounter === nextForcedWinGame) {
-      console.log("Forcing win for number 36");
-      nextForcedWinGame = gameCounter + Math.floor(Math.random() * 50) + 100; // Set the next forced win between 100 to 150 games
+      nextForcedWinGame = gameCounter + Math.floor(Math.random() * 50) + 100;
       return 36;
     }
 
-    // Select the number with the lowest payout within the min-max range (best for house)
     let selectedNumber;
     if (eligibleNumbers.length > 0) {
-      const randomNum = Math.floor(Math.random() * eligibleNumbers.length)
+      const randomNum = Math.floor(Math.random() * eligibleNumbers.length);
       selectedNumber = eligibleNumbers[randomNum].number;
     } else {
-      // If no numbers are within the min-max range, select the one with the lowest payout
       selectedNumber = potentialNumbers.reduce((minNum, num) => (num.totalPayout < minNum.totalPayout ? num : minNum)).number;
     }
-
-    console.log("House Edge Selected Winner Number:", selectedNumber);
     return selectedNumber;
   }
 
-  // Default random selection if no user bets, excluding 0 and 1
   const validNumbers = rouletteWheelNumbers.filter((num) => num !== 0 && num !== 1);
-  const randomDefaultWinner = validNumbers[Math.floor(Math.random() * validNumbers.length)];
-  console.log("No user bets found, randomly selecting winner number:", randomDefaultWinner);
-  return randomDefaultWinner;
+  return validNumbers[Math.floor(Math.random() * validNumbers.length)];
 };
 
 exports.selectFrame = async (number) => {
-  const resultObj = numberArray.find((item) => item.no === number);
-  console.log("resultObj 222....................................", number);
-  console.log("currentGame.", currentGame);
+  const resultObj = numberArray.find((item) => item.no === number) || { no: number, color: "red", oddAndEven: "even" };
   global.winCoinPercent = 0;
 
   if (number === 0) {
@@ -184,123 +125,87 @@ exports.selectFrame = async (number) => {
     currentGame.cardBitCoin[7].winner = true;
     winCoinPercent += currentGame.cardBitCoin[7].bit * 2;
   }
+
   let sum = 0;
   for (const item of currentGame.cardBitCoin) {
     sum += item.bit;
   }
   return { resultObj, sum, winCoinPercent };
 };
-{
-  exports.isLow = async (number) => {
-    const resultObj = numberArray.find((item) => item.no === number);
-    let lowFuncResult = 0;
-    if (number === 0) {
-      lowFuncResult += currentGame.cardBitCoin[0].bit * 36;
-    } else if (number >= 1 && number <= 12) {
-      lowFuncResult += currentGame.cardBitCoin[1].bit * 3;
-    } else if (number >= 13 && number <= 24) {
-      lowFuncResult += currentGame.cardBitCoin[2].bit * 3;
-    } else if (number >= 25 && number <= 36) {
-      lowFuncResult += currentGame.cardBitCoin[3].bit * 3;
-    }
-    if (resultObj.color === "red") {
-      lowFuncResult += currentGame.cardBitCoin[4].bit * 2;
-    } else if (resultObj.color === "black") {
-      lowFuncResult += currentGame.cardBitCoin[5].bit * 2;
-    }
-    if (resultObj.oddAndEven === "odd") {
-      lowFuncResult += currentGame.cardBitCoin[6].bit * 2;
-    } else if (resultObj.oddAndEven === "even") {
-      lowFuncResult += currentGame.cardBitCoin[7].bit * 2;
-    }
-    return lowFuncResult;
-  };
-  exports.gameAdminCoinUpdate = async (bitCoin) => {
-    console.log("gameAdminCoinUpdate function call ==============", bitCoin);
-    if (!isNaN(bitCoin)) {
-      let gameAdminCoin = await GameAdminCoin.findOne();
-      if (!gameAdminCoin) {
-        gameAdminCoin = new GameAdminCoin();
-      }
-      gameAdminCoin.coin += bitCoin;
-      await gameAdminCoin.save();
-      return gameAdminCoin.coin;
-    }
-  };
 
-  exports.updateUser = async (obj) => {
-    try {
-      const updateUserResult = await User.findByIdAndUpdate(
-        { _id: obj.User._id },
-        {
-          $inc: { diamond: -parseInt(obj.Bit) },
-        },
-        { new: true }
-      );
-      return updateUserResult;
-    } catch (err) {
-      console.log(err);
-    }
-  };
-  exports.addBet = (diamond, id) => {
-    if (bet.length) {
-      const index = bet.findIndex((element) => {
-        if (element.userId == id) return true;
-        return false;
-      });
-      if (index != -1) {
-        bet[index].amount += diamond;
-      } else {
-        bet.push({
-          amount: diamond,
-          userId: id,
-        });
-      }
+exports.isLow = async (number) => {
+  const resultObj = numberArray.find((item) => item.no === number) || { no: number, color: "red", oddAndEven: "even" };
+  let lowFuncResult = 0;
+  if (number === 0) {
+    lowFuncResult += currentGame.cardBitCoin[0].bit * 36;
+  } else if (number >= 1 && number <= 12) {
+    lowFuncResult += currentGame.cardBitCoin[1].bit * 3;
+  } else if (number >= 13 && number <= 24) {
+    lowFuncResult += currentGame.cardBitCoin[2].bit * 3;
+  } else if (number >= 25 && number <= 36) {
+    lowFuncResult += currentGame.cardBitCoin[3].bit * 3;
+  }
+  if (resultObj.color === "red") {
+    lowFuncResult += currentGame.cardBitCoin[4].bit * 2;
+  } else if (resultObj.color === "black") {
+    lowFuncResult += currentGame.cardBitCoin[5].bit * 2;
+  }
+  if (resultObj.oddAndEven === "odd") {
+    lowFuncResult += currentGame.cardBitCoin[6].bit * 2;
+  } else if (resultObj.oddAndEven === "even") {
+    lowFuncResult += currentGame.cardBitCoin[7].bit * 2;
+  }
+  return lowFuncResult;
+};
+
+exports.gameAdminCoinUpdate = async (bitCoin) => {
+  if (!isNaN(bitCoin)) {
+    return await gameUserBridge.updateAdminCoin('roulettecasino', bitCoin);
+  }
+  return await gameUserBridge.getAdminCoin('roulettecasino');
+};
+
+exports.addBet = (diamond, id) => {
+  if (bet.length) {
+    const index = bet.findIndex((element) => element.userId == id);
+    if (index !== -1) {
+      bet[index].amount += diamond;
     } else {
-      bet.push({
-        amount: diamond,
-        userId: id,
-      });
+      bet.push({ amount: diamond, userId: id });
     }
-  };
-
-  exports.addGameHistory = async (data) => {
-    if (currentGame.UsersBits.length != 0) {
-      updatedGameAdminCoin = await this.gameAdminCoinUpdate(-data.winCoinPercent);
-      await new RouletteGameHistory({
-        cardCoin: currentGame.cardBitCoin,
-        totalAdd: data.sum, // total add coin in game
-        winnerCoinMinus: -parseInt(data.winCoinPercent),
-        updatedAdminCoin: parseInt(updatedGameAdminCoin),
-        winnerObj: data.resultObj,
-        date: new Date().toLocaleString("en-US", {
-          timeZone: "Asia/Kolkata",
-        }),
-      }).save();
-    }
-  };
-
-  exports.coin = async () => {
-    let rouletteAdminCoin = await GameAdminCoin.findOne();
-    if (!rouletteAdminCoin) {
-      rouletteAdminCoin = await new GameAdminCoin({
-        coin: 0,
-        totalCoin: 0,
-      }).save();
-    }
-  };
-}
-exports.createrouletteLastHistory = async () => {
-  let historyWinnerNumber = await HistoryWinnerNumber.findOne();
-  if (!historyWinnerNumber) {
-    historyWinnerNumber = await new HistoryWinnerNumber({
-      winnerNumber: [],
-    }).save();
+  } else {
+    bet.push({ amount: diamond, userId: id });
   }
 };
 
+exports.addGameHistory = async (data) => {
+  if (currentGame.UsersBits.length !== 0) {
+    await exports.gameAdminCoinUpdate(-data.winCoinPercent);
+    await gameUserBridge.saveRound({
+      gameSlug: 'roulettecasino',
+      roundNumber: Date.now(),
+      winnerOutcome: data.resultObj?.no ?? 0,
+      totalBets: data.sum || 0,
+      totalPayout: Math.abs(parseInt(data.winCoinPercent, 10)) || 0,
+      details: {
+        cardCoin: currentGame.cardBitCoin,
+        winnerObj: data.resultObj,
+        date: new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }),
+      },
+    });
+  }
+};
+
+exports.coin = async () => {
+  return await gameUserBridge.getAdminCoin('roulettecasino');
+};
+
+exports.createrouletteLastHistory = async () => {
+  // Outcomes are queried directly from MySQL mini_game_rounds
+  return [];
+};
+
 exports.allUserHistory = async (currentGame, resultObj) => {
-  console.log("allUserHistory==================================", resultObj);
   const array = currentGame?.cardBitCoin.filter((item) => item.winner).map((item) => item.selectFrame);
 
   let sumByUserAndFrame = {};
@@ -325,13 +230,11 @@ exports.allUserHistory = async (currentGame, resultObj) => {
   });
 
   const resultArray = Object.values(sumByUserAndFrame);
-  //  resultArray : [ { userId: '12200', BitData: [ { Bit: 100, SelectedFrame: 2 } , { Bit: 500, SelectedFrame: 1 }] },
-  //   { userId: '122', BitData: [ { Bit: 100, SelectedFrame: 2 }] }]
   for (let index1 = 0; index1 < resultArray.length; index1++) {
-    const element = resultArray[index1]; // { userId: '12200', BitData: [ { Bit: 100, SelectedFrame: 2 } , { Bit: 500, SelectedFrame: 1 }] }
+    const element = resultArray[index1];
     let winCoinPercent = 0;
     for (let index = 0; index < element.BitData.length; index++) {
-      const element2 = element.BitData[index]; //  { Bit: 100, SelectedFrame: 2 }
+      const element2 = element.BitData[index];
       if (array.includes(element2.SelectedFrame)) {
         switch (element2.SelectedFrame) {
           case 1:
@@ -351,98 +254,49 @@ exports.allUserHistory = async (currentGame, resultObj) => {
         }
       }
     }
-    const findBetIndex = bet.findIndex((data) => {
-      if (data?.userId == element?.userId) return true;
-      return false;
-    });
-    const income = winCoinPercent - parseInt(bet[findBetIndex]?.amount);
-    if (!isNaN(income)) {
-      if (income <= 0) {
-        history = {
-          userId: bet[findBetIndex]?.userId,
-          isIncome: false,
-          type: 15,
-          diamond: Math.abs(income),
-          date: new Date().toLocaleString("en-US", {
-            timeZone: "Asia/Kolkata",
-          }),
-          rouletteGame: {
-            winNumber: resultObj.resultObj.no,
-            resultObj: resultObj.resultObj, // resultObj: { no: 22, color: 'black', oddAndEven: 'even' },
-            winCoin: winCoinPercent,
-            totalAddAmount: parseInt(bet[findBetIndex]?.amount),
-          },
-        };
-      } else {
-        history = {
-          userId: bet[findBetIndex]?.userId,
-          isIncome: true,
-          type: 15,
-          diamond: Math.floor(income),
-          date: new Date().toLocaleString("en-US", {
-            timeZone: "Asia/Kolkata",
-          }),
-          rouletteGame: {
-            winNumber: resultObj.resultObj.no,
-            winCoin: winCoinPercent,
-            resultObj: resultObj.resultObj,
-            totalAddAmount: parseInt(bet[findBetIndex]?.amount),
-          },
-        };
-      }
-    }
 
-    await new Wallet(history).save();
+    const findBetIndex = bet.findIndex((data) => data?.userId == element?.userId);
+    const totalBetForUser = parseInt(bet[findBetIndex]?.amount, 10) || 0;
+    const uid = bet[findBetIndex]?.userId || element?.userId;
 
-    const uid = bet[findBetIndex]?.userId;
     let winningUser = null;
-    if (!isNaN(parseInt(uid)) && parseInt(uid) > 0) {
-      await gameUserBridge.addCoins(uid, winCoinPercent, 'roulettecasino', 'Win on Roulette Casino');
-      winningUser = await gameUserBridge.getUser(uid);
-    } else if (uid && mongoose.isValidObjectId(uid)) {
-      const user = await User.findById(uid);
-      if (user) {
-        winningUser = await User.findOneAndUpdate({ _id: user._id }, { $inc: { diamond: winCoinPercent } }, { new: true });
+    if (!isNaN(parseInt(uid, 10)) && parseInt(uid, 10) > 0) {
+      if (winCoinPercent > 0) {
+        await gameUserBridge.addCoins(uid, winCoinPercent, 'roulettecasino', 'Win on Roulette Casino');
+        winningUser = await gameUserBridge.getUser(uid);
       }
-    }
-
-    highCoinValue = global.setting?.coinForGameAnnouncement || 1000;
-    if (winCoinPercent >= highCoinValue && winningUser) {
-      console.log("highCoinValue--------------", highCoinValue);
-
-      mainBackendSocket.emit("highBit", {
-        coin: winCoinPercent,
-        user: winningUser,
-        game: "Roullete Casino 🎡",
+      await gameUserBridge.saveBet({
+        userId: uid,
+        gameSlug: 'roulettecasino',
+        roundId: Date.now(),
+        betAmount: totalBetForUser,
+        winAmount: winCoinPercent,
+        selection: resultObj?.resultObj?.no ?? 0,
+        multiplier: winCoinPercent > 0 ? (winCoinPercent / Math.max(1, totalBetForUser)).toFixed(1) : 1.0,
+        status: winCoinPercent > 0 ? 'won' : 'lost',
       });
     }
 
-    console.log("MAIN HISTORY ++++++++++++++++++++++++++++++++++++++ income", income, "+++++++++++++", history.rouletteGame);
+    const highCoinValue = global.setting?.coinForGameAnnouncement || 1000;
+    if (winCoinPercent >= highCoinValue && winningUser) {
+      mainBackendSocket.emit("highBit", {
+        coin: winCoinPercent,
+        user: winningUser,
+        game: "Roulette Casino 🎡",
+      });
+    }
 
-    bet.splice(findBetIndex, 1);
+    if (findBetIndex !== -1) {
+      bet.splice(findBetIndex, 1);
+    }
   }
 };
 
-// get roulette game history for user
 exports.historyRecord = async (_id) => {
   try {
-    const user = await User.findById(_id);
-    if (!user) return res.status(200).json({ status: false, message: "User does not Exist!" });
-
-    let historyRecord = await Wallet.find(
-      { type: 15, userId: user?._id },
-      {
-        diamond: 1,
-        date: 1,
-        createdAt: 1,
-        isIncome: 1,
-        rouletteGame: 1,
-      }
-    )
-      .sort({ createdAt: -1 })
-      .limit(30);
-    return historyRecord;
+    return await gameUserBridge.getUserGameBets(_id, 'roulettecasino', 30);
   } catch (error) {
-    console.log(error);
+    console.error("roulette historyRecord error:", error);
+    return [];
   }
 };

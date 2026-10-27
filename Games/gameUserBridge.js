@@ -239,9 +239,190 @@ async function getTodayProfit(userId, gameSlug = null) {
   }
 }
 
+/**
+ * Save mini game round results into MySQL mini_game_rounds
+ */
+async function saveRound({ gameSlug, roundNumber, winnerOutcome, totalBets = 0, totalPayout = 0, details = null }) {
+  if (!pool) return null;
+  try {
+    const [res] = await pool.query(
+      `INSERT INTO mini_game_rounds (game_slug, round_number, winner_outcome, total_bets, total_payout, details)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [
+        gameSlug,
+        roundNumber || Date.now(),
+        String(winnerOutcome ?? ''),
+        Math.max(0, parseInt(totalBets, 10) || 0),
+        Math.max(0, parseInt(totalPayout, 10) || 0),
+        details ? JSON.stringify(details) : null,
+      ]
+    );
+    return res.insertId;
+  } catch (err) {
+    console.warn(`[gameUserBridge] saveRound(${gameSlug}) error:`, err.message);
+    return null;
+  }
+}
+
+/**
+ * Save user bet into MySQL mini_game_bets
+ */
+async function saveBet({ userId, gameSlug, roundId = null, betAmount = 0, winAmount = 0, selection = null, multiplier = 1.0, status = 'pending' }) {
+  if (!pool || !userId) return null;
+  const numId = parseInt(userId, 10);
+  if (isNaN(numId) || numId <= 0) return null;
+
+  try {
+    const [res] = await pool.query(
+      `INSERT INTO mini_game_bets (user_id, game_slug, round_id, bet_amount, win_amount, selection, multiplier, status)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        numId,
+        gameSlug,
+        roundId ? String(roundId) : null,
+        Math.max(0, parseInt(betAmount, 10) || 0),
+        Math.max(0, parseInt(winAmount, 10) || 0),
+        selection ? String(selection) : null,
+        parseFloat(multiplier) || 1.0,
+        status || 'pending',
+      ]
+    );
+    return res.insertId;
+  } catch (err) {
+    console.warn(`[gameUserBridge] saveBet(${userId}, ${gameSlug}) error:`, err.message);
+    return null;
+  }
+}
+
+/**
+ * Fetch recent rounds for a game from MySQL mini_game_rounds
+ */
+async function getRecentRounds(gameSlug, limit = 10) {
+  if (!pool) return [];
+  try {
+    const [rows] = await pool.query(
+      `SELECT id, game_slug, round_number, winner_outcome, total_bets, total_payout, details, created_at
+       FROM mini_game_rounds
+       WHERE game_slug = ?
+       ORDER BY id DESC
+       LIMIT ?`,
+      [gameSlug, Math.max(1, parseInt(limit, 10) || 10)]
+    );
+    return rows.map((r) => {
+      let details = null;
+      if (r.details) {
+        try {
+          details = typeof r.details === 'string' ? JSON.parse(r.details) : r.details;
+        } catch (_) {}
+      }
+      return { ...r, details };
+    });
+  } catch (err) {
+    console.warn(`[gameUserBridge] getRecentRounds(${gameSlug}) error:`, err.message);
+    return [];
+  }
+}
+
+/**
+ * Fetch recent winning outcomes array (e.g. for roulette numbers or wheel history)
+ */
+async function getLastWinningOutcomes(gameSlug, limit = 20) {
+  const rounds = await getRecentRounds(gameSlug, limit);
+  return rounds.map((r) => {
+    const val = r.winner_outcome;
+    return !isNaN(Number(val)) ? Number(val) : val;
+  });
+}
+
+/**
+ * Fetch settings from MySQL mini_games
+ */
+async function getGameSettings(gameSlug, defaultSettings = {}) {
+  if (!pool) return defaultSettings;
+  try {
+    const [rows] = await pool.query(
+      `SELECT settings FROM mini_games WHERE slug = ?`,
+      [gameSlug]
+    );
+    if (rows && rows.length > 0 && rows[0].settings) {
+      return typeof rows[0].settings === 'string'
+        ? JSON.parse(rows[0].settings)
+        : rows[0].settings;
+    }
+  } catch (err) {
+    console.warn(`[gameUserBridge] getGameSettings(${gameSlug}) error:`, err.message);
+  }
+  return defaultSettings;
+}
+
+/**
+ * Save settings to MySQL mini_games
+ */
+async function updateGameSettings(gameSlug, settings) {
+  if (!pool || !settings) return false;
+  try {
+    await pool.query(
+      `UPDATE mini_games SET settings = ? WHERE slug = ?`,
+      [JSON.stringify(settings), gameSlug]
+    );
+    return true;
+  } catch (err) {
+    console.warn(`[gameUserBridge] updateGameSettings(${gameSlug}) error:`, err.message);
+    return false;
+  }
+}
+
+// In-memory admin coin pool per game (fallback & cache)
+const adminCoinPool = {
+  teenpatti: 100000000,
+  roulettecasino: 100000000,
+  ferrywheel: 100000000,
+  greedybaby: 100000000,
+  greedylion: 100000000,
+};
+
+async function getAdminCoin(gameSlug) {
+  return adminCoinPool[gameSlug] || 100000000;
+}
+
+async function getUserGameBets(userId, gameSlug, limit = 50) {
+  if (!pool || !userId) return [];
+  const numId = parseInt(userId, 10);
+  if (isNaN(numId) || numId <= 0) return [];
+  try {
+    const [rows] = await pool.query(
+      `SELECT id, round_id, bet_amount as Bit, selection as selectedFrame, multiplier as winnerNumberTimes, win_amount, status, created_at as createdAt
+       FROM mini_game_bets
+       WHERE user_id = ? AND game_slug = ?
+       ORDER BY id DESC
+       LIMIT ?`,
+      [numId, gameSlug, Math.max(1, parseInt(limit, 10) || 50)]
+    );
+    return rows.map((r) => ({
+      ...r,
+      selectedFrame: !isNaN(Number(r.selectedFrame)) ? Number(r.selectedFrame) : r.selectedFrame,
+      isWinner: r.win_amount > 0 || r.status === 'won',
+    }));
+  } catch (err) {
+    console.warn(`[gameUserBridge] getUserGameBets error:`, err.message);
+    return [];
+  }
+}
+
 module.exports = {
+  pool,
   getUser,
   deductCoins,
   addCoins,
   getTodayProfit,
+  saveRound,
+  saveBet,
+  getRecentRounds,
+  getLastWinningOutcomes,
+  getGameSettings,
+  updateGameSettings,
+  getAdminCoin,
+  updateAdminCoin,
+  getUserGameBets,
 };
+

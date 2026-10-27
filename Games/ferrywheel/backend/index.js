@@ -1,48 +1,41 @@
-var createError = require("http-errors");
 var express = require("express");
 var path = require("path");
-const mongoose = require("mongoose");
-const FerryWheelLastHistory = require("./model/ferryWheelLastHistory.model");
-const GameAdminCoin = require("./model/gameAdminCoin.model");
 const config = require("./config");
 var app = express();
-const port = config.PORT || 5001;
+const port = config.PORT || 5063;
 const http = require("http");
 const cors = require("cors");
 const { Server } = require("socket.io");
-const User = require("./model/user.model");
 const gameUserBridge = require("../../gameUserBridge.js");
 
 const {
   selectFrame,
   RandomResult,
   allUserHistory,
-  createHistoryWinnerNumber,
   addBet,
   addUserBits,
-  updateUser,
-  createAdminCoin,
   historyRecord,
   todayProfit,
   addGameHistory,
 } = require("./service");
-const { getDefaultSettings } = require("http2");
 
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
 
+const defaultSettings = {
+  game: [{ name: "ferrywheel", minWinPercent: 25, maxWinPercent: 100 }],
+  coinForGameAnnouncement: 1000,
+  gameCoin: [100, 200, 300, 400, 500],
+};
+
 // Settings API endpoint for frontend
 app.get("/setting", (req, res) => {
   res.status(200).json({
     status: true,
     message: "Settings fetched successfully",
-    setting: global.setting || {
-      game: [{ name: "ferrywheel", minWinPercent: 25, maxWinPercent: 100 }],
-      coinForGameAnnouncement: 1000,
-      gameCoin: [100, 200, 300, 400, 500],
-    },
+    setting: global.setting || defaultSettings,
   });
 });
 
@@ -50,14 +43,7 @@ app.get("/*", function (req, res) {
   res.status(200).sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-// catch 404 and forward to error handler
-app.use(function (req, res, next) {
-  next(createError(404));
-});
-
 const server = http.createServer(app);
-
-//Setup for server and socket.io
 
 global.io = new Server(server, {
   cors: {
@@ -66,97 +52,37 @@ global.io = new Server(server, {
   },
 });
 
-const url = config.mongoDbConnectionString;
-const db = mongoose.connection;
-
 process.on("unhandledRejection", (err) => {
   console.log(err?.name, err?.message);
 });
 
-db.once("open", () => {
-  console.log(`Mongo Connected successfully on port:${port}`);
-});
-
 const refreshSettings = async () => {
   try {
-    if (!mongoose.connection.db) return;
-    const settings = await mongoose.connection.db.collection("settings").findOne({});
-    if (settings) {
-      global.setting = settings;
-    } else {
-      global.setting = {
-        game: [{ name: "ferrywheel", minWinPercent: 25, maxWinPercent: 100 }],
-        coinForGameAnnouncement: 1000,
-        gameCoin: [100, 200, 300, 400, 500],
-      };
-    }
+    const settings = await gameUserBridge.getGameSettings("ferrywheel", defaultSettings);
+    global.setting = settings || defaultSettings;
   } catch (error) {
     console.error("Error refreshing settings:", error);
+    global.setting = defaultSettings;
   }
 };
 
-mongoose
-  .connect(url)
-  .then(async () => {
-    console.log("MongoDB connected successfully");
+// Initialize settings
+refreshSettings();
 
-    // Seed default demo user if not present
-    const DEMO_USER_ID = "6579c2980cb6184131234567";
-    const existingUser = await User.findById(DEMO_USER_ID);
-    if (!existingUser) {
-      await User.create({
-        _id: DEMO_USER_ID,
-        name: "Guest Player",
-        username: "guestplayer",
-        diamond: 0,
-        rCoin: 0,
-        gender: "male",
-        country: "Global",
-      });
-      console.log("Guest user created with ID:", DEMO_USER_ID);
-    }
-
-    // Seed default settings if not present
-    const existingSettings = await mongoose.connection.db.collection("settings").findOne({});
-    if (!existingSettings) {
-      await mongoose.connection.db.collection("settings").insertOne({
-        game: [{ name: "ferrywheel", minWinPercent: 25, maxWinPercent: 100 }],
-        coinForGameAnnouncement: 1000,
-        gameCoin: [100, 200, 300, 400, 500],
-      });
-      console.log("Default settings created in database");
-    }
-
-    await refreshSettings();
-    await createAdminCoin();
-    await createHistoryWinnerNumber();
-
-    try {
-      const isReplicaSet = await mongoose.connection.db.admin().command({ isMaster: 1 });
-      if (isReplicaSet && isReplicaSet.setName) {
-        const changeStream = mongoose.connection.db.collection("settings").watch();
-        changeStream.on("change", async () => {
-          console.log("Settings updated in DB, refreshing global settings...");
-          await refreshSettings();
-        });
-      }
-    } catch (e) {
-      // Replica set changeStream optional in standalone local MongoDB
-    }
-  })
-  .catch((err) => console.error("Database connection error:", err));
-
-//Game Loop For Timer
+// Game Loop For Timer
 setInterval(() => {
   updateTime();
 }, 1000);
 
 global.betG = [];
 global.winnerUserArrayG = [];
+let time = 21;
+let randomWinnerNumber;
 global.highOrLowWinResult = [];
-let time = 25;
-let randomWinnerNumber, RandomResWithSelectedFrame;
+global.resultObj = {};
+global.settinData = {};
 global.currentGame = {
+  Combinations: 9,
   UsersBits: [],
   frameBitCoin: [
     { selectFrame: 1, bit: 0, winner: false },
@@ -168,191 +94,127 @@ global.currentGame = {
     { selectFrame: 7, bit: 0, winner: false },
     { selectFrame: 8, bit: 0, winner: false },
   ],
+  resultObj: { no: 1, color: "red", oddAndEven: "odd" },
 };
 
 io.on("connection", async (socket) => {
   const { globalRoom } = socket?.handshake?.query;
+  const targetUserId = globalRoom && globalRoom !== "null" && globalRoom !== "undefined" ? globalRoom : "1";
 
-  console.log("globalRoom connect =====", globalRoom);
-  let todayProfitCoin = 0;
   let user = null;
-
-  if (globalRoom) {
+  if (globalRoom && globalRoom !== "null" && globalRoom !== "undefined") {
     try {
       user = await gameUserBridge.getUser(globalRoom);
     } catch (_) {}
-    if (!user && mongoose.isValidObjectId(globalRoom)) {
-      try {
-        user = await User.findById(globalRoom);
-      } catch (_) {}
-    }
-    try {
-      todayProfitCoin = await gameUserBridge.getTodayProfit(globalRoom);
-    } catch (_) {}
   }
 
-  //Start game
+  if (!user) {
+    user = {
+      _id: String(targetUserId),
+      id: parseInt(targetUserId, 10) || 1,
+      name: "Player " + targetUserId,
+      username: "player_" + targetUserId,
+      diamond: 10000,
+      coins: 10000,
+      balance: 10000,
+    };
+  }
+
   socket.on("startGame", async (obj) => {
-    if (globalRoom) {
+    if (globalRoom && globalRoom !== "null" && globalRoom !== "undefined") {
       try {
         const freshUser = await gameUserBridge.getUser(globalRoom);
         if (freshUser) user = freshUser;
       } catch (_) {}
     }
     if (user) {
-      console.log(
-        "------------------------------user in game start-------------------------------",
-        user?.name,
-        "balance:",
-        user?.diamond
-      );
       socket.emit("start", user);
-      console.log("--user--", user.name);
       io.emit("game", currentGame);
-      const ferryWheelLastHistory = await FerryWheelLastHistory.findOne();
-      socket.emit("lastHistories", ferryWheelLastHistory?.winnerNumber); // last 5 number history
-      socket.emit("gameRound", ferryWheelLastHistory?.totalRound); // last some histories
-      socket.emit(
-        "todayProfit",
-        parseInt(todayProfitCoin) ? parseInt(todayProfitCoin) : 0
-      );
-
-      if (time < 2) {
-        io.emit("randomWinnerNumber", randomWinnerNumber); // 3 or 6
-      }
+      const recentOutcomes = await gameUserBridge.getLastWinningOutcomes("ferrywheel", 20);
+      socket.emit("gameNumberHistory", recentOutcomes);
     } else {
       socket.emit("start", null);
     }
   });
 
+  socket.on("todayProfit", async () => {
+    let profit = await todayProfit(globalRoom);
+    socket.emit("todayProfit", profit || 0);
+  });
+
+  socket.on("historyRecord", async () => {
+    let historyRecordResult = await historyRecord(globalRoom);
+    socket.emit("historyRecord", historyRecordResult);
+  });
+
   socket.on("bit", async (obj) => {
-    const bitAmount = parseInt(obj.Bit) || 0;
+    const bitAmount = parseInt(obj.Bit, 10) || 0;
     const uid = obj.User?._id || obj.User?.id || globalRoom;
-    let userDb;
 
-    if (obj.User?.isRealUser || (!isNaN(parseInt(uid)) && parseInt(uid) > 0)) {
-      await gameUserBridge.deductCoins(uid, bitAmount, 'ferrywheel', 'Bet on Ferry Wheel');
-      userDb = await gameUserBridge.getUser(uid);
-      if (userDb) {
-        user = userDb;
-        socket.emit("start", userDb);
-      }
-    } else {
-      userDb = await updateUser(obj);
-      console.log("BIT ==============  obj.SelectedFrame", obj.SelectedFrame);
-      if (userDb?.diamond < 0) {
-        userDb.diamond = 0;
-        await userDb.save();
-        io.emit("start", userDb);
-      }
+    await gameUserBridge.deductCoins(uid, bitAmount, 'ferrywheel', 'Bet on Ferry Wheel');
+    const userDb = await gameUserBridge.getUser(uid);
+    if (userDb) {
+      user = userDb;
+      socket.emit("start", userDb);
     }
-    var objToModify = currentGame.frameBitCoin.find(
-      (val) => val.selectFrame === obj.SelectedFrame
-    );
 
+    var objToModify = currentGame.frameBitCoin.find((val) => val.selectFrame === obj.SelectedFrame);
     if (objToModify) {
       objToModify.bit += obj.Bit;
     }
-    addUserBits(obj.Bit, obj.SelectedFrame, obj.User._id);
-    addBet(obj.Bit, obj.User._id);
-    await GameAdminCoin.updateOne(
-      {},
-      { $inc: { coin: obj.Bit } },
-      { new: true }
-    );
-    // io.emit('bit', bitData);
-  });
-  socket.on("user", async () => {
-    console.log("user listen ============== ", time, winnerUserArrayG);
-    const user = await User.findById(globalRoom);
-    socket.emit("user", user);
-    todayProfitCoin = await todayProfit(globalRoom);
-    socket.emit(
-      "todayProfit",
-      parseInt(todayProfitCoin) ? parseInt(todayProfitCoin) : 0
-    );
-  });
-  socket.on("historyRecord", async (data) => {
-    console.log("historyRecord 111===========", data._id);
 
-    const record = await historyRecord(data._id);
-    console.log("record 111===========", record);
+    let bitData = {
+      UserId: uid,
+      Bit: obj.Bit,
+      SelectedFrame: obj.SelectedFrame,
+      position: obj.position,
+    };
+    currentGame.UsersBits.push({
+      Bit: obj.Bit,
+      SelectedFrame: obj.SelectedFrame,
+      userId: uid,
+      createdAt: new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }),
+    });
+    addBet(obj.Bit, uid);
+    await gameUserBridge.updateAdminCoin('ferrywheel', obj.Bit);
+    io.emit("bit", bitData);
+  });
 
-    socket.emit("historyRecord", record);
+  socket.on("user", async (obj) => {
+    const uid = obj.User?._id || obj.User?.id;
+    if (uid) {
+      const userDb = await gameUserBridge.getUser(uid);
+      if (userDb && userDb.diamond !== obj.User?.diamond) {
+        socket.emit("start", userDb);
+      }
+    }
   });
-  socket.on("disconnect", () => {
-    console.log(
-      "disconnect one socket >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
-    );
-  });
+
+  socket.on("disconnect", () => {});
 });
 
 const updateTime = async () => {
   io.emit("time", time);
   time--;
-
-  if (time == -7) {
-    RandomResWithSelectedFrame = await RandomResult();
-    console.log(
-      " RandomResWithSelectedFrame  : ======== ",
-      RandomResWithSelectedFrame
-    );
-
-    randomWinnerNumber = RandomResWithSelectedFrame?.number;
-    console.log(" randomWinnerNumber  : ======== ", RandomResWithSelectedFrame);
+  if (time === -1) {
+    randomWinnerNumber = await RandomResult();
+    resultObj = await selectFrame(randomWinnerNumber.number);
+    await addGameHistory(resultObj);
   }
-
-  if (time == -9) {
-    // make a random winner
-    console.log(" time  : ======== ", time);
-    let sum = 0;
-    for (const item of currentGame.frameBitCoin) {
-      sum += item.bit;
-    }
-    await addGameHistory(
-      RandomResWithSelectedFrame.number,
-      sum,
-      RandomResWithSelectedFrame.winCoinPercent,
-      RandomResWithSelectedFrame.winnerNumberTimes
-    );
-    io.emit("randomWinnerNumber", randomWinnerNumber); // 3 or 6
+  if (time === -2) {
+    currentGame.Combinations = randomWinnerNumber.number;
+    io.emit("randomWinnerNumber", randomWinnerNumber.number);
   }
-  // -12 result declare in frontend Side
-  //-14 new game start in frontend Side
-  if (time == -11) {
-    allUserHistory(currentGame, randomWinnerNumber);
-  }
-  if (time == 2) {
+  if (time === -7) {
     io.emit("game", currentGame);
+    const recentOutcomes = await gameUserBridge.getLastWinningOutcomes("ferrywheel", 20);
+    io.emit("gameNumberHistory", recentOutcomes);
   }
-  if (time == -13) {
-    const sortedArray = winnerUserArrayG.sort(
-      (a, b) => b.userWinCoin - a.userWinCoin
-    );
-    const resultTopUserArray = sortedArray.map((element, index) => ({
-      ...element,
-      number: index + 1,
-    }));
-    io.emit("winnerUserArray", {
-      winnerUserArray: resultTopUserArray,
-      winnerNumber: randomWinnerNumber,
-    });
+  if (time === -5) {
+    allUserHistory(currentGame, resultObj.number);
   }
-  if (time == -14) {
-    let ferryWheelLastHistory = await FerryWheelLastHistory.findOne();
-    ferryWheelLastHistory.winnerNumber.unshift(randomWinnerNumber);
-    if (ferryWheelLastHistory.winnerNumber.length > 15) {
-      ferryWheelLastHistory.winnerNumber.pop();
-    }
-    ferryWheelLastHistory.totalRound += 1;
-    await ferryWheelLastHistory.save();
-    io.emit("lastHistories", ferryWheelLastHistory.winnerNumber); // last some histories
-  }
-
-  if (time == -15) {
+  if (time === -13) {
     currentGame.UsersBits = [];
-    bitData = [];
-    winnerUserArrayG = [];
     currentGame.frameBitCoin = [
       { selectFrame: 1, bit: 0, winner: false },
       { selectFrame: 2, bit: 0, winner: false },
@@ -364,15 +226,14 @@ const updateTime = async () => {
       { selectFrame: 8, bit: 0, winner: false },
     ];
     io.emit("game", currentGame);
-    time = 25;
-    betG?.splice(0, betG?.length);
-    let ferryWheelLastHistory = await FerryWheelLastHistory.findOne();
-    if (ferryWheelLastHistory) {
-      io.emit("gameRound", ferryWheelLastHistory.totalRound);
-    }
-    await refreshSettings();
+  }
+  if (time === -16) {
+    time = 21;
+    betG.splice(0, betG.length);
+    refreshSettings();
   }
 };
+
 server.listen(port, () => {
-  console.log(`magic happen on ${port}`);
+  console.log(`[Ferry Wheel] Server running on port: ${port} (MySQL mode)`);
 });
