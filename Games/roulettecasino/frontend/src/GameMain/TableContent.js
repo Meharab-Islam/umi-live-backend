@@ -13,6 +13,7 @@ import audioPath from "../assets/audio/coinsSound.mp3";
 import Frame from "./Frame";
 import { ReactComponent as SoundUpIcon } from "../assets/soundUp.svg";
 import { ReactComponent as SoundMuteIcon } from "../assets/soundMute.svg";
+import { ReactComponent as HistoryIcon } from "../assets/historyIcon.svg";
 import { ToastConent } from "./ToastConent";
 import WinnerModel from "./WinnerModel";
 import axios from "axios";
@@ -931,7 +932,7 @@ export default function TableContent(props) {
                     event.stopPropagation();
                   }}
                 >
-                  <i class="fas fa-history"></i>
+                    <HistoryIcon style={{ width: 20, height: 20, fill: "#fff" }} />
                 </button>
               </div>
             </div>

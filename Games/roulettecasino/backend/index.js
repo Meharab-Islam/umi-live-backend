@@ -14,7 +14,21 @@ const { selectFrame, RandomResult, addGameHistory, allUserHistory, addBet, coin,
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(express.static(path.join(__dirname, "public")));
+
+const staticAssetOptions = {
+  maxAge: '30d',
+  immutable: true,
+  etag: true,
+  lastModified: true,
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith('.html')) {
+      res.setHeader('Cache-Control', 'public, max-age=60, must-revalidate');
+    } else {
+      res.setHeader('Cache-Control', 'public, max-age=2592000, immutable');
+    }
+  },
+};
+app.use(express.static(path.join(__dirname, "public"), staticAssetOptions));
 
 const defaultSettings = {
   game: [

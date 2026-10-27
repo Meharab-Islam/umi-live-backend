@@ -3,6 +3,7 @@ import http from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
 import morgan from 'morgan';
+import compression from 'compression';
 import dotenv from 'dotenv';
 import path from 'path';
 import fs from 'fs';
@@ -76,6 +77,7 @@ initPubSub(io);
 
 // Middlewares
 app.use(cors());
+app.use(compression({ threshold: 1024 }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(sqlInjectionGuard);
@@ -106,7 +108,22 @@ app.use('/uploads/:category/:filename', (req, res, next) => {
   next();
 });
 
-app.use('/uploads', express.static(uploadsDir));
+// Optimized aggressive caching options for static assets
+const staticAssetOptions = {
+  maxAge: '30d',
+  immutable: true,
+  etag: true,
+  lastModified: true,
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith('.html')) {
+      res.setHeader('Cache-Control', 'public, max-age=60, must-revalidate');
+    } else {
+      res.setHeader('Cache-Control', 'public, max-age=2592000, immutable');
+    }
+  },
+};
+
+app.use('/uploads', express.static(uploadsDir, staticAssetOptions));
 
 // Make io accessible in request context if needed
 app.use((req, res, next) => {
@@ -115,27 +132,27 @@ app.use((req, res, next) => {
 });
 
 // Serve public assets (landing page styles, images, scripts)
-app.use(express.static(publicDir));
+app.use(express.static(publicDir, staticAssetOptions));
 
 // Serve Mini-Games web frontends directly under /games/:gameName
 const gamesDir = path.resolve(__dirname, '../../Games');
-app.use('/games/big_eater', express.static(path.join(gamesDir, 'big_eater/public')));
-app.use('/games/slote_mecine', express.static(path.join(gamesDir, 'slote_mecine/frontend/dist')));
-app.use('/games/slote_mecine', express.static(path.join(gamesDir, 'slote_mecine/frontend/public')));
-app.use('/games/assets', express.static(path.join(gamesDir, 'slote_mecine/frontend/dist/assets')));
-app.use('/assets', express.static(path.join(gamesDir, 'slote_mecine/frontend/dist/assets')));
-app.use('/games/ferrywheel', express.static(path.join(gamesDir, 'ferrywheel/backend/public')));
-app.use('/games/greedybaby', express.static(path.join(gamesDir, 'greedybaby/backend/public')));
-app.use('/games/greedylion', express.static(path.join(gamesDir, 'greedylion/backend/public')));
-app.use('/games/roulettecasino', express.static(path.join(gamesDir, 'roulettecasino/backend/public')));
-app.use('/games/teenpatti', express.static(path.join(gamesDir, 'teenpatti/backend/public')));
+app.use('/games/big_eater', express.static(path.join(gamesDir, 'big_eater/public'), staticAssetOptions));
+app.use('/games/slote_mecine', express.static(path.join(gamesDir, 'slote_mecine/frontend/dist'), staticAssetOptions));
+app.use('/games/slote_mecine', express.static(path.join(gamesDir, 'slote_mecine/frontend/public'), staticAssetOptions));
+app.use('/games/assets', express.static(path.join(gamesDir, 'slote_mecine/frontend/dist/assets'), staticAssetOptions));
+app.use('/assets', express.static(path.join(gamesDir, 'slote_mecine/frontend/dist/assets'), staticAssetOptions));
+app.use('/games/ferrywheel', express.static(path.join(gamesDir, 'ferrywheel/backend/public'), staticAssetOptions));
+app.use('/games/greedybaby', express.static(path.join(gamesDir, 'greedybaby/backend/public'), staticAssetOptions));
+app.use('/games/greedylion', express.static(path.join(gamesDir, 'greedylion/backend/public'), staticAssetOptions));
+app.use('/games/roulettecasino', express.static(path.join(gamesDir, 'roulettecasino/backend/public'), staticAssetOptions));
+app.use('/games/teenpatti', express.static(path.join(gamesDir, 'teenpatti/backend/public'), staticAssetOptions));
 
 // Fallback for CRA compiled games assets requested at /static/media
-app.use('/static/media', express.static(path.join(gamesDir, 'roulettecasino/backend/public/static/media')));
-app.use('/static/media', express.static(path.join(gamesDir, 'ferrywheel/backend/public/static/media')));
-app.use('/static/media', express.static(path.join(gamesDir, 'greedybaby/backend/public/static/media')));
-app.use('/static/media', express.static(path.join(gamesDir, 'greedylion/backend/public/static/media')));
-app.use('/static/media', express.static(path.join(gamesDir, 'teenpatti/backend/public/static/media')));
+app.use('/static/media', express.static(path.join(gamesDir, 'roulettecasino/backend/public/static/media'), staticAssetOptions));
+app.use('/static/media', express.static(path.join(gamesDir, 'ferrywheel/backend/public/static/media'), staticAssetOptions));
+app.use('/static/media', express.static(path.join(gamesDir, 'greedybaby/backend/public/static/media'), staticAssetOptions));
+app.use('/static/media', express.static(path.join(gamesDir, 'greedylion/backend/public/static/media'), staticAssetOptions));
+app.use('/static/media', express.static(path.join(gamesDir, 'teenpatti/backend/public/static/media'), staticAssetOptions));
 
 // Game API proxy/forwarder for sub-games
 const gamePortMap = {

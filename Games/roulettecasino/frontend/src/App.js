@@ -1,6 +1,7 @@
 import axios from "axios";
 import "./css/Wheel.scss";
 import io from "socket.io-client";
+import "bootstrap/dist/css/bootstrap.min.css";
 import "./css/styles.scss";
 import "./css/responsive.scss";
 import DiamondIcon from "./assets/diamond.png";
@@ -10,6 +11,7 @@ import { ToastContainer, toast } from "react-toastify";
 import { ReactComponent as QuestionIcon } from "./assets/questionIcon.svg";
 import { ReactComponent as SoundUpIcon } from "./assets/soundUp.svg";
 import { ReactComponent as SoundMuteIcon } from "./assets/soundMute.svg";
+import { ReactComponent as HistoryIcon } from "./assets/historyIcon.svg";
 import "react-toastify/dist/ReactToastify.css";
 import WheeSpin from "./GameMain/WheeSpin";
 import { timer } from "./GameMain/Observable";
@@ -172,7 +174,7 @@ function App() {
                   event.stopPropagation();
                 }}
               >
-                <i class="fas fa-history"></i>
+                <HistoryIcon style={{ width: 22, height: 22, fill: "#fff" }} />
               </button>
             </div>
             <div className="sound-icon sound-icon-mo">
