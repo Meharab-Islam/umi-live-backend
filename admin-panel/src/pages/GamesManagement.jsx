@@ -1,44 +1,42 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Gamepad2,
+  Sparkles,
   Play,
   Sliders,
   ExternalLink,
-  Power,
-  Coins,
-  CheckCircle2,
-  XCircle,
   Copy,
   Check,
   RefreshCw,
-  Settings,
   AlertTriangle,
-  Layers,
+  CheckCircle2,
   Activity,
-  Flame,
-  ShieldCheck,
-  Sparkles,
+  Layers,
+  Search,
+  Filter,
 } from 'lucide-react';
 import gameApi from '../api/gameApi';
 import Loader from '../components/Loader';
-import { copyToClipboard } from '../utils/clipboard';
+import './GamesManagement.css';
 
-export default function GamesManagement() {
+export default function GamesManagement({ onToast }) {
   const [games, setGames] = useState([]);
   const [loading, setLoading] = useState(true);
   const [togglingId, setTogglingId] = useState(null);
   const [copiedSlug, setCopiedSlug] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('all');
   const [toastMessage, setToastMessage] = useState(null);
 
   const fetchGames = async () => {
     try {
       setLoading(true);
-      const res = await gameApi.getGames();
-      if (res.success && res.games) {
+      const res = await gameApi.getAdminGames();
+      if (res.success && Array.isArray(res.games)) {
         setGames(res.games);
       }
     } catch (err) {
-      showToast(err.message || 'Failed to fetch games', 'error');
+      showToast(err.message || 'Failed to fetch games catalog', 'error');
     } finally {
       setLoading(false);
     }
@@ -50,6 +48,7 @@ export default function GamesManagement() {
 
   const showToast = (message, type = 'success') => {
     setToastMessage({ message, type });
+    if (onToast) onToast(message, type);
     setTimeout(() => setToastMessage(null), 3500);
   };
 
@@ -75,267 +74,344 @@ export default function GamesManagement() {
   };
 
   const handleCopyUrl = (url, slug) => {
-    copyToClipboard(url);
+    const fullUrl = url?.startsWith('http')
+      ? url
+      : `${window.location.protocol}//${window.location.host}${url?.startsWith('/') ? '' : '/'}${url}`;
+    
+    // Ensure trailing slash for webview routing
+    const finalUrl = fullUrl.endsWith('/') ? fullUrl : `${fullUrl}/`;
+
+    if (navigator?.clipboard?.writeText) {
+      navigator.clipboard.writeText(finalUrl);
+    } else {
+      const el = document.createElement('textarea');
+      el.value = finalUrl;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+    }
+
     setCopiedSlug(slug);
-    showToast(`Copied Mobile Integration URL for ${slug}!`);
+    showToast(`Copied Mobile WebView URL for ${slug}!`);
     setTimeout(() => setCopiedSlug(null), 2000);
   };
+
+  // Filtered games based on search and category
+  const filteredGames = useMemo(() => {
+    return games.filter((game) => {
+      const matchesSearch =
+        !searchQuery ||
+        game.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        game.slug.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        game.category?.toLowerCase().includes(searchQuery.toLowerCase());
+
+      const matchesCat = categoryFilter === 'all' || game.category === categoryFilter;
+
+      return matchesSearch && matchesCat;
+    });
+  }, [games, searchQuery, categoryFilter]);
 
   const activeCount = games.filter((g) => g.is_active).length;
   const disabledCount = games.length - activeCount;
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fadeIn">
-      {/* Toast Notification */}
+    <div className="games-page">
+      {/* Toast Alert */}
       {toastMessage && (
         <div
-          className={`fixed top-5 right-5 z-50 flex items-center gap-3 px-5 py-3 rounded-xl shadow-2xl backdrop-blur-md border transition-all transform animate-slideDown ${
-            toastMessage.type === 'error'
-              ? 'bg-red-500/90 text-white border-red-400'
-              : 'bg-emerald-600/95 text-white border-emerald-400'
-          }`}
+          style={{
+            position: 'fixed',
+            top: '20px',
+            right: '20px',
+            zIndex: 9999,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            padding: '12px 18px',
+            borderRadius: '12px',
+            background: toastMessage.type === 'error' ? '#ef4444' : '#10b981',
+            color: '#ffffff',
+            boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
+            fontSize: '0.85rem',
+            fontWeight: 700,
+            animation: 'fadeIn 0.2s ease',
+          }}
         >
-          {toastMessage.type === 'error' ? (
-            <AlertTriangle className="w-5 h-5 flex-shrink-0" />
-          ) : (
-            <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
-          )}
-          <span className="text-sm font-semibold">{toastMessage.message}</span>
+          {toastMessage.type === 'error' ? <AlertTriangle size={18} /> : <CheckCircle2 size={18} />}
+          <span>{toastMessage.message}</span>
         </div>
       )}
 
-      {/* Header Banner */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-violet-900/40 via-purple-900/30 to-indigo-900/40 border border-purple-500/20 p-6 sm:p-8 backdrop-blur-xl">
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-300 text-xs font-bold tracking-wide uppercase">
-              <Sparkles className="w-3.5 h-3.5 text-purple-400" />
-              Integrated Real-Time Mini-Games
+      {/* Luxury Header Banner */}
+      <div className="games-header-banner">
+        <div className="games-header-top">
+          <div>
+            <div className="games-header-badge">
+              <Sparkles size={13} />
+              <span>Integrated Real-Time Mini-Games</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight flex items-center gap-3">
-              <Gamepad2 className="w-8 h-8 text-purple-400" />
-              Mini-Games Management & Control Center
+            <h1 className="games-header-title">
+              <Gamepad2 size={32} color="#c084fc" />
+              <span>Mini-Games Management & Control Center</span>
             </h1>
-            <p className="text-sm sm:text-base text-gray-300 max-w-2xl">
-              Enable or disable games, access individual game admin controllers, inspect live ports, and obtain mobile WebView integration URLs with instant Redis Pub/Sub balance sync.
+            <p className="games-header-subtitle">
+              Enable or disable live games, launch individual admin control rooms, monitor dedicated socket ports, and obtain copyable Flutter WebView integration routes with zero-downtime Redis Pub/Sub balance sync.
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <button
+            onClick={fetchGames}
+            disabled={loading}
+            className="btn btn-secondary"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '0.65rem 1.25rem',
+              borderRadius: '12px',
+              fontSize: '0.82rem',
+              fontWeight: 700,
+              background: 'rgba(255, 255, 255, 0.12)',
+              border: '1px solid rgba(255, 255, 255, 0.25)',
+              color: '#ffffff',
+              cursor: 'pointer',
+            }}
+          >
+            <RefreshCw size={15} className={loading ? 'spin' : ''} />
+            <span>Refresh Status</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Metric Stats Cards */}
+      <div className="games-stats-grid">
+        <div className="games-stat-card">
+          <div>
+            <span className="games-stat-label">Total Mini-Games</span>
+            <span className="games-stat-value">{games.length}</span>
+          </div>
+          <div className="games-stat-icon-wrap" style={{ background: 'rgba(124, 58, 237, 0.1)', color: '#7c3aed' }}>
+            <Gamepad2 size={22} />
+          </div>
+        </div>
+
+        <div className="games-stat-card">
+          <div>
+            <span className="games-stat-label">Active & Playable</span>
+            <span className="games-stat-value" style={{ color: '#059669' }}>
+              {activeCount}
+            </span>
+          </div>
+          <div className="games-stat-icon-wrap" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10b981' }}>
+            <Activity size={22} />
+          </div>
+        </div>
+
+        <div className="games-stat-card">
+          <div>
+            <span className="games-stat-label">Disabled / Inactive</span>
+            <span className="games-stat-value" style={{ color: '#64748b' }}>
+              {disabledCount}
+            </span>
+          </div>
+          <div className="games-stat-icon-wrap" style={{ background: 'rgba(100, 116, 139, 0.1)', color: '#64748b' }}>
+            <Layers size={22} />
+          </div>
+        </div>
+
+        <div className="games-stat-card">
+          <div>
+            <span className="games-stat-label">Dedicated Sockets</span>
+            <span className="games-stat-value" style={{ color: '#0284c7' }}>
+              Ports 5061-5067
+            </span>
+          </div>
+          <div className="games-stat-icon-wrap" style={{ background: 'rgba(2, 132, 199, 0.1)', color: '#0284c7' }}>
+            <Activity size={22} />
+          </div>
+        </div>
+      </div>
+
+      {/* Search & Category Filter Toolbar */}
+      <div className="games-toolbar">
+        <div className="games-search-box">
+          <Search size={15} className="games-search-icon" />
+          <input
+            type="text"
+            className="games-search-input"
+            placeholder="Search mini-games by name, slug, or type..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+          {['all', 'wheel', 'slots', 'casino', 'cards'].map((cat) => (
             <button
-              onClick={fetchGames}
-              disabled={loading}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-purple-600/30 hover:bg-purple-600/50 border border-purple-500/40 text-purple-200 font-semibold text-sm transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
+              key={cat}
+              type="button"
+              onClick={() => setCategoryFilter(cat)}
+              style={{
+                padding: '0.42rem 0.85rem',
+                borderRadius: '8px',
+                fontSize: '0.75rem',
+                fontWeight: 700,
+                textTransform: 'capitalize',
+                border: categoryFilter === cat ? '1px solid #7c3aed' : '1px solid var(--border-color, #e2e8f0)',
+                background: categoryFilter === cat ? '#7c3aed' : 'var(--bg-primary, #f8fafc)',
+                color: categoryFilter === cat ? '#ffffff' : 'var(--text-muted, #475569)',
+                cursor: 'pointer',
+                transition: 'all 0.15s ease',
+              }}
             >
-              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-              Refresh Status
+              {cat === 'all' ? 'All Categories' : cat}
             </button>
-          </div>
+          ))}
         </div>
       </div>
 
-      {/* Stat Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 backdrop-blur-md">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Total Games</span>
-            <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-400">
-              <Gamepad2 className="w-5 h-5" />
-            </div>
-          </div>
-          <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-3xl font-extrabold text-white">{games.length}</span>
-            <span className="text-xs text-purple-400 font-medium">Integrated</span>
-          </div>
-        </div>
-
-        <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 backdrop-blur-md">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Active Games</span>
-            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400">
-              <CheckCircle2 className="w-5 h-5" />
-            </div>
-          </div>
-          <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-3xl font-extrabold text-emerald-400">{activeCount}</span>
-            <span className="text-xs text-emerald-400/80 font-medium">Live & Playable</span>
-          </div>
-        </div>
-
-        <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 backdrop-blur-md">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Under Maintenance</span>
-            <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-400">
-              <XCircle className="w-5 h-5" />
-            </div>
-          </div>
-          <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-3xl font-extrabold text-amber-400">{disabledCount}</span>
-            <span className="text-xs text-amber-400/80 font-medium">Disabled</span>
-          </div>
-        </div>
-
-        <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 backdrop-blur-md">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Sync Architecture</span>
-            <div className="w-10 h-10 rounded-xl bg-cyan-500/10 flex items-center justify-center text-cyan-400">
-              <Activity className="w-5 h-5" />
-            </div>
-          </div>
-          <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-base font-bold text-cyan-300">Redis Pub/Sub</span>
-            <span className="text-xs text-cyan-400/80 font-medium">Zero-Crash Bridge</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Pub/Sub Architecture Info Banner */}
-      <div className="p-4 rounded-2xl bg-cyan-950/30 border border-cyan-800/40 flex items-center gap-3">
-        <ShieldCheck className="w-6 h-6 text-cyan-400 flex-shrink-0" />
-        <p className="text-xs sm:text-sm text-cyan-200">
-          <strong className="text-white font-semibold">Zero-Crash Isolated Sockets:</strong> Game realtime channels run on dedicated ports and communicate with the main backend via high-speed Redis Pub/Sub. User coins and bets are committed directly to the central MySQL database and live stream rooms remain 100% crash-free.
-        </p>
-      </div>
-
-      {/* Games List Grid */}
+      {/* Games Cards Grid */}
       {loading ? (
-        <div className="py-20 flex justify-center">
+        <div style={{ padding: '4rem 0', display: 'flex', justifyContent: 'center' }}>
           <Loader />
         </div>
+      ) : filteredGames.length === 0 ? (
+        <div
+          style={{
+            padding: '3rem',
+            textAlign: 'center',
+            background: 'var(--bg-card, #ffffff)',
+            borderRadius: '16px',
+            border: '1px solid var(--border-color, #e2e8f0)',
+            color: 'var(--text-dim, #64748b)',
+          }}
+        >
+          <Gamepad2 size={36} style={{ margin: '0 auto 10px', opacity: 0.5 }} />
+          <h4 style={{ fontWeight: 700, color: 'var(--text-main, #0f172a)' }}>No games found</h4>
+          <p style={{ fontSize: '0.85rem' }}>No mini-games match the selected filter criteria.</p>
+        </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {games.map((game) => {
+        <div className="games-grid">
+          {filteredGames.map((game) => {
             const isToggling = togglingId === (game.id || game.slug);
             const isCopied = copiedSlug === game.slug;
+
+            // Route with guaranteed trailing slash
+            const ensuredWebUrl = game.web_url ? (game.web_url.endsWith('/') ? game.web_url : `${game.web_url}/`) : '/';
+            const ensuredAdminUrl = game.admin_url || ensuredWebUrl;
 
             return (
               <div
                 key={game.slug || game.id}
-                className={`relative rounded-3xl border transition-all duration-300 overflow-hidden backdrop-blur-xl ${
-                  game.is_active
-                    ? 'bg-slate-900/70 border-purple-500/20 hover:border-purple-500/40 shadow-lg hover:shadow-purple-500/10'
-                    : 'bg-slate-900/40 border-slate-800 opacity-75 hover:opacity-100'
-                }`}
+                className={`game-card ${game.is_active ? 'active-border' : 'disabled-border'}`}
               >
-                {/* Top Bar with Status Badge & Toggle */}
-                <div className="p-6">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex items-center gap-4">
-                      <div className="relative w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-600/20 to-indigo-600/20 border border-purple-500/30 p-2 flex items-center justify-center flex-shrink-0 shadow-inner">
+                <div className="game-card-body">
+                  <div className="game-card-header">
+                    <div className="game-card-identity">
+                      <div className="game-card-icon">
                         {game.icon_url ? (
                           <img
                             src={game.icon_url}
                             alt={game.name}
-                            className="w-full h-full object-contain rounded-xl"
                             onError={(e) => {
                               e.currentTarget.style.display = 'none';
                             }}
                           />
                         ) : (
-                          <Gamepad2 className="w-8 h-8 text-purple-400" />
+                          <Gamepad2 size={26} color="#7c3aed" />
                         )}
                       </div>
 
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h3 className="text-lg font-bold text-white tracking-wide">{game.name}</h3>
-                          <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-800 text-purple-300 border border-purple-500/20 capitalize">
-                            {game.category}
-                          </span>
+                      <div style={{ minWidth: 0 }}>
+                        <div className="game-card-title-row">
+                          <h3 className="game-card-title">{game.name}</h3>
+                          <span className="game-category-pill">{game.category || 'Game'}</span>
                         </div>
-                        <p className="text-xs text-gray-400 mt-1 line-clamp-2">{game.description}</p>
+                        <p className="game-card-description">{game.description}</p>
                       </div>
                     </div>
 
                     {/* Enable / Disable Toggle Switch */}
-                    <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                    <div className="toggle-switch-wrap">
                       <button
+                        type="button"
                         onClick={() => handleToggle(game)}
                         disabled={isToggling}
-                        className={`relative inline-flex h-7 w-14 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                          game.is_active ? 'bg-emerald-500' : 'bg-slate-700'
-                        } ${isToggling ? 'opacity-50 cursor-wait' : ''}`}
+                        className={`toggle-switch ${game.is_active ? 'is-active' : ''}`}
                         title={game.is_active ? 'Click to Disable Game' : 'Click to Enable Game'}
                       >
-                        <span
-                          className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
-                            game.is_active ? 'translate-x-7' : 'translate-x-0'
-                          }`}
-                        />
+                        <span className="toggle-slider" />
                       </button>
-                      <span
-                        className={`text-[10px] font-bold uppercase tracking-wider ${
-                          game.is_active ? 'text-emerald-400' : 'text-slate-400'
-                        }`}
-                      >
-                        {game.is_active ? 'ACTIVE' : 'DISABLED'}
+                      <span className={`toggle-label ${game.is_active ? 'active' : 'inactive'}`}>
+                        {game.is_active ? 'Active' : 'Disabled'}
                       </span>
                     </div>
                   </div>
 
-                  {/* Chips & Betting Specs */}
-                  <div className="mt-5 pt-4 border-t border-slate-800/80 grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
-                    <div className="bg-slate-800/40 rounded-xl p-2.5 border border-slate-700/50">
-                      <span className="text-gray-400 text-[10px] uppercase font-bold block">Min / Max Bet</span>
-                      <span className="font-semibold text-white mt-0.5 block">
+                  {/* Specs Grid */}
+                  <div className="game-specs-grid">
+                    <div className="game-spec-box">
+                      <span className="game-spec-title">Min / Max Bet</span>
+                      <span className="game-spec-val">
                         🪙 {game.min_bet?.toLocaleString()} - {game.max_bet?.toLocaleString()}
                       </span>
                     </div>
 
-                    <div className="bg-slate-800/40 rounded-xl p-2.5 border border-slate-700/50">
-                      <span className="text-gray-400 text-[10px] uppercase font-bold block">Dedicated Socket</span>
-                      <span className="font-semibold text-cyan-300 mt-0.5 block truncate">
-                        Port {game.dedicated_url ? game.dedicated_url.split(':').pop() : '5060'}
+                    <div className="game-spec-box">
+                      <span className="game-spec-title">Socket Port</span>
+                      <span className="game-spec-val" style={{ color: '#0284c7' }}>
+                        Port {game.port || (game.dedicated_url ? game.dedicated_url.split(':').pop() : '5060')}
                       </span>
                     </div>
 
-                    <div className="bg-slate-800/40 rounded-xl p-2.5 border border-slate-700/50 col-span-2 sm:col-span-1">
-                      <span className="text-gray-400 text-[10px] uppercase font-bold block">Supported Chips</span>
-                      <span className="font-semibold text-amber-300 mt-0.5 block truncate">
+                    <div className="game-spec-box">
+                      <span className="game-spec-title">Supported Chips</span>
+                      <span className="game-spec-val" style={{ color: '#d97706' }}>
                         {Array.isArray(game.chips) ? game.chips.join(', ') : '100, 500, 1000'}
                       </span>
                     </div>
                   </div>
 
                   {/* Action Buttons */}
-                  <div className="mt-5 flex flex-wrap items-center gap-2 pt-2">
-                    {/* Open Game Admin Controller Button */}
+                  <div className="game-actions-row">
                     <a
-                      href={game.admin_url || game.web_url}
+                      href={ensuredAdminUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-purple-600/30 hover:bg-purple-600/50 border border-purple-500/40 text-purple-200 font-semibold text-xs transition-all hover:scale-105 active:scale-95 shadow-sm"
+                      className="game-btn game-btn-admin"
+                      title="Open Game Admin Control Panel"
                     >
-                      <Sliders className="w-3.5 h-3.5 text-purple-300" />
-                      Open Game Admin Panel
-                      <ExternalLink className="w-3 h-3 text-purple-400" />
+                      <Sliders size={13} />
+                      <span>Admin Panel</span>
+                      <ExternalLink size={12} />
                     </a>
 
-                    {/* Test Play Game Button */}
                     <a
-                      href={game.web_url}
+                      href={ensuredWebUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/40 border border-emerald-500/30 text-emerald-200 font-semibold text-xs transition-all hover:scale-105 active:scale-95"
+                      className="game-btn game-btn-play"
+                      title="Play / Preview Game"
                     >
-                      <Play className="w-3.5 h-3.5 text-emerald-400" />
-                      Play / Preview Game
+                      <Play size={13} />
+                      <span>Play / Preview</span>
                     </a>
 
-                    {/* Copy Mobile Integration URL Button */}
                     <button
-                      onClick={() => handleCopyUrl(game.web_url, game.slug)}
-                      className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-gray-200 font-medium text-xs transition-all hover:scale-105 active:scale-95 ml-auto"
+                      type="button"
+                      onClick={() => handleCopyUrl(ensuredWebUrl, game.slug)}
+                      className={`game-btn game-btn-copy ${isCopied ? 'is-copied' : ''}`}
                       title="Copy Mobile In-App WebView URL"
                     >
                       {isCopied ? (
                         <>
-                          <Check className="w-3.5 h-3.5 text-emerald-400" />
-                          <span className="text-emerald-400 font-bold">Copied URL!</span>
+                          <Check size={13} />
+                          <span>Copied URL!</span>
                         </>
                       ) : (
                         <>
-                          <Copy className="w-3.5 h-3.5 text-gray-400" />
+                          <Copy size={13} />
                           <span>Copy Mobile URL</span>
                         </>
                       )}
@@ -343,12 +419,13 @@ export default function GamesManagement() {
                   </div>
                 </div>
 
-                {/* Bottom URL Preview Bar */}
-                <div className="px-6 py-2.5 bg-slate-950/60 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-gray-400">
-                  <span className="truncate max-w-[85%] font-mono text-gray-400">
-                    <span className="text-purple-400 font-semibold">WebView Route:</span> {game.web_url}
+                {/* Footer Route Info */}
+                <div className="game-card-footer">
+                  <span className="truncate">
+                    <span className="game-route-tag">WebView Route:</span>
+                    <code>{ensuredWebUrl}</code>
                   </span>
-                  <span className="text-slate-500 font-mono">slug: {game.slug}</span>
+                  <span>Port {game.port}</span>
                 </div>
               </div>
             );
