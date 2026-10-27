@@ -219,6 +219,14 @@ function setBalance(bal, profit) {
   }
 }
 
+function renderAvatarHtml(avatar, fallback = '😎') {
+  if (!avatar) return fallback;
+  if (typeof avatar === 'string' && (avatar.startsWith('http://') || avatar.startsWith('https://') || avatar.startsWith('/') || avatar.includes('.png') || avatar.includes('.jpg') || avatar.includes('.jpeg') || avatar.includes('.webp') || avatar.includes('.gif'))) {
+    return `<img src="${avatar}" alt="avatar" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" onerror="this.outerHTML='${fallback}'"/>`;
+  }
+  return avatar;
+}
+
 // Early sync from URL / storage meta (instant render without waiting for socket handshake)
 const initialMeta = getPlayerMeta();
 if (initialMeta.balance !== null) {
@@ -227,7 +235,7 @@ if (initialMeta.balance !== null) {
   setBalance(S.balance, 0);
 }
 if (DOM.playerProfilePill) {
-  if (DOM.playerProfileAvatar) DOM.playerProfileAvatar.textContent = initialMeta.avatar || '😎';
+  if (DOM.playerProfileAvatar) DOM.playerProfileAvatar.innerHTML = renderAvatarHtml(initialMeta.avatar, '😎');
   if (DOM.playerProfileName) DOM.playerProfileName.textContent = initialMeta.name || 'Player';
   DOM.playerProfilePill.style.display = 'inline-flex';
 }
@@ -235,14 +243,33 @@ if (DOM.playerProfilePill) {
 // ─── Sound ────────────────────────────────────────────────────────────────────
 let audioCtx = null;
 function getAudio() {
-  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (!audioCtx) {
+    try {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    } catch (_) {}
+  }
+  if (audioCtx && audioCtx.state === 'suspended') {
+    audioCtx.resume().catch(() => {});
+  }
   return audioCtx;
 }
+
+// Global mobile webview unlock on any user tap/touch gesture
+const unlockAudio = () => {
+  const ctx = getAudio();
+  if (ctx && ctx.state === 'suspended') {
+    ctx.resume().catch(() => {});
+  }
+};
+document.addEventListener('click', unlockAudio, { passive: true });
+document.addEventListener('touchstart', unlockAudio, { passive: true });
+document.addEventListener('pointerdown', unlockAudio, { passive: true });
 
 function playNote(freq, type, vol, dur, delay = 0) {
   if (!S.soundOn) return;
   try {
     const ctx = getAudio();
+    if (!ctx) return;
     const osc = ctx.createOscillator();
     const g   = ctx.createGain();
     osc.type = type || 'sine';
@@ -274,14 +301,28 @@ function playChipSelect() {
   if (navigator.vibrate) try { navigator.vibrate(10); } catch (_) {}
 }
 
+const SOUND_SVGS = {
+  on: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>`,
+  off: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>`
+};
+
+function updateSoundBtnUI() {
+  if (DOM.soundBtn) DOM.soundBtn.innerHTML = S.soundOn ? SOUND_SVGS.on : SOUND_SVGS.off;
+}
+
 // Sound toggle button
-DOM.soundBtn.addEventListener('click', () => {
-  S.soundOn = !S.soundOn;
-  localStorage.setItem(SOUND_KEY, S.soundOn ? 'on' : 'off');
-  DOM.soundBtn.textContent = S.soundOn ? '🎵' : '🔇';
-  showToast(S.soundOn ? '🎵 Sound ON' : '🔇 Sound OFF');
-});
-if (!S.soundOn) DOM.soundBtn.textContent = '🔇';
+if (DOM.soundBtn) {
+  DOM.soundBtn.addEventListener('click', () => {
+    const ctx = getAudio();
+    if (ctx && ctx.state === 'suspended') ctx.resume().catch(() => {});
+    S.soundOn = !S.soundOn;
+    localStorage.setItem(SOUND_KEY, S.soundOn ? 'on' : 'off');
+    updateSoundBtnUI();
+    if (S.soundOn) playNote(880, 'sine', 0.15, 0.15);
+    showToast(S.soundOn ? '🎵 Sound ON' : '🔇 Sound OFF');
+  });
+  updateSoundBtnUI();
+}
 
 // ─── Food Grid (8 Slots) ──────────────────────────────────────────────────────
 function renderGrid() {
@@ -466,7 +507,7 @@ function updateBetStats(stats) {
 function onFoodTap(foodId) {
   if (S.phase !== 'betting')     { showToast('⏳ Wait for next round'); return; }
   if (S.remaining <= 2)          { showToast('⏰ Too late!'); return; }
-  if (S.balance < S.selectedAmt) { showToast('💸 Not enough balance — tap Recharge!'); return; }
+  if (S.balance < S.selectedAmt) { showToast('💸 Not enough balance!'); return; }
 
   // Interactive feedback
   playBet();
@@ -573,23 +614,23 @@ function renderBetAmountButtons(chipAmounts) {
 // Initial render of bet buttons
 renderBetAmountButtons(S.chipAmounts);
 
-// ─── Recharge ─────────────────────────────────────────────────────────────────
-DOM.rechargeBtn.addEventListener('click', () => {
-  if (window.BigEaterHost && typeof window.BigEaterHost.onRecharge === 'function') {
-    window.BigEaterHost.onRecharge();
-    return;
-  }
-  if (window.FlutterChannel && typeof window.FlutterChannel.postMessage === 'function') {
-    window.FlutterChannel.postMessage(JSON.stringify({ event: 'recharge', currentBalance: S.balance }));
-    return;
-  }
-  if (window.ReactNativeWebView && typeof window.ReactNativeWebView.postMessage === 'function') {
-    window.ReactNativeWebView.postMessage(JSON.stringify({ event: 'recharge', currentBalance: S.balance }));
-    return;
-  }
-  socket.emit('player:recharge');
-  playRecharge();
-});
+// ─── Recharge (Guarded) ────────────────────────────────────────────────────────
+if (DOM.rechargeBtn) {
+  DOM.rechargeBtn.addEventListener('click', () => {
+    if (window.BigEaterHost && typeof window.BigEaterHost.onRecharge === 'function') {
+      window.BigEaterHost.onRecharge();
+      return;
+    }
+    if (window.FlutterChannel && typeof window.FlutterChannel.postMessage === 'function') {
+      window.FlutterChannel.postMessage(JSON.stringify({ event: 'recharge', currentBalance: S.balance }));
+      return;
+    }
+    if (window.ReactNativeWebView && typeof window.ReactNativeWebView.postMessage === 'function') {
+      window.ReactNativeWebView.postMessage(JSON.stringify({ event: 'recharge', currentBalance: S.balance }));
+      return;
+    }
+  });
+}
 
 // ─── RESULT SCREEN MODAL (Fancy, Gamified & Interactive) ───────────────────────────
 let resultCountdownTimer = null;
@@ -1138,7 +1179,7 @@ function renderTopWinnersPodium(topWinners) {
       <div class="rs-winner-name ${p.rankClass}">${p.displayName || p.name || 'Player'}</div>
       <div class="rs-avatar-wrap">
         ${p.hasCrown ? '<span class="rs-crown" aria-hidden="true">👑</span>' : ''}
-        <div class="rs-avatar">${p.avatar || '😎'}</div>
+        <div class="rs-avatar">${renderAvatarHtml(p.avatar, '😎')}</div>
         <div class="rs-rank-badge">${p.badgeNum}</div>
       </div>
       <div class="rs-winner-coins">
@@ -1204,7 +1245,7 @@ socket.on('player:state', ({ player, game, foods, history, chipAmounts }) => {
 
   setBalance(player.balance, player.today_profit);
   if (DOM.playerProfilePill) {
-    if (DOM.playerProfileAvatar) DOM.playerProfileAvatar.textContent = player.avatar || '😎';
+    if (DOM.playerProfileAvatar) DOM.playerProfileAvatar.innerHTML = renderAvatarHtml(player.avatar, '😎');
     if (DOM.playerProfileName) DOM.playerProfileName.textContent = player.name || 'Player';
     DOM.playerProfilePill.style.display = 'inline-flex';
   }

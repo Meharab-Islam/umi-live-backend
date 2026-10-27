@@ -81,9 +81,25 @@
           <span class="online-dot"></span>
           <span id="online-count">1</span>
         </div>
-        <button class="icon-pill" id="records-btn" aria-label="Results Records" title="Results Records">📋</button>
-        <button class="icon-pill" id="sound-btn" aria-label="Sound" title="Sound Toggle">🎵</button>
-        <button class="icon-pill rule-icon-btn" id="rule-btn" aria-label="Game Rules" title="Rules">❓</button>
+        <button class="icon-pill" id="records-btn" aria-label="Results Records" title="Results Records">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+        </button>
+        <button class="icon-pill" id="sound-btn" aria-label="Sound" title="Sound Toggle">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+          </svg>
+        </button>
+        <button class="icon-pill rule-icon-btn" id="rule-btn" aria-label="Game Rules" title="Rules">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+        </button>
       </div>
     </header>
 
@@ -137,13 +153,12 @@
       <!-- Dynamically rendered by JS -->
     </div>
 
-    <!-- ── Balance / Recharge / Profits ── -->
+    <!-- ── Balance / Profits ── -->
     <div class="info-row">
       <div class="balance-pill">
         <span class="coin-emoji" aria-hidden="true">🟡</span>
         <span class="balance-num" id="balance-num">--</span>
       </div>
-      <button class="recharge-btn" id="recharge-btn">Recharge</button>
       <div class="profits-box">
         <span class="profits-label">Today's profits</span>
         <span class="profits-val" id="profits-val">0</span>
@@ -156,7 +171,12 @@
       <div class="history-scroll" id="history-scroll">
         <!-- Icons filled by JS -->
       </div>
-      <button class="history-chart-btn" id="history-chart-btn" aria-label="View history trends" title="History Trends">📈</button>
+      <button class="history-chart-btn" id="history-chart-btn" aria-label="View history trends" title="History Trends">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+          <polyline points="17 6 23 6 23 12"></polyline>
+        </svg>
+      </button>
     </div>
   </div>
 

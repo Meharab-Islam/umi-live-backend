@@ -774,13 +774,14 @@ io.on('connection', (socket) => {
     io.to('admin').emit('admin:liveState', getAdminState());
   });
 
-  // ── Recharge ──
+  // ── Recharge (Disabled: no auto-coins) ──
   socket.on('player:recharge', () => {
     const sessionId = socket.data.sessionId;
     if (!sessionId) return;
-    stmts.recharge.run(sessionId);
     const player = stmts.getPlayer.get(sessionId);
-    socket.emit('player:update', { balance: player.balance, todayProfit: player.today_profit });
+    if (player) {
+      socket.emit('player:update', { balance: player.balance, todayProfit: player.today_profit });
+    }
   });
 
   // ═════════════════════════════════════════════════════════════════════════════

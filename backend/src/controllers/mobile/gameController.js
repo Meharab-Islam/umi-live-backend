@@ -43,7 +43,7 @@ export const INTEGRATED_GAMES = [
     name: 'Ferry Wheel',
     description: 'High-stakes spinning lucky wheel with 8 prize sectors, customizable odds, and live countdowns.',
     category: 'wheel',
-    icon_url: '/games/ferrywheel/logo192.png',
+    icon_url: '/uploads/games/Kawaii_Kitten___s_BM_Pro_Emblem_1793093797176-548000985.png',
     web_url: '/games/ferrywheel',
     admin_url: '/games/ferrywheel',
     port: 5063,
@@ -59,7 +59,7 @@ export const INTEGRATED_GAMES = [
     name: 'Greedy Baby',
     description: 'Vibrant animal and baby lucky prize wheel with real-time multiplayer rounds and instant payouts.',
     category: 'wheel',
-    icon_url: '/games/greedybaby/logo192.png',
+    icon_url: '/uploads/games/Kawaii_Kitten___s_BM_Pro_Emblem_1793093817955-457896236.png',
     web_url: '/games/greedybaby',
     admin_url: '/games/greedybaby',
     port: 5064,
@@ -75,7 +75,7 @@ export const INTEGRATED_GAMES = [
     name: 'Greedy Lion',
     description: 'African safari themed fortune wheel with roar multipliers and competitive leaderboards.',
     category: 'wheel',
-    icon_url: '/games/greedylion/logo192.png',
+    icon_url: '/uploads/games/Kawaii_Kitten___s_BM_Pro_Emblem_1793093833320-117100579.png',
     web_url: '/games/greedylion',
     admin_url: '/games/greedylion',
     port: 5065,
@@ -91,7 +91,7 @@ export const INTEGRATED_GAMES = [
     name: 'Roulette Casino',
     description: 'Classic European casino roulette wheel with inside and outside number betting and live statistics.',
     category: 'casino',
-    icon_url: '/games/roulettecasino/logo192.png',
+    icon_url: '/uploads/games/Kawaii_Kitten___s_BM_Pro_Emblem_1793093863998-844691471.png',
     web_url: '/games/roulettecasino',
     admin_url: '/games/roulettecasino',
     port: 5066,
@@ -136,15 +136,37 @@ function formatGameRow(game, baseUrl, protocol, host) {
   const dedicatedHost = host.includes(':') ? host.split(':')[0] : host;
   const dedicatedUrl = `${protocol}://${dedicatedHost}:${game.port || 5060}`;
 
+  // Normalize icon URL so it's always an accessible full URL matching current host
+  let icon = game.icon_url || '';
+  if (icon.startsWith('http://127.0.0.1') || icon.startsWith('http://localhost') || icon.startsWith('https://127.0.0.1') || icon.startsWith('https://localhost')) {
+    icon = icon.replace(/^https?:\/\/[^/]+/, baseUrl);
+  } else if (icon && !icon.startsWith('http://') && !icon.startsWith('https://')) {
+    icon = `${baseUrl}${icon.startsWith('/') ? '' : '/'}${icon}`;
+  }
+
+  let webUrl = game.web_url || '';
+  if (webUrl.startsWith('http://127.0.0.1') || webUrl.startsWith('http://localhost') || webUrl.startsWith('https://127.0.0.1') || webUrl.startsWith('https://localhost')) {
+    webUrl = webUrl.replace(/^https?:\/\/[^/]+/, baseUrl);
+  } else if (webUrl && !webUrl.startsWith('http://') && !webUrl.startsWith('https://')) {
+    webUrl = `${baseUrl}${webUrl.startsWith('/') ? '' : '/'}${webUrl}`;
+  }
+
+  let adminUrl = game.admin_url || '';
+  if (adminUrl.startsWith('http://127.0.0.1') || adminUrl.startsWith('http://localhost') || adminUrl.startsWith('https://127.0.0.1') || adminUrl.startsWith('https://localhost')) {
+    adminUrl = adminUrl.replace(/^https?:\/\/[^/]+/, baseUrl);
+  } else if (adminUrl && !adminUrl.startsWith('http://') && !adminUrl.startsWith('https://')) {
+    adminUrl = `${baseUrl}${adminUrl.startsWith('/') ? '' : '/'}${adminUrl}`;
+  }
+
   return {
     id: game.id,
     slug: game.slug,
     name: game.name,
     description: game.description,
     category: game.category,
-    icon_url: game.icon_url?.startsWith('http') ? game.icon_url : `${baseUrl}${game.icon_url}`,
-    web_url: game.web_url?.startsWith('http') ? game.web_url : `${baseUrl}${game.web_url}`,
-    admin_url: game.admin_url?.startsWith('http') ? game.admin_url : `${baseUrl}${game.admin_url}`,
+    icon_url: icon,
+    web_url: webUrl,
+    admin_url: adminUrl,
     dedicated_url: dedicatedUrl,
     socket_url: baseUrl,
     dedicated_socket_url: dedicatedUrl,
@@ -164,11 +186,12 @@ function formatGameRow(game, baseUrl, protocol, host) {
  */
 export async function getGamesList(req, res) {
   try {
-    const host = req.get('host') || `localhost:${process.env.BACKEND_PORT || 5050}`;
-    const protocol = req.protocol || 'http';
+    const host = req.get('x-forwarded-host') || req.get('host') || `localhost:${process.env.BACKEND_PORT || 5050}`;
+    const protocol = req.get('x-forwarded-proto') || req.protocol || 'http';
     const baseUrl = `${protocol}://${host}`;
 
-    const games = await cache.getOrSet('games:active', 60, async () => {
+    // Cache the raw DB records to avoid locking hardcoded hosts in Redis
+    const rawRows = await cache.getOrSet('games:active_rows', 60, async () => {
       let rows = [];
       try {
         rows = await query('SELECT * FROM mini_games WHERE is_active = TRUE ORDER BY id ASC');
@@ -180,8 +203,10 @@ export async function getGamesList(req, res) {
         rows = INTEGRATED_GAMES.filter((g) => g.is_active);
       }
 
-      return rows.map((g) => formatGameRow(g, baseUrl, protocol, host));
+      return rows;
     });
+
+    const games = (rawRows || []).map((g) => formatGameRow(g, baseUrl, protocol, host));
 
     return res.json({
       success: true,
@@ -237,11 +262,11 @@ export async function getGameDetails(req, res) {
  */
 export async function getAdminGamesList(req, res) {
   try {
-    const host = req.get('host') || `localhost:${process.env.BACKEND_PORT || 5050}`;
-    const protocol = req.protocol || 'http';
+    const host = req.get('x-forwarded-host') || req.get('host') || `localhost:${process.env.BACKEND_PORT || 5050}`;
+    const protocol = req.get('x-forwarded-proto') || req.protocol || 'http';
     const baseUrl = `${protocol}://${host}`;
 
-    const games = await cache.getOrSet('games:admin_all', 30, async () => {
+    const rawRows = await cache.getOrSet('games:all_rows', 30, async () => {
       let rows = [];
       try {
         rows = await query('SELECT * FROM mini_games ORDER BY id ASC');
@@ -251,8 +276,10 @@ export async function getAdminGamesList(req, res) {
         rows = INTEGRATED_GAMES;
       }
 
-      return rows.map((g) => formatGameRow(g, baseUrl, protocol, host));
+      return rows;
     });
+
+    const games = (rawRows || []).map((g) => formatGameRow(g, baseUrl, protocol, host));
 
     return res.json({
       success: true,
@@ -291,6 +318,8 @@ export async function toggleGameStatus(req, res) {
     // Invalidate Redis caches immediately
     await cache.del('games:active');
     await cache.del('games:admin_all');
+    await cache.del('games:active_rows');
+    await cache.del('games:all_rows');
     await cache.del('games:catalog');
 
     // Broadcast status change via Redis Pub/Sub to all instances
@@ -365,6 +394,8 @@ export async function updateGameSettings(req, res) {
 
     await cache.del('games:active');
     await cache.del('games:admin_all');
+    await cache.del('games:active_rows');
+    await cache.del('games:all_rows');
     await cache.del('games:catalog');
 
     await publishAdminEvent('game:settings_updated', {

@@ -144,9 +144,9 @@
     "semantic_hash": ""
   },
   "backend/src/db/init.js": {
-    "mtime": 1793085935.9228015,
-    "seen": 1793086123.944912,
-    "ast_hash": "c1423eb78d40cda14502c6c4daa33dc7",
+    "mtime": 1793096538.3293316,
+    "seen": 1793096598.264447,
+    "ast_hash": "a06ca397ddb4badb72836af825801496",
     "semantic_hash": ""
   },
   "backend/src/middlewares/authMiddleware.js": {
@@ -1542,15 +1542,15 @@
     "semantic_hash": ""
   },
   "Games/big_eater/public/app.js": {
-    "mtime": 1793088748.2924502,
-    "seen": 1793089565.630618,
-    "ast_hash": "71639b93a5cc712ae5ba21a7b6206649",
+    "mtime": 1793096423.6160357,
+    "seen": 1793096598.258498,
+    "ast_hash": "e2ad61c6519b36c3e6980318197dd09a",
     "semantic_hash": ""
   },
   "Games/big_eater/server.js": {
-    "mtime": 1793088811.3119807,
-    "seen": 1793089565.6306188,
-    "ast_hash": "993f3e4a371edefcad37c1e453809b35",
+    "mtime": 1793096436.47443,
+    "seen": 1793096598.2584991,
+    "ast_hash": "47cd89d4073e9d0815821f06e149ef76",
     "semantic_hash": ""
   },
   "Games/big_eater/tailwind.config.js": {
@@ -2544,9 +2544,9 @@
     "semantic_hash": ""
   },
   "backend/src/controllers/mobile/gameController.js": {
-    "mtime": 1793093455.778005,
-    "seen": 1793093544.993815,
-    "ast_hash": "43a4e5b10422bdd949385d2c4d8d2e93",
+    "mtime": 1793096501.514238,
+    "seen": 1793096598.264098,
+    "ast_hash": "e59a23dc304c460c3c8891ed0f435078",
     "semantic_hash": ""
   },
   "backend/src/routes/mobile/gameRoutes.js": {
@@ -2574,9 +2574,9 @@
     "semantic_hash": ""
   },
   "Games/big_eater/public/index.html": {
-    "mtime": 1793082119.9404566,
-    "seen": 1793082220.677043,
-    "ast_hash": "74b6dbf83b759238bb05749d89903ca9",
+    "mtime": 1793096375.5022724,
+    "seen": 1793096598.265854,
+    "ast_hash": "fe0365f74ff48289664f0cf53537a864",
     "semantic_hash": ""
   },
   "Games/ferrywheel/README.md": {
