@@ -42,33 +42,29 @@ router.get('/all', optionalAuth, getAllAgencies);
 // Agency Management Routes (requires agency, moderator, admin, or superadmin privileges)
 router.use(requireAuth, requireAgency);
 
-// 1. Agency Overview & Metrics
+// 1. Static Routes (MUST be registered before parameterized /:agencyId routes to avoid path collision)
 router.get('/overview', getAgencyOverview);
-router.get('/:agencyId', getAgencyOverview);
-router.get('/:agencyId/overview', getAgencyOverview);
-
-// 2. Affiliated Hosts Management
 router.get('/hosts', getAgencyHosts);
-router.get('/:agencyId/hosts', getAgencyHosts);
+router.get('/banned-hosts', getBannedHosts);
+router.get('/requests', getHostRequests);
+router.post('/requests/:requestId/approve', approveHostRequest);
+router.post('/requests/:requestId/reject', rejectHostRequest);
 router.post('/hosts/:hostId/remove', removeHostFromAgency);
 router.delete('/hosts/:hostId', removeHostFromAgency);
-router.post('/:agencyId/hosts/:hostId/remove', removeHostFromAgency);
-router.delete('/:agencyId/hosts/:hostId', removeHostFromAgency);
-
-// 3. Timed Broadcast Ban & Suspension
 router.post('/hosts/:hostId/ban-broadcast', banHostBroadcast);
-router.post('/:agencyId/hosts/:hostId/ban-broadcast', banHostBroadcast);
 router.post('/hosts/:hostId/unban-broadcast', unbanHostBroadcast);
-router.post('/:agencyId/hosts/:hostId/unban-broadcast', unbanHostBroadcast);
-router.get('/banned-hosts', getBannedHosts);
-router.get('/:agencyId/banned-hosts', getBannedHosts);
 
-// 4. Host Recruitment Join Requests
-router.get('/requests', getHostRequests);
-router.get('/:agencyId/requests', getHostRequests);
-router.post('/requests/:requestId/approve', approveHostRequest);
-router.post('/:agencyId/requests/:requestId/approve', approveHostRequest);
-router.post('/requests/:requestId/reject', rejectHostRequest);
-router.post('/:agencyId/requests/:requestId/reject', rejectHostRequest);
+// 2. Parameterized Routes with numeric agencyId (for Elevated Roles / Moderators / Specific Agency)
+router.get('/:agencyId(\\d+)/overview', getAgencyOverview);
+router.get('/:agencyId(\\d+)/hosts', getAgencyHosts);
+router.get('/:agencyId(\\d+)/banned-hosts', getBannedHosts);
+router.get('/:agencyId(\\d+)/requests', getHostRequests);
+router.post('/:agencyId(\\d+)/requests/:requestId/approve', approveHostRequest);
+router.post('/:agencyId(\\d+)/requests/:requestId/reject', rejectHostRequest);
+router.post('/:agencyId(\\d+)/hosts/:hostId/remove', removeHostFromAgency);
+router.delete('/:agencyId(\\d+)/hosts/:hostId', removeHostFromAgency);
+router.post('/:agencyId(\\d+)/hosts/:hostId/ban-broadcast', banHostBroadcast);
+router.post('/:agencyId(\\d+)/hosts/:hostId/unban-broadcast', unbanHostBroadcast);
+router.get('/:agencyId(\\d+)', getAgencyOverview);
 
 export default router;
