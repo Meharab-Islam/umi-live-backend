@@ -3839,31 +3839,62 @@ export async function promoteToMainSeat(req, res) {
       return res.status(403).json({ success: false, message: 'Only the room host can promote to main seat.' });
     }
 
-    // 3-WAY ROTATION:
-    // A. Move target user (targetUserId) to Seat 1 (Main Stage)
-    await query(
-      `INSERT INTO live_room_seats (room_id, seat_number, user_id, is_main_seat, is_camera_on, is_muted)
-       VALUES (?, 1, ?, 1, ?, ?)
-       ON DUPLICATE KEY UPDATE user_id = VALUES(user_id), is_main_seat = 1, is_camera_on = VALUES(is_camera_on), is_muted = VALUES(is_muted)`,
-      [canonicalRoomId, targetUserId, targetCamera, targetMuted]
-    );
-
-    // B. Move the Room Host to the Target Seat (targetSeatNum)
-    await query(
-      `INSERT INTO live_room_seats (room_id, seat_number, user_id, is_main_seat, is_camera_on, is_muted)
-       VALUES (?, ?, ?, 0, ?, ?)
-       ON DUPLICATE KEY UPDATE user_id = VALUES(user_id), is_main_seat = 0, is_camera_on = VALUES(is_camera_on), is_muted = VALUES(is_muted)`,
-      [canonicalRoomId, targetSeatNum, room.host_id, hostCamera, hostMuted]
-    );
-
-    // C. If previous Main Seat occupant was NOT the host (i.e. another guest was on Seat 1):
-    // Move that previous guest back to the host's old seat (hostCurrentSeat)!
-    if (currentMainUserId !== room.host_id && hostCurrentSeat !== 1 && hostCurrentSeat !== targetSeatNum) {
+    // 3-WAY ROTATION / SWAP:
+    // If current occupant of Seat 1 was the host:
+    // Simply swap: Target user -> Seat 1, Host -> targetSeatNum
+    if (currentMainUserId === room.host_id) {
+      await query(
+        `INSERT INTO live_room_seats (room_id, seat_number, user_id, is_main_seat, is_camera_on, is_muted)
+         VALUES (?, 1, ?, 1, ?, ?)
+         ON DUPLICATE KEY UPDATE user_id = VALUES(user_id), is_main_seat = 1, is_camera_on = VALUES(is_camera_on), is_muted = VALUES(is_muted)`,
+        [canonicalRoomId, targetUserId, targetCamera, targetMuted]
+      );
       await query(
         `INSERT INTO live_room_seats (room_id, seat_number, user_id, is_main_seat, is_camera_on, is_muted)
          VALUES (?, ?, ?, 0, ?, ?)
          ON DUPLICATE KEY UPDATE user_id = VALUES(user_id), is_main_seat = 0, is_camera_on = VALUES(is_camera_on), is_muted = VALUES(is_muted)`,
-        [canonicalRoomId, hostCurrentSeat, currentMainUserId, currentMainCamera, currentMainMuted]
+        [canonicalRoomId, targetSeatNum, room.host_id, hostCamera, hostMuted]
+      );
+      // Clean up any stray duplicate seats for host or target user in this room
+      await query(
+        `UPDATE live_room_seats SET user_id = NULL, is_camera_on = 0, is_muted = 0 
+         WHERE (room_id = ? OR room_id = ?) 
+           AND ((user_id = ? AND seat_number != 1) OR (user_id = ? AND seat_number != ?))`,
+        [canonicalRoomId, String(numericRoomId), targetUserId, room.host_id, targetSeatNum]
+      );
+    } else {
+      // 3-way rotation:
+      // Target user (targetUserId) -> Seat 1
+      // Previous main seat user (currentMainUserId) -> hostCurrentSeat (or targetSeatNum)
+      // Host (room.host_id) -> targetSeatNum
+      const destinationForPreviousMain = (hostCurrentSeat > 1 && hostCurrentSeat !== targetSeatNum) ? hostCurrentSeat : targetSeatNum;
+      await query(
+        `INSERT INTO live_room_seats (room_id, seat_number, user_id, is_main_seat, is_camera_on, is_muted)
+         VALUES (?, 1, ?, 1, ?, ?)
+         ON DUPLICATE KEY UPDATE user_id = VALUES(user_id), is_main_seat = 1, is_camera_on = VALUES(is_camera_on), is_muted = VALUES(is_muted)`,
+        [canonicalRoomId, targetUserId, targetCamera, targetMuted]
+      );
+      await query(
+        `INSERT INTO live_room_seats (room_id, seat_number, user_id, is_main_seat, is_camera_on, is_muted)
+         VALUES (?, ?, ?, 0, ?, ?)
+         ON DUPLICATE KEY UPDATE user_id = VALUES(user_id), is_main_seat = 0, is_camera_on = VALUES(is_camera_on), is_muted = VALUES(is_muted)`,
+        [canonicalRoomId, destinationForPreviousMain, currentMainUserId, currentMainCamera, currentMainMuted]
+      );
+      if (destinationForPreviousMain !== targetSeatNum) {
+        await query(
+          `INSERT INTO live_room_seats (room_id, seat_number, user_id, is_main_seat, is_camera_on, is_muted)
+           VALUES (?, ?, ?, 0, ?, ?)
+           ON DUPLICATE KEY UPDATE user_id = VALUES(user_id), is_main_seat = 0, is_camera_on = VALUES(is_camera_on), is_muted = VALUES(is_muted)`,
+          [canonicalRoomId, targetSeatNum, room.host_id, hostCamera, hostMuted]
+        );
+      }
+      // Clean up any stray duplicate seats in this room
+      await query(
+        `UPDATE live_room_seats SET user_id = NULL, is_camera_on = 0, is_muted = 0 
+         WHERE (room_id = ? OR room_id = ?) 
+           AND seat_number NOT IN (1, ?, ?)
+           AND user_id IN (?, ?, ?)`,
+        [canonicalRoomId, String(numericRoomId), targetSeatNum, destinationForPreviousMain, targetUserId, room.host_id, currentMainUserId]
       );
     }
 
