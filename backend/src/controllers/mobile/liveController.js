@@ -3876,6 +3876,8 @@ export async function promoteToMainSeat(req, res) {
 
     const roomData = await buildRoomResponse(canonicalRoomId, req.user);
 
+    const prevMainUserId = currentMainUserId;
+
     // Socket Broadcast to all viewers and hosts in the room
     if (req.io) {
       const spotlightPayload = {
