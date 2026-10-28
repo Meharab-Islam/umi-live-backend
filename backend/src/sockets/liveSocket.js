@@ -1188,27 +1188,66 @@ export function setupLiveSocket(io) {
     socket.on('leave_room', handleLeaveRoom);
 
     // Chat message in room
-    const handleRoomChat = (data) => {
+    const handleRoomChat = async (data) => {
       const targetRoom = data?.roomId || data?.room_id || currentRoom;
       const msg = data?.message || data?.text;
       if (!targetRoom || !msg) return;
 
       const u = data?.user || currentUser || { full_name: "Guest" };
+      const senderUserId = data?.userId || data?.user_id || u?.id;
+
+      let packageCategoryName = data?.packageCategoryName || data?.package_category_name || u?.package_category_name;
+      let packageImage = data?.packageImage || data?.package_image || u?.package_image;
+      let packageColor = data?.packageColor || data?.package_color || data?.color || u?.package_color || u?.packageColor || u?.color;
+
+      // If user has an active package in DB but socket payload didn't include it, look it up from active subscription!
+      if (senderUserId && (!packageImage || !packageColor)) {
+        try {
+          const pkgRows = await query(
+            `SELECT pc.name as package_category_name,
+                    COALESCE(pp.image_url, pc.badge_icon, '') as package_image,
+                    pc.color_code as package_color
+             FROM user_package_subscriptions ups
+             LEFT JOIN privilege_packages pp ON pp.id = ups.package_id
+             LEFT JOIN package_categories pc ON pc.id = ups.category_id AND pc.is_active = 1
+             WHERE ups.user_id = ? AND ups.status = 'active' AND ups.expires_at > NOW()
+             ORDER BY ups.is_equipped DESC, ups.expires_at DESC
+             LIMIT 1`,
+            [senderUserId]
+          );
+          if (pkgRows.length > 0) {
+            packageCategoryName = packageCategoryName || pkgRows[0].package_category_name;
+            packageImage = packageImage || pkgRows[0].package_image;
+            packageColor = packageColor || pkgRows[0].package_color;
+          }
+        } catch (_) {}
+      }
+
       const payload = {
         id: data?.id || `msg-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
         roomId: targetRoom,
         room_id: targetRoom,
-        user: u,
-        userId: data?.userId || data?.user_id || u?.id,
-        user_id: data?.userId || data?.user_id || u?.id,
+        user: {
+          ...u,
+          package_category_name: packageCategoryName || '',
+          package_image: packageImage || '',
+          package_color: packageColor || '',
+        },
+        userId: senderUserId,
+        user_id: senderUserId,
         userName: data?.userName || data?.user_name || u?.full_name || u?.name,
         user_name: data?.userName || data?.user_name || u?.full_name || u?.name,
         userAvatar: data?.userAvatar || data?.user_avatar || u?.avatar_url || u?.profile_picture,
         user_avatar: data?.userAvatar || data?.user_avatar || u?.avatar_url || u?.profile_picture,
-        packageCategoryName: data?.packageCategoryName || data?.package_category_name || u?.package_category_name,
-        package_category_name: data?.packageCategoryName || data?.package_category_name || u?.package_category_name,
-        packageImage: data?.packageImage || data?.package_image || u?.package_image,
-        package_image: data?.packageImage || data?.package_image || u?.package_image,
+        packageCategoryName: packageCategoryName || '',
+        package_category_name: packageCategoryName || '',
+        packageName: packageCategoryName || '',
+        package_name: packageCategoryName || '',
+        packageImage: packageImage || '',
+        package_image: packageImage || '',
+        packageColor: packageColor || '',
+        package_color: packageColor || '',
+        color: packageColor || '',
         vipTier: data?.vipTier || data?.vip_tier || u?.vip_tier || "normal",
         vip_tier: data?.vipTier || data?.vip_tier || u?.vip_tier || "normal",
         message: String(msg).trim().substring(0, 300),

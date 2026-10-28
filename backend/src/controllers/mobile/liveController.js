@@ -42,9 +42,20 @@ export async function buildRoomResponse(roomId, currentUser = null) {
             r.is_comment_disabled, r.is_reaction_disabled, r.is_locked, r.room_password,
             r.stream_key, r.started_at, r.created_at,
             u.full_name as host_name, u.avatar_url as host_avatar, u.level as host_level,
-            u.coins as host_coins, u.diamonds as host_diamonds, u.role as host_role
+            u.coins as host_coins, u.diamonds as host_diamonds, u.role as host_role,
+            COALESCE(pp.image_url, pc.badge_icon, '') as host_package_image,
+            pc.color_code as host_package_color,
+            pc.name as host_package_category_name
      FROM live_rooms r
      JOIN users u ON r.host_id = u.id
+     LEFT JOIN user_package_subscriptions ups 
+       ON ups.id = (
+         SELECT id FROM user_package_subscriptions 
+         WHERE user_id = u.id AND status = 'active' AND expires_at > NOW() 
+         ORDER BY is_equipped DESC, expires_at DESC LIMIT 1
+       )
+     LEFT JOIN privilege_packages pp ON pp.id = ups.package_id
+     LEFT JOIN package_categories pc ON pc.id = ups.category_id AND pc.is_active = 1
      WHERE r.room_id = ? OR r.id = ?
      LIMIT 1`,
     [String(roomId), isNum ? Number(roomId) : -1]
@@ -78,15 +89,23 @@ export async function buildRoomResponse(roomId, currentUser = null) {
             st.image_url as equipped_thumbnail,
             ee.preview_image_url as equipped_entry_preview,
             ee.svga_url as equipped_entry_svga,
-            pp.image_url as package_image
+            COALESCE(pp.image_url, pc.badge_icon, '') as package_image,
+            pc.color_code as package_color,
+            pc.name as package_category_name
      FROM live_room_seats s
      LEFT JOIN users u ON s.user_id = u.id
      LEFT JOIN user_thumbnails ut ON ut.user_id = u.id AND ut.status = 'active' AND ut.is_equipped = 1 AND ut.expires_at > NOW()
      LEFT JOIN special_thumbnails st ON ut.thumbnail_id = st.id
      LEFT JOIN user_entry_effects uee ON uee.user_id = u.id AND uee.status = 'active' AND uee.is_equipped = 1 AND uee.expires_at > NOW()
      LEFT JOIN entry_effects ee ON uee.effect_id = ee.id
-     LEFT JOIN user_package_subscriptions ups ON ups.user_id = u.id AND ups.status = 'active' AND ups.is_equipped = 1 AND ups.expires_at > NOW()
-     LEFT JOIN privilege_packages pp ON ups.package_id = pp.id
+     LEFT JOIN user_package_subscriptions ups 
+       ON ups.id = (
+         SELECT id FROM user_package_subscriptions 
+         WHERE user_id = u.id AND status = 'active' AND expires_at > NOW() 
+         ORDER BY is_equipped DESC, expires_at DESC LIMIT 1
+       )
+     LEFT JOIN privilege_packages pp ON pp.id = ups.package_id
+     LEFT JOIN package_categories pc ON pc.id = ups.category_id AND pc.is_active = 1
      WHERE (s.room_id = ? OR s.room_id = ?)
      ORDER BY s.seat_number ASC`,
     [canonicalRoomId, String(roomId)]
@@ -114,15 +133,23 @@ export async function buildRoomResponse(roomId, currentUser = null) {
               st.image_url as equipped_thumbnail,
               ee.preview_image_url as equipped_entry_preview,
               ee.svga_url as equipped_entry_svga,
-              pp.image_url as package_image
+              COALESCE(pp.image_url, pc.badge_icon, '') as package_image,
+              pc.color_code as package_color,
+              pc.name as package_category_name
        FROM live_room_seats s
        LEFT JOIN users u ON s.user_id = u.id
        LEFT JOIN user_thumbnails ut ON ut.user_id = u.id AND ut.status = 'active' AND ut.is_equipped = 1 AND ut.expires_at > NOW()
        LEFT JOIN special_thumbnails st ON ut.thumbnail_id = st.id
        LEFT JOIN user_entry_effects uee ON uee.user_id = u.id AND uee.status = 'active' AND uee.is_equipped = 1 AND uee.expires_at > NOW()
        LEFT JOIN entry_effects ee ON uee.effect_id = ee.id
-       LEFT JOIN user_package_subscriptions ups ON ups.user_id = u.id AND ups.status = 'active' AND ups.is_equipped = 1 AND ups.expires_at > NOW()
-       LEFT JOIN privilege_packages pp ON ups.package_id = pp.id
+       LEFT JOIN user_package_subscriptions ups 
+         ON ups.id = (
+           SELECT id FROM user_package_subscriptions 
+           WHERE user_id = u.id AND status = 'active' AND expires_at > NOW() 
+           ORDER BY is_equipped DESC, expires_at DESC LIMIT 1
+         )
+       LEFT JOIN privilege_packages pp ON pp.id = ups.package_id
+       LEFT JOIN package_categories pc ON pc.id = ups.category_id AND pc.is_active = 1
        WHERE (s.room_id = ? OR s.room_id = ?)
        ORDER BY s.seat_number ASC`,
       [canonicalRoomId, String(roomId)]
@@ -152,7 +179,9 @@ export async function buildRoomResponse(roomId, currentUser = null) {
       equipped_thumbnail: null,
       equipped_entry_preview: null,
       equipped_entry_svga: null,
-      package_image: null,
+      package_image: room.host_package_image || null,
+      package_color: room.host_package_color || null,
+      package_category_name: room.host_package_category_name || null,
     };
   }
 
@@ -181,6 +210,8 @@ export async function buildRoomResponse(roomId, currentUser = null) {
         equipped_entry_effect: s.equipped_entry_svga || s.equipped_entry_preview || null,
         entry_effect: s.equipped_entry_svga || s.equipped_entry_preview || null,
         package_image: s.package_image || null,
+        package_color: s.package_color || null,
+        package_category_name: s.package_category_name || null,
       };
     }
 
@@ -197,6 +228,9 @@ export async function buildRoomResponse(roomId, currentUser = null) {
       is_open: !isOccupied && !Boolean(s && s.is_locked),
       is_camera_on: isOccupied ? Boolean(s.is_camera_on) : false,
       is_muted: isOccupied ? Boolean(s.is_muted) : false,
+      package_image: seatUser ? seatUser.package_image : null,
+      package_color: seatUser ? seatUser.package_color : null,
+      package_category_name: seatUser ? seatUser.package_category_name : null,
       user: seatUser,
     });
   }
@@ -253,6 +287,9 @@ export async function buildRoomResponse(roomId, currentUser = null) {
       profile: room.host_avatar,
       level: room.host_level,
       coin: room.host_coins,
+      package_image: room.host_package_image || null,
+      package_color: room.host_package_color || null,
+      package_category_name: room.host_package_category_name || null,
       ...(isDiamondMode ? { diamond: room.host_diamonds || 0 } : {}),
     },
     seats,
