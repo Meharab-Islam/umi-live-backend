@@ -1610,14 +1610,17 @@ export async function takeSeat(req, res) {
     const room = rooms[0];
     const totalSeats = parseInt(room.total_seats, 10) || 7;
 
-    // Strict Video Live Rule: No user can automatically take a seat without host request acceptance!
+    // Strict Video Live Rule: Direct seating requires host acceptance OR VIP self-seat-accept privilege
     if (room.live_type === 'video') {
-      const existing = await query('SELECT seat_number FROM live_room_seats WHERE room_id = ? AND user_id = ?', [roomId, userId]);
-      if (existing.length === 0) {
-        return res.status(403).json({
-          success: false,
-          message: 'Direct seating is not allowed in Video Live rooms. In Video Live, viewers must submit a seat request (POST /api/mobile/live/rooms/:roomId/seats/request) and wait for host acceptance.',
-        });
+      const canSelfAccept = await checkUserSelfSeatAcceptPrivilege(userId);
+      if (!canSelfAccept) {
+        const existing = await query('SELECT seat_number FROM live_room_seats WHERE (room_id = ? OR room_id = ?) AND user_id = ?', [roomId, String(room.id || ''), userId]);
+        if (existing.length === 0) {
+          return res.status(403).json({
+            success: false,
+            message: 'Direct seating is not allowed in Video Live rooms without host acceptance or VIP self-seat-accept privilege.',
+          });
+        }
       }
     }
 
@@ -2514,17 +2517,65 @@ export async function approveSeatRequest(req, res) {
     const { seatNumber, seat_number } = req.body;
     const hostId = req.user.id;
 
-    // Verify room is live
-    const rooms = await query('SELECT host_id, total_seats FROM live_rooms WHERE room_id = ? AND status = "live"', [roomId]);
+    // Verify room is live by canonical room_id or numeric id
+    const isNum = /^\d+$/.test(String(roomId).trim());
+    const rooms = await query(
+      'SELECT id, room_id, host_id, total_seats, live_type, status FROM live_rooms WHERE (room_id = ? OR id = ?) AND status = "live"',
+      [String(roomId), isNum ? Number(roomId) : -1]
+    );
     if (rooms.length === 0) return res.status(404).json({ success: false, message: 'Live room not active.' });
     const room = rooms[0];
+    const canonicalRoomId = room.room_id;
+    const numericRoomId = room.id;
 
-    const requestRows = await query('SELECT * FROM live_room_seat_requests WHERE id = ? AND room_id = ? AND status = "pending"', [requestId, roomId]);
+    // 1. Robust Request Lookup: Match by ID, caller's pending request, or target user ID
+    let requestRows = [];
+    const isNumericRequestId = /^\d+$/.test(String(requestId).trim());
+    if (isNumericRequestId) {
+      requestRows = await query(
+        'SELECT * FROM live_room_seat_requests WHERE id = ? AND (room_id = ? OR room_id = ?) AND status = "pending"',
+        [Number(requestId), canonicalRoomId, String(numericRoomId)]
+      );
+    }
+    // Fallback 1: Look for caller's own pending request in this room
     if (requestRows.length === 0) {
+      requestRows = await query(
+        'SELECT * FROM live_room_seat_requests WHERE (room_id = ? OR room_id = ?) AND user_id = ? AND status = "pending" ORDER BY id DESC LIMIT 1',
+        [canonicalRoomId, String(numericRoomId), hostId]
+      );
+    }
+    // Fallback 2: Look for target user's pending request if userId passed in body
+    const fallbackTargetUserId = req.body.userId || req.body.user_id || req.body.targetUserId;
+    if (requestRows.length === 0 && fallbackTargetUserId) {
+      requestRows = await query(
+        'SELECT * FROM live_room_seat_requests WHERE (room_id = ? OR room_id = ?) AND user_id = ? AND status = "pending" ORDER BY id DESC LIMIT 1',
+        [canonicalRoomId, String(numericRoomId), Number(fallbackTargetUserId)]
+      );
+    }
+
+    let requestRow = requestRows.length > 0 ? requestRows[0] : null;
+    let targetUserId = requestRow ? requestRow.user_id : (fallbackTargetUserId ? Number(fallbackTargetUserId) : hostId);
+
+    // If still no requestRow, check if user is self-approving with VIP self_seat_accept privilege!
+    if (!requestRow) {
+      const isSelf = Number(targetUserId) === Number(req.user.id);
+      if (isSelf) {
+        const canSelfAccept = await checkUserSelfSeatAcceptPrivilege(req.user.id);
+        if (canSelfAccept) {
+          requestRow = {
+            id: null,
+            room_id: canonicalRoomId,
+            user_id: req.user.id,
+            seat_number: req.body.seat_number || req.body.seatNumber || null,
+            status: 'pending',
+          };
+        }
+      }
+    }
+
+    if (!requestRow) {
       return res.status(404).json({ success: false, message: 'Pending seat request not found.' });
     }
-    const requestRow = requestRows[0];
-    const targetUserId = requestRow.user_id;
 
     // Authorization:
     // 1. Host or Room Admin or System Admin/Superadmin
@@ -2540,7 +2591,10 @@ export async function approveSeatRequest(req, res) {
     }
 
     if (!isAuthorized) {
-      const adminRows = await query('SELECT id FROM live_room_admins WHERE room_id = ? AND user_id = ?', [roomId, hostId]);
+      const adminRows = await query(
+        'SELECT id FROM live_room_admins WHERE (room_id = ? OR room_id = ?) AND user_id = ?',
+        [canonicalRoomId, String(numericRoomId), hostId]
+      );
       if (adminRows.length > 0) {
         isAuthorized = true;
       }
@@ -2561,7 +2615,7 @@ export async function approveSeatRequest(req, res) {
     if (isVideoLive || !assignSeatNum || assignSeatNum < 2) {
       const freeSeats = await query(
         'SELECT seat_number FROM live_room_seats WHERE (room_id = ? OR room_id = ?) AND user_id IS NULL AND seat_number > 1 AND is_locked = 0 ORDER BY seat_number ASC LIMIT 1',
-        [roomId, String(room.id || '')]
+        [canonicalRoomId, String(numericRoomId)]
       );
       if (freeSeats.length === 0) {
         return res.status(400).json({ success: false, message: 'No available free seats in this room.' });
@@ -2570,11 +2624,14 @@ export async function approveSeatRequest(req, res) {
     }
 
     // Check if target seat is free; if already occupied or locked, auto-assign the next free seat
-    const targetSeat = await query('SELECT user_id, is_locked FROM live_room_seats WHERE (room_id = ? OR room_id = ?) AND seat_number = ?', [roomId, String(room.id || ''), assignSeatNum]);
+    const targetSeat = await query(
+      'SELECT user_id, is_locked FROM live_room_seats WHERE (room_id = ? OR room_id = ?) AND seat_number = ?',
+      [canonicalRoomId, String(numericRoomId), assignSeatNum]
+    );
     if (targetSeat.length > 0 && (targetSeat[0].user_id || targetSeat[0].is_locked)) {
       const fallbackFreeSeats = await query(
         'SELECT seat_number FROM live_room_seats WHERE (room_id = ? OR room_id = ?) AND user_id IS NULL AND seat_number > 1 AND is_locked = 0 ORDER BY seat_number ASC LIMIT 1',
-        [roomId, String(room.id || '')]
+        [canonicalRoomId, String(numericRoomId)]
       );
       if (fallbackFreeSeats.length === 0) {
         return res.status(400).json({ success: false, message: 'All seats in this room are currently occupied.' });
@@ -2582,25 +2639,33 @@ export async function approveSeatRequest(req, res) {
       assignSeatNum = fallbackFreeSeats[0].seat_number;
     }
 
-    // 1. Assign seat in live_room_seats (DB-First)
+    // 1. Assign seat in live_room_seats (DB-First Single Source of Truth)
     await query(
       `INSERT INTO live_room_seats (room_id, seat_number, user_id, is_main_seat, is_camera_on, is_muted)
        VALUES (?, ?, ?, 0, 1, 0)
        ON DUPLICATE KEY UPDATE user_id = VALUES(user_id), is_camera_on = 1, is_muted = 0`,
-      [roomId, assignSeatNum, targetUserId]
+      [canonicalRoomId, assignSeatNum, targetUserId]
     );
 
     // 2. Remove accepted request from waiting list table in database
-    await query('DELETE FROM live_room_seat_requests WHERE id = ?', [requestId]);
+    if (requestRow.id) {
+      await query('DELETE FROM live_room_seat_requests WHERE id = ?', [requestRow.id]);
+    }
+    await query(
+      'DELETE FROM live_room_seat_requests WHERE (room_id = ? OR room_id = ?) AND user_id = ?',
+      [canonicalRoomId, String(numericRoomId), targetUserId]
+    );
 
     // 3. Instant Redis Invalidation & Pre-caching updated waiting list
     await Promise.allSettled([
-      cache.del(`mobile:room_details:${roomId}`),
-      cache.delByPattern(`mobile:room:users:${roomId}*`),
+      cache.del(`mobile:room_details:${canonicalRoomId}`),
+      numericRoomId ? cache.del(`mobile:room_details:${numericRoomId}`) : null,
+      cache.delByPattern(`mobile:room:users:${canonicalRoomId}*`),
+      cache.del(`mobile:live:seat_requests:${canonicalRoomId}`),
     ]);
-    const updatedWaitingList = await fetchAndCacheSeatRequests(roomId);
+    const updatedWaitingList = await fetchAndCacheSeatRequests(canonicalRoomId);
 
-    const roomData = await buildRoomResponse(roomId, req.user);
+    const roomData = await buildRoomResponse(canonicalRoomId, req.user);
 
     // Fetch user details for real-time seat update broadcast
     const [targetUser] = await query(
@@ -2608,26 +2673,41 @@ export async function approveSeatRequest(req, res) {
       [targetUserId]
     );
 
-    if (req.io) {
-      const userPayload = targetUser ? {
-        id: Number(targetUser.id),
-        fullName: targetUser.full_name,
-        full_name: targetUser.full_name,
-        name: targetUser.full_name,
-        avatarUrl: targetUser.avatar_url,
-        avatar_url: targetUser.avatar_url,
-        profile: targetUser.avatar_url,
-        coin: Number(targetUser.coins || 0),
-        coins: Number(targetUser.coins || 0),
-        role: targetUser.role,
-        level: Number(targetUser.level || 1),
-        vipLevel: Number(targetUser.level || 1),
-        vip_level: Number(targetUser.level || 1),
-      } : null;
+    const userPayload = targetUser ? {
+      id: Number(targetUser.id),
+      fullName: targetUser.full_name,
+      full_name: targetUser.full_name,
+      name: targetUser.full_name,
+      avatarUrl: targetUser.avatar_url,
+      avatar_url: targetUser.avatar_url,
+      profile: targetUser.avatar_url,
+      coin: Number(targetUser.coins || 0),
+      coins: Number(targetUser.coins || 0),
+      role: targetUser.role,
+      level: Number(targetUser.level || 1),
+      vipLevel: Number(targetUser.level || 1),
+      vip_level: Number(targetUser.level || 1),
+    } : {
+      id: Number(targetUserId),
+      fullName: req.user?.full_name || 'User',
+      full_name: req.user?.full_name || 'User',
+      name: req.user?.full_name || 'User',
+      avatarUrl: req.user?.avatar_url || '',
+      avatar_url: req.user?.avatar_url || '',
+      profile: req.user?.avatar_url || '',
+      coin: Number(req.user?.coins || 0),
+      coins: Number(req.user?.coins || 0),
+      role: req.user?.role || 'user',
+      level: Number(req.user?.level || 1),
+      vipLevel: Number(req.user?.level || 1),
+      vip_level: Number(req.user?.level || 1),
+    };
 
-      req.io.to(roomId).emit('seat_request_approved', {
-        roomId,
-        requestId,
+    if (req.io) {
+      const approvalPayload = {
+        roomId: canonicalRoomId,
+        numericRoomId,
+        requestId: requestRow.id || requestId,
         userId: Number(targetUserId),
         seatNumber: assignSeatNum,
         seatIndex: assignSeatNum,
@@ -2643,9 +2723,11 @@ export async function approveSeatRequest(req, res) {
         },
         seats: roomData?.seats || [],
         rawSeats: roomData?.seats || [],
-      });
-      req.io.to(roomId).emit('seat_updated', {
-        roomId,
+      };
+
+      const seatUpdatedPayload = {
+        roomId: canonicalRoomId,
+        numericRoomId,
         seatNumber: assignSeatNum,
         seatIndex: assignSeatNum,
         seat_index: assignSeatNum,
@@ -2662,7 +2744,15 @@ export async function approveSeatRequest(req, res) {
         },
         seats: roomData?.seats || [],
         rawSeats: roomData?.seats || [],
-      });
+      };
+
+      const channels = new Set([canonicalRoomId, String(numericRoomId)].filter(Boolean));
+      for (const ch of channels) {
+        req.io.to(ch).emit('seat_request_approved', approvalPayload);
+        req.io.to(ch).emit('seat_updated', seatUpdatedPayload);
+        req.io.to(ch).emit('seats_updated', { roomId: canonicalRoomId, seats: roomData?.seats || [], rawSeats: roomData?.seats || [] });
+        req.io.to(ch).emit('seats-sync', { roomId: canonicalRoomId, seats: roomData?.seats || [], rawSeats: roomData?.seats || [] });
+      }
     }
 
     return res.json({
