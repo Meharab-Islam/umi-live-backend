@@ -1035,29 +1035,102 @@ export async function handleUserSeatDeparture(roomId, leavingUserId, io = null) 
         cache.delByPattern('mobile:rooms:*'),
       ]);
 
+      const freshSeats = await query(
+        `SELECT s.seat_number, s.is_main_seat, s.is_camera_on, s.is_muted, s.is_locked,
+                s.user_id, u.full_name as user_name, u.avatar_url as user_avatar,
+                u.coins as user_coin, u.diamonds as user_diamond, u.level as user_level, u.role as user_role
+         FROM live_room_seats s
+         LEFT JOIN users u ON s.user_id = u.id
+         WHERE (s.room_id = ? OR s.room_id = ?)
+         ORDER BY s.seat_number ASC`,
+        [roomId, String(room.id || '')]
+      );
+
+      const formattedSeats = (freshSeats || []).map((st) => {
+        const isOcc = Boolean(st.user_id);
+        const isMain = st.seat_number === 1 || Boolean(st.is_main_seat);
+        return {
+          seat_number: st.seat_number,
+          seatNumber: st.seat_number,
+          seatIndex: st.seat_number,
+          seat_index: st.seat_number,
+          user_id: st.user_id || null,
+          userId: st.user_id || null,
+          user_name: st.user_name || null,
+          userName: st.user_name || null,
+          name: st.user_name || null,
+          user_avatar: st.user_avatar || null,
+          userAvatar: st.user_avatar || null,
+          avatar: st.user_avatar || null,
+          is_occupied: isOcc,
+          isOccupied: isOcc,
+          is_empty: !isOcc,
+          isEmpty: !isOcc,
+          is_main_seat: isMain,
+          isMainSeat: isMain,
+          is_spotlight: isMain,
+          is_camera_on: Boolean(st.is_camera_on),
+          isCameraOn: Boolean(st.is_camera_on),
+          is_muted: Boolean(st.is_muted),
+          isMuted: Boolean(st.is_muted),
+          is_locked: Boolean(st.is_locked),
+          isLocked: Boolean(st.is_locked),
+          user: isOcc ? {
+            id: Number(st.user_id),
+            name: st.user_name || '',
+            fullName: st.user_name || '',
+            full_name: st.user_name || '',
+            profile: st.user_avatar || '',
+            avatarUrl: st.user_avatar || '',
+            avatar_url: st.user_avatar || '',
+            coin: Number(st.user_coin || 0),
+            coins: Number(st.user_coin || 0),
+            level: Number(st.user_level || 1),
+            role: st.user_role || 'user',
+          } : null,
+        };
+      });
+
+      const seatOrder = [];
+      for (let s = 1; s <= totalSeats; s++) {
+        const found = freshSeats.find((fs) => fs.seat_number === s);
+        seatOrder.push(found && found.user_id ? Number(found.user_id) : 0);
+      }
+
       // Socket broadcasts
       if (io) {
-        io.to(roomId).emit('main_seat_restored', {
-          roomId,
-          hostId,
-          departedUserId: leavingUserId,
-          message: 'Main seat occupant left the room. Room host has returned to the main seat and remaining seats were rearranged.',
-        });
-        io.to(roomId).emit('seats_rearranged', {
-          roomId,
-          reason: 'main_seat_departed',
-          departedUserId: leavingUserId,
-          hostId,
-        });
-        io.to(roomId).emit('seat_updated', {
-          roomId,
-          seatNumber: 1,
-          seatIndex: 1,
-          seat_index: 1,
-          action: 'restore_main',
-          hostId,
-          departedUserId: leavingUserId,
-        });
+        const channels = new Set([String(roomId), String(room.room_id), String(room.id)].filter(Boolean));
+        for (const ch of channels) {
+          io.to(ch).emit('main_seat_restored', {
+            roomId: room.room_id,
+            hostId,
+            departedUserId: leavingUserId,
+            message: 'Main seat occupant left the room. Room host has returned to the main seat.',
+          });
+          io.to(ch).emit('seats_rearranged', {
+            roomId: room.room_id,
+            reason: 'main_seat_departed',
+            departedUserId: leavingUserId,
+            hostId,
+            seatOrder,
+          });
+          io.to(ch).emit('seats-sync', { roomId: room.room_id, seats: formattedSeats, spotlight_seat_number: 1 });
+          io.to(ch).emit('room-seats-sync', { roomId: room.room_id, seats: formattedSeats, spotlight_seat_number: 1 });
+          io.to(ch).emit('seats_sync', { roomId: room.room_id, seats: formattedSeats, spotlight_seat_number: 1 });
+          io.to(ch).emit('seats_updated', { roomId: room.room_id, seats: formattedSeats, seatOrder });
+          io.to(ch).emit('seat_updated', {
+            roomId: room.room_id,
+            seatNumber: 1,
+            seatIndex: 1,
+            seat_index: 1,
+            action: 'restore_main',
+            hostId,
+            departedUserId: leavingUserId,
+            seats: formattedSeats,
+            rawSeats: formattedSeats,
+            seatOrder,
+          });
+        }
       }
 
       return { success: true, action: 'host_restored_to_main', departedSeat: departingSeat.seat_number };
@@ -1066,22 +1139,92 @@ export async function handleUserSeatDeparture(roomId, leavingUserId, io = null) 
       // SCENARIO 2: Departing user occupied a guest seat (Seat > 1)
       // or Host stepped down from a seat
       // -------------------------------------------------------------
-      if (room.live_type === 'audio') {
-        // In Audio Live: do NOT compress or shift remaining seats, so specific seat numbers and lock statuses stay intact!
-        await query(
-          'UPDATE live_room_seats SET user_id = NULL, is_camera_on = 0, is_muted = 0 WHERE room_id = ? AND seat_number = ?',
-          [roomId, departingSeat.seat_number]
-        );
+      // Clear ONLY departing user's seat so remaining co-hosts stay on their assigned seats without collapsing or hiding!
+      await query(
+        'UPDATE live_room_seats SET user_id = NULL, is_camera_on = 0, is_muted = 0 WHERE (room_id = ? OR room_id = ?) AND (seat_number = ? OR user_id = ?)',
+        [roomId, String(room.id || ''), departingSeat.seat_number, leavingUserId]
+      );
 
-        // Instant Redis Invalidation
-        await Promise.allSettled([
-          cache.del(`mobile:room_details:${roomId}`),
-          cache.delByPattern(`mobile:room:users:${roomId}*`),
-        ]);
+      // Instant Redis Invalidation
+      await Promise.allSettled([
+        cache.del(`mobile:room_details:${roomId}`),
+        cache.del(`mobile:room_details:${room.room_id}`),
+        room.id ? cache.del(`mobile:room_details:${room.id}`) : null,
+        cache.delByPattern(`mobile:room:users:${roomId}*`),
+        cache.delByPattern(`mobile:room:users:${room.room_id}*`),
+      ]);
 
-        if (io) {
-          io.to(roomId).emit('seat_updated', {
-            roomId,
+      const freshSeats = await query(
+        `SELECT s.seat_number, s.is_main_seat, s.is_camera_on, s.is_muted, s.is_locked,
+                s.user_id, u.full_name as user_name, u.avatar_url as user_avatar,
+                u.coins as user_coin, u.diamonds as user_diamond, u.level as user_level, u.role as user_role
+         FROM live_room_seats s
+         LEFT JOIN users u ON s.user_id = u.id
+         WHERE (s.room_id = ? OR s.room_id = ?)
+         ORDER BY s.seat_number ASC`,
+        [roomId, String(room.id || '')]
+      );
+
+      const formattedSeats = (freshSeats || []).map((st) => {
+        const isOcc = Boolean(st.user_id);
+        const isMain = st.seat_number === 1 || Boolean(st.is_main_seat);
+        return {
+          seat_number: st.seat_number,
+          seatNumber: st.seat_number,
+          seatIndex: st.seat_number,
+          seat_index: st.seat_number,
+          user_id: st.user_id || null,
+          userId: st.user_id || null,
+          user_name: st.user_name || null,
+          userName: st.user_name || null,
+          name: st.user_name || null,
+          user_avatar: st.user_avatar || null,
+          userAvatar: st.user_avatar || null,
+          avatar: st.user_avatar || null,
+          is_occupied: isOcc,
+          isOccupied: isOcc,
+          is_empty: !isOcc,
+          isEmpty: !isOcc,
+          is_main_seat: isMain,
+          isMainSeat: isMain,
+          is_spotlight: isMain,
+          is_camera_on: Boolean(st.is_camera_on),
+          isCameraOn: Boolean(st.is_camera_on),
+          is_muted: Boolean(st.is_muted),
+          isMuted: Boolean(st.is_muted),
+          is_locked: Boolean(st.is_locked),
+          isLocked: Boolean(st.is_locked),
+          user: isOcc ? {
+            id: Number(st.user_id),
+            name: st.user_name || '',
+            fullName: st.user_name || '',
+            full_name: st.user_name || '',
+            profile: st.user_avatar || '',
+            avatarUrl: st.user_avatar || '',
+            avatar_url: st.user_avatar || '',
+            coin: Number(st.user_coin || 0),
+            coins: Number(st.user_coin || 0),
+            level: Number(st.user_level || 1),
+            role: st.user_role || 'user',
+          } : null,
+        };
+      });
+
+      const seatOrder = [];
+      for (let s = 1; s <= totalSeats; s++) {
+        const found = freshSeats.find((fs) => fs.seat_number === s);
+        seatOrder.push(found && found.user_id ? Number(found.user_id) : 0);
+      }
+
+      if (io) {
+        const channels = new Set([String(roomId), String(room.room_id), String(room.id)].filter(Boolean));
+        for (const ch of channels) {
+          io.to(ch).emit('seats-sync', { roomId: room.room_id, seats: formattedSeats, spotlight_seat_number: 1 });
+          io.to(ch).emit('room-seats-sync', { roomId: room.room_id, seats: formattedSeats, spotlight_seat_number: 1 });
+          io.to(ch).emit('seats_sync', { roomId: room.room_id, seats: formattedSeats, spotlight_seat_number: 1 });
+          io.to(ch).emit('seats_updated', { roomId: room.room_id, seats: formattedSeats, seatOrder });
+          io.to(ch).emit('seat_updated', {
+            roomId: room.room_id,
             seatNumber: departingSeat.seat_number,
             seatIndex: departingSeat.seat_number,
             seat_index: departingSeat.seat_number,
@@ -1090,92 +1233,25 @@ export async function handleUserSeatDeparture(roomId, leavingUserId, io = null) 
             seat: {
               seatIndex: departingSeat.seat_number,
               seat_index: departingSeat.seat_number,
-              isLocked: false,
+              isLocked: Boolean(departingSeat.is_locked),
               isMuted: false,
               isVideoMuted: true,
               user: null,
             },
+            seats: formattedSeats,
+            rawSeats: formattedSeats,
+            seatOrder,
+          });
+          io.to(ch).emit('seats_rearranged', {
+            roomId: room.room_id,
+            reason: 'guest_seat_departed',
+            departedUserId: Number(leavingUserId),
+            seatOrder,
           });
         }
-
-        return { success: true, action: 'cleared_audio_seat', departedSeat: departingSeat.seat_number };
       }
 
-      // In Video Live: Clear leaving user's seat, then rearrange remaining guest seats consecutively without holes
-      await query(
-        'UPDATE live_room_seats SET user_id = NULL, is_camera_on = 0, is_muted = 0 WHERE room_id = ? AND seat_number = ?',
-        [roomId, departingSeat.seat_number]
-      );
-
-      // Collect all remaining occupied guest seats (seat_number > 1, strictly excluding leaving user by number comparison)
-      const remainingGuestSeats = seats.filter(
-        (s) => s.seat_number > 1 && s.user_id && Number(s.user_id) !== Number(leavingUserId)
-      );
-
-      let nextGuestSeat = 2;
-      for (const gs of remainingGuestSeats) {
-        await query(
-          `INSERT INTO live_room_seats (room_id, seat_number, user_id, is_main_seat, is_camera_on, is_muted)
-           VALUES (?, ?, ?, 0, ?, ?)
-           ON DUPLICATE KEY UPDATE user_id = VALUES(user_id), is_main_seat = 0, is_camera_on = VALUES(is_camera_on), is_muted = VALUES(is_muted)`,
-          [roomId, nextGuestSeat, gs.user_id, gs.is_camera_on, gs.is_muted]
-        );
-        nextGuestSeat++;
-      }
-
-      // Clear the rest of guest seats
-      for (let s = nextGuestSeat; s <= totalSeats; s++) {
-        await query(
-          `INSERT INTO live_room_seats (room_id, seat_number, user_id, is_main_seat, is_camera_on, is_muted)
-           VALUES (?, ?, NULL, 0, 0, 0)
-           ON DUPLICATE KEY UPDATE user_id = NULL, is_main_seat = 0, is_camera_on = 0, is_muted = 0`,
-          [roomId, s]
-        );
-      }
-
-      // Instant Redis Invalidation
-      await Promise.allSettled([
-        cache.del(`mobile:room_details:${roomId}`),
-        cache.delByPattern(`mobile:room:users:${roomId}*`),
-      ]);
-
-      const freshSeats = await query(
-        'SELECT seat_number, user_id FROM live_room_seats WHERE room_id = ? ORDER BY seat_number ASC',
-        [roomId]
-      );
-      const seatOrder = [];
-      for (let s = 1; s <= totalSeats; s++) {
-        const found = freshSeats.find((fs) => fs.seat_number === s);
-        seatOrder.push(found && found.user_id ? Number(found.user_id) : 0);
-      }
-
-      if (io) {
-        io.to(roomId).emit('seat_updated', {
-          roomId,
-          seatNumber: departingSeat.seat_number,
-          seatIndex: departingSeat.seat_number,
-          seat_index: departingSeat.seat_number,
-          action: 'leave',
-          userId: Number(leavingUserId),
-          seat: {
-            seatIndex: departingSeat.seat_number,
-            seat_index: departingSeat.seat_number,
-            isLocked: false,
-            isMuted: false,
-            isVideoMuted: true,
-            user: null,
-          },
-          seatOrder,
-        });
-        io.to(roomId).emit('seats_rearranged', {
-          roomId,
-          reason: 'guest_seat_departed',
-          departedUserId: Number(leavingUserId),
-          seatOrder,
-        });
-      }
-
-      return { success: true, action: 'guest_seats_rearranged', departedSeat: departingSeat.seat_number };
+      return { success: true, action: 'guest_seat_cleared', departedSeat: departingSeat.seat_number };
     }
   } catch (err) {
     console.error('handleUserSeatDeparture error:', err);
@@ -1217,11 +1293,8 @@ export async function leaveRoom(req, res) {
       return endRoom(req, res);
     }
 
-    // 2. Seat Stage: Handle seat departure and automatic seat rearrangement
+    // 2. Seat Stage: Handle seat departure
     await handleUserSeatDeparture(canonicalRoomId, userId, req.io);
-    if (numericRoomId && String(numericRoomId) !== canonicalRoomId) {
-      await handleUserSeatDeparture(String(numericRoomId), userId, req.io);
-    }
 
     // 3. Waiting List (Seat Requests): If user has pending seat request, remove it
     const pendingReqs = await query(

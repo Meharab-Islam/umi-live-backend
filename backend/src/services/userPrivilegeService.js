@@ -1,17 +1,6 @@
 import { query } from '../config/db.js';
 import { cache } from '../config/redis.js';
 
-/**
- * Service to resolve special runtime user privileges:
- * 1. accept_my_own_video_live_seat_request:
- *    - true if user has an active VIP package whose category has self_seat_accept == 1
- *    - allows user to self-accept their own waiting seat in video/audio live without host approval.
- * 2. invisible_room_enter:
- *    - true if user is an active moderator whose permissions contain silent_room_entry == true
- *      (or invisible_room_enter / ghost_mode), or if role is admin/superadmin.
- *    - allows moderator to join live rooms invisibly (ghost mode) without incrementing viewer count,
- *      without appearing in viewers list, and without emitting join notices or chat announcements.
- */
 
 export async function checkUserSelfSeatAcceptPrivilege(userId) {
   if (!userId) return false;

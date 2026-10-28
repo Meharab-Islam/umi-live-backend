@@ -403,11 +403,8 @@ async function executeGuestSeatAndRoomCleanup(canonicalRoomId, numericRoomId, ho
   try {
     cancelSeatGuestDisconnectGraceTimer(canonicalRoomId, userId);
 
-    // 1. Handle seat departure & automatic seat rearrangement
+    // 1. Handle seat departure
     await handleUserSeatDeparture(canonicalRoomId, userId, io);
-    if (numericRoomId && String(numericRoomId) !== canonicalRoomId) {
-      await handleUserSeatDeparture(String(numericRoomId), userId, io);
-    }
 
     // 2. Remove from waiting list (seat requests)
     await query(
