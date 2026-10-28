@@ -1185,39 +1185,11 @@ export async function handleUserSeatDeparture(roomId, leavingUserId, io = null) 
       const isVideoLive = (room.live_type || 'video') !== 'audio';
       const targetRoomId = room.room_id || roomId;
 
-      // 1. Vacate departing user's seat
+      // 1. Vacate departing user's seat ONLY (never disturb other co-host seats)
       await query(
         'UPDATE live_room_seats SET user_id = NULL, is_camera_on = 0, is_muted = 0 WHERE (room_id = ? OR room_id = ?) AND (seat_number = ? OR user_id = ?)',
         [targetRoomId, String(room.id || ''), departingSeat.seat_number, leavingUserId]
       );
-
-      // 2. In Video Live: Rearrange remaining guest seats consecutively without holes (Seat 2, 3, 4...)
-      if (isVideoLive) {
-        // Collect all remaining occupied guest seats (seat_number > 1, strictly excluding leaving user and host)
-        const remainingGuests = (seats || []).filter(
-          (s) => s.seat_number > 1 && s.user_id && Number(s.user_id) !== Number(leavingUserId) && Number(s.user_id) !== Number(hostId)
-        );
-
-        // Clear all guest seats (> 1) in DB to avoid collision during re-indexing
-        await query(
-          'UPDATE live_room_seats SET user_id = NULL, is_camera_on = 0, is_muted = 0 WHERE (room_id = ? OR room_id = ?) AND seat_number > 1',
-          [targetRoomId, String(room.id || '')]
-        );
-
-        // Reassign remaining guests consecutively starting from seat 2
-        let nextGuestSeat = 2;
-        for (const gs of remainingGuests) {
-          if (nextGuestSeat <= totalSeats) {
-            await query(
-              `INSERT INTO live_room_seats (room_id, seat_number, user_id, is_main_seat, is_camera_on, is_muted, is_locked)
-               VALUES (?, ?, ?, 0, ?, ?, ?)
-               ON DUPLICATE KEY UPDATE user_id = VALUES(user_id), is_main_seat = 0, is_camera_on = VALUES(is_camera_on), is_muted = VALUES(is_muted), is_locked = VALUES(is_locked)`,
-              [targetRoomId, nextGuestSeat, gs.user_id, gs.is_camera_on !== undefined ? gs.is_camera_on : 1, gs.is_muted || 0, gs.is_locked || 0]
-            );
-            nextGuestSeat++;
-          }
-        }
-      }
 
       // Instant Redis Invalidation
       await Promise.allSettled([
@@ -3707,6 +3679,8 @@ export async function kickUserFromRoom(req, res) {
       req.io.to(roomId).emit('user_kicked', {
         roomId,
         userId: targetUserId,
+        kickedUserId: targetUserId,
+        kicked_user_id: targetUserId,
         kickedBy: callerId,
         reason,
       });
