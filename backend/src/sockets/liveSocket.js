@@ -6,6 +6,7 @@ import { sendChatPushNotification } from '../config/firebase.js';
 import { handleLiveEndedNotifications } from '../services/notificationService.js';
 import { enqueueRoomGift, clearRoomGiftQueue } from '../services/giftQueueService.js';
 import { checkUserInvisibleRoomEnterPrivilege } from '../services/userPrivilegeService.js';
+import { getRoomMusicState, setRoomMusicState, clearRoomMusicState } from '../services/roomMusicService.js';
 
 // Store connected viewers: roomId -> Set of socket IDs (Module-level scope)
 const roomViewers = new Map();
@@ -133,6 +134,8 @@ export async function executeRoomTermination(canonicalRoomId, numericRoomId, hos
       query('DELETE FROM live_room_viewers WHERE room_id = ? OR room_id = ?', [canonicalRoomId, String(numericRoomId || '')]),
       query('DELETE FROM live_room_seat_requests WHERE room_id = ? OR room_id = ?', [canonicalRoomId, String(numericRoomId || '')]),
       query('DELETE FROM live_room_admins WHERE room_id = ? OR room_id = ?', [canonicalRoomId, String(numericRoomId || '')]),
+      clearRoomMusicState(canonicalRoomId),
+      numericRoomId ? clearRoomMusicState(String(numericRoomId)) : null,
     ]);
 
     // 4. Redis Cache Invalidation: Wipe targeted cache keys for this room and host only
@@ -858,6 +861,21 @@ export function setupLiveSocket(io) {
           console.warn('Late joiner seat sync warning:', seatSyncErr.message);
         }
 
+        // Sync active YouTube music playback directly to joining socket (supports late joiners)
+        try {
+          const musicState = await getRoomMusicState(canonicalRoomId);
+          if (musicState && musicState.videoId) {
+            socket.emit('music-sync', musicState);
+            socket.emit('music_sync', musicState);
+            socket.emit('music-updated', musicState);
+            socket.emit('music_updated', musicState);
+            socket.emit('youtube-music-sync', musicState);
+            socket.emit('youtube_music_updated', musicState);
+          }
+        } catch (musicSyncErr) {
+          console.warn('Late joiner music sync warning:', musicSyncErr.message);
+        }
+
         // Emit user joined welcome notice ONLY if not host, not invisible stealth, and not announced within 20s
         const userKey = `${canonicalRoomId}_${currentUser.id}`;
         const lastAnnounced = roomUserJoinAnnounced.get(userKey);
@@ -903,6 +921,90 @@ export function setupLiveSocket(io) {
     };
     socket.on('join-room', handleJoinRoom);
     socket.on('join_room', handleJoinRoom);
+
+    // -------------------------------------------------------------
+    // YouTube Music & Video Playback Synchronization
+    // -------------------------------------------------------------
+    const handleMusicActionSocket = async (data = {}) => {
+      try {
+        const targetRoom = data?.roomId || data?.room_id || currentRoom || socket.currentRoom;
+        if (!targetRoom) return;
+
+        const isNum = /^\d+$/.test(String(targetRoom).trim());
+        const rooms = await query(
+          'SELECT id, room_id, host_id, status FROM live_rooms WHERE (room_id = ? OR id = ?) AND status = "live"',
+          [String(targetRoom), isNum ? Number(targetRoom) : -1]
+        );
+        if (rooms.length === 0) return;
+        const room = rooms[0];
+        const canonicalRoomId = room.room_id;
+        const numericRoomId = room.id;
+
+        const senderId = Number(currentUser?.id || socket.userId);
+        const isHost = senderId === Number(room.host_id);
+
+        let isAuthorized = isHost;
+        if (!isAuthorized && senderId > 0) {
+          const admins = await query(
+            'SELECT id FROM live_room_admins WHERE (room_id = ? OR room_id = ?) AND user_id = ?',
+            [canonicalRoomId, String(numericRoomId), senderId]
+          );
+          if (admins.length > 0) isAuthorized = true;
+        }
+
+        if (!isAuthorized) {
+          socket.emit('error', { message: 'Only host or room admin can control stream music/video.' });
+          return;
+        }
+
+        const action = (data.action || 'play').toLowerCase().trim();
+        let savedState = null;
+
+        if (action === 'stop') {
+          await clearRoomMusicState(canonicalRoomId);
+          if (numericRoomId) await clearRoomMusicState(String(numericRoomId));
+        } else {
+          savedState = await setRoomMusicState(canonicalRoomId, {
+            action,
+            videoId: data.videoId || data.video_id,
+            title: data.title,
+            thumbnailUrl: data.thumbnailUrl || data.thumbnail_url,
+            positionSeconds: Number(data.positionSeconds ?? data.position_seconds ?? 0),
+            isPlaying: action === 'pause' ? false : (data.isPlaying ?? data.is_playing ?? true),
+          });
+        }
+
+        const broadcastPayload = {
+          roomId: canonicalRoomId,
+          numericRoomId,
+          action,
+          videoId: data.videoId || data.video_id || '',
+          title: data.title || '',
+          thumbnailUrl: data.thumbnailUrl || data.thumbnail_url || '',
+          positionSeconds: Number(data.positionSeconds ?? data.position_seconds ?? 0),
+          position_seconds: Number(data.positionSeconds ?? data.position_seconds ?? 0),
+          isPlaying: action === 'stop' ? false : (action === 'pause' ? false : Boolean(data.isPlaying ?? data.is_playing ?? true)),
+          is_playing: action === 'stop' ? false : (action === 'pause' ? false : Boolean(data.isPlaying ?? data.is_playing ?? true)),
+          startedAt: savedState?.startedAt || Date.now(),
+          timestamp: Date.now(),
+        };
+
+        const channels = new Set([canonicalRoomId, String(numericRoomId)].filter(Boolean));
+        for (const ch of channels) {
+          io.to(ch).emit('music-updated', broadcastPayload);
+          io.to(ch).emit('music_updated', broadcastPayload);
+          io.to(ch).emit('music-sync', broadcastPayload);
+          io.to(ch).emit('youtube-music-sync', broadcastPayload);
+          io.to(ch).emit('youtube_music_updated', broadcastPayload);
+        }
+      } catch (err) {
+        console.error('handleMusicActionSocket error:', err.message);
+      }
+    };
+
+    socket.on('music-action', handleMusicActionSocket);
+    socket.on('music_action', handleMusicActionSocket);
+    socket.on('youtube-music-action', handleMusicActionSocket);
 
     // Host live room settings toggle (disable/enable comments & reactions)
     socket.on('update-room-settings', async (data = {}) => {

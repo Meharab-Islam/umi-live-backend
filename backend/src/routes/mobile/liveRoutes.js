@@ -41,6 +41,9 @@ import {
   toggleRoomLock,
   getLiveRewardStatus,
   claimLiveReward,
+  getRoomMusic,
+  updateRoomMusic,
+  stopRoomMusic,
 } from '../../controllers/mobile/liveController.js';
 import { getLiveKitConfigEndpoint } from '../../controllers/mobile/configController.js';
 import { requireAuth, optionalAuth } from '../../middlewares/authMiddleware.js';
@@ -89,6 +92,11 @@ router.get('/rooms/:roomId', optionalAuth, getRoomDetails);
 // Live Room Audience / Active Users in Room (Name, ID, VIP Package, Coin, Diamond, Avatar, Seats)
 router.get('/rooms/:roomId/users', getRoomUsers);
 router.get('/rooms/:roomId/viewers', getRoomUsers);
+
+// YouTube Music & Video Room Playback State Sync
+router.get('/rooms/:roomId/music', getRoomMusic);
+router.post('/rooms/:roomId/music', requireAuth, updateRoomMusic);
+router.delete('/rooms/:roomId/music', requireAuth, stopRoomMusic);
 
 // Room Admins / Moderators List & Management
 router.get('/rooms/:roomId/admins', getRoomAdmins);

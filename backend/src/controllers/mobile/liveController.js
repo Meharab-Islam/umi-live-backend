@@ -7,6 +7,7 @@ import { cancelHostDisconnectGraceTimer, hostDisconnectGraceTimers, clearRoomMem
 import { checkStreamRewardStatus, claimAndAwardLiveReward } from '../../services/liveRewardService.js';
 import { notifyLiveStarted, handleLiveEndedNotifications } from '../../services/notificationService.js';
 import { checkUserSelfSeatAcceptPrivilege, checkUserInvisibleRoomEnterPrivilege } from '../../services/userPrivilegeService.js';
+import { getRoomMusicState, setRoomMusicState, clearRoomMusicState } from '../../services/roomMusicService.js';
 
 /**
  * Format elapsed seconds into standard timer format:
@@ -282,6 +283,11 @@ export async function buildRoomResponse(roomId, currentUser = null) {
       roomResponse.room_password = room.room_password;
     }
   }
+
+  // Active YouTube Music & Stream BGM Playback State Sync
+  const musicState = await getRoomMusicState(room.room_id || room.id);
+  roomResponse.youtube_music = musicState || null;
+  roomResponse.music = musicState || null;
 
   return roomResponse;
 }
@@ -2122,6 +2128,8 @@ export async function endRoom(req, res) {
       query('DELETE FROM live_room_viewers WHERE room_id = ? OR room_id = ?', [canonicalRoomId, String(numericRoomId)]),
       query('DELETE FROM live_room_seat_requests WHERE room_id = ? OR room_id = ?', [canonicalRoomId, String(numericRoomId)]),
       query('DELETE FROM live_room_admins WHERE room_id = ? OR room_id = ?', [canonicalRoomId, String(numericRoomId)]),
+      clearRoomMusicState(canonicalRoomId),
+      numericRoomId ? clearRoomMusicState(String(numericRoomId)) : null,
     ]);
 
     // 3. Redis Cache Invalidation: Wipe targeted cache keys for this room and host only
@@ -4666,6 +4674,130 @@ export async function claimLiveReward(req, res) {
     return res.status(500).json({ success: false, message: 'Failed to claim live reward.', error: err.message });
   }
 }
+
+/**
+ * Mobile Get Room Music Playback State
+ * GET /api/mobile/live/rooms/:roomId/music
+ * Returns active YouTube music metadata and real-time playback timestamp (Rule #3)
+ */
+export async function getRoomMusic(req, res) {
+  try {
+    const { roomId } = req.params;
+    const musicState = await getRoomMusicState(roomId);
+    return res.json({
+      success: true,
+      music: musicState,
+      youtube_music: musicState,
+    });
+  } catch (err) {
+    console.error('getRoomMusic error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to get room music state.', error: err.message });
+  }
+}
+
+/**
+ * Mobile Update Room Music Playback State (Host / Room Admin Action)
+ * POST /api/mobile/live/rooms/:roomId/music
+ * Broadcasts play/pause/seek/sync to all room participants via Socket.IO
+ */
+export async function updateRoomMusic(req, res) {
+  try {
+    const { roomId } = req.params;
+    const userId = req.user.id;
+    const { action, videoId, video_id, title, thumbnailUrl, thumbnail_url, positionSeconds, position_seconds, isPlaying, is_playing } = req.body;
+
+    const isNum = /^\d+$/.test(String(roomId).trim());
+    const rooms = await query(
+      'SELECT id, room_id, host_id, status FROM live_rooms WHERE (room_id = ? OR id = ?) AND status = "live"',
+      [String(roomId), isNum ? Number(roomId) : -1]
+    );
+    if (rooms.length === 0) {
+      return res.status(404).json({ success: false, message: 'Live room not found or not active.' });
+    }
+    const room = rooms[0];
+    const canonicalRoomId = room.room_id;
+    const numericRoomId = room.id;
+
+    // Authorization: Host, Room Admin, or Superadmin
+    const isHost = Number(userId) === Number(room.host_id);
+    let isAuthorized = isHost || req.user.role === 'admin' || req.user.role === 'superadmin';
+    if (!isAuthorized) {
+      const admins = await query(
+        'SELECT id FROM live_room_admins WHERE (room_id = ? OR room_id = ?) AND user_id = ?',
+        [canonicalRoomId, String(numericRoomId), userId]
+      );
+      if (admins.length > 0) isAuthorized = true;
+    }
+
+    if (!isAuthorized) {
+      return res.status(403).json({ success: false, message: 'Only host or room admin can update stream music.' });
+    }
+
+    const act = (action || 'play').toLowerCase().trim();
+    const vId = videoId || video_id;
+
+    let savedState = null;
+    if (act === 'stop') {
+      await clearRoomMusicState(canonicalRoomId);
+      if (numericRoomId) await clearRoomMusicState(String(numericRoomId));
+    } else {
+      savedState = await setRoomMusicState(canonicalRoomId, {
+        action: act,
+        videoId: vId,
+        title,
+        thumbnailUrl: thumbnailUrl || thumbnail_url,
+        positionSeconds: Number(positionSeconds ?? position_seconds ?? 0),
+        isPlaying: act === 'pause' ? false : (isPlaying ?? is_playing ?? true),
+      });
+    }
+
+    const payload = {
+      roomId: canonicalRoomId,
+      numericRoomId,
+      action: act,
+      videoId: vId || '',
+      title: title || '',
+      thumbnailUrl: thumbnailUrl || thumbnail_url || '',
+      positionSeconds: Number(positionSeconds ?? position_seconds ?? 0),
+      position_seconds: Number(positionSeconds ?? position_seconds ?? 0),
+      isPlaying: act === 'stop' ? false : (act === 'pause' ? false : Boolean(isPlaying ?? is_playing ?? true)),
+      is_playing: act === 'stop' ? false : (act === 'pause' ? false : Boolean(isPlaying ?? is_playing ?? true)),
+      startedAt: savedState?.startedAt || Date.now(),
+      timestamp: Date.now(),
+    };
+
+    if (req.io) {
+      const channels = new Set([canonicalRoomId, String(numericRoomId)].filter(Boolean));
+      for (const ch of channels) {
+        req.io.to(ch).emit('music-updated', payload);
+        req.io.to(ch).emit('music_updated', payload);
+        req.io.to(ch).emit('music-sync', payload);
+        req.io.to(ch).emit('youtube-music-sync', payload);
+        req.io.to(ch).emit('youtube_music_updated', payload);
+      }
+    }
+
+    return res.json({
+      success: true,
+      message: `Room music updated (${act}).`,
+      music: savedState,
+      youtube_music: savedState,
+    });
+  } catch (err) {
+    console.error('updateRoomMusic error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to update room music.', error: err.message });
+  }
+}
+
+/**
+ * Mobile Stop Room Music Playback (Host / Room Admin Action)
+ * DELETE /api/mobile/live/rooms/:roomId/music
+ */
+export async function stopRoomMusic(req, res) {
+  req.body = { ...req.body, action: 'stop' };
+  return updateRoomMusic(req, res);
+}
+
 
 
 
