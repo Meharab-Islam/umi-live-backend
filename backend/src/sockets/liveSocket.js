@@ -1006,6 +1006,100 @@ export function setupLiveSocket(io) {
     socket.on('music_action', handleMusicActionSocket);
     socket.on('youtube-music-action', handleMusicActionSocket);
 
+    // -------------------------------------------------------------
+    // Seat Media Update (Mic / Camera Toggle) Synchronization
+    // -------------------------------------------------------------
+    const handleSeatMediaUpdatedSocket = async (data = {}) => {
+      try {
+        const targetRoom = data?.roomId || data?.room_id || currentRoom || socket.currentRoom;
+        if (!targetRoom) return;
+
+        const isNum = /^\d+$/.test(String(targetRoom).trim());
+        const rooms = await query(
+          'SELECT id, room_id, host_id, status FROM live_rooms WHERE (room_id = ? OR id = ?) AND status = "live"',
+          [String(targetRoom), isNum ? Number(targetRoom) : -1]
+        );
+        if (rooms.length === 0) return;
+        const room = rooms[0];
+        const canonicalRoomId = room.room_id;
+        const numericRoomId = room.id;
+
+        const senderId = Number(currentUser?.id || socket.userId);
+        const seatIdx = parseInt(data.seatIndex ?? data.seat_index ?? data.seatNumber ?? data.seat_number, 10);
+        const targetUserId = Number(data.userId || data.user_id || senderId);
+
+        // Find the seat
+        const seats = await query(
+          'SELECT * FROM live_room_seats WHERE (room_id = ? OR room_id = ?) AND (seat_number = ? OR user_id = ?)',
+          [canonicalRoomId, String(numericRoomId), seatIdx || -1, targetUserId]
+        );
+        if (seats.length === 0) return;
+        const seat = seats[0];
+
+        // Permission: Host, Admin, Room Moderator, or Seat Occupant
+        let isAuthorized = senderId === Number(room.host_id) || Number(seat.user_id) === senderId;
+        if (!isAuthorized && senderId > 0) {
+          const admins = await query(
+            'SELECT id FROM live_room_admins WHERE (room_id = ? OR room_id = ?) AND user_id = ?',
+            [canonicalRoomId, String(numericRoomId), senderId]
+          );
+          if (admins.length > 0) isAuthorized = true;
+        }
+        if (!isAuthorized) return;
+
+        let isMuted = seat.is_muted;
+        if (data.isMuted !== undefined) isMuted = data.isMuted ? 1 : 0;
+        else if (data.is_muted !== undefined) isMuted = data.is_muted ? 1 : 0;
+
+        let isCameraOn = seat.is_camera_on;
+        if (data.isCameraOn !== undefined) isCameraOn = data.isCameraOn ? 1 : 0;
+        else if (data.is_camera_on !== undefined) isCameraOn = data.is_camera_on ? 1 : 0;
+        else if (data.isVideoMuted !== undefined) isCameraOn = data.isVideoMuted ? 0 : 1;
+        else if (data.is_video_muted !== undefined) isCameraOn = data.is_video_muted ? 0 : 1;
+
+        // Persist to MySQL database (Single Source of Truth)
+        await query(
+          'UPDATE live_room_seats SET is_muted = ?, is_camera_on = ? WHERE (room_id = ? OR room_id = ?) AND seat_number = ?',
+          [isMuted, isCameraOn, canonicalRoomId, String(numericRoomId), seat.seat_number]
+        );
+
+        // Invalidate Redis
+        await cache.del(`mobile:room_details:${canonicalRoomId}`);
+        if (numericRoomId) await cache.del(`mobile:room_details:${numericRoomId}`);
+
+        const payload = {
+          roomId: canonicalRoomId,
+          numericRoomId,
+          seatIndex: seat.seat_number,
+          seat_index: seat.seat_number,
+          seatNumber: seat.seat_number,
+          seat_number: seat.seat_number,
+          userId: Number(seat.user_id),
+          user_id: Number(seat.user_id),
+          isMuted: Boolean(isMuted),
+          is_muted: Boolean(isMuted),
+          isCameraOn: Boolean(isCameraOn),
+          is_camera_on: Boolean(isCameraOn),
+          isVideoMuted: !Boolean(isCameraOn),
+          is_video_muted: !Boolean(isCameraOn),
+          actionBy: senderId,
+          action_by: senderId,
+        };
+
+        const channels = new Set([canonicalRoomId, String(numericRoomId)].filter(Boolean));
+        for (const ch of channels) {
+          io.to(ch).emit('seat_media_updated', payload);
+          io.to(ch).emit('seat-media-updated', payload);
+        }
+      } catch (err) {
+        console.error('handleSeatMediaUpdatedSocket error:', err.message);
+      }
+    };
+
+    socket.on('seat_media_updated', handleSeatMediaUpdatedSocket);
+    socket.on('seat-media-updated', handleSeatMediaUpdatedSocket);
+    socket.on('seat_media_update', handleSeatMediaUpdatedSocket);
+
     // Host live room settings toggle (disable/enable comments & reactions)
     socket.on('update-room-settings', async (data = {}) => {
       try {

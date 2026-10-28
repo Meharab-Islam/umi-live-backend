@@ -1845,23 +1845,37 @@ export async function toggleSeatMedia(req, res) {
       params.push(isMuted ? 1 : 0);
     }
 
+    const isNum = /^\d+$/.test(String(roomId).trim());
+    const rooms = await query('SELECT id, room_id FROM live_rooms WHERE (room_id = ? OR id = ?)', [roomId, isNum ? Number(roomId) : -1]);
+    const canonicalRoomId = rooms.length > 0 ? rooms[0].room_id : roomId;
+    const numericRoomId = rooms.length > 0 ? String(rooms[0].id) : '';
+
     if (updates.length > 0) {
-      params.push(roomId, userId);
-      await query(`UPDATE live_room_seats SET ${updates.join(', ')} WHERE room_id = ? AND user_id = ?`, params);
+      params.push(canonicalRoomId, numericRoomId, userId);
+      await query(`UPDATE live_room_seats SET ${updates.join(', ')} WHERE (room_id = ? OR room_id = ?) AND user_id = ?`, params);
     }
 
     // Instant Redis Invalidation
-    await cache.del(`mobile:room_details:${roomId}`);
+    await cache.del(`mobile:room_details:${canonicalRoomId}`);
+    if (numericRoomId) await cache.del(`mobile:room_details:${numericRoomId}`);
 
-    const roomData = await buildRoomResponse(roomId, req.user);
+    const roomData = await buildRoomResponse(canonicalRoomId, req.user);
 
     if (req.io) {
-      req.io.to(roomId).emit('seat_media_updated', {
-        roomId,
+      const payload = {
+        roomId: canonicalRoomId,
+        numericRoomId,
         userId,
-        isCameraOn,
-        isMuted,
-      });
+        isCameraOn: Boolean(isCameraOn),
+        is_camera_on: Boolean(isCameraOn),
+        isVideoMuted: !Boolean(isCameraOn),
+        is_video_muted: !Boolean(isCameraOn),
+        isMuted: Boolean(isMuted),
+        is_muted: Boolean(isMuted),
+        actionBy: userId,
+      };
+      req.io.to(canonicalRoomId).emit('seat_media_updated', payload);
+      req.io.to(canonicalRoomId).emit('seat-media-updated', payload);
     }
 
     return res.json({
@@ -2004,23 +2018,23 @@ export async function muteSeat(req, res) {
       return res.status(400).json({ success: false, message: 'Invalid seat number or user is not seated in this room.' });
     }
 
-    // Check caller permission
-    let isAuthorized = (callerId === room.host_id) || (callerRole === 'admin') || (callerRole === 'superadmin');
-    if (!isAuthorized) {
-      const adminRows = await query('SELECT id FROM live_room_admins WHERE room_id = ? AND user_id = ?', [roomId, callerId]);
-      isAuthorized = adminRows.length > 0;
-    }
-    if (!isAuthorized) {
-      return res.status(403).json({ success: false, message: 'Only host or room moderators can mute/unmute seats.' });
-    }
-
-    const seats = await query('SELECT * FROM live_room_seats WHERE room_id = ? AND seat_number = ?', [roomId, num]);
+    const seats = await query('SELECT * FROM live_room_seats WHERE (room_id = ? OR room_id = ?) AND seat_number = ?', [roomId, String(room.id || ''), num]);
     if (seats.length === 0) {
       return res.status(404).json({ success: false, message: `Seat ${num} not found in this room.` });
     }
     const seat = seats[0];
 
-    let newMuteStatus;
+    // Check caller permission: Host, Admin, Room Moderator, or the occupant of this seat
+    let isAuthorized = (callerId === room.host_id) || (callerRole === 'admin') || (callerRole === 'superadmin') || (seat.user_id && Number(seat.user_id) === Number(callerId));
+    if (!isAuthorized) {
+      const adminRows = await query('SELECT id FROM live_room_admins WHERE (room_id = ? OR room_id = ?) AND user_id = ?', [roomId, String(room.id || ''), callerId]);
+      isAuthorized = adminRows.length > 0;
+    }
+    if (!isAuthorized) {
+      return res.status(403).json({ success: false, message: 'Only host, room moderators, or the seated user can mute/unmute this seat.' });
+    }
+
+    let newMuteStatus = seat.is_muted;
     if (req.path.endsWith('/unmute') || req.body.action === 'unmute') {
       newMuteStatus = 0;
     } else if (req.body.action === 'mute') {
@@ -2031,33 +2045,56 @@ export async function muteSeat(req, res) {
       newMuteStatus = req.body.is_muted ? 1 : 0;
     } else if (req.body.mute !== undefined) {
       newMuteStatus = req.body.mute ? 1 : 0;
-    } else {
-      newMuteStatus = seat.is_muted ? 0 : 1;
     }
 
-    // Update seat mute in DB
-    await query('UPDATE live_room_seats SET is_muted = ? WHERE room_id = ? AND seat_number = ?', [newMuteStatus, roomId, num]);
+    let newCameraStatus = seat.is_camera_on;
+    if (req.body.isCameraOn !== undefined) {
+      newCameraStatus = req.body.isCameraOn ? 1 : 0;
+    } else if (req.body.isVideoMuted !== undefined) {
+      newCameraStatus = req.body.isVideoMuted ? 0 : 1;
+    } else if (req.body.is_camera_on !== undefined) {
+      newCameraStatus = req.body.is_camera_on ? 1 : 0;
+    } else if (req.body.is_video_muted !== undefined) {
+      newCameraStatus = req.body.is_video_muted ? 0 : 1;
+    }
+
+    // Update seat mute & camera in DB (Single Source of Truth)
+    await query(
+      'UPDATE live_room_seats SET is_muted = ?, is_camera_on = ? WHERE (room_id = ? OR room_id = ?) AND seat_number = ?',
+      [newMuteStatus, newCameraStatus, roomId, String(room.id || ''), num]
+    );
 
     // Instant Redis Invalidation
     await cache.del(`mobile:room_details:${roomId}`);
+    if (room.id) await cache.del(`mobile:room_details:${room.id}`);
 
     const roomData = await buildRoomResponse(roomId, req.user);
 
     if (req.io) {
-      req.io.to(roomId).emit('seat_media_updated', {
-        roomId,
+      const payload = {
+        roomId: room.room_id || roomId,
         seatNumber: num,
+        seatIndex: num,
         userId: seat.user_id,
         isMuted: Boolean(newMuteStatus),
-        isCameraOn: Boolean(seat.is_camera_on),
+        is_muted: Boolean(newMuteStatus),
+        isCameraOn: Boolean(newCameraStatus),
+        is_camera_on: Boolean(newCameraStatus),
+        isVideoMuted: !Boolean(newCameraStatus),
+        is_video_muted: !Boolean(newCameraStatus),
         mutedBy: callerId,
-      });
+        actionBy: callerId,
+      };
+      req.io.to(room.room_id || roomId).emit('seat_media_updated', payload);
+      req.io.to(room.room_id || roomId).emit('seat-media-updated', payload);
     }
 
     return res.json({
       success: true,
-      message: `Seat ${num} ${newMuteStatus ? 'muted' : 'unmuted'} successfully.`,
+      message: `Seat ${num} media updated successfully.`,
       isMuted: Boolean(newMuteStatus),
+      isCameraOn: Boolean(newCameraStatus),
+      isVideoMuted: !Boolean(newCameraStatus),
       seatNumber: num,
       room: roomData,
     });
