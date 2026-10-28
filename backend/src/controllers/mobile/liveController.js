@@ -1139,11 +1139,42 @@ export async function handleUserSeatDeparture(roomId, leavingUserId, io = null) 
       // SCENARIO 2: Departing user occupied a guest seat (Seat > 1)
       // or Host stepped down from a seat
       // -------------------------------------------------------------
-      // Clear ONLY departing user's seat so remaining co-hosts stay on their assigned seats without collapsing or hiding!
+      const isVideoLive = (room.live_type || 'video') !== 'audio';
+      const targetRoomId = room.room_id || roomId;
+
+      // 1. Vacate departing user's seat
       await query(
         'UPDATE live_room_seats SET user_id = NULL, is_camera_on = 0, is_muted = 0 WHERE (room_id = ? OR room_id = ?) AND (seat_number = ? OR user_id = ?)',
-        [roomId, String(room.id || ''), departingSeat.seat_number, leavingUserId]
+        [targetRoomId, String(room.id || ''), departingSeat.seat_number, leavingUserId]
       );
+
+      // 2. In Video Live: Rearrange remaining guest seats consecutively without holes (Seat 2, 3, 4...)
+      if (isVideoLive) {
+        // Collect all remaining occupied guest seats (seat_number > 1, strictly excluding leaving user and host)
+        const remainingGuests = (seats || []).filter(
+          (s) => s.seat_number > 1 && s.user_id && Number(s.user_id) !== Number(leavingUserId) && Number(s.user_id) !== Number(hostId)
+        );
+
+        // Clear all guest seats (> 1) in DB to avoid collision during re-indexing
+        await query(
+          'UPDATE live_room_seats SET user_id = NULL, is_camera_on = 0, is_muted = 0 WHERE (room_id = ? OR room_id = ?) AND seat_number > 1',
+          [targetRoomId, String(room.id || '')]
+        );
+
+        // Reassign remaining guests consecutively starting from seat 2
+        let nextGuestSeat = 2;
+        for (const gs of remainingGuests) {
+          if (nextGuestSeat <= totalSeats) {
+            await query(
+              `INSERT INTO live_room_seats (room_id, seat_number, user_id, is_main_seat, is_camera_on, is_muted, is_locked)
+               VALUES (?, ?, ?, 0, ?, ?, ?)
+               ON DUPLICATE KEY UPDATE user_id = VALUES(user_id), is_main_seat = 0, is_camera_on = VALUES(is_camera_on), is_muted = VALUES(is_muted), is_locked = VALUES(is_locked)`,
+              [targetRoomId, nextGuestSeat, gs.user_id, gs.is_camera_on !== undefined ? gs.is_camera_on : 1, gs.is_muted || 0, gs.is_locked || 0]
+            );
+            nextGuestSeat++;
+          }
+        }
+      }
 
       // Instant Redis Invalidation
       await Promise.allSettled([
@@ -2480,11 +2511,12 @@ export async function approveSeatRequest(req, res) {
     }
 
     // Determine seat number
+    const isVideoLive = (room.live_type || 'video') !== 'audio';
     let assignSeatNum = parseInt(seat_number || seatNumber || requestRow.seat_number, 10);
-    if (!assignSeatNum || assignSeatNum < 2) {
+    if (isVideoLive || !assignSeatNum || assignSeatNum < 2) {
       const freeSeats = await query(
-        'SELECT seat_number FROM live_room_seats WHERE room_id = ? AND user_id IS NULL AND seat_number > 1 AND is_locked = 0 ORDER BY seat_number ASC LIMIT 1',
-        [roomId]
+        'SELECT seat_number FROM live_room_seats WHERE (room_id = ? OR room_id = ?) AND user_id IS NULL AND seat_number > 1 AND is_locked = 0 ORDER BY seat_number ASC LIMIT 1',
+        [roomId, String(room.id || '')]
       );
       if (freeSeats.length === 0) {
         return res.status(400).json({ success: false, message: 'No available free seats in this room.' });
@@ -2493,11 +2525,11 @@ export async function approveSeatRequest(req, res) {
     }
 
     // Check if target seat is free; if already occupied or locked, auto-assign the next free seat
-    const targetSeat = await query('SELECT user_id, is_locked FROM live_room_seats WHERE room_id = ? AND seat_number = ?', [roomId, assignSeatNum]);
+    const targetSeat = await query('SELECT user_id, is_locked FROM live_room_seats WHERE (room_id = ? OR room_id = ?) AND seat_number = ?', [roomId, String(room.id || ''), assignSeatNum]);
     if (targetSeat.length > 0 && (targetSeat[0].user_id || targetSeat[0].is_locked)) {
       const fallbackFreeSeats = await query(
-        'SELECT seat_number FROM live_room_seats WHERE room_id = ? AND user_id IS NULL AND seat_number > 1 AND is_locked = 0 ORDER BY seat_number ASC LIMIT 1',
-        [roomId]
+        'SELECT seat_number FROM live_room_seats WHERE (room_id = ? OR room_id = ?) AND user_id IS NULL AND seat_number > 1 AND is_locked = 0 ORDER BY seat_number ASC LIMIT 1',
+        [roomId, String(room.id || '')]
       );
       if (fallbackFreeSeats.length === 0) {
         return res.status(400).json({ success: false, message: 'All seats in this room are currently occupied.' });
@@ -2564,6 +2596,8 @@ export async function approveSeatRequest(req, res) {
           isVideoMuted: false,
           user: userPayload,
         },
+        seats: roomData?.seats || [],
+        rawSeats: roomData?.seats || [],
       });
       req.io.to(roomId).emit('seat_updated', {
         roomId,
@@ -2581,6 +2615,8 @@ export async function approveSeatRequest(req, res) {
           isVideoMuted: false,
           user: userPayload,
         },
+        seats: roomData?.seats || [],
+        rawSeats: roomData?.seats || [],
       });
     }
 
