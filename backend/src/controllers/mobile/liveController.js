@@ -3708,11 +3708,17 @@ export async function promoteToMainSeat(req, res) {
     const seatNumberParam = req.body?.seatNumber ?? req.body?.seat_number ?? req.params?.seatNumber;
     const userIdParam = req.body?.userId ?? req.body?.user_id;
 
-    const rooms = await query('SELECT id, room_id, host_id, status, total_seats, live_type FROM live_rooms WHERE room_id = ? AND status = "live"', [roomId]);
+    const isNum = /^\d+$/.test(String(roomId).trim());
+    const rooms = await query(
+      'SELECT id, room_id, host_id, status, total_seats, live_type FROM live_rooms WHERE (room_id = ? OR id = ?) AND status = "live"',
+      [String(roomId), isNum ? Number(roomId) : -1]
+    );
     if (rooms.length === 0) {
       return res.status(404).json({ success: false, message: 'Live room is not active or does not exist.' });
     }
     const room = rooms[0];
+    const canonicalRoomId = room.room_id;
+    const numericRoomId = room.id;
 
     // Promote to Main Seat is strictly for Video Live rooms (in Audio Live only Switch Seat is supported)
     if (room.live_type === 'audio') {
@@ -3725,7 +3731,10 @@ export async function promoteToMainSeat(req, res) {
     // Check caller permission: Host or Platform Admin
     let isAuthorized = (callerId === room.host_id) || (callerRole === 'admin') || (callerRole === 'superadmin');
     if (!isAuthorized) {
-      const adminRows = await query('SELECT id FROM live_room_admins WHERE room_id = ? AND user_id = ?', [roomId, callerId]);
+      const adminRows = await query(
+        'SELECT id FROM live_room_admins WHERE (room_id = ? OR room_id = ?) AND user_id = ?',
+        [canonicalRoomId, String(numericRoomId), callerId]
+      );
       isAuthorized = adminRows.length > 0;
     }
 
@@ -3737,11 +3746,17 @@ export async function promoteToMainSeat(req, res) {
     let targetSeat = null;
     if (seatNumberParam !== undefined && seatNumberParam !== null && seatNumberParam !== '') {
       const num = parseInt(seatNumberParam, 10);
-      const rows = await query('SELECT * FROM live_room_seats WHERE room_id = ? AND seat_number = ?', [roomId, num]);
+      const rows = await query(
+        'SELECT * FROM live_room_seats WHERE (room_id = ? OR room_id = ?) AND seat_number = ?',
+        [canonicalRoomId, String(numericRoomId), num]
+      );
       if (rows.length > 0) targetSeat = rows[0];
     } else if (userIdParam !== undefined && userIdParam !== null && userIdParam !== '') {
       const uid = parseInt(userIdParam, 10);
-      const rows = await query('SELECT * FROM live_room_seats WHERE room_id = ? AND user_id = ?', [roomId, uid]);
+      const rows = await query(
+        'SELECT * FROM live_room_seats WHERE (room_id = ? OR room_id = ?) AND user_id = ?',
+        [canonicalRoomId, String(numericRoomId), uid]
+      );
       if (rows.length > 0) targetSeat = rows[0];
     }
 
@@ -3763,7 +3778,10 @@ export async function promoteToMainSeat(req, res) {
     const targetMuted = targetSeat.is_muted;
 
     // Fetch Seat 1
-    const seat1Rows = await query('SELECT * FROM live_room_seats WHERE room_id = ? AND seat_number = 1', [roomId]);
+    const seat1Rows = await query(
+      'SELECT * FROM live_room_seats WHERE (room_id = ? OR room_id = ?) AND seat_number = 1',
+      [canonicalRoomId, String(numericRoomId)]
+    );
     const seat1 = seat1Rows.length > 0 ? seat1Rows[0] : null;
     const prevMainUserId = seat1 ? seat1.user_id : null;
     const prevCamera = seat1 ? seat1.is_camera_on : 1;
@@ -3780,29 +3798,31 @@ export async function promoteToMainSeat(req, res) {
       `INSERT INTO live_room_seats (room_id, seat_number, user_id, is_main_seat, is_camera_on, is_muted)
        VALUES (?, 1, ?, 1, ?, ?)
        ON DUPLICATE KEY UPDATE user_id = VALUES(user_id), is_main_seat = 1, is_camera_on = VALUES(is_camera_on), is_muted = VALUES(is_muted)`,
-      [roomId, targetUserId, targetCamera, targetMuted]
+      [canonicalRoomId, targetUserId, targetCamera, targetMuted]
     );
 
     // 2. Move previous Seat 1 occupant (or clear) into target guest seat
     await query(
       `UPDATE live_room_seats 
        SET user_id = ?, is_main_seat = 0, is_camera_on = ?, is_muted = ? 
-       WHERE room_id = ? AND seat_number = ?`,
-      [prevMainUserId, prevCamera, prevMuted, roomId, targetSeatNum]
+       WHERE (room_id = ? OR room_id = ?) AND seat_number = ?`,
+      [prevMainUserId, prevCamera, prevMuted, canonicalRoomId, String(numericRoomId), targetSeatNum]
     );
 
     // Instant Redis Invalidation
     await Promise.allSettled([
-      cache.del(`mobile:room_details:${roomId}`),
-      cache.delByPattern(`mobile:room:users:${roomId}*`),
+      cache.del(`mobile:room_details:${canonicalRoomId}`),
+      numericRoomId ? cache.del(`mobile:room_details:${numericRoomId}`) : null,
+      cache.delByPattern(`mobile:room:users:${canonicalRoomId}*`),
     ]);
 
-    const roomData = await buildRoomResponse(roomId, req.user);
+    const roomData = await buildRoomResponse(canonicalRoomId, req.user);
 
     // Socket Broadcast to all viewers and hosts in the room
     if (req.io) {
       const spotlightPayload = {
-        roomId,
+        roomId: canonicalRoomId,
+        numericRoomId,
         targetSeat: targetSeatNum,
         spotlightSeat: 1,
         spotlight_seat_number: 1,
@@ -3813,26 +3833,45 @@ export async function promoteToMainSeat(req, res) {
         previousMainUserId: prevMainUserId,
         promotedBy: callerId,
         timestamp: new Date().toISOString(),
+        seats: roomData.seats,
+        rawSeats: roomData.seats,
       };
 
-      req.io.to(roomId).emit('main_seat_swapped', spotlightPayload);
-      req.io.to(roomId).emit('spotlight_updated', spotlightPayload);
-      req.io.to(roomId).emit('spotlight_changed', spotlightPayload);
-      req.io.to(roomId).emit('seat_updated', {
-        roomId,
+      const seatUpdatedPayload = {
+        roomId: canonicalRoomId,
+        numericRoomId,
         action: 'swap_main',
+        targetSeat: targetSeatNum,
         newMainUserId: targetUserId,
         previousMainUserId: prevMainUserId,
         spotlight_seat_number: 1,
         spotlight_user_id: targetUserId,
-      });
-      req.io.to(roomId).emit('seats_updated', {
-        roomId,
         seats: roomData.seats,
-        spotlight_seat_number: 1,
-        spotlight_user_id: targetUserId,
-        spotlight_user: roomData.spotlight_user || null,
-      });
+        rawSeats: roomData.seats,
+      };
+
+      const channels = new Set([canonicalRoomId, String(numericRoomId)].filter(Boolean));
+      for (const ch of channels) {
+        req.io.to(ch).emit('main_seat_swapped', spotlightPayload);
+        req.io.to(ch).emit('spotlight_updated', spotlightPayload);
+        req.io.to(ch).emit('spotlight_changed', spotlightPayload);
+        req.io.to(ch).emit('seat_updated', seatUpdatedPayload);
+        req.io.to(ch).emit('seats_updated', {
+          roomId: canonicalRoomId,
+          numericRoomId,
+          seats: roomData.seats,
+          rawSeats: roomData.seats,
+          spotlight_seat_number: 1,
+          spotlight_user_id: targetUserId,
+          spotlight_user: roomData.spotlight_user || null,
+        });
+        req.io.to(ch).emit('seats-sync', {
+          roomId: canonicalRoomId,
+          numericRoomId,
+          seats: roomData.seats,
+          rawSeats: roomData.seats,
+        });
+      }
     }
 
     return res.json({
