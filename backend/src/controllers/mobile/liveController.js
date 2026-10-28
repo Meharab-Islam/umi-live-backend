@@ -3777,23 +3777,33 @@ export async function promoteToMainSeat(req, res) {
     const targetCamera = targetSeat.is_camera_on;
     const targetMuted = targetSeat.is_muted;
 
-    // Fetch Seat 1
+    // 1. Fetch current occupant of Seat 1 (Main Seat)
     const seat1Rows = await query(
       'SELECT * FROM live_room_seats WHERE (room_id = ? OR room_id = ?) AND seat_number = 1',
       [canonicalRoomId, String(numericRoomId)]
     );
     const seat1 = seat1Rows.length > 0 ? seat1Rows[0] : null;
-    const prevMainUserId = seat1 ? seat1.user_id : null;
-    const prevCamera = seat1 ? seat1.is_camera_on : 1;
-    const prevMuted = seat1 ? seat1.is_muted : 0;
+    const currentMainUserId = seat1 && seat1.user_id ? seat1.user_id : room.host_id;
+    const currentMainCamera = seat1 ? seat1.is_camera_on : 1;
+    const currentMainMuted = seat1 ? seat1.is_muted : 0;
 
-    // If Seat 1 occupant is the room host, only the host themselves (or platform admin) can transfer Seat 1
-    if (prevMainUserId === room.host_id && callerId !== room.host_id && callerRole !== 'admin' && callerRole !== 'superadmin') {
-      return res.status(403).json({ success: false, message: 'Only the room host can transfer the main seat.' });
+    // 2. Fetch where the Host is currently sitting
+    const hostSeatRows = await query(
+      'SELECT * FROM live_room_seats WHERE (room_id = ? OR room_id = ?) AND user_id = ?',
+      [canonicalRoomId, String(numericRoomId), room.host_id]
+    );
+    const hostSeat = hostSeatRows.length > 0 ? hostSeatRows[0] : null;
+    const hostCurrentSeat = hostSeat ? hostSeat.seat_number : 1;
+    const hostCamera = hostSeat ? hostSeat.is_camera_on : 1;
+    const hostMuted = hostSeat ? hostSeat.is_muted : 0;
+
+    // Only host or platform admin can promote to main seat
+    if (callerId !== room.host_id && callerRole !== 'admin' && callerRole !== 'superadmin') {
+      return res.status(403).json({ success: false, message: 'Only the room host can promote to main seat.' });
     }
 
-    // Atomic Swap in DB
-    // 1. Move target user to Seat 1 (is_main_seat = 1)
+    // 3-WAY ROTATION:
+    // A. Move target user (targetUserId) to Seat 1 (Main Stage)
     await query(
       `INSERT INTO live_room_seats (room_id, seat_number, user_id, is_main_seat, is_camera_on, is_muted)
        VALUES (?, 1, ?, 1, ?, ?)
@@ -3801,13 +3811,24 @@ export async function promoteToMainSeat(req, res) {
       [canonicalRoomId, targetUserId, targetCamera, targetMuted]
     );
 
-    // 2. Move previous Seat 1 occupant (or clear) into target guest seat
+    // B. Move the Room Host to the Target Seat (targetSeatNum)
     await query(
-      `UPDATE live_room_seats 
-       SET user_id = ?, is_main_seat = 0, is_camera_on = ?, is_muted = ? 
-       WHERE (room_id = ? OR room_id = ?) AND seat_number = ?`,
-      [prevMainUserId, prevCamera, prevMuted, canonicalRoomId, String(numericRoomId), targetSeatNum]
+      `INSERT INTO live_room_seats (room_id, seat_number, user_id, is_main_seat, is_camera_on, is_muted)
+       VALUES (?, ?, ?, 0, ?, ?)
+       ON DUPLICATE KEY UPDATE user_id = VALUES(user_id), is_main_seat = 0, is_camera_on = VALUES(is_camera_on), is_muted = VALUES(is_muted)`,
+      [canonicalRoomId, targetSeatNum, room.host_id, hostCamera, hostMuted]
     );
+
+    // C. If previous Main Seat occupant was NOT the host (i.e. another guest was on Seat 1):
+    // Move that previous guest back to the host's old seat (hostCurrentSeat)!
+    if (currentMainUserId !== room.host_id && hostCurrentSeat !== 1 && hostCurrentSeat !== targetSeatNum) {
+      await query(
+        `INSERT INTO live_room_seats (room_id, seat_number, user_id, is_main_seat, is_camera_on, is_muted)
+         VALUES (?, ?, ?, 0, ?, ?)
+         ON DUPLICATE KEY UPDATE user_id = VALUES(user_id), is_main_seat = 0, is_camera_on = VALUES(is_camera_on), is_muted = VALUES(is_muted)`,
+        [canonicalRoomId, hostCurrentSeat, currentMainUserId, currentMainCamera, currentMainMuted]
+      );
+    }
 
     // Instant Redis Invalidation
     await Promise.allSettled([
