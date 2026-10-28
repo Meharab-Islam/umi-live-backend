@@ -1,5 +1,7 @@
 import { query } from '../../config/db.js';
 import { cache } from '../../config/redis.js';
+import { getLiveIO } from '../../sockets/liveSocket.js';
+import { sendPushNotification } from '../../config/firebase.js';
 
 /**
  * Format seconds into human-friendly "00h 00m 00s" or "00m 00s" string.
@@ -1162,16 +1164,77 @@ export async function applyToAgency(req, res) {
        VALUES (?, ?, ?, ?, 'pending')`,
       [agency.id, userId, validHostType, message]
     );
+    const requestId = result.insertId;
 
     // 5. Invalidate Redis Caches
     await invalidateAgencyCache(agency.id);
     await cache.del(`user:agency_application:${userId}`);
 
+    // 6. Real-time Socket Notification → Agency Owner sees the new request immediately
+    const [applicant] = await query(
+      'SELECT id, full_name, avatar_url, level FROM users WHERE id = ? LIMIT 1',
+      [userId]
+    );
+    const io = getLiveIO();
+    if (io && agency.owner_id) {
+      const requestPayload = {
+        type: 'agency:new_host_request',
+        request_id: requestId,
+        agency_id: agency.id,
+        agency_name: agency.name,
+        host_type: validHostType,
+        status: 'pending',
+        created_at: new Date().toISOString(),
+        applicant: {
+          id: userId,
+          full_name: applicant?.full_name || 'Unknown',
+          avatar_url: applicant?.avatar_url || null,
+          level: applicant?.level || 1,
+        },
+        message,
+      };
+      // Notify agency owner
+      io.to(`user_${agency.owner_id}`).emit('agency:new_host_request', requestPayload);
+      io.to(`user_${agency.owner_id}`).emit('new_notification', {
+        type: 'agency_host_request',
+        title: 'New Host Request',
+        body: `${applicant?.full_name || 'Someone'} wants to join your agency as a ${validHostType} host.`,
+        entity_type: 'agency_request',
+        entity_id: String(requestId),
+        meta: requestPayload,
+        created_at: new Date().toISOString(),
+      });
+    }
+
+    // 7. FCM Push Notification → Agency owner receives alert even when app is closed
+    try {
+      const tokenRows = await query(
+        `SELECT DISTINCT fcm_token FROM user_devices 
+         WHERE user_id = ? AND fcm_token IS NOT NULL AND fcm_token != '' AND is_banned = FALSE 
+         LIMIT 5`,
+        [agency.owner_id]
+      );
+      const tokens = tokenRows.map(r => r.fcm_token).filter(Boolean);
+      if (tokens.length > 0) {
+        sendPushNotification({
+          tokens,
+          title: '🔔 New Host Request',
+          body: `${applicant?.full_name || 'Someone'} wants to join your agency as a ${validHostType} host.`,
+          data: {
+            notification_category: 'agency_request',
+            click_action: 'FLUTTER_NOTIFICATION_CLICK',
+            request_id: String(requestId),
+            agency_id: String(agency.id),
+          },
+        }).catch(() => {});
+      }
+    } catch (_) {}
+
     return res.status(201).json({
       success: true,
       message: `Your host join application has been submitted to "${agency.name}".`,
       data: {
-        request_id: result.insertId,
+        request_id: requestId,
         agency_id: agency.id,
         agency_name: agency.name,
         agency_code: agency.agency_code,

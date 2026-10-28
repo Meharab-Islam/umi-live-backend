@@ -195,7 +195,7 @@ export async function sendGift(req, res) {
     const totalCoinCostAll = costPerReceiver * validReceivers.length;
 
     // 7. Verify Sender Coin Balance
-    const [senders] = await connection.execute('SELECT coins, full_name, avatar_url FROM users WHERE id = ?', [senderId]);
+    const [senders] = await connection.execute('SELECT coins, full_name, avatar_url, level FROM users WHERE id = ?', [senderId]);
     if (senders.length === 0 || senders[0].coins < totalCoinCostAll) {
       return res.status(400).json({
         success: false,
@@ -495,12 +495,16 @@ export async function sendGift(req, res) {
       },
       sender_id: senderId,
       senderId: senderId,
+      sender_level: senders[0]?.level || 1,
+      senderLevel: senders[0]?.level || 1,
       sender_updated_coin: senderUpdatedCoins,
       senderUpdatedCoin: senderUpdatedCoins,
       sender: {
         id: senderId,
         full_name: senders[0].full_name,
         avatar_url: toAbsoluteUrl(senders[0].avatar_url),
+        level: senders[0]?.level || 1,
+        user_level: senders[0]?.level || 1,
         updated_coin: senderUpdatedCoins,
         coins: senderUpdatedCoins,
       },
