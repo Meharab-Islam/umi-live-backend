@@ -18,7 +18,7 @@ export async function requireAuth(req, res, next) {
 
     // Fetch user from Redis cache first; fall back to DB on miss
     const user = await cache.getOrSet(`user:${decoded.id}`, 60, async () => {
-      const users = await query('SELECT id, email, full_name, avatar_url, role, host_type, coins, diamonds, level, is_banned FROM users WHERE id = ?', [decoded.id]);
+      const users = await query('SELECT id, email, full_name, avatar_url, role, host_type, agency_id, coins, diamonds, level, is_banned FROM users WHERE id = ?', [decoded.id]);
       return users && users.length > 0 ? users[0] : null;
     });
 
@@ -86,23 +86,34 @@ export function requireReseller(req, res, next) {
   next();
 }
 
-export function requireAgency(req, res, next) {
+export async function requireAgency(req, res, next) {
   if (!req.user) {
     return res.status(401).json({ success: false, message: 'Authentication required. No session found.' });
   }
 
-  // Allow agency owners who may have 'host' role in DB (resolveAgency validates ownership in controller)
+  // 1. Allow standard privileged roles
   if (
-    req.user.role !== 'agency' &&
-    req.user.role !== 'host' &&
-    req.user.role !== 'moderator' &&
-    req.user.role !== 'admin' &&
-    req.user.role !== 'superadmin'
+    req.user.role === 'agency' ||
+    req.user.role === 'host' ||
+    req.user.role === 'moderator' ||
+    req.user.role === 'admin' ||
+    req.user.role === 'superadmin'
   ) {
-    return res.status(403).json({ success: false, message: 'Forbidden. Agency or Moderator privileges required.' });
+    return next();
   }
 
-  next();
+  // 2. Fallback: check if user owns an agency record in MySQL (cached in Redis with safe 60s TTL)
+  const isOwner = await cache.getOrSet(`user:${req.user.id}:is_agency_owner`, 60, async () => {
+    const rows = await query('SELECT id FROM agencies WHERE owner_id = ? LIMIT 1', [req.user.id]);
+    return rows && rows.length > 0;
+  });
+
+  if (isOwner) {
+    req.user.role = 'agency';
+    return next();
+  }
+
+  return res.status(403).json({ success: false, message: 'Forbidden. Agency or Moderator privileges required.' });
 }
 
 /**
@@ -110,22 +121,33 @@ export function requireAgency(req, res, next) {
  * Used for moderator-level agency management routes that should also be
  * accessible by agency owners (role: agency or host) managing their own agency.
  */
-export function requireAgencyOrModerator(req, res, next) {
+export async function requireAgencyOrModerator(req, res, next) {
   if (!req.user) {
     return res.status(401).json({ success: false, message: 'Authentication required. No session found.' });
   }
 
   if (
-    req.user.role !== 'agency' &&
-    req.user.role !== 'host' &&
-    req.user.role !== 'moderator' &&
-    req.user.role !== 'admin' &&
-    req.user.role !== 'superadmin'
+    req.user.role === 'agency' ||
+    req.user.role === 'host' ||
+    req.user.role === 'moderator' ||
+    req.user.role === 'admin' ||
+    req.user.role === 'superadmin'
   ) {
-    return res.status(403).json({ success: false, message: 'Forbidden. Agency, Moderator, or Admin privileges required.' });
+    return next();
   }
 
-  next();
+  // Fallback: check if user owns an agency record in MySQL (cached in Redis with safe 60s TTL)
+  const isOwner = await cache.getOrSet(`user:${req.user.id}:is_agency_owner`, 60, async () => {
+    const rows = await query('SELECT id FROM agencies WHERE owner_id = ? LIMIT 1', [req.user.id]);
+    return rows && rows.length > 0;
+  });
+
+  if (isOwner) {
+    req.user.role = 'agency';
+    return next();
+  }
+
+  return res.status(403).json({ success: false, message: 'Forbidden. Agency, Moderator, or Admin privileges required.' });
 }
 
 export function requireHost(req, res, next) {

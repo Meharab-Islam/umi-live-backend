@@ -23,30 +23,30 @@ import { requireAuth, requireModerator, requireAgencyOrModerator } from '../../m
 
 const router = express.Router();
 
-// All moderator routes require authentication and moderator / admin privileges
-router.use(requireAuth, requireModerator);
+// All moderator routes require authentication
+router.use(requireAuth);
 
 /**
  * User Moderation Search
  * GET /api/mobile/moderator/users/search?q={searchTerm}
  */
-router.get('/users/search', searchUsersForModeration);
+router.get('/users/search', requireModerator, searchUsersForModeration);
 
 /**
  * User & Registered Devices Inspection
  * GET /api/mobile/moderator/users/:userId
  * GET /api/mobile/moderator/users/:userId/devices
  */
-router.get('/users/:userId', getUserAndDevices);
-router.get('/users/:userId/devices', getUserAndDevices);
+router.get('/users/:userId', requireModerator, getUserAndDevices);
+router.get('/users/:userId/devices', requireModerator, getUserAndDevices);
 
 /**
  * User Ban & Suspension Controls
  * POST /api/mobile/moderator/users/:userId/ban
  * PUT  /api/mobile/moderator/users/:userId/ban
  */
-router.post('/users/:userId/ban', toggleUserBan);
-router.put('/users/:userId/ban', toggleUserBan);
+router.post('/users/:userId/ban', requireModerator, toggleUserBan);
+router.put('/users/:userId/ban', requireModerator, toggleUserBan);
 
 /**
  * User-Scoped Device Ban Controls (First select User ID, then ban that user's device)
@@ -55,22 +55,22 @@ router.put('/users/:userId/ban', toggleUserBan);
  * POST /api/mobile/moderator/devices/:deviceId/ban (with userId in body or query)
  * PUT  /api/mobile/moderator/devices/:deviceId/ban (with userId in body or query)
  */
-router.post('/users/:userId/devices/:deviceId/ban', toggleDeviceBan);
-router.put('/users/:userId/devices/:deviceId/ban', toggleDeviceBan);
-router.post('/devices/:deviceId/ban', toggleDeviceBan);
-router.put('/devices/:deviceId/ban', toggleDeviceBan);
+router.post('/users/:userId/devices/:deviceId/ban', requireModerator, toggleDeviceBan);
+router.put('/users/:userId/devices/:deviceId/ban', requireModerator, toggleDeviceBan);
+router.post('/devices/:deviceId/ban', requireModerator, toggleDeviceBan);
+router.put('/devices/:deviceId/ban', requireModerator, toggleDeviceBan);
 
 /**
  * Platform Banned Devices Listing
  * GET /api/mobile/moderator/devices?page=1&limit=20&search=
  */
-router.get('/devices', getBannedDevicesList);
+router.get('/devices', requireModerator, getBannedDevicesList);
 
 /**
  * Device Registration & Sync
  * POST /api/mobile/moderator/users/:userId/devices/register
  */
-router.post('/users/:userId/devices/register', registerDeviceForUser);
+router.post('/users/:userId/devices/register', requireModerator, registerDeviceForUser);
 
 /**
  * Agency Moderation & Comprehensive Oversight

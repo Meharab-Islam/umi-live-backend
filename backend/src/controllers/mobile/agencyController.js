@@ -31,11 +31,11 @@ async function resolveAgency(req) {
     req.user.role === 'superadmin' ||
     req.user.role === 'moderator';
 
-  // 1. Explicit ID/Code provided (Elevated roles or Owner verify)
+  // 1. Explicit ID/Code provided (Elevated roles, Agency owners, or Owner verify)
   if (explicitId) {
     const [agency] = await query('SELECT * FROM agencies WHERE id = ?', [explicitId]);
     if (agency) {
-      if (isElevated || agency.owner_id === req.user.id) {
+      if (isElevated || agency.owner_id === req.user.id || req.user.role === 'agency') {
         return agency;
       }
     }
@@ -44,7 +44,7 @@ async function resolveAgency(req) {
   if (explicitCode) {
     const [agency] = await query('SELECT * FROM agencies WHERE agency_code = ?', [explicitCode]);
     if (agency) {
-      if (isElevated || agency.owner_id === req.user.id) {
+      if (isElevated || agency.owner_id === req.user.id || req.user.role === 'agency') {
         return agency;
       }
     }
@@ -64,11 +64,27 @@ async function resolveAgency(req) {
     }
   }
 
-  // 4. Fallback for elevated roles if no specific agency specified: use first active agency
-  if (isElevated) {
+  // 4. Fallback for elevated roles or agency users if no specific agency specified: use first active agency
+  if (isElevated || req.user.role === 'agency') {
     const [firstAgency] = await query('SELECT * FROM agencies ORDER BY id ASC LIMIT 1');
     if (firstAgency) {
       return firstAgency;
+    }
+  }
+
+  // 5. If user has 'agency' role but no agency record exists yet, automatically create one
+  if (req.user.role === 'agency') {
+    const agencyCode = `AGY-${req.user.id}`;
+    const agencyName = req.user.full_name ? `${req.user.full_name} Agency` : `Agency #${req.user.id}`;
+    await query(
+      `INSERT INTO agencies (id, agency_code, name, owner_id, commission_rate, status, contact_phone, notes)
+       VALUES (?, ?, ?, ?, 10.00, 'active', '', '')
+       ON DUPLICATE KEY UPDATE status = 'active'`,
+      [req.user.id, agencyCode, agencyName, req.user.id]
+    );
+    const [createdAgency] = await query('SELECT * FROM agencies WHERE owner_id = ? LIMIT 1', [req.user.id]);
+    if (createdAgency) {
+      return createdAgency;
     }
   }
 

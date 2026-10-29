@@ -92,39 +92,39 @@ export const CACHE_SECTIONS = {
     prefixes: ['setting:', 'settings:', 'host_ratios:', 'wallet:withdrawal:config', 'wallet:recharge:config', 'config:call_rates', 'config:star_progression'],
   },
 
-  // 8. Visual Catalogs & Assets (Gifts, Thumbnails, Effects, Themes, Packages) (300s - 600s)
+  // 8. Visual Catalogs & Assets (Gifts, Thumbnails, Effects, Themes, Packages) (60s - 600s)
   CATALOG: {
     name: 'CATALOG',
     defaultTtl: parseInt(process.env.REDIS_TTL_CATALOG || '300', 10),
     minTtl: 60,
-    maxTtl: 1800,
+    maxTtl: 600,
     prefixes: ['gifts:', 'thumbnails:', 'entry_effects:', 'packages:', 'themes:', 'levels:'],
   },
 
-  // 9. Static System Settings & Banners (300s - 600s)
+  // 9. Static System Settings & Banners (60s - 600s)
   SYSTEM_CONFIG: {
     name: 'SYSTEM_CONFIG',
     defaultTtl: parseInt(process.env.REDIS_TTL_SYSTEM_CONFIG || '300', 10),
     minTtl: 60,
-    maxTtl: 3600,
+    maxTtl: 600,
     prefixes: ['config:mobile:app', 'config:screen_guard', 'banners:', 'system:maintenance:status'],
   },
 
-  // 10. Transient Security Tokens & OTPs (120s - 300s)
+  // 10. Transient Security Tokens & OTPs (60s - 300s)
   SECURITY_OTP: {
     name: 'SECURITY_OTP',
-    defaultTtl: parseInt(process.env.REDIS_TTL_SECURITY_OTP || '300', 10),
+    defaultTtl: parseInt(process.env.REDIS_TTL_SECURITY_OTP || '180', 10),
     minTtl: 60,
-    maxTtl: 900,
+    maxTtl: 300,
     prefixes: ['otp:', 'security:lockout:', 'security:ip:'],
   },
 
-  // 11. Security Device & Hardware Bans (Long-lived: 7d - 30d)
+  // 11. Security Device & Hardware Bans (Memory-Friendly TTL: 60s - 3600s)
   SECURITY_BAN: {
     name: 'SECURITY_BAN',
-    defaultTtl: parseInt(process.env.REDIS_TTL_SECURITY_BAN || String(86400 * 7), 10), // 7 days default
-    minTtl: 86400, // min 1 day
-    maxTtl: 86400 * 30, // max 30 days
+    defaultTtl: parseInt(process.env.REDIS_TTL_SECURITY_BAN || '300', 10), // 5 minutes default
+    minTtl: 60, // min 1 minute
+    maxTtl: 3600, // max 1 hour
     prefixes: ['device:banned:', 'security:banned:', 'ip:banned:'],
   },
 
@@ -146,12 +146,12 @@ export const CACHE_SECTIONS = {
     prefixes: ['feed:', 'feed:list:', 'feed:post:', 'feed:comments:', 'feed:reactions:'],
   },
 
-  // 14. General Default Fallback
+  // 14. General Default Fallback (5s - 600s)
   DEFAULT: {
     name: 'DEFAULT',
-    defaultTtl: parseInt(process.env.REDIS_DEFAULT_TTL || '180', 10),
+    defaultTtl: parseInt(process.env.REDIS_DEFAULT_TTL || '120', 10),
     minTtl: 5,
-    maxTtl: 3600,
+    maxTtl: 600,
     prefixes: [],
   },
 };

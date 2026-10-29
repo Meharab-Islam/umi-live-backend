@@ -13,5 +13,5 @@ graphify-out/cache/
 **/*.db-shm
 **/*.db-wal
 **/build/
-
+deploy_vps.py
 
