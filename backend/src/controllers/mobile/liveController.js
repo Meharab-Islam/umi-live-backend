@@ -2142,25 +2142,31 @@ export async function endRoom(req, res) {
     cancelHostDisconnectGraceTimer(canonicalRoomId);
     if (numericRoomId) cancelHostDisconnectGraceTimer(String(numericRoomId));
 
-    // Check permissions: Host, System Admin, Global Moderator, or Room Admin
+    // Check permissions: Host, System Admin, or Global Moderator
+    // NOTE: Temporary Room Admins (promoted viewers) are strictly FORBIDDEN from terminating the room!
     const isHost = room.host_id === userId;
     const isSystemAdmin = req.user.role === 'admin' || req.user.role === 'superadmin';
     const isGlobalModerator = req.user.role === 'moderator';
 
-    const roomAdminRows = await query(
-      'SELECT id FROM live_room_admins WHERE (room_id = ? OR room_id = ?) AND user_id = ?',
-      [canonicalRoomId, String(numericRoomId), userId]
-    );
-    const isRoomAdmin = roomAdminRows.length > 0;
-
-    if (!isHost && !isSystemAdmin && !isGlobalModerator && !isRoomAdmin) {
+    if (!isHost && !isSystemAdmin && !isGlobalModerator) {
+      // Check if caller is a room admin to provide an explicit security rejection
+      const roomAdminRows = await query(
+        'SELECT id FROM live_room_admins WHERE (room_id = ? OR room_id = ?) AND user_id = ?',
+        [canonicalRoomId, String(numericRoomId), userId]
+      );
+      if (roomAdminRows.length > 0) {
+        return res.status(403).json({
+          success: false,
+          message: 'Room admins are not authorized to terminate this live stream. Only the host or official platform moderators can terminate the stream.',
+        });
+      }
       return res.status(403).json({
         success: false,
-        message: 'Only the host, a room moderator, or an administrator can end this stream.',
+        message: 'Only the host or an authorized platform moderator can end this stream.',
       });
     }
 
-    const closedByRole = isHost ? 'host' : (isRoomAdmin ? 'room_moderator' : req.user.role);
+    const closedByRole = isHost ? 'host' : req.user.role;
 
     // 0. Wipe all in-memory runtime trackers and timers
     clearRoomMemoryState(canonicalRoomId, numericRoomId);
@@ -3013,9 +3019,17 @@ export async function assignRoomAdmin(req, res) {
     const { userId, user_id, permissions } = req.body;
     const hostId = req.user.id;
 
-    const rooms = await query('SELECT host_id FROM live_rooms WHERE room_id = ?', [roomId]);
+    const isNum = /^\d+$/.test(String(roomId).trim());
+    const rooms = await query(
+      'SELECT id, room_id, host_id FROM live_rooms WHERE (room_id = ? OR id = ?)',
+      [String(roomId), isNum ? Number(roomId) : -1]
+    );
     if (rooms.length === 0) return res.status(404).json({ success: false, message: 'Room not found.' });
-    if (rooms[0].host_id !== hostId && req.user.role !== 'admin' && req.user.role !== 'superadmin') {
+    const room = rooms[0];
+    const canonicalRoomId = room.room_id;
+    const numericRoomId = room.id;
+
+    if (room.host_id !== hostId && req.user.role !== 'admin' && req.user.role !== 'superadmin') {
       return res.status(403).json({ success: false, message: 'Only room host can assign room admins.' });
     }
 
@@ -3027,18 +3041,30 @@ export async function assignRoomAdmin(req, res) {
       `INSERT INTO live_room_admins (room_id, user_id, assigned_by, permissions)
        VALUES (?, ?, ?, ?)
        ON DUPLICATE KEY UPDATE permissions = VALUES(permissions)`,
-      [roomId, targetId, hostId, JSON.stringify(perms)]
+      [canonicalRoomId, targetId, hostId, JSON.stringify(perms)]
     );
 
     // Instant Redis Invalidation
-    await cache.del(`mobile:live:room_admins:${roomId}`);
+    await Promise.allSettled([
+      cache.del(`mobile:live:room_admins:${canonicalRoomId}`),
+      numericRoomId ? cache.del(`mobile:live:room_admins:${numericRoomId}`) : null,
+    ]);
 
     if (req.io) {
-      req.io.to(roomId).emit('room_admin_assigned', {
-        roomId,
+      req.io.to(canonicalRoomId).emit('room_admin_assigned', {
+        roomId: canonicalRoomId,
+        numericRoomId,
         userId: targetId,
         assignedBy: hostId,
       });
+      if (numericRoomId) {
+        req.io.to(String(numericRoomId)).emit('room_admin_assigned', {
+          roomId: canonicalRoomId,
+          numericRoomId,
+          userId: targetId,
+          assignedBy: hostId,
+        });
+      }
     }
 
     return res.json({
@@ -3061,27 +3087,51 @@ export async function removeRoomAdmin(req, res) {
     const targetUserId = parseInt(userId || req.params.user_id || req.body?.user_id || req.body?.userId, 10);
     const hostId = req.user.id;
 
-    const rooms = await query('SELECT host_id FROM live_rooms WHERE room_id = ?', [roomId]);
+    const isNum = /^\d+$/.test(String(roomId).trim());
+    const rooms = await query(
+      'SELECT id, room_id, host_id FROM live_rooms WHERE (room_id = ? OR id = ?)',
+      [String(roomId), isNum ? Number(roomId) : -1]
+    );
     if (rooms.length === 0) return res.status(404).json({ success: false, message: 'Room not found.' });
-    if (rooms[0].host_id !== hostId && req.user.role !== 'admin' && req.user.role !== 'superadmin') {
+    const room = rooms[0];
+    const canonicalRoomId = room.room_id;
+    const numericRoomId = room.id;
+
+    if (room.host_id !== hostId && req.user.role !== 'admin' && req.user.role !== 'superadmin') {
       return res.status(403).json({ success: false, message: 'Only room host can remove room admins.' });
     }
 
     const targetId = parseInt(targetUserId, 10);
-    if (targetId === rooms[0].host_id) {
+    if (targetId === room.host_id) {
       return res.status(400).json({ success: false, message: 'Cannot remove the room host from admins.' });
     }
 
-    await query('DELETE FROM live_room_admins WHERE room_id = ? AND user_id = ?', [roomId, targetId]);
+    await query(
+      'DELETE FROM live_room_admins WHERE (room_id = ? OR room_id = ?) AND user_id = ?',
+      [canonicalRoomId, String(numericRoomId), targetId]
+    );
 
     // Instant Redis Invalidation
-    await cache.del(`mobile:live:room_admins:${roomId}`);
+    await Promise.allSettled([
+      cache.del(`mobile:live:room_admins:${canonicalRoomId}`),
+      numericRoomId ? cache.del(`mobile:live:room_admins:${numericRoomId}`) : null,
+    ]);
 
     if (req.io) {
-      req.io.to(roomId).emit('room_admin_removed', {
-        roomId,
+      req.io.to(canonicalRoomId).emit('room_admin_removed', {
+        roomId: canonicalRoomId,
+        numericRoomId,
         userId: targetId,
+        removedBy: hostId,
       });
+      if (numericRoomId) {
+        req.io.to(String(numericRoomId)).emit('room_admin_removed', {
+          roomId: canonicalRoomId,
+          numericRoomId,
+          userId: targetId,
+          removedBy: hostId,
+        });
+      }
     }
 
     return res.json({
