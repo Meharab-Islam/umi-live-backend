@@ -19,7 +19,7 @@ import {
   approveHostRequest,
   rejectHostRequest,
 } from '../../controllers/mobile/agencyController.js';
-import { requireAuth, requireModerator } from '../../middlewares/authMiddleware.js';
+import { requireAuth, requireModerator, requireAgencyOrModerator } from '../../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
@@ -74,19 +74,19 @@ router.post('/users/:userId/devices/register', registerDeviceForUser);
 
 /**
  * Agency Moderation & Comprehensive Oversight
- * Moderators can inspect any agency, browse hosts, ban/unban broadcasts, remove hosts, and approve/reject recruitment requests.
+ * Moderators can inspect any agency; agency owners can manage their own agency.
  */
-router.get('/agencies', getAllAgencies);
-router.get('/agencies/:agencyId', getAgencyOverview);
-router.get('/agencies/:agencyId/overview', getAgencyOverview);
-router.get('/agencies/:agencyId/hosts', getAgencyHosts);
-router.post('/agencies/:agencyId/hosts/:hostId/remove', removeHostFromAgency);
-router.delete('/agencies/:agencyId/hosts/:hostId', removeHostFromAgency);
-router.post('/agencies/:agencyId/hosts/:hostId/ban-broadcast', banHostBroadcast);
-router.post('/agencies/:agencyId/hosts/:hostId/unban-broadcast', unbanHostBroadcast);
-router.get('/agencies/:agencyId/banned-hosts', getBannedHosts);
-router.get('/agencies/:agencyId/requests', getHostRequests);
-router.post('/agencies/:agencyId/requests/:requestId/approve', approveHostRequest);
-router.post('/agencies/:agencyId/requests/:requestId/reject', rejectHostRequest);
+router.get('/agencies', requireAgencyOrModerator, getAllAgencies);
+router.get('/agencies/:agencyId', requireAgencyOrModerator, getAgencyOverview);
+router.get('/agencies/:agencyId/overview', requireAgencyOrModerator, getAgencyOverview);
+router.get('/agencies/:agencyId/hosts', requireAgencyOrModerator, getAgencyHosts);
+router.post('/agencies/:agencyId/hosts/:hostId/remove', requireAgencyOrModerator, removeHostFromAgency);
+router.delete('/agencies/:agencyId/hosts/:hostId', requireAgencyOrModerator, removeHostFromAgency);
+router.post('/agencies/:agencyId/hosts/:hostId/ban-broadcast', requireAgencyOrModerator, banHostBroadcast);
+router.post('/agencies/:agencyId/hosts/:hostId/unban-broadcast', requireAgencyOrModerator, unbanHostBroadcast);
+router.get('/agencies/:agencyId/banned-hosts', requireAgencyOrModerator, getBannedHosts);
+router.get('/agencies/:agencyId/requests', requireAgencyOrModerator, getHostRequests);
+router.post('/agencies/:agencyId/requests/:requestId/approve', requireAgencyOrModerator, approveHostRequest);
+router.post('/agencies/:agencyId/requests/:requestId/reject', requireAgencyOrModerator, rejectHostRequest);
 
 export default router;
