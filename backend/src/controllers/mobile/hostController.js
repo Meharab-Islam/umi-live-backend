@@ -30,6 +30,16 @@ function resolveHostId(req) {
 }
 
 /**
+ * Helper to fetch system default agency gift commission percent
+ */
+async function getDefaultAgencyCommission() {
+  return await cache.getOrSet('setting:agency_gift_commission_percent', 60, async () => {
+    const [row] = await query("SELECT key_value FROM system_settings WHERE key_name = 'agency_gift_commission_percent' LIMIT 1");
+    return row && !isNaN(parseFloat(row.key_value)) ? parseFloat(row.key_value) : 10.0;
+  });
+}
+
+/**
  * GET /api/mobile/host/agency
  * GET /api/mobile/host/my-agency
  * Returns the host's current agency affiliation, host_type ('video' | 'audio'),
@@ -65,7 +75,8 @@ export async function getHostAgencySummary(req, res) {
 
       // 2. Fetch agency info if host belongs to one
       let agency = null;
-      let commissionRate = 10.0;
+      const defaultRate = await getDefaultAgencyCommission();
+      let commissionRate = defaultRate;
 
       if (host.agency_id) {
         const [agencyRow] = await query(
@@ -80,6 +91,9 @@ export async function getHostAgencySummary(req, res) {
         );
 
         if (agencyRow) {
+          const effectiveRate = parseFloat(agencyRow.commission_rate || 0) > 0
+            ? parseFloat(agencyRow.commission_rate)
+            : defaultRate;
           agency = {
             id: agencyRow.id,
             agency_code: agencyRow.agency_code,
@@ -87,13 +101,15 @@ export async function getHostAgencySummary(req, res) {
             owner_id: agencyRow.owner_id,
             owner_name: agencyRow.owner_name || 'Agency Manager',
             owner_avatar: agencyRow.owner_avatar || '',
-            commission_rate: parseFloat(agencyRow.commission_rate || 10),
+            commission_rate: effectiveRate,
+            commission_rate_percentage: effectiveRate,
+            agency_commission_rate: effectiveRate,
             status: agencyRow.status,
             contact_phone: agencyRow.contact_phone,
             created_at: agencyRow.created_at,
             host_joined_at: agencyJoinedAt,
           };
-          commissionRate = agency.commission_rate;
+          commissionRate = effectiveRate;
         }
       }
 
@@ -146,6 +162,11 @@ export async function getHostAgencySummary(req, res) {
         },
         has_agency: !!agency,
         agency,
+        commission_rate: commissionRate,
+        commission_rate_percentage: commissionRate,
+        agency_commission_rate: commissionRate,
+        agency_commission: totalAgencyCommission,
+        total_agency_commission: totalAgencyCommission,
         performance_under_agency: {
           agency_joined_at: agencyJoinedAt,
           total_duration_seconds: totalSec,
@@ -159,8 +180,13 @@ export async function getHostAgencySummary(req, res) {
           total_coins_earned: totalCoinsGifted,
           total_diamonds_earned: totalDiamonds,
           total_agency_commission: totalAgencyCommission,
+          agency_commission: totalAgencyCommission,
+          agency_commission_coins: totalAgencyCommission,
           host_net_coins: hostNetCoins,
+          commission_rate: commissionRate,
           commission_rate_percentage: commissionRate,
+          commission_rate_percent: commissionRate,
+          agency_commission_rate: commissionRate,
         },
       };
     });
@@ -537,7 +563,8 @@ export async function getHostDashboardOverview(req, res) {
 
       // 2. Fetch agency info
       let agency = null;
-      let commissionRate = 10.0;
+      const defaultRate = await getDefaultAgencyCommission();
+      let commissionRate = defaultRate;
 
       if (host.agency_id) {
         const [agencyRow] = await query(
@@ -545,13 +572,18 @@ export async function getHostDashboardOverview(req, res) {
           [host.agency_id]
         );
         if (agencyRow) {
+          const effectiveRate = parseFloat(agencyRow.commission_rate || 0) > 0
+            ? parseFloat(agencyRow.commission_rate)
+            : defaultRate;
           agency = {
             id: agencyRow.id,
             agency_code: agencyRow.agency_code,
             name: agencyRow.name,
-            commission_rate: parseFloat(agencyRow.commission_rate || 10),
+            commission_rate: effectiveRate,
+            commission_rate_percentage: effectiveRate,
+            agency_commission_rate: effectiveRate,
           };
-          commissionRate = agency.commission_rate;
+          commissionRate = effectiveRate;
         }
       }
 
@@ -626,6 +658,9 @@ export async function getHostDashboardOverview(req, res) {
         },
         has_agency: !!agency,
         agency,
+        commission_rate: commissionRate,
+        commission_rate_percentage: commissionRate,
+        agency_commission_rate: commissionRate,
         today: {
           total_duration_seconds: todayTotalSec,
           formatted_total_duration: formatDuration(todayTotalSec),
@@ -636,6 +671,9 @@ export async function getHostDashboardOverview(req, res) {
           coins_earned: todayCoins,
           diamonds_earned: todayDiamonds,
           agency_commission: todayAgencyCommission,
+          agency_commission_coins: todayAgencyCommission,
+          commission_rate: commissionRate,
+          commission_rate_percentage: commissionRate,
           sessions_count: parseInt(todayStream?.stream_count || 0, 10),
         },
         this_month: {
@@ -648,6 +686,9 @@ export async function getHostDashboardOverview(req, res) {
           coins_earned: monthCoins,
           diamonds_earned: monthDiamonds,
           agency_commission: monthAgencyCommission,
+          agency_commission_coins: monthAgencyCommission,
+          commission_rate: commissionRate,
+          commission_rate_percentage: commissionRate,
           active_days: parseInt(monthStream?.active_days || 0, 10),
         },
       };

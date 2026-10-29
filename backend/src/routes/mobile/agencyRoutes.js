@@ -14,6 +14,7 @@ import {
   getMyAgencyApplication,
   cancelHostApplication,
   getAllAgencies,
+  updateAgencyCommission,
 } from '../../controllers/mobile/agencyController.js';
 import { getTopAgencies } from '../../controllers/mobile/leaderboardController.js';
 
@@ -42,6 +43,11 @@ router.get('/all', optionalAuth, getAllAgencies);
 // Agency Management Routes (requires agency, moderator, admin, or superadmin privileges)
 router.use(requireAuth, requireAgency);
 
+// Commission update routes
+router.put('/commission', updateAgencyCommission);
+router.post('/commission', updateAgencyCommission);
+router.patch('/commission', updateAgencyCommission);
+
 // 1. Static Routes (MUST be registered before parameterized /:agencyId routes to avoid path collision)
 router.get('/overview', getAgencyOverview);
 router.get('/hosts', getAgencyHosts);
@@ -55,6 +61,8 @@ router.post('/hosts/:hostId/ban-broadcast', banHostBroadcast);
 router.post('/hosts/:hostId/unban-broadcast', unbanHostBroadcast);
 
 // 2. Parameterized Routes with numeric agencyId (for Elevated Roles / Moderators / Specific Agency)
+router.put('/:agencyId(\\d+)/commission', updateAgencyCommission);
+router.post('/:agencyId(\\d+)/commission', updateAgencyCommission);
 router.get('/:agencyId(\\d+)/overview', getAgencyOverview);
 router.get('/:agencyId(\\d+)/hosts', getAgencyHosts);
 router.get('/:agencyId(\\d+)/banned-hosts', getBannedHosts);

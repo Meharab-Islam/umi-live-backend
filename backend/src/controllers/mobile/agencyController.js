@@ -205,6 +205,21 @@ export async function getAllAgencies(req, res) {
 }
 
 /**
+ * Resolve effective commission rate for an agency.
+ * Reads agency.commission_rate, falling back dynamically to system setting 'agency_gift_commission_percent'
+ */
+async function getEffectiveCommissionRate(agency) {
+  if (agency && agency.commission_rate !== undefined && agency.commission_rate !== null && parseFloat(agency.commission_rate) > 0) {
+    return parseFloat(agency.commission_rate);
+  }
+  const defaultRate = await cache.getOrSet('setting:agency_gift_commission_percent', 60, async () => {
+    const [row] = await query("SELECT key_value FROM system_settings WHERE key_name = 'agency_gift_commission_percent' LIMIT 1");
+    return row && !isNaN(parseFloat(row.key_value)) ? parseFloat(row.key_value) : 10.0;
+  });
+  return parseFloat(defaultRate || 10.0);
+}
+
+/**
  * GET /api/mobile/agency/overview
  * Returns agency profile, owner coin balance, host counts, and commission totals.
  * Redis Cache-Aside: 'agency:overview:{agencyId}' (TTL 60s).
@@ -264,7 +279,7 @@ export async function getAgencyOverview(req, res) {
       );
 
       const totalCoinsGifted = parseInt(commissionStats?.total_coins_gifted_to_hosts || 0, 10);
-      const commissionRate = parseFloat(agency.commission_rate || 10);
+      const commissionRate = await getEffectiveCommissionRate(agency);
       const totalCommissionCoins = Math.round(totalCoinsGifted * (commissionRate / 100));
 
       // 6. Pending join requests count
@@ -282,6 +297,12 @@ export async function getAgencyOverview(req, res) {
         name: agency.name,
         agency_name: agency.name,
         agency_code: agency.agency_code,
+        commission_rate: commissionRate,
+        commission_rate_percentage: commissionRate,
+        commission_rate_percent: commissionRate,
+        agency_commission_rate: commissionRate,
+        agency_commission: totalCommissionCoins,
+        agency_commission_coins: totalCommissionCoins,
         total_coins: owner?.coins || 0,
         owner_coins: owner?.coins || 0,
         total_commission_coins: totalCommissionCoins,
@@ -294,6 +315,8 @@ export async function getAgencyOverview(req, res) {
           agency_code: agency.agency_code,
           name: agency.name,
           commission_rate: commissionRate,
+          commission_rate_percentage: commissionRate,
+          agency_commission_rate: commissionRate,
           status: agency.status,
           contact_phone: agency.contact_phone || '',
           notes: agency.notes || '',
@@ -314,6 +337,9 @@ export async function getAgencyOverview(req, res) {
           total_commission_coins: totalCommissionCoins,
           total_coins_gifted_to_hosts: totalCoinsGifted,
           pending_requests_count: pendingRequestsCount,
+          commission_rate: commissionRate,
+          commission_rate_percentage: commissionRate,
+          agency_commission_rate: commissionRate,
         },
       };
     });
@@ -341,11 +367,10 @@ export async function getAgencyHosts(req, res) {
       return res.status(404).json({ success: false, message: 'Agency profile not found.' });
     }
 
+    const commissionRate = await getEffectiveCommissionRate(agency);
     const cacheKey = `agency:hosts:${agency.id}`;
 
     const hosts = await cache.getOrSet(cacheKey, 60, async () => {
-      const commissionRate = parseFloat(agency.commission_rate || 10);
-
       const rows = await query(
         `SELECT 
            u.id, u.full_name, u.email, u.avatar_url, u.role, u.host_type,
@@ -414,6 +439,9 @@ export async function getAgencyHosts(req, res) {
           coins: host.coins,
           diamonds: host.diamonds,
           level: host.level,
+          agency_id: agency.id,
+          agency_name: agency.name,
+          agency_code: agency.agency_code,
           agency_joined_at: host.agency_joined_at || host.created_at,
           is_currently_live: Boolean(host.is_currently_live),
           active_room_id: host.active_room_id || null,
@@ -432,7 +460,23 @@ export async function getAgencyHosts(req, res) {
           total_stream_formatted: formatDuration(streamSec),
           total_coins_earned: totalCoinsEarned,
           agency_commission_coins: agencyCommission,
+          agency_commission: agencyCommission,
+          commission: agencyCommission,
           host_net_coins: hostNetCoins,
+          commission_rate: commissionRate,
+          commission_rate_percentage: commissionRate,
+          commission_rate_percent: commissionRate,
+          agency_commission_rate: commissionRate,
+          performance: {
+            total_streaming_seconds: streamSec,
+            total_stream_formatted: formatDuration(streamSec),
+            total_coins_earned: totalCoinsEarned,
+            agency_commission_coins: agencyCommission,
+            agency_commission: agencyCommission,
+            commission_rate: commissionRate,
+            commission_rate_percentage: commissionRate,
+            host_net_coins: hostNetCoins,
+          },
         };
       });
     });
@@ -441,11 +485,62 @@ export async function getAgencyHosts(req, res) {
       success: true,
       message: 'Agency hosts list retrieved successfully.',
       count: hosts.length,
+      commission_rate: commissionRate,
+      commission_rate_percentage: commissionRate,
+      agency_commission_rate: commissionRate,
+      total_commission_coins: hosts.reduce((sum, h) => sum + (h.agency_commission_coins || 0), 0),
+      agency: {
+        id: agency.id,
+        name: agency.name,
+        agency_code: agency.agency_code,
+        commission_rate: commissionRate,
+        commission_rate_percentage: commissionRate,
+        status: agency.status,
+      },
       data: hosts,
     });
   } catch (error) {
     console.error('getAgencyHosts error:', error);
     return res.status(500).json({ success: false, message: 'Failed to retrieve agency hosts list.' });
+  }
+}
+
+/**
+ * PUT /api/mobile/agency/commission
+ * POST /api/mobile/agency/commission
+ * Allows agency owners (or moderators/admins) to update their commission percentage.
+ */
+export async function updateAgencyCommission(req, res) {
+  try {
+    const agency = await resolveAgency(req);
+    if (!agency) {
+      return res.status(404).json({ success: false, message: 'Agency profile not found.' });
+    }
+
+    const rawRate = req.body.commission_rate ?? req.body.commissionRate ?? req.body.rate ?? req.body.commission;
+    if (rawRate === undefined || rawRate === null || isNaN(parseFloat(rawRate))) {
+      return res.status(400).json({ success: false, message: 'Invalid commission rate provided.' });
+    }
+
+    const rate = Math.min(100, Math.max(0, parseFloat(rawRate)));
+
+    // 1. Database-First Mutation
+    await query('UPDATE agencies SET commission_rate = ?, updated_at = NOW() WHERE id = ?', [rate, agency.id]);
+
+    // 2. Instant Redis Cache Invalidation
+    await invalidateAgencyCache(agency.id);
+
+    return res.json({
+      success: true,
+      message: `Agency commission rate updated to ${rate}% successfully.`,
+      agency_id: agency.id,
+      commission_rate: rate,
+      commission_rate_percentage: rate,
+      agency_commission_rate: rate,
+    });
+  } catch (error) {
+    console.error('updateAgencyCommission error:', error);
+    return res.status(500).json({ success: false, message: 'Failed to update agency commission rate.' });
   }
 }
 

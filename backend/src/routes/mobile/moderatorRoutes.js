@@ -18,6 +18,7 @@ import {
   getHostRequests,
   approveHostRequest,
   rejectHostRequest,
+  updateAgencyCommission,
 } from '../../controllers/mobile/agencyController.js';
 import { requireAuth, requireModerator, requireAgencyOrModerator } from '../../middlewares/authMiddleware.js';
 
@@ -88,5 +89,7 @@ router.get('/agencies/:agencyId/banned-hosts', requireAgencyOrModerator, getBann
 router.get('/agencies/:agencyId/requests', requireAgencyOrModerator, getHostRequests);
 router.post('/agencies/:agencyId/requests/:requestId/approve', requireAgencyOrModerator, approveHostRequest);
 router.post('/agencies/:agencyId/requests/:requestId/reject', requireAgencyOrModerator, rejectHostRequest);
+router.put('/agencies/:agencyId/commission', requireAgencyOrModerator, updateAgencyCommission);
+router.post('/agencies/:agencyId/commission', requireAgencyOrModerator, updateAgencyCommission);
 
 export default router;
