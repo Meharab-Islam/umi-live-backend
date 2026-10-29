@@ -558,9 +558,9 @@
     "semantic_hash": ""
   },
   "backend/src/controllers/mobile/liveController.js": {
-    "mtime": 1793211669.7478757,
-    "seen": 1793211730.622359,
-    "ast_hash": "0107210df6ead6a3e2b1441d8a7e3ac0",
+    "mtime": 1793260659.3997247,
+    "seen": 1793260722.165792,
+    "ast_hash": "5ddbf2abbec186294e4315ef970bf9d3",
     "semantic_hash": ""
   },
   "backend/src/controllers/mobile/packageController.js": {
@@ -942,9 +942,9 @@
     "semantic_hash": ""
   },
   "backend/src/controllers/mobile/userController.js": {
-    "mtime": 1793256154.0556414,
-    "seen": 1793256422.578791,
-    "ast_hash": "8f067c8d455d782921b6fd0b4507bc56",
+    "mtime": 1793256960.1818721,
+    "seen": 1793257017.51341,
+    "ast_hash": "a0f8cafb3b70b260f57c7da351a41d0d",
     "semantic_hash": ""
   },
   "backend/src/routes/mobile/userRoutes.js": {
