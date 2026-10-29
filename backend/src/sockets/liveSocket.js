@@ -1229,6 +1229,27 @@ export function setupLiveSocket(io) {
         } catch (_) {}
       }
 
+      let agencyId = data?.agencyId || data?.agency_id || u?.agency_id;
+      let agencyName = data?.agencyName || data?.agency_name || u?.agency_name;
+
+      if (senderUserId && agencyName === undefined) {
+        try {
+          const agencyRows = await query(
+            `SELECT a.id as agency_id, a.name as agency_name
+             FROM users u
+             INNER JOIN agencies a ON a.id = u.agency_id
+             WHERE u.id = ? LIMIT 1`,
+            [senderUserId]
+          );
+          if (agencyRows.length > 0) {
+            agencyId = agencyRows[0].agency_id;
+            agencyName = agencyRows[0].agency_name;
+          } else {
+            agencyName = null;
+          }
+        } catch (_) {}
+      }
+
       const payload = {
         id: data?.id || `msg-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
         roomId: targetRoom,
@@ -1238,6 +1259,8 @@ export function setupLiveSocket(io) {
           package_category_name: packageCategoryName || '',
           package_image: packageImage || '',
           package_color: packageColor || '',
+          agency_id: agencyId || null,
+          agency_name: agencyName || '',
         },
         userId: senderUserId,
         user_id: senderUserId,
@@ -1248,6 +1271,12 @@ export function setupLiveSocket(io) {
         userLevel: u?.level || data?.userLevel || data?.user_level || data?.level || 1,
         user_level: u?.level || data?.userLevel || data?.user_level || data?.level || 1,
         level: u?.level || data?.userLevel || data?.user_level || data?.level || 1,
+        agencyId: agencyId || null,
+        agency_id: agencyId || null,
+        agencyName: agencyName || '',
+        agency_name: agencyName || '',
+        isAgencyHost: Boolean(agencyId && agencyName),
+        is_agency_host: Boolean(agencyId && agencyName),
         packageCategoryName: packageCategoryName || '',
         package_category_name: packageCategoryName || '',
         packageName: packageCategoryName || '',

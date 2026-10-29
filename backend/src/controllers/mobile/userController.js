@@ -39,6 +39,9 @@ export async function getUserProfile(req, res) {
            u.diamonds,
            u.host_type, 
            u.is_profile_locked,
+           u.agency_id,
+           a.name as agency_name,
+           a.agency_code,
            u.created_at,
            (SELECT COUNT(*) FROM user_follows WHERE following_id = u.id) AS followers_count,
            (SELECT COUNT(*) FROM user_follows WHERE follower_id = u.id) AS following_count,
@@ -57,6 +60,7 @@ export async function getUserProfile(req, res) {
            COALESCE(pc.color_code, '#7c3aed') as package_color,
            COALESCE(pp.image_url, '') as package_image
          FROM users u
+         LEFT JOIN agencies a ON a.id = u.agency_id
          LEFT JOIN user_package_subscriptions ups 
            ON ups.id = (
              SELECT id FROM user_package_subscriptions 
@@ -151,6 +155,10 @@ export async function getUserProfile(req, res) {
         level: profile.level || 1,
         star: hideSensitiveInfo ? 0 : (profile.star || 0),
         host_type: profile.host_type,
+        agency_id: profile.agency_id || null,
+        agency_name: profile.agency_name || null,
+        agency_code: profile.agency_code || null,
+        is_agency_host: Boolean(profile.agency_id && profile.agency_name),
         bio,
         is_profile_locked: isProfileLocked,
         is_locked: isProfileLocked,
