@@ -11073,12 +11073,47 @@ export const API_SPEC = {
       }
     },
     {
+      "id": "user-toggle-profile-lock",
+      "category": "user-profile",
+      "method": "POST",
+      "path": "/api/mobile/users/profile/lock",
+      "summary": "Lock / Unlock Profile Privacy",
+      "description": "Toggles or explicitly sets profile lock status. When locked, other users viewing the video profile or details page see is_profile_locked: true, while all existing data and app functionality remains intact.",
+      "requiresAuth": true,
+      "requestHeaders": [
+        {
+          "name": "Authorization",
+          "value": "Bearer <TOKEN>",
+          "required": true
+        }
+      ],
+      "requestBody": {
+        "is_profile_locked": "boolean (optional, e.g. true or false. Omit to toggle current status)"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "description": "Profile lock status updated successfully.",
+          "example": {
+            "success": true,
+            "message": "Profile locked successfully.",
+            "is_profile_locked": true,
+            "is_locked": true
+          }
+        }
+      ],
+      "codeSnippets": {
+        "curl": "curl -X POST https://yourdomain.com/api/mobile/users/profile/lock \\\n  -H \"Authorization: Bearer <TOKEN>\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"is_profile_locked\": true}'",
+        "flutter": "import 'package:http/http.dart' as http;\nimport 'dart:convert';\n\nFuture<bool> toggleProfileLock(String token, {bool? isLocked}) async {\n  final res = await http.post(\n    Uri.parse('https://yourdomain.com/api/mobile/users/profile/lock'),\n    headers: {\n      'Authorization': 'Bearer $token',\n      'Content-Type': 'application/json',\n    },\n    body: isLocked != null ? jsonEncode({'is_profile_locked': isLocked}) : null,\n  );\n  if (res.statusCode == 200) {\n    final data = jsonDecode(res.body);\n    return data['is_profile_locked'] == true;\n  }\n  return false;\n}"
+      }
+    },
+    {
       "id": "user-get-profile",
       "category": "user-profile",
       "method": "GET",
       "path": "/api/mobile/users/:userId/profile",
       "summary": "Get Other User Profile Details (Full Social, Coins & Package Info)",
-      "description": "Inspects full profile data of any user. Returns identity, full name, avatar profile image, country, role, level, VIP package category name & badge image, bio, mutual follow indicators (is_following & is_followed_by), followers count, following count, total posts count, current coin balance, total received gift coins, total gifted coins, block status, and shareable deep-link URL.",
+      "description": "Inspects full profile data of any user. Returns identity, full name, avatar profile image, country, role, level, VIP package category name & badge image, bio, lock state (is_profile_locked), mutual follow indicators (is_following & is_followed_by), followers count, following count, total posts count, current coin balance, total received gift coins, total gifted coins, block status, and shareable deep-link URL.",
       "requiresAuth": false,
       "requestHeaders": [
         {
@@ -11114,6 +11149,8 @@ export const API_SPEC = {
               "level": 14,
               "star": 3,
               "bio": "Live daily from 8 PM! Welcome to my profile ✨",
+              "is_profile_locked": false,
+              "is_locked": false,
               "is_following": true,
               "is_followed_by": false,
               "is_follower": false,

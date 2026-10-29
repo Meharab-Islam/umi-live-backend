@@ -1214,6 +1214,9 @@ export async function initializeDatabase() {
       await connection.query("ALTER TABLE users ADD COLUMN country VARCHAR(50) DEFAULT '' AFTER mobile_number;");
     } catch (e) { }
     try {
+      await connection.query("ALTER TABLE users ADD COLUMN is_profile_locked TINYINT(1) NOT NULL DEFAULT 0 AFTER is_banned;");
+    } catch (e) { }
+    try {
       await connection.query("ALTER TABLE users MODIFY COLUMN star DECIMAL(6, 2) NOT NULL DEFAULT 0.00;");
     } catch (e) {
       try {

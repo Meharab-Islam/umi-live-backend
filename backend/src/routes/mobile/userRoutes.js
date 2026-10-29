@@ -13,6 +13,7 @@ import {
   getBlockedUsers,
   reportUser,
   searchUsers,
+  toggleProfileLock,
 } from '../../controllers/mobile/userController.js';
 import {
   updateFcmToken,
@@ -25,6 +26,12 @@ const router = express.Router();
  * Mobile User & Social Graph Routes
  * Base mount: /api/mobile/users
  */
+
+// Profile Privacy & Lock Toggle (Must be declared before /:userId routes)
+router.post('/profile/lock', requireAuth, toggleProfileLock);
+router.put('/profile/lock', requireAuth, toggleProfileLock);
+router.post('/lock-profile', requireAuth, toggleProfileLock);
+router.put('/lock-profile', requireAuth, toggleProfileLock);
 
 // Device FCM Push Notification Token
 router.post('/fcm-token', requireAuth, updateFcmToken);

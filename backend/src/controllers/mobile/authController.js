@@ -213,6 +213,8 @@ export async function login(req, res) {
 
     user.followers_count = Number(followCounts?.followers_count) || 0;
     user.following_count = Number(followCounts?.following_count) || 0;
+    user.is_profile_locked = Boolean(user.is_profile_locked);
+    user.is_locked = Boolean(user.is_profile_locked);
 
     const specialPrivileges = await getUserSpecialPrivileges(user.id, user.role);
     Object.assign(user, specialPrivileges);
@@ -543,6 +545,7 @@ export async function getMe(req, res) {
            u.host_type, 
            u.agency_id, 
            u.is_banned, 
+           u.is_profile_locked, 
            u.created_at,
            (SELECT COUNT(*) FROM user_follows WHERE following_id = u.id) AS followers_count,
            (SELECT COUNT(*) FROM user_follows WHERE follower_id = u.id) AS following_count,
@@ -662,6 +665,8 @@ export async function getMe(req, res) {
       host_type: userProfile.host_type,
       agency_id: userProfile.agency_id,
       is_banned: !!userProfile.is_banned,
+      is_profile_locked: Boolean(userProfile.is_profile_locked),
+      is_locked: Boolean(userProfile.is_profile_locked),
       created_at: userProfile.created_at,
       ...await getUserSpecialPrivileges(userId, userProfile.role),
     };
@@ -687,7 +692,7 @@ export async function updateProfile(req, res) {
       return res.status(401).json({ success: false, message: 'Unauthorized.' });
     }
 
-    const { full_name, bio, avatar_url, mobile_number, country } = req.body;
+    const { full_name, bio, avatar_url, mobile_number, country, is_profile_locked, is_locked } = req.body;
     const updates = [];
     const params = [];
 
@@ -706,6 +711,13 @@ export async function updateProfile(req, res) {
     if (country !== undefined) {
       updates.push('country = ?');
       params.push(String(country).trim());
+    }
+    if (is_profile_locked !== undefined) {
+      updates.push('is_profile_locked = ?');
+      params.push(is_profile_locked === true || is_profile_locked === 1 || is_profile_locked === 'true' || is_profile_locked === '1' ? 1 : 0);
+    } else if (is_locked !== undefined) {
+      updates.push('is_profile_locked = ?');
+      params.push(is_locked === true || is_locked === 1 || is_locked === 'true' || is_locked === '1' ? 1 : 0);
     }
     if (req.file) {
       updates.push('avatar_url = ?');
@@ -727,12 +739,13 @@ export async function updateProfile(req, res) {
     // 2. Invalidate Redis Caches
     await cache.del(`user:${userId}`);
     await cache.del(`mobile:user:profile:${userId}`);
+    await cache.del(`mobile:user:public:${userId}`);
     await cache.del(`admin:user:${userId}`);
     await cache.delByPattern('admin:users*');
 
     // 3. Re-fetch fresh user profile
     const [freshUser] = await query(
-      `SELECT id, email, full_name, mobile_number, country, avatar_url, bio, role, coins, diamonds, level, star, vip_package,
+      `SELECT id, email, full_name, mobile_number, country, avatar_url, bio, role, coins, diamonds, level, star, vip_package, is_profile_locked,
               (SELECT COUNT(*) FROM user_follows WHERE following_id = users.id) AS followers_count,
               (SELECT COUNT(*) FROM user_follows WHERE follower_id = users.id) AS following_count
        FROM users WHERE id = ? LIMIT 1`,
@@ -742,6 +755,8 @@ export async function updateProfile(req, res) {
     if (freshUser) {
       freshUser.followers_count = Number(freshUser.followers_count) || 0;
       freshUser.following_count = Number(freshUser.following_count) || 0;
+      freshUser.is_profile_locked = Boolean(freshUser.is_profile_locked);
+      freshUser.is_locked = Boolean(freshUser.is_profile_locked);
     }
 
     return res.json({

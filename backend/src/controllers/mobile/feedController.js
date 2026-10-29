@@ -392,6 +392,7 @@ export const getFeed = async (req, res) => {
           u.level as author_level,
           u.star as author_star,
           u.vip_package,
+          u.is_profile_locked as author_is_profile_locked,
           pc.id as package_category_id,
           pc.name as package_category_name,
           pc.badge_icon as package_badge_icon,
@@ -480,6 +481,8 @@ export const getFeed = async (req, res) => {
             role: row.author_role || 'user',
             level: row.author_level || 1,
             star: row.author_star || 0,
+            is_profile_locked: Boolean(row.author_is_profile_locked),
+            is_locked: Boolean(row.author_is_profile_locked),
             package_category: packageCategory,
           },
         };
@@ -576,6 +579,7 @@ export const getPostDetails = async (req, res) => {
            u.level as author_level,
            u.star as author_star,
            u.vip_package,
+           u.is_profile_locked as author_is_profile_locked,
            pc.id as package_category_id,
            pc.name as package_category_name,
            pc.badge_icon as package_badge_icon,
@@ -647,6 +651,8 @@ export const getPostDetails = async (req, res) => {
           role: row.author_role || 'user',
           level: row.author_level || 1,
           star: row.author_star || 0,
+          is_profile_locked: Boolean(row.author_is_profile_locked),
+          is_locked: Boolean(row.author_is_profile_locked),
           package_category: packageCategory,
         },
       };

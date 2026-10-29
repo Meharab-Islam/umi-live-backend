@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS users (
   vip_package VARCHAR(50) DEFAULT 'Standard',
   fcm_token VARCHAR(512) NULL,
   is_banned BOOLEAN DEFAULT FALSE,
+  is_profile_locked TINYINT(1) DEFAULT 0,
   broadcast_banned_until TIMESTAMP NULL DEFAULT NULL,
   broadcast_ban_reason VARCHAR(255) NULL DEFAULT NULL,
   broadcast_banned_at TIMESTAMP NULL DEFAULT NULL,

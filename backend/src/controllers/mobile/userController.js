@@ -38,6 +38,7 @@ export async function getUserProfile(req, res) {
            u.coins,
            u.diamonds,
            u.host_type, 
+           u.is_profile_locked,
            u.created_at,
            (SELECT COUNT(*) FROM user_follows WHERE following_id = u.id) AS followers_count,
            (SELECT COUNT(*) FROM user_follows WHERE follower_id = u.id) AS following_count,
@@ -110,6 +111,8 @@ export async function getUserProfile(req, res) {
           full_name: profile.full_name || 'Umi User',
           avatar_url: profile.avatar_url || '',
           profile_image: profile.avatar_url || '',
+          is_profile_locked: Boolean(profile.is_profile_locked),
+          is_locked: Boolean(profile.is_profile_locked),
           is_blocked: true,
           blocked_by_me: isBlocked,
           is_blocked_by_other: isBlockingMe,
@@ -142,6 +145,8 @@ export async function getUserProfile(req, res) {
         star: profile.star || 0,
         host_type: profile.host_type,
         bio: profile.bio || '',
+        is_profile_locked: Boolean(profile.is_profile_locked),
+        is_locked: Boolean(profile.is_profile_locked),
         is_following: isFollowing,
         is_followed_by: isFollowedBy,
         is_follower: isFollowedBy,
@@ -468,7 +473,8 @@ export async function getUserPosts(req, res) {
            u.avatar_url as author_avatar_url,
            u.role as author_role,
            u.level as author_level,
-           u.vip_package
+           u.vip_package,
+           u.is_profile_locked as author_is_profile_locked
          FROM posts p
          JOIN users u ON u.id = p.user_id
          WHERE p.user_id = ?
@@ -531,6 +537,8 @@ export async function getUserPosts(req, res) {
             role: row.author_role,
             level: row.author_level || 1,
             vip_package: row.vip_package || 'Standard',
+            is_profile_locked: Boolean(row.author_is_profile_locked),
+            is_locked: Boolean(row.author_is_profile_locked),
           },
         };
       });
@@ -819,3 +827,59 @@ export async function searchUsers(req, res) {
     return res.status(500).json({ success: false, message: 'Failed to search users.' });
   }
 }
+
+/**
+ * Toggle or Set Profile Lock Status
+ * POST /api/mobile/users/profile/lock
+ * PUT /api/mobile/users/profile/lock
+ * Optional body: { is_profile_locked: boolean, is_locked: boolean }
+ */
+export async function toggleProfileLock(req, res) {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ success: false, message: 'Authentication required.' });
+    }
+
+    const { is_profile_locked, is_locked } = req.body || {};
+    let targetState = null;
+
+    if (is_profile_locked !== undefined) {
+      targetState = is_profile_locked === true || is_profile_locked === 1 || is_profile_locked === 'true' || is_profile_locked === '1' ? 1 : 0;
+    } else if (is_locked !== undefined) {
+      targetState = is_locked === true || is_locked === 1 || is_locked === 'true' || is_locked === '1' ? 1 : 0;
+    }
+
+    // 1. Database-First Write (SSOT)
+    if (targetState !== null) {
+      await query('UPDATE users SET is_profile_locked = ? WHERE id = ?', [targetState, userId]);
+    } else {
+      // Toggle existing boolean value
+      await query('UPDATE users SET is_profile_locked = IF(is_profile_locked = 1, 0, 1) WHERE id = ?', [userId]);
+    }
+
+    // 2. Fetch fresh state from MySQL
+    const [freshRow] = await query('SELECT is_profile_locked FROM users WHERE id = ? LIMIT 1', [userId]);
+    const isLockedResult = Boolean(freshRow?.is_profile_locked);
+
+    // 3. Instant Redis Cache Invalidation
+    await Promise.allSettled([
+      cache.del(`user:${userId}`),
+      cache.del(`mobile:user:public:${userId}`),
+      cache.del(`mobile:user:profile:${userId}`),
+      cache.del(`admin:user:${userId}`),
+      cache.delByPattern('admin:users*'),
+    ]);
+
+    return res.json({
+      success: true,
+      message: isLockedResult ? 'Profile locked successfully.' : 'Profile unlocked successfully.',
+      is_profile_locked: isLockedResult,
+      is_locked: isLockedResult,
+    });
+  } catch (err) {
+    console.error('toggleProfileLock error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to update profile lock status.' });
+  }
+}
+
