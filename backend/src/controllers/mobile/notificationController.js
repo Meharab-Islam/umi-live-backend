@@ -82,7 +82,7 @@ export async function getNotifications(req, res) {
            lr.cover_image AS live_room_cover
          FROM notifications n
          LEFT JOIN users u ON u.id = n.actor_id
-         LEFT JOIN live_rooms lr ON (n.entity_type = 'live_room' AND (CONVERT(n.entity_id USING utf8mb4) = CONVERT(lr.room_id USING utf8mb4) OR n.entity_id = CAST(lr.id AS CHAR)))
+         LEFT JOIN live_rooms lr ON (n.entity_type = 'live_room' AND (CONVERT(n.entity_id USING utf8mb4) COLLATE utf8mb4_unicode_ci = CONVERT(lr.room_id USING utf8mb4) COLLATE utf8mb4_unicode_ci OR n.entity_id COLLATE utf8mb4_unicode_ci = CAST(lr.id AS CHAR) COLLATE utf8mb4_unicode_ci))
          WHERE ${whereClause}
          ORDER BY n.id DESC
          LIMIT ? OFFSET ?`,
