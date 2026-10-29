@@ -150,9 +150,9 @@
     "semantic_hash": ""
   },
   "backend/src/middlewares/authMiddleware.js": {
-    "mtime": 1792949499.3491397,
-    "seen": 1792949524.482477,
-    "ast_hash": "57ff49c6dfa00347deaaea793f0f3784",
+    "mtime": 1793254353.9876308,
+    "seen": 1793254600.702023,
+    "ast_hash": "cd2fd5f7cb5d56b90b84f88c70c4e63a",
     "semantic_hash": ""
   },
   "backend/src/routes/adminRoutes.js": {
@@ -192,9 +192,9 @@
     "semantic_hash": ""
   },
   "backend/src/sockets/liveSocket.js": {
-    "mtime": 1793215466.1448066,
-    "seen": 1793215624.897394,
-    "ast_hash": "afd30dd8e19681ff722ed0a3347d4eec",
+    "mtime": 1793216375.9023883,
+    "seen": 1793216639.833359,
+    "ast_hash": "0dd1ffc29c4c5eaeb7bb3813d071b273",
     "semantic_hash": ""
   },
   "admin-panel/src/pages/Agencies.jsx": {
@@ -498,9 +498,9 @@
     "semantic_hash": ""
   },
   "backend/src/config/redis.js": {
-    "mtime": 1792952005.3798535,
-    "seen": 1792952052.374659,
-    "ast_hash": "a74d073e764457f20e9841c99cf8f299",
+    "mtime": 1793254324.302034,
+    "seen": 1793254600.701378,
+    "ast_hash": "21fa6e72236451052473fc678dd9a068",
     "semantic_hash": ""
   },
   ".agents/rules/redis-caching-policy.md": {
@@ -552,9 +552,9 @@
     "semantic_hash": ""
   },
   "backend/src/controllers/mobile/giftController.js": {
-    "mtime": 1793035832.993514,
-    "seen": 1793035877.349516,
-    "ast_hash": "d4f001e1ff95eca9555de9c437624049",
+    "mtime": 1793216335.9857671,
+    "seen": 1793216639.8320901,
+    "ast_hash": "c05927f9b2acd77c269b62724c071468",
     "semantic_hash": ""
   },
   "backend/src/controllers/mobile/liveController.js": {
@@ -702,9 +702,9 @@
     "semantic_hash": ""
   },
   "backend/src/routes/mobile/moderatorRoutes.js": {
-    "mtime": 1791790051.5193968,
-    "seen": 1791790422.895401,
-    "ast_hash": "3515ddbc195c72453cb449dd47d2c8b5",
+    "mtime": 1793255208.6619072,
+    "seen": 1793255515.512778,
+    "ast_hash": "7687b0970ff9055b0d7b0187c9f7e438",
     "semantic_hash": ""
   },
   "scratch/add_moderator_api_docs.mjs": {
@@ -720,9 +720,9 @@
     "semantic_hash": ""
   },
   "backend/src/controllers/mobile/hostController.js": {
-    "mtime": 1791788047.821841,
-    "seen": 1791788188.913913,
-    "ast_hash": "ef65431190c5cb8ed1f371b7b6933035",
+    "mtime": 1793255382.3775797,
+    "seen": 1793255515.512033,
+    "ast_hash": "1ad388032febba10f25cd322d871d3e4",
     "semantic_hash": ""
   },
   "backend/src/routes/mobile/hostRoutes.js": {
@@ -750,15 +750,15 @@
     "semantic_hash": ""
   },
   "backend/src/controllers/mobile/agencyController.js": {
-    "mtime": 1792396189.1284344,
-    "seen": 1792396339.868764,
-    "ast_hash": "8bb50b1f3c42b504458a077079f45b4c",
+    "mtime": 1793255167.4010868,
+    "seen": 1793255515.511856,
+    "ast_hash": "9be3122f2e1d95e9ff74d972af4e04ce",
     "semantic_hash": ""
   },
   "backend/src/routes/mobile/agencyRoutes.js": {
-    "mtime": 1793212354.422424,
-    "seen": 1793212416.421844,
-    "ast_hash": "3f3125e491cbff945b0d13005cc81449",
+    "mtime": 1793255186.8453445,
+    "seen": 1793255515.512504,
+    "ast_hash": "6bf62448669f5cb3f500ec5714f1a177",
     "semantic_hash": ""
   },
   "scratch/test_agency_api.mjs": {
@@ -1416,9 +1416,9 @@
     "semantic_hash": ""
   },
   "backend/src/controllers/mobile/notificationController.js": {
-    "mtime": 1792946693.693615,
-    "seen": 1792947409.113863,
-    "ast_hash": "734af3f86237d87d27977fca845606e1",
+    "mtime": 1793252834.2192156,
+    "seen": 1793254600.701777,
+    "ast_hash": "981b6f8b86791c0faefed4499e7d581e",
     "semantic_hash": ""
   },
   "backend/src/services/notificationService.js": {
