@@ -2786,26 +2786,46 @@ export async function rejectSeatRequest(req, res) {
     const { roomId, requestId } = req.params;
     const hostId = req.user.id;
 
-    const rooms = await query('SELECT host_id FROM live_rooms WHERE room_id = ?', [roomId]);
+    const isNum = /^\d+$/.test(String(roomId).trim());
+    const rooms = await query(
+      'SELECT id, room_id, host_id FROM live_rooms WHERE (room_id = ? OR id = ?)',
+      [String(roomId), isNum ? Number(roomId) : -1]
+    );
     if (rooms.length === 0) return res.status(404).json({ success: false, message: 'Room not found.' });
     const room = rooms[0];
+    const canonicalRoomId = room.room_id;
+    const numericRoomId = room.id;
 
     if (hostId !== room.host_id && req.user.role !== 'admin' && req.user.role !== 'superadmin') {
-      const adminRows = await query('SELECT id FROM live_room_admins WHERE room_id = ? AND user_id = ?', [roomId, hostId]);
+      const adminRows = await query(
+        'SELECT id FROM live_room_admins WHERE (room_id = ? OR room_id = ?) AND user_id = ?',
+        [canonicalRoomId, String(numericRoomId), hostId]
+      );
       if (adminRows.length === 0) return res.status(403).json({ success: false, message: 'Only host or room admin can reject seat requests.' });
     }
 
     // 1. Remove rejected request from waiting list table in database
-    await query('DELETE FROM live_room_seat_requests WHERE id = ? AND room_id = ?', [requestId, roomId]);
+    await query(
+      'DELETE FROM live_room_seat_requests WHERE id = ? AND (room_id = ? OR room_id = ?)',
+      [requestId, canonicalRoomId, String(numericRoomId)]
+    );
 
     // 2. Instant Redis update with fresh waiting list
-    const updatedWaitingList = await fetchAndCacheSeatRequests(roomId);
+    const updatedWaitingList = await fetchAndCacheSeatRequests(canonicalRoomId);
 
     if (req.io) {
-      req.io.to(roomId).emit('seat_request_rejected', {
-        roomId,
+      req.io.to(canonicalRoomId).emit('seat_request_rejected', {
+        roomId: canonicalRoomId,
+        numericRoomId,
         requestId,
       });
+      if (numericRoomId) {
+        req.io.to(String(numericRoomId)).emit('seat_request_rejected', {
+          roomId: canonicalRoomId,
+          numericRoomId,
+          requestId,
+        });
+      }
     }
 
     return res.json({
