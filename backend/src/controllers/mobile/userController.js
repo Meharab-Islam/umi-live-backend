@@ -121,12 +121,19 @@ export async function getUserProfile(req, res) {
       });
     }
 
-    const followersCount = Number(profile.followers_count) || 0;
-    const followingCount = Number(profile.following_count) || 0;
-    const postsCount = Number(profile.posts_count) || 0;
+    const isMine = currentUserId === targetUserId;
+    const isProfileLocked = Boolean(profile.is_profile_locked);
+    const hideSensitiveInfo = isProfileLocked && !isMine;
+
+    const followersCount = hideSensitiveInfo ? 0 : (Number(profile.followers_count) || 0);
+    const followingCount = hideSensitiveInfo ? 0 : (Number(profile.following_count) || 0);
+    const postsCount = hideSensitiveInfo ? 0 : (Number(profile.posts_count) || 0);
     const currentCoins = Number(profile.coins) || 0;
-    const totalReceivedCoins = Number(profile.total_received_coins) || 0;
-    const totalGiftedCoins = Number(profile.total_gifted_coins) || 0;
+    const totalReceivedCoins = hideSensitiveInfo ? 0 : (Number(profile.total_received_coins) || 0);
+    const totalGiftedCoins = hideSensitiveInfo ? 0 : (Number(profile.total_gifted_coins) || 0);
+    const diamonds = hideSensitiveInfo ? 0 : (Number(profile.diamonds) || 0);
+    const bio = hideSensitiveInfo ? '' : (profile.bio || '');
+    const country = hideSensitiveInfo ? '' : (profile.country || '');
 
     const appShareUrl = process.env.APP_SHARE_URL || 'https://umilive.app';
     const shareLink = `${appShareUrl}/user/${targetUserId}`;
@@ -139,14 +146,14 @@ export async function getUserProfile(req, res) {
         full_name: profile.full_name || 'Umi User',
         profile_image: profile.avatar_url || '',
         avatar_url: profile.avatar_url || '',
-        country: profile.country || '',
+        country,
         role: profile.role,
         level: profile.level || 1,
-        star: profile.star || 0,
+        star: hideSensitiveInfo ? 0 : (profile.star || 0),
         host_type: profile.host_type,
-        bio: profile.bio || '',
-        is_profile_locked: Boolean(profile.is_profile_locked),
-        is_locked: Boolean(profile.is_profile_locked),
+        bio,
+        is_profile_locked: isProfileLocked,
+        is_locked: isProfileLocked,
         is_following: isFollowing,
         is_followed_by: isFollowedBy,
         is_follower: isFollowedBy,
@@ -155,7 +162,7 @@ export async function getUserProfile(req, res) {
         posts_count: postsCount,
         current_balance: currentCoins,
         coins: currentCoins,
-        diamonds: Number(profile.diamonds) || 0,
+        diamonds,
         total_received_coins: totalReceivedCoins,
         total_gifted_coins: totalGiftedCoins,
         total_sent_coins: totalGiftedCoins,
@@ -332,8 +339,23 @@ export async function unfollowUser(req, res) {
 export async function getFollowers(req, res) {
   try {
     const targetUserId = parseInt(req.params.userId, 10);
+    const currentUserId = req.user?.id || null;
     if (!targetUserId || isNaN(targetUserId)) {
       return res.status(400).json({ success: false, message: 'Valid user ID is required.' });
+    }
+
+    if (currentUserId !== targetUserId) {
+      const [targetUserLock] = await query('SELECT is_profile_locked FROM users WHERE id = ? LIMIT 1', [targetUserId]);
+      if (targetUserLock && targetUserLock.is_profile_locked) {
+        return res.json({
+          success: true,
+          is_profile_locked: true,
+          is_locked: true,
+          message: "This user's profile is locked.",
+          count: 0,
+          followers: [],
+        });
+      }
     }
 
     const followers = await cache.getOrSet(`mobile:user:${targetUserId}:followers`, 30, async () => {
@@ -374,8 +396,23 @@ export async function getFollowers(req, res) {
 export async function getFollowing(req, res) {
   try {
     const targetUserId = parseInt(req.params.userId, 10);
+    const currentUserId = req.user?.id || null;
     if (!targetUserId || isNaN(targetUserId)) {
       return res.status(400).json({ success: false, message: 'Valid user ID is required.' });
+    }
+
+    if (currentUserId !== targetUserId) {
+      const [targetUserLock] = await query('SELECT is_profile_locked FROM users WHERE id = ? LIMIT 1', [targetUserId]);
+      if (targetUserLock && targetUserLock.is_profile_locked) {
+        return res.json({
+          success: true,
+          is_profile_locked: true,
+          is_locked: true,
+          message: "This user's profile is locked.",
+          count: 0,
+          following: [],
+        });
+      }
     }
 
     const following = await cache.getOrSet(`mobile:user:${targetUserId}:following`, 30, async () => {
@@ -445,6 +482,24 @@ export async function getUserPosts(req, res) {
           blocked_by_them: !isBlockedByMe,
           posts: [],
           total: 0,
+        });
+      }
+    }
+
+    // Check if target user's profile is locked (when viewer is not the profile owner)
+    if (currentUserId !== targetUserId) {
+      const [targetUserLock] = await query('SELECT is_profile_locked FROM users WHERE id = ? LIMIT 1', [targetUserId]);
+      if (targetUserLock && targetUserLock.is_profile_locked) {
+        return res.json({
+          success: true,
+          total: 0,
+          page,
+          limit,
+          total_pages: 0,
+          is_profile_locked: true,
+          is_locked: true,
+          message: "This user's profile is locked.",
+          posts: [],
         });
       }
     }
