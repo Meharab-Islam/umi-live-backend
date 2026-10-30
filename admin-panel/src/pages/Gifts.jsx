@@ -121,7 +121,7 @@ export default function Gifts({ onToast }) {
   const [savingBannerConfig, setSavingBannerConfig] = useState(false);
   const [uploadingBannerImage, setUploadingBannerImage] = useState(false);
   const [testingBanner, setTestingBanner] = useState(false);
-  const [marqueePreview, setMarqueePreview] = useState(false);
+  const [marqueePreview, setMarqueePreview] = useState(true);
 
   const quickIcons = ['🌹', '💖', '🍦', '👑', '🏎️', '🚀', '🏰', '🐉', '🛥️', '⭐', '🎉', '🦄'];
 
@@ -1250,18 +1250,19 @@ export default function Gifts({ onToast }) {
 
             {/* Injected Marquee CSS animation for preview */}
             <style>{`
-              @keyframes adminRibbonMarquee {
+              @keyframes continuousRibbonMarquee {
                 0% { transform: translateX(0); }
-                15% { transform: translateX(0); }
-                85% { transform: translateX(-50%); }
                 100% { transform: translateX(-50%); }
               }
               .admin-ribbon-marquee-track {
-                display: inline-flex;
-                align-items: center;
-                gap: 2.5rem;
-                white-space: nowrap;
-                animation: adminRibbonMarquee 7s linear infinite;
+                display: inline-flex !important;
+                align-items: center !important;
+                width: max-content !important;
+                white-space: nowrap !important;
+                animation: continuousRibbonMarquee 9s linear infinite !important;
+              }
+              .admin-ribbon-marquee-track:hover {
+                animation-play-state: paused !important;
               }
             `}</style>
 
@@ -1305,7 +1306,7 @@ export default function Gifts({ onToast }) {
                     bottom: '28%',
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center',
+                    justifyContent: marqueePreview ? 'flex-start' : 'center',
                     textAlign: 'center',
                     padding: '0 4px',
                     overflow: 'hidden',
@@ -1332,14 +1333,14 @@ export default function Gifts({ onToast }) {
                     </div>
                   ) : (
                     <div className="admin-ribbon-marquee-track" style={{ fontSize: 'clamp(0.68rem, 1.4vw, 0.95rem)', fontWeight: 900, textShadow: '0 1px 3px rgba(0,0,0,0.85)' }}>
-                      <span>
+                      <span style={{ paddingRight: '3rem', display: 'inline-flex', alignItems: 'center' }}>
                         <span style={{ color: '#fde047' }}>Mohammad Farhan Chowdhury Prince</span>
                         <span style={{ color: '#ffffff', margin: '0 4px' }}>sent</span>
                         <span style={{ color: '#fbbf24' }}>🪙 100,000 Coins</span>
                         <span style={{ color: '#ffffff', margin: '0 4px' }}>to</span>
                         <span style={{ color: '#e0f2fe' }}>Nusrat Jahan Jannat</span>
                       </span>
-                      <span>
+                      <span style={{ paddingRight: '3rem', display: 'inline-flex', alignItems: 'center' }}>
                         <span style={{ color: '#fde047' }}>Mohammad Farhan Chowdhury Prince</span>
                         <span style={{ color: '#ffffff', margin: '0 4px' }}>sent</span>
                         <span style={{ color: '#fbbf24' }}>🪙 100,000 Coins</span>
