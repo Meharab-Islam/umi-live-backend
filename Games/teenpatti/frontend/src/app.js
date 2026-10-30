@@ -110,7 +110,8 @@ function App() {
     }
   }, [userId]);
 
-  const [gameCoin, setGameCoin] = useState([]);
+  const defaultGameCoins = [2000, 5000, 10000, 20000, 50000];
+  const [gameCoin, setGameCoin] = useState(defaultGameCoins);
   const [storeCoins, setStoreCoins] = useState(0);
   const [clockTime, setClockTime] = useState(0);
 
@@ -119,9 +120,17 @@ function App() {
       .get(`${adminBaseURL}setting`)
       .then((res) => {
         console.log("res in gameCoin ", res);
-        setGameCoin(res?.data?.setting?.gameCoin);
+        const coins = res?.data?.setting?.gameCoin;
+        if (Array.isArray(coins) && coins.length >= 5) {
+          setGameCoin(coins);
+        } else {
+          setGameCoin(defaultGameCoins);
+        }
       })
-      .catch((error) => console.log("error", error));
+      .catch((error) => {
+        console.log("error", error);
+        setGameCoin(defaultGameCoins);
+      });
   }, []);
 
   if (socket) {

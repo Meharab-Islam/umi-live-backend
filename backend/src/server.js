@@ -1,5 +1,6 @@
 import express from 'express';
 import http from 'http';
+import net from 'net';
 import { Server } from 'socket.io';
 import cors from 'cors';
 import morgan from 'morgan';
@@ -72,6 +73,51 @@ const io = new Server(server, {
 setupLiveSocket(io);
 setupGameSocket(io);
 initPubSub(io);
+
+// Game port configuration for sub-games
+const gamePortMap = {
+  big_eater: process.env.GAME_BIG_EATER_PORT || 5061,
+  slote_mecine: process.env.GAME_SLOTE_MECINE_PORT || 5062,
+  ferrywheel: process.env.GAME_FERRYWHEEL_PORT || 5063,
+  greedybaby: process.env.GAME_GREEDYBABY_PORT || 5064,
+  greedylion: process.env.GAME_GREEDYLION_PORT || 5065,
+  roulettecasino: process.env.GAME_ROULETTECASINO_PORT || 5066,
+  teenpatti: process.env.GAME_TEENPATTI_PORT || 5067,
+};
+
+// ── Mini-Games WebSocket Upgrade Forwarder on Port 5050 ──
+server.on('upgrade', (req, clientSocket, head) => {
+  const match = req.url.match(/^\/games\/socket\/([^\/\?]+)/);
+  if (match) {
+    const game = match[1];
+    const port = gamePortMap[game];
+    if (port) {
+      const targetPath = req.url.replace(new RegExp(`^/games/socket/${game}`), '/socket.io');
+      const targetSocket = net.connect(port, '127.0.0.1', () => {
+        let rawReq = `${req.method} ${targetPath} HTTP/${req.httpVersion}\r\n`;
+        for (let i = 0; i < req.rawHeaders.length; i += 2) {
+          const key = req.rawHeaders[i];
+          const val = key.toLowerCase() === 'host' ? `127.0.0.1:${port}` : req.rawHeaders[i + 1];
+          rawReq += `${key}: ${val}\r\n`;
+        }
+        rawReq += '\r\n';
+        targetSocket.write(rawReq);
+        if (head && head.length > 0) {
+          targetSocket.write(head);
+        }
+        targetSocket.pipe(clientSocket);
+        clientSocket.pipe(targetSocket);
+      });
+
+      targetSocket.on('error', () => {
+        try { clientSocket.destroy(); } catch (_) {}
+      });
+      clientSocket.on('error', () => {
+        try { targetSocket.destroy(); } catch (_) {}
+      });
+    }
+  }
+});
 
 
 
@@ -154,17 +200,6 @@ app.use('/static/media', express.static(path.join(gamesDir, 'greedybaby/backend/
 app.use('/static/media', express.static(path.join(gamesDir, 'greedylion/backend/public/static/media'), staticAssetOptions));
 app.use('/static/media', express.static(path.join(gamesDir, 'teenpatti/backend/public/static/media'), staticAssetOptions));
 
-// Game API proxy/forwarder for sub-games
-const gamePortMap = {
-  big_eater: process.env.GAME_BIG_EATER_PORT || 5061,
-  slote_mecine: process.env.GAME_SLOTE_MECINE_PORT || 5062,
-  ferrywheel: process.env.GAME_FERRYWHEEL_PORT || 5063,
-  greedybaby: process.env.GAME_GREEDYBABY_PORT || 5064,
-  greedylion: process.env.GAME_GREEDYLION_PORT || 5065,
-  roulettecasino: process.env.GAME_ROULETTECASINO_PORT || 5066,
-  teenpatti: process.env.GAME_TEENPATTI_PORT || 5067,
-};
-
 app.use('/games/api/:game', async (req, res) => {
   const game = req.params.game;
   const port = gamePortMap[game];
@@ -187,6 +222,64 @@ app.use('/games/api/:game', async (req, res) => {
     res.status(response.status).json(data);
   } catch (err) {
     res.status(502).json({ status: false, message: 'Game server unreachable', error: err.message });
+  }
+});
+
+// ── Mini-Games Socket.IO Forwarder (HTTP Polling) on Port 5050 ──
+app.all(['/games/socket/:game', '/games/socket/:game/*'], (req, res) => {
+  const game = req.params.game;
+  const port = gamePortMap[game];
+  if (!port) return res.status(404).json({ status: false, message: 'Game socket not found' });
+
+  const queryIdx = req.originalUrl.indexOf('?');
+  const queryStr = queryIdx !== -1 ? req.originalUrl.slice(queryIdx) : '';
+  const pathWithoutQuery = queryIdx !== -1 ? req.originalUrl.slice(0, queryIdx) : req.originalUrl;
+  const subPath = pathWithoutQuery.replace(new RegExp(`^/games/socket/${game}`), '/socket.io') || '/socket.io/';
+  const targetPath = `${subPath}${queryStr}`;
+
+  const options = {
+    hostname: '127.0.0.1',
+    port: port,
+    path: targetPath,
+    method: req.method,
+    headers: {
+      ...req.headers,
+      host: `127.0.0.1:${port}`,
+    },
+  };
+
+  const proxyReq = http.request(options, (proxyRes) => {
+    res.writeHead(proxyRes.statusCode, proxyRes.headers);
+    proxyRes.pipe(res);
+  });
+
+  proxyReq.on('error', (err) => {
+    if (!res.headersSent) {
+      res.status(502).json({ status: false, message: 'Game socket unreachable', error: err.message });
+    }
+  });
+
+  if (['GET', 'HEAD'].includes(req.method)) {
+    proxyReq.end();
+  } else {
+    req.pipe(proxyReq);
+  }
+});
+
+// Dedicated gameHistory forwarder (e.g. for teenpatti)
+app.use('/gameHistory', async (req, res) => {
+  const targetUrl = `http://127.0.0.1:5067/gameHistory${req.url}`;
+  try {
+    const response = await fetch(targetUrl, {
+      method: req.method,
+      headers: {
+        'Content-Type': req.headers['content-type'] || 'application/json',
+      },
+    });
+    const data = await response.json().catch(() => null);
+    res.status(response.status).json(data);
+  } catch (err) {
+    res.status(502).json({ status: false, message: 'Game history unreachable', error: err.message });
   }
 });
 

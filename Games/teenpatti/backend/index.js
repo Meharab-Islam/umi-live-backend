@@ -14,17 +14,25 @@ global.lowBitValue = 0;
 
 app.use(cors());
 
+const defaultSettings = {
+  game: [{ name: "teenpatti", minWinPercent: 50, maxWinPercent: 80 }],
+  coinForGameAnnouncement: 1000,
+  gameCoin: [2000, 5000, 10000, 20000, 50000],
+};
+
 // Settings API endpoint for frontend
 app.get("/setting", (req, res) => {
+  const current = global.setting || {};
+  const gameCoin = (Array.isArray(current.gameCoin) && current.gameCoin.length >= 5)
+    ? current.gameCoin
+    : defaultSettings.gameCoin;
   res.status(200).json({
     status: true,
     message: "Settings fetched successfully",
-    setting: global.setting || {
-      game: [
-        { name: "teenpatti", minWinPercent: 50, maxWinPercent: 80 }
-      ],
-      coinForGameAnnouncement: 1000,
-      gameCoin: [2000, 5000, 10000, 20000, 50000]
+    setting: {
+      ...defaultSettings,
+      ...current,
+      gameCoin,
     },
   });
 });
@@ -39,16 +47,16 @@ const io = new Server(server, {
   },
 });
 
-const defaultSettings = {
-  game: [{ name: "teenpatti", minWinPercent: 50, maxWinPercent: 80 }],
-  coinForGameAnnouncement: 1000,
-  gameCoin: [2000, 5000, 10000, 20000, 50000],
-};
-
 const refreshSettings = async () => {
   try {
     const settings = await gameUserBridge.getGameSettings("teenpatti", defaultSettings);
-    global.setting = settings || defaultSettings;
+    global.setting = {
+      ...defaultSettings,
+      ...(settings || {}),
+      gameCoin: (settings && Array.isArray(settings.gameCoin) && settings.gameCoin.length >= 5)
+        ? settings.gameCoin
+        : defaultSettings.gameCoin,
+    };
   } catch (error) {
     console.error("Error refreshing settings:", error);
     global.setting = defaultSettings;
