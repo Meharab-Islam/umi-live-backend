@@ -1751,14 +1751,45 @@ export async function getAgencyHosts(req, res) {
   try {
     const { id } = req.params;
     const hosts = await query(
-      `SELECT id, full_name, email, full_name, avatar_url, role, host_type, coins, diamonds, level, vip_package, is_banned, created_at
+      `SELECT id, full_name, email, avatar_url, role, host_type, coins, diamonds, level, vip_package, is_banned, created_at
        FROM users
        WHERE agency_id = ?
-       ORDER BY diamonds DESC`,
+       ORDER BY coins DESC, id DESC`,
       [id]
     );
 
-    return res.json({ success: true, hosts });
+    // Fetch agency owner and commission details
+    const [agencyRow] = await query(
+      `SELECT a.id, a.name, a.owner_id, a.commission_rate, u.coins as owner_coins
+       FROM agencies a
+       LEFT JOIN users u ON u.id = a.owner_id
+       WHERE a.id = ?`,
+      [id]
+    );
+
+    const ownerCoins = parseInt(agencyRow?.owner_coins || 0, 10);
+    const hostCoins = (hosts || []).reduce((sum, h) => sum + parseInt(h.coins || 0, 10), 0);
+    const [commRow] = await query(
+      `SELECT COALESCE(SUM(coin_amount), 0) as total_gifted
+       FROM gift_transactions
+       WHERE receiver_id IN (SELECT id FROM users WHERE agency_id = ?)`,
+      [id]
+    );
+    const totalGifted = parseInt(commRow?.total_gifted || 0, 10);
+    const commRate = parseFloat(agencyRow?.commission_rate || 10);
+    const totalCommission = Math.round(totalGifted * (commRate / 100));
+    // User requirement: total coins = host coins + owner coins + agency commission
+    const totalCoins = hostCoins + ownerCoins + totalCommission;
+
+    return res.json({
+      success: true,
+      hosts,
+      total_coins: totalCoins,
+      coins: totalCoins,
+      hosts_coins: hostCoins,
+      owner_coins: ownerCoins,
+      total_commission_coins: totalCommission,
+    });
   } catch (err) {
     return res.status(500).json({ success: false, message: 'Failed to fetch agency hosts.' });
   }
@@ -3003,7 +3034,7 @@ export async function getHosts(req, res) {
          FROM users u
          LEFT JOIN agencies a ON u.agency_id = a.id
          ${whereSql}
-         ORDER BY u.diamonds DESC, u.id DESC
+         ORDER BY u.coins DESC, u.id DESC
          LIMIT ${parseInt(limit, 10)} OFFSET ${parseInt(offset, 10)}`,
         params
       );
@@ -3017,14 +3048,42 @@ export async function getHosts(req, res) {
           SUM(CASE WHEN host_type = 'audio' THEN 1 ELSE 0 END) as audio_hosts,
           SUM(CASE WHEN agency_id IS NOT NULL THEN 1 ELSE 0 END) as agency_hosts,
           SUM(CASE WHEN agency_id IS NULL THEN 1 ELSE 0 END) as independent_hosts,
+          COALESCE(SUM(coins), 0) as total_host_coins,
           COALESCE(SUM(diamonds), 0) as total_host_diamonds
         FROM users
         WHERE role = 'host'
       `);
 
+      // Combined sum of agency owner coins + total commissions
+      const [ownerStats] = await query(`
+        SELECT COALESCE(SUM(u.coins), 0) as total_owner_coins
+        FROM agencies a
+        INNER JOIN users u ON u.id = a.owner_id
+      `);
+      const [commStats] = await query(`
+        SELECT COALESCE(SUM(gt.coin_amount), 0) as total_coins_gifted
+        FROM gift_transactions gt
+        INNER JOIN users u ON u.id = gt.receiver_id
+        WHERE u.role = 'host' AND u.agency_id IS NOT NULL
+      `);
+      const totalHostCoins = parseInt(stats?.total_host_coins || 0, 10);
+      const totalOwnerCoins = parseInt(ownerStats?.total_owner_coins || 0, 10);
+      const totalGifted = parseInt(commStats?.total_coins_gifted || 0, 10);
+      const totalCommission = Math.round(totalGifted * 0.10);
+      const totalCombinedCoins = totalHostCoins + totalOwnerCoins + totalCommission;
+
+      const summaryData = {
+        ...(stats || { total_hosts: 0, video_hosts: 0, audio_hosts: 0, agency_hosts: 0, independent_hosts: 0 }),
+        total_host_coins: totalHostCoins,
+        total_owner_coins: totalOwnerCoins,
+        total_commission_coins: totalCommission,
+        total_coins: totalCombinedCoins,
+        total_host_diamonds: parseInt(stats?.total_host_diamonds || 0, 10),
+      };
+
       return {
         hosts,
-        summary: stats || { total_hosts: 0, video_hosts: 0, audio_hosts: 0, agency_hosts: 0, independent_hosts: 0, total_host_diamonds: 0 },
+        summary: summaryData,
         total: totalRows.count,
       };
     });

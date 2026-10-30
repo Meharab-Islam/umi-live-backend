@@ -114,9 +114,9 @@
     "semantic_hash": ""
   },
   "backend/src/controllers/adminController.js": {
-    "mtime": 1793368385.4536152,
-    "seen": 1793368824.180502,
-    "ast_hash": "2949121bc0403170b0d25f941839834c",
+    "mtime": 1793369609.1074686,
+    "seen": 1793369645.103998,
+    "ast_hash": "7c8f059d9a000d845624497c9ce7e470",
     "semantic_hash": ""
   },
   "backend/src/controllers/authController.js": {
@@ -198,9 +198,9 @@
     "semantic_hash": ""
   },
   "admin-panel/src/pages/Agencies.jsx": {
-    "mtime": 1793368451.4983687,
-    "seen": 1793368824.1797671,
-    "ast_hash": "badc25ef266c5bb93189b875d5b18f0f",
+    "mtime": 1793369625.4752529,
+    "seen": 1793369645.103267,
+    "ast_hash": "821b4094ec905acf2c124067480f6433",
     "semantic_hash": ""
   },
   "README.md": {

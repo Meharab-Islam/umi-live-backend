@@ -458,10 +458,8 @@ export default function HostManagement({ onToast }) {
           <div style={{ fontSize: '1.85rem', fontWeight: 800, color: 'var(--text-main)' }}>
             {hostSummary?.total_hosts?.toLocaleString() || 0}
           </div>
-          <div style={{ fontSize: '0.78rem', color: isDiamondMode ? '#06b6d4' : '#f59e0b', marginTop: '6px', fontWeight: 600 }}>
-            {isDiamondMode
-              ? `💎 ${hostSummary?.total_host_diamonds?.toLocaleString() || 0} Total Diamonds`
-              : '🪙 Direct Coin Earnings Mode'}
+          <div style={{ fontSize: '0.78rem', color: '#f59e0b', marginTop: '6px', fontWeight: 600 }}>
+            🪙 {hostSummary?.total_host_coins?.toLocaleString() || 0} Total Host Coins
           </div>
         </div>
 
@@ -522,6 +520,29 @@ export default function HostManagement({ onToast }) {
           </div>
           <div style={{ fontSize: '1.85rem', fontWeight: 800, color: '#f59e0b' }}>
             {hostSummary?.agency_hosts?.toLocaleString() || 0}
+          </div>
+        </div>
+
+        {/* Card 5: Total Combined Coins */}
+        <div className="panel-card" style={{
+          padding: '1.25rem',
+          borderRadius: '14px',
+          borderLeft: '4px solid #eab308',
+          boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+            <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              Total Coins (Combined)
+            </span>
+            <div style={{ padding: '6px', borderRadius: '8px', background: 'rgba(234, 179, 8, 0.12)', color: '#ca8a04' }}>
+              <Sparkles size={18} />
+            </div>
+          </div>
+          <div style={{ fontSize: '1.85rem', fontWeight: 800, color: '#ca8a04' }}>
+            🪙 {(hostSummary?.total_coins || hostSummary?.total_host_coins || 0).toLocaleString()}
+          </div>
+          <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)', marginTop: '6px', fontWeight: 600 }}>
+            Hosts: {(hostSummary?.total_host_coins || 0).toLocaleString()} • Owner: {(hostSummary?.total_owner_coins || 0).toLocaleString()} • Comm: {(hostSummary?.total_commission_coins || 0).toLocaleString()}
           </div>
         </div>
       </div>
@@ -713,8 +734,8 @@ export default function HostManagement({ onToast }) {
                       <th>Host ID</th>
                       <th>Host Classification</th>
                       <th>Agency Membership</th>
+                      <th>Host Coins (🪙)</th>
                       {isDiamondMode && <th>Diamond Balance (💎)</th>}
-                      <th>Coin Balance (🪙)</th>
                       <th>Broadcasting Activity</th>
                       <th style={{ textAlign: 'right' }}>Actions</th>
                     </tr>
@@ -868,6 +889,16 @@ export default function HostManagement({ onToast }) {
                             )}
                           </td>
 
+                          {/* Coins */}
+                          <td>
+                            <div style={{ fontWeight: 800, color: '#f59e0b', fontSize: '0.92rem' }}>
+                              🪙 {h.coins?.toLocaleString() || 0}
+                            </div>
+                            <div style={{ fontSize: '0.7rem', color: 'var(--text-dim)' }}>
+                              Host Coins
+                            </div>
+                          </td>
+
                           {/* Diamonds */}
                           {isDiamondMode && (
                             <td>
@@ -879,16 +910,6 @@ export default function HostManagement({ onToast }) {
                               </div>
                             </td>
                           )}
-
-                          {/* Coins */}
-                          <td>
-                            <div style={{ fontWeight: 800, color: '#f59e0b', fontSize: '0.9rem' }}>
-                              🪙 {h.coins?.toLocaleString() || 0}
-                            </div>
-                            <div style={{ fontSize: '0.7rem', color: 'var(--text-dim)' }}>
-                              Coin balance
-                            </div>
-                          </td>
 
                           {/* Activity */}
                           <td>
