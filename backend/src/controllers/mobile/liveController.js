@@ -1930,6 +1930,13 @@ export async function toggleSeatMedia(req, res) {
       await query(`UPDATE live_room_seats SET ${updates.join(', ')} WHERE (room_id = ? OR room_id = ?) AND user_id = ?`, params);
     }
 
+    // Determine occupied seat number for exact client targeting
+    const userSeats = await query(
+      'SELECT seat_number FROM live_room_seats WHERE (room_id = ? OR room_id = ?) AND user_id = ?',
+      [canonicalRoomId, numericRoomId, userId]
+    );
+    const resolvedSeatNum = userSeats.length > 0 ? userSeats[0].seat_number : 1;
+
     // Instant Redis Invalidation
     await cache.del(`mobile:room_details:${canonicalRoomId}`);
     if (numericRoomId) await cache.del(`mobile:room_details:${numericRoomId}`);
@@ -1940,6 +1947,8 @@ export async function toggleSeatMedia(req, res) {
       const payload = {
         roomId: canonicalRoomId,
         numericRoomId,
+        seatNumber: resolvedSeatNum,
+        seatIndex: resolvedSeatNum,
         userId,
         isCameraOn: Boolean(isCameraOn),
         is_camera_on: Boolean(isCameraOn),
@@ -1949,8 +1958,11 @@ export async function toggleSeatMedia(req, res) {
         is_muted: Boolean(isMuted),
         actionBy: userId,
       };
-      req.io.to(canonicalRoomId).emit('seat_media_updated', payload);
-      req.io.to(canonicalRoomId).emit('seat-media-updated', payload);
+      const channels = new Set([canonicalRoomId, numericRoomId].filter(Boolean));
+      for (const ch of channels) {
+        req.io.to(ch).emit('seat_media_updated', payload);
+        req.io.to(ch).emit('seat-media-updated', payload);
+      }
     }
 
     return res.json({
@@ -2075,15 +2087,24 @@ export async function muteSeat(req, res) {
     const rawUser = req.params.userId || req.body.userId || req.body.user_id;
     let num = parseInt(rawSeat, 10);
 
-    const rooms = await query('SELECT id, room_id, host_id FROM live_rooms WHERE room_id = ? AND status = "live"', [roomId]);
+    const isNum = /^\d+$/.test(String(roomId).trim());
+    const rooms = await query(
+      'SELECT id, room_id, host_id FROM live_rooms WHERE (room_id = ? OR id = ?) AND status = "live"',
+      [String(roomId), isNum ? Number(roomId) : -1]
+    );
     if (rooms.length === 0) {
       return res.status(404).json({ success: false, message: 'Active live room not found.' });
     }
     const room = rooms[0];
+    const canonicalRoomId = room.room_id;
+    const numericRoomId = String(room.id || '');
 
     // If seatNumber not given, resolve via userId
     if ((!num || isNaN(num)) && rawUser) {
-      const userSeats = await query('SELECT seat_number FROM live_room_seats WHERE room_id = ? AND user_id = ?', [roomId, rawUser]);
+      const userSeats = await query(
+        'SELECT seat_number FROM live_room_seats WHERE (room_id = ? OR room_id = ?) AND user_id = ?',
+        [canonicalRoomId, numericRoomId, rawUser]
+      );
       if (userSeats.length > 0) {
         num = userSeats[0].seat_number;
       }
@@ -2093,7 +2114,10 @@ export async function muteSeat(req, res) {
       return res.status(400).json({ success: false, message: 'Invalid seat number or user is not seated in this room.' });
     }
 
-    const seats = await query('SELECT * FROM live_room_seats WHERE (room_id = ? OR room_id = ?) AND seat_number = ?', [roomId, String(room.id || ''), num]);
+    const seats = await query(
+      'SELECT * FROM live_room_seats WHERE (room_id = ? OR room_id = ?) AND seat_number = ?',
+      [canonicalRoomId, numericRoomId, num]
+    );
     if (seats.length === 0) {
       return res.status(404).json({ success: false, message: `Seat ${num} not found in this room.` });
     }
@@ -2102,7 +2126,10 @@ export async function muteSeat(req, res) {
     // Check caller permission: Host, Admin, Room Moderator, or the occupant of this seat
     let isAuthorized = (callerId === room.host_id) || (callerRole === 'admin') || (callerRole === 'superadmin') || (seat.user_id && Number(seat.user_id) === Number(callerId));
     if (!isAuthorized) {
-      const adminRows = await query('SELECT id FROM live_room_admins WHERE (room_id = ? OR room_id = ?) AND user_id = ?', [roomId, String(room.id || ''), callerId]);
+      const adminRows = await query(
+        'SELECT id FROM live_room_admins WHERE (room_id = ? OR room_id = ?) AND user_id = ?',
+        [canonicalRoomId, numericRoomId, callerId]
+      );
       isAuthorized = adminRows.length > 0;
     }
     if (!isAuthorized) {
@@ -2136,18 +2163,22 @@ export async function muteSeat(req, res) {
     // Update seat mute & camera in DB (Single Source of Truth)
     await query(
       'UPDATE live_room_seats SET is_muted = ?, is_camera_on = ? WHERE (room_id = ? OR room_id = ?) AND seat_number = ?',
-      [newMuteStatus, newCameraStatus, roomId, String(room.id || ''), num]
+      [newMuteStatus, newCameraStatus, canonicalRoomId, numericRoomId, num]
     );
 
     // Instant Redis Invalidation
-    await cache.del(`mobile:room_details:${roomId}`);
-    if (room.id) await cache.del(`mobile:room_details:${room.id}`);
+    await Promise.allSettled([
+      cache.del(`mobile:room_details:${canonicalRoomId}`),
+      numericRoomId ? cache.del(`mobile:room_details:${numericRoomId}`) : null,
+      cache.delByPattern(`mobile:room:users:${canonicalRoomId}*`),
+    ]);
 
-    const roomData = await buildRoomResponse(roomId, req.user);
+    const roomData = await buildRoomResponse(canonicalRoomId, req.user);
 
     if (req.io) {
       const payload = {
-        roomId: room.room_id || roomId,
+        roomId: canonicalRoomId,
+        numericRoomId,
         seatNumber: num,
         seatIndex: num,
         userId: seat.user_id,
@@ -2160,8 +2191,11 @@ export async function muteSeat(req, res) {
         mutedBy: callerId,
         actionBy: callerId,
       };
-      req.io.to(room.room_id || roomId).emit('seat_media_updated', payload);
-      req.io.to(room.room_id || roomId).emit('seat-media-updated', payload);
+      const channels = new Set([canonicalRoomId, numericRoomId].filter(Boolean));
+      for (const ch of channels) {
+        req.io.to(ch).emit('seat_media_updated', payload);
+        req.io.to(ch).emit('seat-media-updated', payload);
+      }
     }
 
     return res.json({
