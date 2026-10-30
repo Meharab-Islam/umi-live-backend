@@ -138,7 +138,7 @@ export async function getAllAgencies(req, res) {
     const data = await cache.getOrSet(cacheKey, 30, async () => {
       let sql = `
         SELECT 
-          a.id, a.agency_code, a.name, a.owner_id, a.commission_rate, a.status,
+          a.id, a.agency_code, a.name, a.logo_url, a.avatar_url AS agency_avatar, a.owner_id, a.commission_rate, a.status,
           a.contact_phone, a.notes, a.created_at, a.updated_at,
           u.full_name AS owner_name, u.email AS owner_email, u.avatar_url AS owner_avatar, u.coins AS owner_coins,
           (SELECT COUNT(u2.id) FROM users u2 WHERE u2.agency_id = a.id AND u2.role != 'superadmin') AS total_hosts_count,
@@ -171,8 +171,10 @@ export async function getAllAgencies(req, res) {
         const totalCoinsGifted = parseInt(row.total_coins_gifted_to_hosts || 0, 10);
         const totalCommissionCoins = Math.round(totalCoinsGifted * (commissionRate / 100));
 
-        const rawAvatar = row.owner_avatar || '';
-        const fullAvatar = resolveFullAvatarUrl(req, rawAvatar);
+        const rawAgencyLogo = row.logo_url || row.agency_avatar || '';
+        const rawLogo = rawAgencyLogo || row.owner_avatar || '';
+        const fullLogo = resolveFullAvatarUrl(req, rawLogo);
+        const ownerFullAvatar = resolveFullAvatarUrl(req, row.owner_avatar || '');
 
         return {
           id: row.id,
@@ -184,15 +186,15 @@ export async function getAllAgencies(req, res) {
           notes: row.notes || '',
           created_at: row.created_at,
           owner_name: row.owner_name || 'Agency Owner',
-          owner_avatar: rawAvatar,
-          avatar_url: rawAvatar,
-          profile_picture: rawAvatar,
-          profile_picture_url: fullAvatar || rawAvatar,
-          profile_image: rawAvatar,
-          logo_url: rawAvatar,
-          logo: rawAvatar,
-          full_avatar_url: fullAvatar,
-          full_profile_picture: fullAvatar,
+          owner_avatar: row.owner_avatar || '',
+          avatar_url: rawLogo,
+          profile_picture: rawLogo,
+          profile_picture_url: fullLogo || rawLogo,
+          profile_image: rawLogo,
+          logo_url: rawLogo,
+          logo: rawLogo,
+          full_avatar_url: fullLogo,
+          full_profile_picture: fullLogo,
           owner_coins: parseInt(row.owner_coins || 0, 10),
           total_hosts: parseInt(row.total_hosts_count || 0, 10),
           total_commission_coins: totalCommissionCoins,
@@ -202,13 +204,13 @@ export async function getAllAgencies(req, res) {
             id: row.owner_id,
             full_name: row.owner_name || 'Agency Owner',
             email: row.owner_email || '',
-            avatar_url: rawAvatar,
-            profile_picture: rawAvatar,
-            profile_picture_url: fullAvatar || rawAvatar,
-            profile_image: rawAvatar,
-            avatar: rawAvatar,
-            full_avatar_url: fullAvatar,
-            full_profile_picture: fullAvatar,
+            avatar_url: row.owner_avatar || '',
+            profile_picture: row.owner_avatar || '',
+            profile_picture_url: ownerFullAvatar || (row.owner_avatar || ''),
+            profile_image: row.owner_avatar || '',
+            avatar: row.owner_avatar || '',
+            full_avatar_url: ownerFullAvatar,
+            full_profile_picture: ownerFullAvatar,
             coins: parseInt(row.owner_coins || 0, 10),
           },
           metrics: {
@@ -322,8 +324,11 @@ export async function getAgencyOverview(req, res) {
       );
       const pendingRequestsCount = parseInt(pendingStats?.pending_requests_count || 0, 10);
 
-      const rawAvatar = owner?.avatar_url || '';
+      const rawAgencyLogo = agency.logo_url || agency.avatar_url || '';
+      const rawAvatar = rawAgencyLogo || owner?.avatar_url || '';
       const fullAvatar = resolveFullAvatarUrl(req, rawAvatar);
+      const ownerRawAvatar = owner?.avatar_url || '';
+      const ownerFullAvatar = resolveFullAvatarUrl(req, ownerRawAvatar);
 
       return {
         id: agency.id,
@@ -376,13 +381,13 @@ export async function getAgencyOverview(req, res) {
           id: owner?.id || agency.owner_id,
           full_name: owner?.full_name || 'Agency Manager',
           email: owner?.email || '',
-          avatar_url: rawAvatar,
-          profile_picture: rawAvatar,
-          profile_picture_url: fullAvatar || rawAvatar,
-          profile_image: rawAvatar,
-          avatar: rawAvatar,
-          full_avatar_url: fullAvatar,
-          full_profile_picture: fullAvatar,
+          avatar_url: ownerRawAvatar,
+          profile_picture: ownerRawAvatar,
+          profile_picture_url: ownerFullAvatar || ownerRawAvatar,
+          profile_image: ownerRawAvatar,
+          avatar: ownerRawAvatar,
+          full_avatar_url: ownerFullAvatar,
+          full_profile_picture: ownerFullAvatar,
           coins: owner?.coins || 0,
           diamonds: owner?.diamonds || 0,
         },
@@ -1535,3 +1540,118 @@ export async function cancelHostApplication(req, res) {
     return res.status(500).json({ success: false, message: 'Failed to cancel agency application.' });
   }
 }
+
+/**
+ * Update Agency Profile (Name and Logo / Profile Picture)
+ * PUT /api/mobile/agency/profile
+ * Requires role 'agency', 'admin', or 'superadmin', OR user is owner of the agency.
+ * Multipart or JSON supported. Updates agency table ONLY; preserves personal account profile.
+ */
+export async function updateAgencyProfile(req, res) {
+  try {
+    const userId = req.user.id;
+    const userRole = req.user.role;
+
+    let targetAgencyId = req.params.agencyId ? parseInt(req.params.agencyId, 10) : (req.body.agency_id ? parseInt(req.body.agency_id, 10) : null);
+
+    let agency = null;
+    if (targetAgencyId) {
+      const [row] = await query('SELECT * FROM agencies WHERE id = ?', [targetAgencyId]);
+      agency = row;
+    } else {
+      const [byOwner] = await query('SELECT * FROM agencies WHERE owner_id = ? LIMIT 1', [userId]);
+      if (byOwner) {
+        agency = byOwner;
+      } else if (req.user.agency_id) {
+        const [byAgencyId] = await query('SELECT * FROM agencies WHERE id = ? LIMIT 1', [req.user.agency_id]);
+        agency = byAgencyId;
+      }
+    }
+
+    if (!agency) {
+      return res.status(404).json({
+        success: false,
+        message: 'No agency found associated with this account.',
+      });
+    }
+
+    const isOwner = Number(agency.owner_id) === Number(userId);
+    const isAdmin = ['admin', 'superadmin', 'moderator'].includes(userRole);
+    if (!isOwner && !isAdmin) {
+      return res.status(403).json({
+        success: false,
+        message: 'Forbidden. Only the agency owner or system administrator can edit this agency profile.',
+      });
+    }
+
+    const { name, logo_url } = req.body;
+    const updates = [];
+    const params = [];
+
+    if (name !== undefined) {
+      const cleanName = String(name).trim();
+      if (cleanName.length < 2) {
+        return res.status(400).json({
+          success: false,
+          message: 'Agency name must be at least 2 characters long.',
+        });
+      }
+      updates.push('name = ?');
+      params.push(cleanName);
+    }
+
+    if (req.file) {
+      const savedLogo = `/uploads/agencies/${req.file.filename}`;
+      updates.push('logo_url = ?', 'avatar_url = ?');
+      params.push(savedLogo, savedLogo);
+    } else if (logo_url !== undefined) {
+      const cleanLogo = String(logo_url).trim();
+      updates.push('logo_url = ?', 'avatar_url = ?');
+      params.push(cleanLogo, cleanLogo);
+    }
+
+    if (updates.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'No changes provided. Provide "name" or attach an image file.',
+      });
+    }
+
+    params.push(agency.id);
+    await query(`UPDATE agencies SET ${updates.join(', ')} WHERE id = ?`, params);
+
+    // Invalidate Redis caches instantly!
+    await cache.del(`agency:${agency.id}:overview`);
+    await cache.del('agency:list:all');
+    await cache.delByPattern('agency:list:*');
+    await cache.del('moderator:agencies:all');
+    await cache.delByPattern('moderator:agencies:*');
+    await cache.del(`user:agency_application:${agency.owner_id}`);
+
+    const [updatedAgency] = await query('SELECT * FROM agencies WHERE id = ?', [agency.id]);
+    const rawLogo = updatedAgency.logo_url || updatedAgency.avatar_url || '';
+    const fullLogo = resolveFullAvatarUrl(req, rawLogo);
+
+    return res.json({
+      success: true,
+      message: 'Agency profile updated successfully.',
+      data: {
+        id: updatedAgency.id,
+        agency_code: updatedAgency.agency_code,
+        name: updatedAgency.name,
+        logo_url: rawLogo,
+        avatar_url: rawLogo,
+        profile_picture: rawLogo,
+        profile_picture_url: fullLogo || rawLogo,
+        full_avatar_url: fullLogo,
+      },
+    });
+  } catch (error) {
+    console.error('updateAgencyProfile error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to update agency profile.',
+    });
+  }
+}
+

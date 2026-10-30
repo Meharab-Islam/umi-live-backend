@@ -9815,6 +9815,104 @@ export const API_SPEC = {
       ]
     },
     {
+      "id": "agency-profile-update",
+      "category": "agency-management",
+      "method": "PUT",
+      "path": "/api/mobile/agency/profile",
+      "summary": "Update Agency Business Profile (Name & Logo)",
+      "description": "Allows an agency owner (or Admin/Moderator) to independently update their agency's display name and dedicated logo/avatar. Changes are committed to the 'agencies' table and NEVER modify the owner's personal account profile name or avatar. Automatically invalidates related Redis caches ('agency:{id}:overview', 'agency:list:*', 'moderator:agencies:*'). Supports both multipart/form-data (with 'image' file upload) and application/json.",
+      "requiresAuth": true,
+      "requestHeaders": [
+        {
+          "name": "Authorization",
+          "type": "string",
+          "required": true,
+          "description": "Bearer JWT token (Agency Manager or Admin)"
+        },
+        {
+          "name": "Content-Type",
+          "type": "string",
+          "required": false,
+          "description": "multipart/form-data or application/json"
+        }
+      ],
+      "parameters": [
+        {
+          "name": "agencyId",
+          "type": "integer",
+          "in": "query",
+          "required": false,
+          "description": "Optional Agency ID for Admin/Moderator updating a specific agency"
+        }
+      ],
+      "requestBody": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "required": false,
+            "description": "Updated Agency Business Name (min 2 characters)"
+          },
+          "image": {
+            "type": "file",
+            "required": false,
+            "description": "Multipart file upload for agency logo/avatar"
+          },
+          "logo_url": {
+            "type": "string",
+            "required": false,
+            "description": "Direct URL string if not uploading a file"
+          }
+        },
+        "example": {
+          "name": "Royal Star Talent Agency",
+          "logo_url": "https://cdn.umi.live/uploads/agencies/royal_star.png"
+        }
+      },
+      "responses": [
+        {
+          "status": 200,
+          "description": "Agency profile updated successfully.",
+          "example": {
+            "success": true,
+            "message": "Agency profile updated successfully",
+            "data": {
+              "id": 1,
+              "agency_code": "AG-101",
+              "name": "Royal Star Talent Agency",
+              "logo_url": "/uploads/agencies/agency_1_1761825800000.png",
+              "avatar_url": "/uploads/agencies/agency_1_1761825800000.png",
+              "owner_id": 1,
+              "status": "active"
+            }
+          }
+        },
+        {
+          "status": 400,
+          "description": "Validation error (name too short or no update fields provided).",
+          "example": {
+            "success": false,
+            "message": "No fields to update or agency name must be at least 2 characters"
+          }
+        },
+        {
+          "status": 403,
+          "description": "Forbidden - user does not own this agency.",
+          "example": {
+            "success": false,
+            "message": "You are not authorized to update this agency"
+          }
+        },
+        {
+          "status": 404,
+          "description": "Agency not found.",
+          "example": {
+            "success": false,
+            "message": "Agency not found"
+          }
+        }
+      ]
+    },
       "id": "agency-hosts-list",
       "category": "agency-management",
       "method": "GET",

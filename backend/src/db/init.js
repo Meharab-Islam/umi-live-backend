@@ -702,6 +702,43 @@ export async function initializeDatabase() {
       // Silently continue if already exists
     }
 
+    // Ensure agencies table exists with logo_url and avatar_url
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS agencies (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        agency_code VARCHAR(32) NOT NULL UNIQUE,
+        name VARCHAR(100) NOT NULL,
+        logo_url VARCHAR(500) DEFAULT NULL,
+        avatar_url VARCHAR(500) DEFAULT NULL,
+        owner_id INT NOT NULL,
+        commission_rate DECIMAL(5, 2) DEFAULT 10.00,
+        status ENUM('active', 'inactive') DEFAULT 'active',
+        contact_phone VARCHAR(50) DEFAULT '',
+        notes TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        INDEX idx_owner_id (owner_id),
+        FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE CASCADE
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `);
+
+    try {
+      const [colCheckAgencyLogo] = await connection.query(`
+        SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS 
+        WHERE TABLE_SCHEMA = ? AND TABLE_NAME = 'agencies' AND COLUMN_NAME = 'logo_url'
+      `, [database]);
+      if (!colCheckAgencyLogo || colCheckAgencyLogo.length === 0) {
+        await connection.query(`
+          ALTER TABLE \`agencies\` 
+            ADD COLUMN logo_url VARCHAR(500) DEFAULT NULL AFTER name,
+            ADD COLUMN avatar_url VARCHAR(500) DEFAULT NULL AFTER logo_url;
+        `);
+        console.log('✅ [DB Migration] Added logo_url and avatar_url to agencies table.');
+      }
+    } catch (err) {
+      // Ignore if exists
+    }
+
     // Ensure agency_host_requests table exists
     await connection.query(`
       CREATE TABLE IF NOT EXISTS agency_host_requests (

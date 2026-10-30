@@ -133,6 +133,31 @@ export const optionalAvatarUpload = (req, res, next) => {
 };
 
 /**
+ * Mobile Agency Logo / Profile Picture Upload Middleware
+ * Automatically handles multipart/form-data for agency profile updates.
+ * Saves to /uploads/agencies/.
+ */
+export const optionalAgencyLogoUpload = (req, res, next) => {
+  const contentType = req.headers['content-type'] || '';
+  if (contentType.includes('multipart/form-data')) {
+    req.uploadCategory = 'agencies';
+    return avatarMulter.any()(req, res, (err) => {
+      if (err) {
+        return res.status(400).json({
+          success: false,
+          message: err.message || 'Agency logo upload failed.',
+        });
+      }
+      if (req.files && req.files.length > 0) {
+        req.file = req.files[0];
+      }
+      next();
+    });
+  }
+  next();
+};
+
+/**
  * Mobile Live Room Background / Media Upload Middleware
  * Automatically handles multipart/form-data for room cover/background thumbnail updates.
  */

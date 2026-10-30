@@ -36,6 +36,8 @@ CREATE TABLE IF NOT EXISTS agencies (
   id INT AUTO_INCREMENT PRIMARY KEY,
   agency_code VARCHAR(32) NOT NULL UNIQUE,
   name VARCHAR(100) NOT NULL,
+  logo_url VARCHAR(500) DEFAULT NULL,
+  avatar_url VARCHAR(500) DEFAULT NULL,
   owner_id INT NOT NULL,
   commission_rate DECIMAL(5, 2) DEFAULT 10.00,
   status ENUM('active', 'inactive') DEFAULT 'active',

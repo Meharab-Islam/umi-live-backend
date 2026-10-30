@@ -1,5 +1,6 @@
 import express from 'express';
 import { requireAuth, requireAgency, optionalAuth } from '../../middlewares/authMiddleware.js';
+import { optionalAgencyLogoUpload } from '../../middleware/upload.js';
 import {
   getAgencyOverview,
   getAgencyHosts,
@@ -15,6 +16,7 @@ import {
   cancelHostApplication,
   getAllAgencies,
   updateAgencyCommission,
+  updateAgencyProfile,
 } from '../../controllers/mobile/agencyController.js';
 import { getTopAgencies } from '../../controllers/mobile/leaderboardController.js';
 
@@ -48,6 +50,11 @@ router.put('/commission', updateAgencyCommission);
 router.post('/commission', updateAgencyCommission);
 router.patch('/commission', updateAgencyCommission);
 
+// Agency Profile update (Name & Logo / Profile Picture)
+router.put('/profile', optionalAgencyLogoUpload, updateAgencyProfile);
+router.post('/profile', optionalAgencyLogoUpload, updateAgencyProfile);
+router.patch('/profile', optionalAgencyLogoUpload, updateAgencyProfile);
+
 // 1. Static Routes (MUST be registered before parameterized /:agencyId routes to avoid path collision)
 router.get('/overview', getAgencyOverview);
 router.get('/hosts', getAgencyHosts);
@@ -61,6 +68,8 @@ router.post('/hosts/:hostId/ban-broadcast', banHostBroadcast);
 router.post('/hosts/:hostId/unban-broadcast', unbanHostBroadcast);
 
 // 2. Parameterized Routes with numeric agencyId (for Elevated Roles / Moderators / Specific Agency)
+router.put('/:agencyId(\\d+)/profile', optionalAgencyLogoUpload, updateAgencyProfile);
+router.post('/:agencyId(\\d+)/profile', optionalAgencyLogoUpload, updateAgencyProfile);
 router.put('/:agencyId(\\d+)/commission', updateAgencyCommission);
 router.post('/:agencyId(\\d+)/commission', updateAgencyCommission);
 router.get('/:agencyId(\\d+)/overview', getAgencyOverview);
