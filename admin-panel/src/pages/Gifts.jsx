@@ -1413,6 +1413,35 @@ export default function Gifts({ onToast }) {
                   style={{ fontSize: '0.84rem' }}
                 />
               </div>
+
+              {/* Explicit Image Graphic Preview */}
+              {bannerConfig.image_url && (
+                <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-muted)' }}>
+                    Current Banner Image Asset:
+                  </span>
+                  <div
+                    style={{
+                      maxWidth: '520px',
+                      height: '90px',
+                      borderRadius: '10px',
+                      overflow: 'hidden',
+                      border: '1px solid var(--border-color)',
+                      background: '#0f172a',
+                      position: 'relative',
+                    }}
+                  >
+                    <img
+                      src={resolveMediaUrl(bannerConfig.image_url)}
+                      alt="Current Banner Graphic"
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
