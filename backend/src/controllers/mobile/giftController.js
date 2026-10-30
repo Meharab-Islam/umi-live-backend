@@ -401,6 +401,18 @@ export async function sendGift(req, res) {
       );
     }
 
+    // Invalidate Redis caches for agency owners receiving commission so their main balance updates instantly
+    for (const agencyOwnerId of agencyEarningsMap.keys()) {
+      cacheInvalidations.push(
+        cache.del(`user:${agencyOwnerId}`),
+        cache.del(`user:balance:${agencyOwnerId}`),
+        cache.del(`mobile:user:profile:${agencyOwnerId}`),
+        cache.delByPattern(`user:transactions:${agencyOwnerId}*`),
+        cache.delByPattern(`agency:overview:*`),
+        cache.delByPattern(`agency:*`)
+      );
+    }
+
     await Promise.allSettled(cacheInvalidations);
 
     // 12b. Check Level Progression & Rewards Engine
