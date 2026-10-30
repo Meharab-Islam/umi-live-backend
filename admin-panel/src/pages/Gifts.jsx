@@ -1212,37 +1212,67 @@ export default function Gifts({ onToast }) {
             </h3>
 
             <div style={{ background: '#0a0a0f', padding: '2rem 1.5rem', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-              {/* The Banner Graphic Container */}
+              {/* The Banner Graphic Container: Transparent PNG with Ribbon-Aligned Text */}
               <div
                 style={{
                   position: 'relative',
                   width: '100%',
-                  maxWidth: '560px',
-                  minHeight: '74px',
-                  borderRadius: '16px',
-                  overflow: 'hidden',
-                  backgroundImage: bannerConfig.image_url ? `url(${resolveMediaUrl(bannerConfig.image_url)})` : 'linear-gradient(135deg, #4c1d95, #1e1b4b)',
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  boxShadow: '0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(168, 85, 247, 0.35)',
-                  border: '1px solid rgba(255, 255, 255, 0.25)',
+                  maxWidth: '580px',
+                  aspectRatio: '1024 / 372',
                   display: 'flex',
                   alignItems: 'center',
-                  padding: '0.65rem 1rem',
-                  gap: '0.85rem',
+                  justifyContent: 'center',
                 }}
               >
-                {/* Subtle dark backdrop filter to ensure text contrast */}
-                <div style={{ position: 'absolute', inset: 0, background: 'rgba(15, 23, 42, 0.45)', backdropFilter: 'blur(3px)', zIndex: 0 }} />
+                {/* Banner Graphic Image */}
+                <img
+                  src={bannerConfig.image_url ? resolveMediaUrl(bannerConfig.image_url) : '/uploads/gifts/global_gift_banner_bg.png'}
+                  alt="Banner Graphic"
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'contain',
+                    pointerEvents: 'none',
+                  }}
+                  onError={(e) => {
+                    e.currentTarget.src = '/uploads/gifts/global_gift_banner_bg.png';
+                  }}
+                />
 
-                {/* Banner Content Layer: Plain Text over single background image */}
-                <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', padding: '0.5rem 1rem', textAlign: 'center' }}>
-                  <div style={{ fontSize: '1.05rem', textShadow: '0 2px 6px rgba(0,0,0,0.85)', letterSpacing: '0.2px', lineHeight: 1.4 }}>
+                {/* Banner Text precisely inside the ribbon area */}
+                <div
+                  style={{
+                    position: 'absolute',
+                    left: '28.5%',
+                    right: '22.5%',
+                    top: '40%',
+                    bottom: '28%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    textAlign: 'center',
+                    padding: '0 4px',
+                    zIndex: 2,
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: 'clamp(0.68rem, 1.4vw, 0.95rem)',
+                      lineHeight: 1.2,
+                      fontWeight: 900,
+                      textShadow: '0 1px 3px rgba(0,0,0,0.85)',
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                    }}
+                  >
                     <span style={{ color: '#fde047', fontWeight: 900 }}>Farhan King</span>
-                    <span style={{ color: '#ffffff', margin: '0 6px', fontWeight: 600 }}>sent</span>
+                    <span style={{ color: '#ffffff', margin: '0 4px', fontWeight: 700 }}>sent</span>
                     <span style={{ color: '#fbbf24', fontWeight: 900 }}>🪙 5,000 Coins</span>
-                    <span style={{ color: '#ffffff', margin: '0 6px', fontWeight: 600 }}>to</span>
-                    <span style={{ color: '#7dd3fc', fontWeight: 900 }}>Nusrat Star</span>
+                    <span style={{ color: '#ffffff', margin: '0 4px', fontWeight: 700 }}>to</span>
+                    <span style={{ color: '#e0f2fe', fontWeight: 900 }}>Nusrat Star</span>
                   </div>
                 </div>
               </div>
