@@ -119,6 +119,7 @@ export default function Gifts({ onToast }) {
   });
   const [loadingBannerConfig, setLoadingBannerConfig] = useState(false);
   const [savingBannerConfig, setSavingBannerConfig] = useState(false);
+  const [uploadingBannerImage, setUploadingBannerImage] = useState(false);
   const [testingBanner, setTestingBanner] = useState(false);
   const [marqueePreview, setMarqueePreview] = useState(false);
 
