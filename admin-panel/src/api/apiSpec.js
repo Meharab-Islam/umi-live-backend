@@ -8846,17 +8846,27 @@ export const API_SPEC = {
           "example": {
             "success": true,
             "message": "Agency overview retrieved successfully.",
+            "profile_picture": "/uploads/avatars/starlight_logo.png",
+            "profile_picture_url": "http://107.174.137.29:5050/uploads/avatars/starlight_logo.png",
+            "avatar_url": "/uploads/avatars/starlight_logo.png",
+            "logo_url": "/uploads/avatars/starlight_logo.png",
             "data": {
               "agency": {
                 "id": 1,
                 "agency_code": "AG-101",
                 "name": "Starlight Talent Agency",
+                "profile_picture": "/uploads/avatars/starlight_logo.png",
+                "profile_picture_url": "http://107.174.137.29:5050/uploads/avatars/starlight_logo.png",
+                "logo_url": "/uploads/avatars/starlight_logo.png",
                 "commission_rate": 15,
                 "status": "active"
               },
               "owner": {
                 "id": 1,
                 "full_name": "System Admin",
+                "avatar_url": "/uploads/avatars/starlight_logo.png",
+                "profile_picture": "/uploads/avatars/starlight_logo.png",
+                "profile_picture_url": "http://107.174.137.29:5050/uploads/avatars/starlight_logo.png",
                 "coins": 100000,
                 "diamonds": 50000
               },

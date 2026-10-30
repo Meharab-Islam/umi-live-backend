@@ -3,6 +3,19 @@ import { cache } from '../../config/redis.js';
 import { getLiveIO } from '../../sockets/liveSocket.js';
 import { sendPushNotification } from '../../config/firebase.js';
 
+export function resolveFullAvatarUrl(req, avatarUrl) {
+  if (!avatarUrl || typeof avatarUrl !== 'string' || !avatarUrl.trim()) {
+    return null;
+  }
+  const clean = avatarUrl.trim();
+  if (clean.startsWith('http://') || clean.startsWith('https://')) {
+    return clean;
+  }
+  const host = req?.get ? (req.get('host') || '107.174.137.29:5050') : '107.174.137.29:5050';
+  const proto = req?.headers?.['x-forwarded-proto'] || req?.protocol || 'http';
+  return `${proto}://${host}${clean.startsWith('/') ? '' : '/'}${clean}`;
+}
+
 /**
  * Format seconds into human-friendly "00h 00m 00s" or "00m 00s" string.
  */
@@ -158,6 +171,9 @@ export async function getAllAgencies(req, res) {
         const totalCoinsGifted = parseInt(row.total_coins_gifted_to_hosts || 0, 10);
         const totalCommissionCoins = Math.round(totalCoinsGifted * (commissionRate / 100));
 
+        const rawAvatar = row.owner_avatar || '';
+        const fullAvatar = resolveFullAvatarUrl(req, rawAvatar);
+
         return {
           id: row.id,
           agency_code: row.agency_code,
@@ -168,6 +184,15 @@ export async function getAllAgencies(req, res) {
           notes: row.notes || '',
           created_at: row.created_at,
           owner_name: row.owner_name || 'Agency Owner',
+          owner_avatar: rawAvatar,
+          avatar_url: rawAvatar,
+          profile_picture: rawAvatar,
+          profile_picture_url: fullAvatar || rawAvatar,
+          profile_image: rawAvatar,
+          logo_url: rawAvatar,
+          logo: rawAvatar,
+          full_avatar_url: fullAvatar,
+          full_profile_picture: fullAvatar,
           owner_coins: parseInt(row.owner_coins || 0, 10),
           total_hosts: parseInt(row.total_hosts_count || 0, 10),
           total_commission_coins: totalCommissionCoins,
@@ -177,7 +202,13 @@ export async function getAllAgencies(req, res) {
             id: row.owner_id,
             full_name: row.owner_name || 'Agency Owner',
             email: row.owner_email || '',
-            avatar_url: row.owner_avatar || '',
+            avatar_url: rawAvatar,
+            profile_picture: rawAvatar,
+            profile_picture_url: fullAvatar || rawAvatar,
+            profile_image: rawAvatar,
+            avatar: rawAvatar,
+            full_avatar_url: fullAvatar,
+            full_profile_picture: fullAvatar,
             coins: parseInt(row.owner_coins || 0, 10),
           },
           metrics: {
@@ -291,12 +322,23 @@ export async function getAgencyOverview(req, res) {
       );
       const pendingRequestsCount = parseInt(pendingStats?.pending_requests_count || 0, 10);
 
+      const rawAvatar = owner?.avatar_url || '';
+      const fullAvatar = resolveFullAvatarUrl(req, rawAvatar);
+
       return {
         id: agency.id,
         agency_id: agency.id,
         name: agency.name,
         agency_name: agency.name,
         agency_code: agency.agency_code,
+        avatar_url: rawAvatar,
+        profile_picture: rawAvatar,
+        profile_picture_url: fullAvatar || rawAvatar,
+        profile_image: rawAvatar,
+        logo_url: rawAvatar,
+        logo: rawAvatar,
+        full_avatar_url: fullAvatar,
+        full_profile_picture: fullAvatar,
         commission_rate: commissionRate,
         commission_rate_percentage: commissionRate,
         commission_rate_percent: commissionRate,
@@ -321,12 +363,26 @@ export async function getAgencyOverview(req, res) {
           contact_phone: agency.contact_phone || '',
           notes: agency.notes || '',
           created_at: agency.created_at,
+          avatar_url: rawAvatar,
+          profile_picture: rawAvatar,
+          profile_picture_url: fullAvatar || rawAvatar,
+          profile_image: rawAvatar,
+          logo_url: rawAvatar,
+          logo: rawAvatar,
+          full_avatar_url: fullAvatar,
+          full_profile_picture: fullAvatar,
         },
         owner: {
           id: owner?.id || agency.owner_id,
           full_name: owner?.full_name || 'Agency Manager',
           email: owner?.email || '',
-          avatar_url: owner?.avatar_url || '',
+          avatar_url: rawAvatar,
+          profile_picture: rawAvatar,
+          profile_picture_url: fullAvatar || rawAvatar,
+          profile_image: rawAvatar,
+          avatar: rawAvatar,
+          full_avatar_url: fullAvatar,
+          full_profile_picture: fullAvatar,
           coins: owner?.coins || 0,
           diamonds: owner?.diamonds || 0,
         },
@@ -344,10 +400,40 @@ export async function getAgencyOverview(req, res) {
       };
     });
 
+    const agencyPic = data?.profile_picture || data?.owner?.profile_picture || data?.agency?.profile_picture || '';
+    const fullAgencyPic = resolveFullAvatarUrl(req, agencyPic) || data?.full_profile_picture || agencyPic;
+
     return res.json({
       success: true,
       message: 'Agency overview retrieved successfully.',
-      data,
+      profile_picture: agencyPic,
+      profile_picture_url: fullAgencyPic,
+      avatar_url: agencyPic,
+      logo_url: agencyPic,
+      full_avatar_url: fullAgencyPic,
+      full_profile_picture: fullAgencyPic,
+      data: {
+        ...data,
+        avatar_url: agencyPic,
+        profile_picture: agencyPic,
+        profile_picture_url: fullAgencyPic,
+        profile_image: agencyPic,
+        logo_url: agencyPic,
+        logo: agencyPic,
+        full_avatar_url: fullAgencyPic,
+        full_profile_picture: fullAgencyPic,
+        agency: {
+          ...data.agency,
+          avatar_url: agencyPic,
+          profile_picture: agencyPic,
+          profile_picture_url: fullAgencyPic,
+          profile_image: agencyPic,
+          logo_url: agencyPic,
+          logo: agencyPic,
+          full_avatar_url: fullAgencyPic,
+          full_profile_picture: fullAgencyPic,
+        },
+      },
     });
   } catch (error) {
     console.error('getAgencyOverview error:', error);
