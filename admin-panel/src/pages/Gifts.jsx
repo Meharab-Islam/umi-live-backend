@@ -1235,45 +1235,14 @@ export default function Gifts({ onToast }) {
                 {/* Subtle dark backdrop filter to ensure text contrast */}
                 <div style={{ position: 'absolute', inset: 0, background: 'rgba(15, 23, 42, 0.45)', backdropFilter: 'blur(3px)', zIndex: 0 }} />
 
-                {/* Banner Content Layer */}
-                <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', gap: '8px' }}>
-                  {/* Sender */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
-                    <div style={{ position: 'relative' }}>
-                      <div style={{ width: '42px', height: '42px', borderRadius: '50%', border: '2px solid #fbbf24', background: '#3b82f6', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: '0.9rem', overflow: 'hidden' }}>
-                        <span>VIP</span>
-                      </div>
-                      <span style={{ position: 'absolute', bottom: '-4px', right: '-4px', background: '#f59e0b', color: '#000', fontSize: '0.6rem', fontWeight: 900, padding: '1px 4px', borderRadius: '6px' }}>Lv.99</span>
-                    </div>
-                    <div style={{ minWidth: 0 }}>
-                      <div style={{ color: '#fbbf24', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Top Gifter</div>
-                      <div style={{ color: '#ffffff', fontSize: '0.88rem', fontWeight: 800, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Farhan King</div>
-                    </div>
-                  </div>
-
-                  {/* Gift Icon & Action Badge */}
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0, padding: '0 6px' }}>
-                    <div style={{ fontSize: '1.75rem', filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.6))' }}>🏎️</div>
-                    <div style={{ background: 'linear-gradient(90deg, #f59e0b, #ef4444)', color: '#fff', fontSize: '0.68rem', fontWeight: 900, padding: '2px 8px', borderRadius: '10px', marginTop: '2px', whiteSpace: 'nowrap' }}>
-                      Sports Car x1
-                    </div>
-                  </div>
-
-                  {/* Receiver */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0, textAlign: 'right' }}>
-                    <div style={{ minWidth: 0 }}>
-                      <div style={{ color: '#a78bfa', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Sent To</div>
-                      <div style={{ color: '#ffffff', fontSize: '0.88rem', fontWeight: 800, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Nusrat Star</div>
-                    </div>
-                    <div style={{ width: '42px', height: '42px', borderRadius: '50%', border: '2px solid #a78bfa', background: '#ec4899', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: '0.9rem' }}>
-                      <span>STAR</span>
-                    </div>
-                  </div>
-
-                  {/* Coins Badge */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(0, 0, 0, 0.65)', border: '1px solid #fbbf24', borderRadius: '12px', padding: '4px 10px', flexShrink: 0 }}>
-                    <Coins size={15} color="#fbbf24" />
-                    <span style={{ color: '#fef08a', fontSize: '0.85rem', fontWeight: 900 }}>5,000 Coins</span>
+                {/* Banner Content Layer: Plain Text over single background image */}
+                <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', padding: '0.5rem 1rem', textAlign: 'center' }}>
+                  <div style={{ fontSize: '1.05rem', textShadow: '0 2px 6px rgba(0,0,0,0.85)', letterSpacing: '0.2px', lineHeight: 1.4 }}>
+                    <span style={{ color: '#fde047', fontWeight: 900 }}>Farhan King</span>
+                    <span style={{ color: '#ffffff', margin: '0 6px', fontWeight: 600 }}>sent</span>
+                    <span style={{ color: '#fbbf24', fontWeight: 900 }}>🪙 5,000 Coins</span>
+                    <span style={{ color: '#ffffff', margin: '0 6px', fontWeight: 600 }}>to</span>
+                    <span style={{ color: '#7dd3fc', fontWeight: 900 }}>Nusrat Star</span>
                   </div>
                 </div>
               </div>
