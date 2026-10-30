@@ -42,6 +42,8 @@ export async function buildRoomResponse(roomId, currentUser = null) {
             r.is_comment_disabled, r.is_reaction_disabled, r.is_locked, r.room_password,
             r.stream_key, r.started_at, r.created_at,
             u.full_name as host_name, u.avatar_url as host_avatar, u.level as host_level,
+            COALESCE(u.star, 0) as host_star,
+            COALESCE(u.star, 0) as host_stars,
             u.coins as host_coins, u.diamonds as host_diamonds, u.role as host_role,
             COALESCE(pp.image_url, pc.badge_icon, '') as host_package_image,
             pc.color_code as host_package_color,
@@ -86,6 +88,8 @@ export async function buildRoomResponse(roomId, currentUser = null) {
     `SELECT s.id as seat_id, s.seat_number, s.is_main_seat, s.is_camera_on, s.is_muted, s.is_locked,
             u.id as user_id, u.full_name as user_name, u.avatar_url as user_avatar,
             u.coins as user_coin, u.diamonds as user_diamond, u.role as user_role, u.level as user_level,
+            COALESCE(u.star, 0) as user_star,
+            COALESCE(u.star, 0) as user_stars,
             st.image_url as equipped_thumbnail,
             ee.preview_image_url as equipped_entry_preview,
             ee.svga_url as equipped_entry_svga,
@@ -130,6 +134,8 @@ export async function buildRoomResponse(roomId, currentUser = null) {
       `SELECT s.id as seat_id, s.seat_number, s.is_main_seat, s.is_camera_on, s.is_muted, s.is_locked,
               u.id as user_id, u.full_name as user_name, u.avatar_url as user_avatar,
               u.coins as user_coin, u.diamonds as user_diamond, u.role as user_role, u.level as user_level,
+              COALESCE(u.star, 0) as user_star,
+              COALESCE(u.star, 0) as user_stars,
               st.image_url as equipped_thumbnail,
               ee.preview_image_url as equipped_entry_preview,
               ee.svga_url as equipped_entry_svga,
@@ -176,6 +182,8 @@ export async function buildRoomResponse(roomId, currentUser = null) {
       user_diamond: room.host_diamonds,
       user_role: room.host_role,
       user_level: room.host_level,
+      user_star: parseFloat(room.host_star || 0),
+      user_stars: parseFloat(room.host_star || 0),
       equipped_thumbnail: null,
       equipped_entry_preview: null,
       equipped_entry_svga: null,
@@ -201,6 +209,8 @@ export async function buildRoomResponse(roomId, currentUser = null) {
         ...(isDiamondMode ? { diamond: s.user_diamond ?? 0 } : {}),
         role: s.user_role || 'user',
         level: s.user_level || 1,
+        star: parseFloat(s.user_star || 0),
+        stars: parseFloat(s.user_star || 0),
         is_camera_on: Boolean(s.is_camera_on),
         is_muted: Boolean(s.is_muted),
         is_main_seat: isMain,
@@ -244,6 +254,8 @@ export async function buildRoomResponse(roomId, currentUser = null) {
     host_name: room.host_name,
     host_avatar: room.host_avatar,
     host_level: room.host_level,
+    host_star: parseFloat(room.host_star || 0),
+    host_stars: parseFloat(room.host_star || 0),
     host_coins: room.host_coins,
     host_diamonds: room.host_diamonds,
     title: room.title,
@@ -286,6 +298,8 @@ export async function buildRoomResponse(roomId, currentUser = null) {
       name: room.host_name,
       profile: room.host_avatar,
       level: room.host_level,
+      star: parseFloat(room.host_star || 0),
+      stars: parseFloat(room.host_star || 0),
       coin: room.host_coins,
       package_image: room.host_package_image || null,
       package_color: room.host_package_color || null,
@@ -421,7 +435,10 @@ export async function getRooms(req, res) {
         `SELECT r.id, r.room_id, r.host_id, r.title, r.category, r.live_type, r.total_seats,
                 r.background_image, r.status,
                 r.viewer_count, r.total_diamonds, r.is_comment_disabled, r.is_reaction_disabled, r.is_locked, r.started_at,
-                u.full_name as host_name, u.avatar_url as host_avatar, u.level as host_level, u.role as host_role,
+                u.full_name as host_name, u.avatar_url as host_avatar, u.level as host_level,
+                COALESCE(u.star, 0) as host_star,
+                COALESCE(u.star, 0) as host_stars,
+                u.role as host_role,
                 pc.name as host_vip_category,
                 pc.badge_icon as host_vip_icon,
                 pc.color_code as host_vip_color,
@@ -529,7 +546,9 @@ export async function getMyActiveRoom(req, res) {
 
     const data = await cache.getOrSet(cacheKey, 15, async () => {
       const rooms = await query(
-        `SELECT r.*, u.full_name as host_name, u.avatar_url as host_avatar, u.level as host_level, u.role as host_role
+        `SELECT r.*, u.full_name as host_name, u.avatar_url as host_avatar, u.level as host_level,
+                COALESCE(u.star, 0) as host_star, COALESCE(u.star, 0) as host_stars,
+                u.role as host_role
          FROM live_rooms r
          JOIN users u ON r.host_id = u.id
          WHERE r.host_id = ? AND r.status = 'live'
