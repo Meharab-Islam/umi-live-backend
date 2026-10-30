@@ -77,7 +77,7 @@ export default function Resellers({ onToast }) {
       if (res.success) {
         onToast(`Successfully demoted/removed ${res.count || selectedResellerIds.length} resellers.`, 'success');
         setSelectedResellerIds([]);
-        loadResellers();
+        fetchResellers();
       }
     } catch (err) {
       onToast(err.message || 'Failed to bulk remove resellers.', 'error');

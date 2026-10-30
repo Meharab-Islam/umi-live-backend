@@ -2602,9 +2602,18 @@ export async function bulkDelete(req, res) {
 
       case 'resellers': {
         const placeholders = cleanIds.map(() => '?').join(',');
-        const result = await query(`DELETE FROM resellers WHERE id IN (${placeholders})`, cleanIds);
+        const result = await query(
+          `UPDATE users SET role = 'user' WHERE id IN (${placeholders}) AND role = 'reseller'`,
+          cleanIds
+        );
         deletedCount = result.affectedRows || 0;
-        await cache.delByPattern('resellers:all:*');
+        for (const uId of cleanIds) {
+          await cache.del(`user:${uId}`);
+          await cache.del(`user:balance:${uId}`);
+          await cache.del(`admin:user:${uId}`);
+        }
+        await cache.delByPattern('resellers:*');
+        await cache.delByPattern('admin:users*');
         break;
       }
 
@@ -3398,10 +3407,11 @@ export async function deleteReseller(req, res) {
   try {
     const { id } = req.params;
 
-    const [userRows] = await query('SELECT id, full_name, role FROM users WHERE id = ?', [id]);
+    const userRows = await query('SELECT id, full_name, role FROM users WHERE id = ?', [id]);
     if (!userRows || userRows.length === 0) {
       return res.status(404).json({ success: false, message: 'User not found.' });
     }
+    const targetUser = userRows[0];
 
     // Demote role back to 'user'
     await query("UPDATE users SET role = 'user' WHERE id = ? AND role = 'reseller'", [id]);
@@ -3409,12 +3419,13 @@ export async function deleteReseller(req, res) {
     // Database write succeeded -> Invalidate Redis cache
     await cache.delByPattern('resellers:*');
     await cache.del(`user:${id}`);
+    await cache.del(`user:balance:${id}`);
     await cache.del(`admin:user:${id}`);
     await cache.delByPattern('admin:users*');
 
     return res.json({
       success: true,
-      message: `Reseller status revoked for User #${id} (${userRows[0].full_name || 'User'}). Demoted to regular user.`,
+      message: `Reseller status revoked for User #${id} (${targetUser.full_name || 'User'}). Demoted to regular user.`,
     });
   } catch (err) {
     console.error('deleteReseller error:', err);
