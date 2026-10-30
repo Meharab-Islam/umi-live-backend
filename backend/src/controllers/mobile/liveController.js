@@ -1162,10 +1162,10 @@ export async function handleUserSeatDeparture(roomId, leavingUserId, io = null) 
             hostId,
             seatOrder,
           });
-          io.to(ch).emit('seats-sync', { roomId: room.room_id, seats: formattedSeats, spotlight_seat_number: 1 });
-          io.to(ch).emit('room-seats-sync', { roomId: room.room_id, seats: formattedSeats, spotlight_seat_number: 1 });
-          io.to(ch).emit('seats_sync', { roomId: room.room_id, seats: formattedSeats, spotlight_seat_number: 1 });
-          io.to(ch).emit('seats_updated', { roomId: room.room_id, seats: formattedSeats, seatOrder });
+          io.to(ch).emit('seats-sync', { roomId: room.room_id, seats: formattedSeats, rawSeats: formattedSeats, spotlight_seat_number: 1 });
+          io.to(ch).emit('room-seats-sync', { roomId: room.room_id, seats: formattedSeats, rawSeats: formattedSeats, spotlight_seat_number: 1 });
+          io.to(ch).emit('seats_sync', { roomId: room.room_id, seats: formattedSeats, rawSeats: formattedSeats, spotlight_seat_number: 1 });
+          io.to(ch).emit('seats_updated', { roomId: room.room_id, seats: formattedSeats, rawSeats: formattedSeats, seatOrder });
           io.to(ch).emit('seat_updated', {
             roomId: room.room_id,
             seatNumber: 1,
@@ -1185,26 +1185,90 @@ export async function handleUserSeatDeparture(roomId, leavingUserId, io = null) 
     } else {
       // -------------------------------------------------------------
       // SCENARIO 2: Departing user occupied a guest seat (Seat > 1)
-      // or Host stepped down from a seat
+      // -> Vacate departing user's seat & purge user requests
+      // -> Consecutively rearrange remaining co-hosts into Seats 2, 3, 4... (no gaps)
+      // -> Clear trailing empty guest seats up to totalSeats
+      // -> Broadcast authoritative updated seats to ALL room participants
       // -------------------------------------------------------------
-      const isVideoLive = (room.live_type || 'video') !== 'audio';
       const targetRoomId = room.room_id || roomId;
 
-      // 1. Vacate departing user's seat ONLY (never disturb other co-host seats)
+      // 1. Vacate departing user's seat and clear any stray references to leaving user
       await query(
         'UPDATE live_room_seats SET user_id = NULL, is_camera_on = 0, is_muted = 0 WHERE (room_id = ? OR room_id = ?) AND (seat_number = ? OR user_id = ?)',
         [targetRoomId, String(room.id || ''), departingSeat.seat_number, leavingUserId]
       );
+      await query(
+        'DELETE FROM live_room_seat_requests WHERE (room_id = ? OR room_id = ?) AND user_id = ?',
+        [targetRoomId, String(room.id || ''), leavingUserId]
+      );
 
-      // Instant Redis Invalidation
+      // 2. Rearrange remaining co-hosts into Seat 2, Seat 3, etc. consecutively (closing all holes/gaps)
+      const otherCoHosts = seats
+        .filter(
+          (s) => s.user_id && Number(s.user_id) !== Number(leavingUserId) && Number(s.user_id) !== Number(hostId) && s.seat_number > 1
+        )
+        .sort((a, b) => a.seat_number - b.seat_number);
+
+      let nextSeatNum = 2;
+      for (const coHost of otherCoHosts) {
+        if (nextSeatNum <= totalSeats) {
+          await query(
+            `INSERT INTO live_room_seats (room_id, seat_number, user_id, is_main_seat, is_camera_on, is_muted)
+             VALUES (?, ?, ?, 0, ?, ?)
+             ON DUPLICATE KEY UPDATE user_id = VALUES(user_id), is_main_seat = 0, is_camera_on = VALUES(is_camera_on), is_muted = VALUES(is_muted)`,
+            [targetRoomId, nextSeatNum, coHost.user_id, coHost.is_camera_on, coHost.is_muted]
+          );
+          if (room.id && String(room.id) !== targetRoomId) {
+            await query(
+              `INSERT INTO live_room_seats (room_id, seat_number, user_id, is_main_seat, is_camera_on, is_muted)
+               VALUES (?, ?, ?, 0, ?, ?)
+               ON DUPLICATE KEY UPDATE user_id = VALUES(user_id), is_main_seat = 0, is_camera_on = VALUES(is_camera_on), is_muted = VALUES(is_muted)`,
+              [String(room.id), nextSeatNum, coHost.user_id, coHost.is_camera_on, coHost.is_muted]
+            );
+          }
+          nextSeatNum++;
+        }
+      }
+
+      // 3. Clear trailing empty guest seats from nextSeatNum up to totalSeats
+      for (let s = nextSeatNum; s <= totalSeats; s++) {
+        await query(
+          `INSERT INTO live_room_seats (room_id, seat_number, user_id, is_main_seat, is_camera_on, is_muted)
+           VALUES (?, ?, NULL, 0, 0, 0)
+           ON DUPLICATE KEY UPDATE user_id = NULL, is_main_seat = 0, is_camera_on = 0, is_muted = 0`,
+          [targetRoomId, s]
+        );
+        if (room.id && String(room.id) !== targetRoomId) {
+          await query(
+            `INSERT INTO live_room_seats (room_id, seat_number, user_id, is_main_seat, is_camera_on, is_muted)
+             VALUES (?, ?, NULL, 0, 0, 0)
+             ON DUPLICATE KEY UPDATE user_id = NULL, is_main_seat = 0, is_camera_on = 0, is_muted = 0`,
+            [String(room.id), s]
+          );
+        }
+      }
+
+      // 4. Remove any excess seats if seat_number > totalSeats
+      await query('DELETE FROM live_room_seats WHERE (room_id = ? OR room_id = ?) AND seat_number > ?', [
+        targetRoomId,
+        String(room.id || ''),
+        totalSeats,
+      ]);
+
+      // 5. Instant Redis Invalidation
       await Promise.allSettled([
         cache.del(`mobile:room_details:${roomId}`),
         cache.del(`mobile:room_details:${room.room_id}`),
         room.id ? cache.del(`mobile:room_details:${room.id}`) : null,
         cache.delByPattern(`mobile:room:users:${roomId}*`),
         cache.delByPattern(`mobile:room:users:${room.room_id}*`),
+        room.id ? cache.delByPattern(`mobile:room:users:${room.id}*`) : null,
+        cache.delByPattern(`mobile:live:seat_requests:${roomId}*`),
+        cache.delByPattern(`mobile:live:seat_requests:${room.room_id}*`),
+        room.id ? cache.delByPattern(`mobile:live:seat_requests:${room.id}*`) : null,
       ]);
 
+      // 6. Query fresh seats from MySQL SSOT & deduplicate
       const freshSeats = await query(
         `SELECT s.seat_number, s.is_main_seat, s.is_camera_on, s.is_muted, s.is_locked,
                 s.user_id, u.full_name as user_name, u.avatar_url as user_avatar,
@@ -1213,10 +1277,18 @@ export async function handleUserSeatDeparture(roomId, leavingUserId, io = null) 
          LEFT JOIN users u ON s.user_id = u.id
          WHERE (s.room_id = ? OR s.room_id = ?)
          ORDER BY s.seat_number ASC`,
-        [roomId, String(room.id || '')]
+        [targetRoomId, String(room.id || '')]
       );
 
-      const formattedSeats = (freshSeats || []).map((st) => {
+      const seatMap = new Map();
+      for (const st of freshSeats || []) {
+        if (!seatMap.has(st.seat_number) || st.user_id) {
+          seatMap.set(st.seat_number, st);
+        }
+      }
+      const dedupedSeats = Array.from(seatMap.values()).sort((a, b) => a.seat_number - b.seat_number);
+
+      const formattedSeats = dedupedSeats.map((st) => {
         const isOcc = Boolean(st.user_id);
         const isMain = st.seat_number === 1 || Boolean(st.is_main_seat);
         return {
@@ -1263,17 +1335,18 @@ export async function handleUserSeatDeparture(roomId, leavingUserId, io = null) 
 
       const seatOrder = [];
       for (let s = 1; s <= totalSeats; s++) {
-        const found = freshSeats.find((fs) => fs.seat_number === s);
+        const found = dedupedSeats.find((fs) => fs.seat_number === s);
         seatOrder.push(found && found.user_id ? Number(found.user_id) : 0);
       }
 
+      // 7. Authoritative Socket Broadcast across all room channels
       if (io) {
         const channels = new Set([String(roomId), String(room.room_id), String(room.id)].filter(Boolean));
         for (const ch of channels) {
-          io.to(ch).emit('seats-sync', { roomId: room.room_id, seats: formattedSeats, spotlight_seat_number: 1 });
-          io.to(ch).emit('room-seats-sync', { roomId: room.room_id, seats: formattedSeats, spotlight_seat_number: 1 });
-          io.to(ch).emit('seats_sync', { roomId: room.room_id, seats: formattedSeats, spotlight_seat_number: 1 });
-          io.to(ch).emit('seats_updated', { roomId: room.room_id, seats: formattedSeats, seatOrder });
+          io.to(ch).emit('seats-sync', { roomId: room.room_id, seats: formattedSeats, rawSeats: formattedSeats, spotlight_seat_number: 1 });
+          io.to(ch).emit('room-seats-sync', { roomId: room.room_id, seats: formattedSeats, rawSeats: formattedSeats, spotlight_seat_number: 1 });
+          io.to(ch).emit('seats_sync', { roomId: room.room_id, seats: formattedSeats, rawSeats: formattedSeats, spotlight_seat_number: 1 });
+          io.to(ch).emit('seats_updated', { roomId: room.room_id, seats: formattedSeats, rawSeats: formattedSeats, seatOrder });
           io.to(ch).emit('seat_updated', {
             roomId: room.room_id,
             seatNumber: departingSeat.seat_number,
@@ -1297,7 +1370,23 @@ export async function handleUserSeatDeparture(roomId, leavingUserId, io = null) 
             roomId: room.room_id,
             reason: 'guest_seat_departed',
             departedUserId: Number(leavingUserId),
+            seats: formattedSeats,
+            rawSeats: formattedSeats,
             seatOrder,
+          });
+          io.to(ch).emit('seat_request_cancelled', {
+            roomId: room.room_id,
+            numericRoomId: room.id,
+            userId: Number(leavingUserId),
+            user_id: Number(leavingUserId),
+            reason: 'seat_departed',
+          });
+          io.to(ch).emit('seat-request-cancelled', {
+            roomId: room.room_id,
+            numericRoomId: room.id,
+            userId: Number(leavingUserId),
+            user_id: Number(leavingUserId),
+            reason: 'seat_departed',
           });
         }
       }
@@ -1348,20 +1437,22 @@ export async function leaveRoom(req, res) {
     await handleUserSeatDeparture(canonicalRoomId, userId, req.io);
 
     // 3. Waiting List (Seat Requests): If user has pending seat request, remove it
-    const pendingReqs = await query(
-      'SELECT id FROM live_room_seat_requests WHERE (room_id = ? OR room_id = ?) AND user_id = ?',
+    await query(
+      'DELETE FROM live_room_seat_requests WHERE (room_id = ? OR room_id = ?) AND user_id = ?',
       [canonicalRoomId, String(numericRoomId || ''), userId]
     );
-    if (pendingReqs.length > 0) {
-      await query(
-        'DELETE FROM live_room_seat_requests WHERE (room_id = ? OR room_id = ?) AND user_id = ?',
-        [canonicalRoomId, String(numericRoomId || ''), userId]
-      );
-      if (req.io) {
-        req.io.to(canonicalRoomId).emit('seat_request_cancelled', { roomId: canonicalRoomId, userId });
-        if (numericRoomId && String(numericRoomId) !== canonicalRoomId) {
-          req.io.to(String(numericRoomId)).emit('seat_request_cancelled', { roomId: canonicalRoomId, userId });
-        }
+    if (req.io) {
+      const cancelPayload = {
+        roomId: canonicalRoomId,
+        numericRoomId,
+        userId: Number(userId),
+        user_id: Number(userId),
+        reason: 'user_left_room',
+      };
+      const channels = new Set([canonicalRoomId, String(numericRoomId), String(roomId)].filter(Boolean));
+      for (const ch of channels) {
+        req.io.to(ch).emit('seat_request_cancelled', cancelPayload);
+        req.io.to(ch).emit('seat-request-cancelled', cancelPayload);
       }
     }
 
@@ -2444,6 +2535,23 @@ export async function requestSeat(req, res) {
  */
 export async function fetchAndCacheSeatRequests(roomId) {
   const cacheKey = `mobile:live:seat_requests:${roomId}`;
+
+  // Automatically purge any stale seat requests from users who are no longer in the room
+  try {
+    await query(
+      `DELETE FROM live_room_seat_requests 
+       WHERE (room_id = ? OR room_id = (SELECT id FROM live_rooms WHERE room_id = ? LIMIT 1))
+       AND user_id NOT IN (
+         SELECT user_id FROM live_room_viewers WHERE room_id = ? OR room_id = (SELECT id FROM live_rooms WHERE room_id = ? LIMIT 1)
+         UNION
+         SELECT user_id FROM live_room_seats WHERE (room_id = ? OR room_id = (SELECT id FROM live_rooms WHERE room_id = ? LIMIT 1)) AND user_id IS NOT NULL
+       )`,
+      [roomId, roomId, roomId, roomId, roomId, roomId]
+    );
+  } catch (cleanErr) {
+    console.warn('[fetchAndCacheSeatRequests] Stale request cleanup warning:', cleanErr.message);
+  }
+
   const settingRows = await query("SELECT key_value FROM system_settings WHERE key_name = 'is_convert_to_diamond'");
   const isDiamondMode = settingRows && settingRows.length > 0
     ? (settingRows[0].key_value === 'true' || settingRows[0].key_value === '1')

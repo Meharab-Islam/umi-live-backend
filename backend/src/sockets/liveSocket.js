@@ -415,6 +415,22 @@ async function executeGuestSeatAndRoomCleanup(canonicalRoomId, numericRoomId, ho
       [canonicalRoomId, String(numericRoomId || ''), userId]
     );
 
+    // Broadcast seat_request_cancelled immediately so waiting lists on all devices clear the user
+    if (io) {
+      const cancelPayload = {
+        roomId: canonicalRoomId,
+        numericRoomId,
+        userId: Number(userId),
+        user_id: Number(userId),
+        reason: 'user_left_room',
+      };
+      const channels = new Set([canonicalRoomId, String(numericRoomId)].filter(Boolean));
+      for (const ch of channels) {
+        io.to(ch).emit('seat_request_cancelled', cancelPayload);
+        io.to(ch).emit('seat-request-cancelled', cancelPayload);
+      }
+    }
+
     // 3. Remove from room admins if not host
     const delAdminRes = await query(
       'DELETE FROM live_room_admins WHERE (room_id = ? OR room_id = ?) AND user_id = ?',
@@ -1130,6 +1146,26 @@ export function setupLiveSocket(io) {
     socket.on('seat_media_updated', handleSeatMediaUpdatedSocket);
     socket.on('seat-media-updated', handleSeatMediaUpdatedSocket);
     socket.on('seat_media_update', handleSeatMediaUpdatedSocket);
+
+    // Host / client seats rearrangement broadcast
+    const handleSeatsRearrangedSocket = async (data = {}) => {
+      try {
+        const targetRoom = data?.roomId || data?.room_id || currentRoom;
+        if (!targetRoom) return;
+        const seatOrder = data?.seatOrder || data?.seat_order;
+        const payload = {
+          roomId: targetRoom,
+          seatOrder: Array.isArray(seatOrder) ? seatOrder : [],
+          ...data,
+        };
+        socket.to(String(targetRoom)).emit('seats_rearranged', payload);
+        socket.to(String(targetRoom)).emit('seats-rearranged', payload);
+      } catch (err) {
+        console.error('handleSeatsRearrangedSocket error:', err.message);
+      }
+    };
+    socket.on('seats_rearranged', handleSeatsRearrangedSocket);
+    socket.on('seats-rearranged', handleSeatsRearrangedSocket);
 
     // Host live room settings toggle (disable/enable comments & reactions)
     socket.on('update-room-settings', async (data = {}) => {
