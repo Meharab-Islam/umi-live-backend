@@ -1385,10 +1385,11 @@ export default function Agencies({ onToast }) {
               color: '#fda4af',
               marginBottom: '1.5rem',
             }}>
-              <div>⚠️ <strong>Consequences:</strong></div>
+              <div>⚠️ <strong>Consequences of Deleting this Agency:</strong></div>
               <ul style={{ margin: '6px 0 0 16px', padding: 0 }}>
-                <li>All <strong>{deleteConfirmAgency.host_count || 0}</strong> hosts will be unlinked from this agency.</li>
-                <li>Agency Head (ID: #{deleteConfirmAgency.owner_id}) will be unassigned.</li>
+                <li>All <strong>{deleteConfirmAgency.host_count || 0}</strong> hosts will become normal users (their coins stay safely in their balance).</li>
+                <li>Agency commission will be credited directly to Agency Owner's (ID: #{deleteConfirmAgency.owner_id}) coin balance.</li>
+                <li>Agency Owner (ID: #{deleteConfirmAgency.owner_id}) will also become a normal user.</li>
                 <li>This action cannot be undone.</li>
               </ul>
             </div>

@@ -1590,29 +1590,153 @@ export async function deleteAgency(req, res) {
     }
 
     const agency = agencies[0];
+    const commissionRate = parseFloat(agency.commission_rate || 10);
 
     await connection.beginTransaction();
 
-    // 1. Unassign all hosts from this agency
-    await connection.execute('UPDATE users SET agency_id = NULL WHERE agency_id = ?', [id]);
+    // 1. Fetch all hosts under this agency before updating
+    const [hosts] = await connection.execute(
+      'SELECT id, full_name, coins FROM users WHERE agency_id = ?',
+      [id]
+    );
 
-    // 2. Delete agency record
-    await connection.execute('DELETE FROM agencies WHERE id = ?', [id]);
+    // 2. Calculate agency commission from gifts received by hosts while under this agency
+    const [giftRows] = await connection.execute(
+      `SELECT COALESCE(SUM(gt.coin_amount), 0) AS total_coins_gifted_to_hosts
+       FROM gift_transactions gt
+       INNER JOIN users u ON u.id = gt.receiver_id
+       WHERE u.agency_id = ?`,
+      [id]
+    );
+    const totalCoinsGifted = parseInt(giftRows[0]?.total_coins_gifted_to_hosts || 0, 10);
+    const totalHostCoins = (hosts || []).reduce((sum, h) => sum + parseInt(h.coins || 0, 10), 0);
+    const baseCoins = totalCoinsGifted > 0 ? totalCoinsGifted : totalHostCoins;
+    const totalCommissionCoins = Math.round(baseCoins * (commissionRate / 100));
 
-    // 3. If owner doesn't own any other agency, restore role to 'user'
-    const [otherAgencies] = await connection.execute('SELECT id FROM agencies WHERE owner_id = ?', [agency.owner_id]);
-    if (otherAgencies.length === 0) {
-      await connection.execute("UPDATE users SET role = 'user' WHERE id = ? AND role = 'agency'", [agency.owner_id]);
+    // 3. Credit commission to agency owner's coin balance
+    if (totalCommissionCoins > 0 && agency.owner_id) {
+      await connection.execute('UPDATE users SET coins = coins + ? WHERE id = ?', [totalCommissionCoins, agency.owner_id]);
+      await connection.execute(
+        `INSERT INTO transactions (user_id, type, amount, description, status)
+         VALUES (?, 'agency_commission', ?, ?, 'completed')`,
+        [
+          agency.owner_id,
+          totalCommissionCoins,
+          `Agency commission (${commissionRate}%) settlement upon deletion of agency "${agency.name}"`,
+        ]
+      );
     }
+
+    // 4. Demote all hosts under this agency to normal users (role = 'user', host_type = 'general', agency_id = NULL)
+    // IMPORTANT: Hosts' coins remain untouched in their wallet!
+    if (hosts.length > 0) {
+      const hostIds = hosts.map((h) => h.id);
+      const placeholders = hostIds.map(() => '?').join(',');
+
+      await connection.execute(
+        `UPDATE users 
+         SET role = 'user', host_type = 'general', agency_id = NULL,
+             broadcast_banned_until = NULL, broadcast_ban_reason = NULL, broadcast_banned_at = NULL 
+         WHERE agency_id = ?`,
+        [id]
+      );
+
+      // Terminate any active live rooms for any of these hosts
+      const [liveRooms] = await connection.execute(
+        `SELECT room_id FROM live_rooms WHERE host_id IN (${placeholders}) AND status = 'live'`,
+        hostIds
+      );
+      if (liveRooms.length > 0) {
+        await connection.execute(
+          `UPDATE live_rooms SET status = 'ended', ended_at = CURRENT_TIMESTAMP WHERE host_id IN (${placeholders}) AND status = 'live'`,
+          hostIds
+        );
+        for (const room of liveRooms) {
+          await cache.del(`room:${room.room_id}`);
+        }
+        await cache.delByPattern('mobile:rooms:*');
+      }
+    }
+
+    // 5. Agency owner also becomes normal user (role = 'user')
+    await connection.execute(
+      "UPDATE users SET role = 'user', host_type = 'general', agency_id = NULL WHERE id = ?",
+      [agency.owner_id]
+    );
+
+    // 6. Cancel pending agency host requests for this agency
+    await connection.execute(
+      "UPDATE agency_host_requests SET status = 'cancelled', updated_at = CURRENT_TIMESTAMP WHERE agency_id = ? AND status = 'pending'",
+      [id]
+    ).catch(() => {});
+
+    // 7. Delete agency record
+    await connection.execute('DELETE FROM agencies WHERE id = ?', [id]);
 
     await connection.commit();
 
-    // Database write succeeded -> Invalidate Redis cache & notify via socket
-    await invalidateUserCacheAndNotify(req.io, agency.owner_id, { role: 'user' });
+    // 8. Redis cache invalidations & real-time socket notifications
+    await cache.del('agencies:all');
+    await cache.del('agency:list:all');
+    await cache.delByPattern('agency:*');
+    await cache.delByPattern('moderator:agencies:*');
+
+    // Invalidate and notify agency owner
+    await invalidateUserCacheAndNotify(req.io, agency.owner_id, {
+      role: 'user',
+      agency_id: null,
+      host_type: 'general',
+    });
+    await cache.del(`user:agency_application:${agency.owner_id}`);
+    await cache.del(`host:agency_summary:${agency.owner_id}`);
+
+    if (req.io && agency.owner_id) {
+      req.io.to(`user_${agency.owner_id}`).emit('agency:deleted', {
+        agency_id: Number(id),
+        agency_name: agency.name,
+        commission_credited: totalCommissionCoins,
+        message: `Agency "${agency.name}" has been deleted. You are now a normal user. Commission of ${totalCommissionCoins} coins has been added to your balance.`,
+      });
+      req.io.to(`user_${agency.owner_id}`).emit('agency:affiliation_updated', {
+        agency_id: null,
+        is_affiliated: false,
+        role: 'user',
+      });
+    }
+
+    // Invalidate and notify each host
+    for (const host of hosts) {
+      await invalidateUserCacheAndNotify(req.io, host.id, {
+        role: 'user',
+        agency_id: null,
+        host_type: 'general',
+      });
+      await cache.del(`user:agency_application:${host.id}`);
+      await cache.del(`host:agency_summary:${host.id}`);
+
+      if (req.io) {
+        req.io.to(`user_${host.id}`).emit('agency:deleted', {
+          agency_id: Number(id),
+          agency_name: agency.name,
+          message: `Agency "${agency.name}" has been deleted. Your role has been reset to normal user, and all your coins remain safely in your balance. You can now apply to another agency anytime.`,
+        });
+        req.io.to(`user_${host.id}`).emit('agency:affiliation_updated', {
+          agency_id: null,
+          is_affiliated: false,
+          role: 'user',
+        });
+      }
+    }
 
     return res.json({
       success: true,
-      message: `Agency "${agency.name}" has been deleted successfully.`,
+      message: `Agency "${agency.name}" has been deleted successfully. All ${hosts.length} hosts and owner #${agency.owner_id} are now normal users. Commission of ${totalCommissionCoins} coins credited to agency owner.`,
+      data: {
+        agency_id: Number(id),
+        owner_id: agency.owner_id,
+        commission_credited: totalCommissionCoins,
+        hosts_released_count: hosts.length,
+      },
     });
   } catch (err) {
     await connection.rollback();
@@ -2633,10 +2757,64 @@ export async function bulkDelete(req, res) {
 
       case 'agencies': {
         const placeholders = cleanIds.map(() => '?').join(',');
+        for (const agId of cleanIds) {
+          const [agRows] = await query('SELECT * FROM agencies WHERE id = ?', [agId]);
+          if (agRows && agRows.length > 0) {
+            const ag = agRows[0];
+            const cRate = parseFloat(ag.commission_rate || 10);
+            const hosts = await query('SELECT id, full_name, coins FROM users WHERE agency_id = ?', [agId]);
+
+            const [gRows] = await query(
+              `SELECT COALESCE(SUM(gt.coin_amount), 0) AS total_gifted
+               FROM gift_transactions gt
+               INNER JOIN users u ON u.id = gt.receiver_id
+               WHERE u.agency_id = ?`,
+              [agId]
+            );
+            const tGifted = parseInt(gRows?.total_gifted || 0, 10);
+            const tHostCoins = (hosts || []).reduce((sum, h) => sum + parseInt(h.coins || 0, 10), 0);
+            const baseCoins = tGifted > 0 ? tGifted : tHostCoins;
+            const commCoins = Math.round(baseCoins * (cRate / 100));
+
+            if (commCoins > 0 && ag.owner_id) {
+              await query('UPDATE users SET coins = coins + ? WHERE id = ?', [commCoins, ag.owner_id]);
+              await query(
+                `INSERT INTO transactions (user_id, type, amount, description, status)
+                 VALUES (?, 'agency_commission', ?, ?, 'completed')`,
+                [ag.owner_id, commCoins, `Agency commission (${cRate}%) settlement upon bulk deletion of agency "${ag.name}"`]
+              );
+            }
+
+            // Demote hosts to normal users (coins remain in balance)
+            if (hosts.length > 0) {
+              await query(
+                `UPDATE users 
+                 SET role = 'user', host_type = 'general', agency_id = NULL,
+                     broadcast_banned_until = NULL, broadcast_ban_reason = NULL, broadcast_banned_at = NULL 
+                 WHERE agency_id = ?`,
+                [agId]
+              );
+              for (const h of hosts) {
+                await invalidateUserCacheAndNotify(req.io, h.id, { role: 'user', agency_id: null, host_type: 'general' });
+                await cache.del(`user:agency_application:${h.id}`);
+                await cache.del(`host:agency_summary:${h.id}`);
+              }
+            }
+
+            // Demote owner to normal user
+            await query("UPDATE users SET role = 'user', host_type = 'general', agency_id = NULL WHERE id = ?", [ag.owner_id]);
+            await invalidateUserCacheAndNotify(req.io, ag.owner_id, { role: 'user', agency_id: null, host_type: 'general' });
+            await cache.del(`user:agency_application:${ag.owner_id}`);
+            await cache.del(`host:agency_summary:${ag.owner_id}`);
+          }
+        }
+
         await query(`DELETE FROM agency_hosts WHERE agency_id IN (${placeholders})`, cleanIds).catch(() => {});
         const result = await query(`DELETE FROM agencies WHERE id IN (${placeholders})`, cleanIds);
         deletedCount = result.affectedRows || 0;
         await cache.del('agencies:all');
+        await cache.del('agency:list:all');
+        await cache.delByPattern('agency:*');
         await cache.delByPattern('hosts:*');
         break;
       }
