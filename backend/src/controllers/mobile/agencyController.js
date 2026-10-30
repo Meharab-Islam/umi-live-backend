@@ -1188,12 +1188,16 @@ export async function getMyAgencyApplication(req, res) {
       let currentAgency = null;
       if (user?.agency_id) {
         const [agencyRow] = await query(
-          `SELECT id, agency_code, name, commission_rate, status, contact_phone, created_at 
-           FROM agencies 
-           WHERE id = ?`,
+          `SELECT a.id, a.agency_code, a.name, a.commission_rate, a.status, a.contact_phone, a.created_at,
+                  u.avatar_url AS owner_avatar
+           FROM agencies a
+           LEFT JOIN users u ON u.id = a.owner_id
+           WHERE a.id = ?`,
           [user.agency_id]
         );
         if (agencyRow) {
+          const rawAvatar = agencyRow.owner_avatar || '';
+          const fullAvatar = resolveFullAvatarUrl(req, rawAvatar);
           currentAgency = {
             id: agencyRow.id,
             agency_code: agencyRow.agency_code,
@@ -1202,6 +1206,11 @@ export async function getMyAgencyApplication(req, res) {
             status: agencyRow.status,
             contact_phone: agencyRow.contact_phone || '',
             joined_at: user.agency_joined_at,
+            agency_logo: rawAvatar,
+            logo_url: rawAvatar,
+            profile_picture: rawAvatar,
+            profile_picture_url: fullAvatar || rawAvatar,
+            full_avatar_url: fullAvatar,
           };
         }
       }
@@ -1211,9 +1220,11 @@ export async function getMyAgencyApplication(req, res) {
         `SELECT 
            ahr.id, ahr.agency_id, ahr.user_id, ahr.host_type, ahr.message, 
            ahr.status, ahr.created_at, ahr.updated_at,
-           a.name AS agency_name, a.agency_code, a.commission_rate
+           a.name AS agency_name, a.agency_code, a.commission_rate,
+           u_owner.avatar_url AS owner_avatar
          FROM agency_host_requests ahr
          INNER JOIN agencies a ON a.id = ahr.agency_id
+         LEFT JOIN users u_owner ON u_owner.id = a.owner_id
          WHERE ahr.user_id = ? AND ahr.status = 'pending'
          ORDER BY ahr.created_at DESC
          LIMIT 1`,
@@ -1225,14 +1236,22 @@ export async function getMyAgencyApplication(req, res) {
         `SELECT 
            ahr.id, ahr.agency_id, ahr.user_id, ahr.host_type, ahr.message, 
            ahr.status, ahr.created_at, ahr.responded_at, ahr.updated_at,
-           a.name AS agency_name, a.agency_code
+           a.name AS agency_name, a.agency_code,
+           u_owner.avatar_url AS owner_avatar
          FROM agency_host_requests ahr
          INNER JOIN agencies a ON a.id = ahr.agency_id
+         LEFT JOIN users u_owner ON u_owner.id = a.owner_id
          WHERE ahr.user_id = ?
          ORDER BY ahr.created_at DESC
          LIMIT 1`,
         [userId]
       );
+
+      const pendingRawAvatar = pendingReq?.owner_avatar || '';
+      const pendingFullAvatar = resolveFullAvatarUrl(req, pendingRawAvatar);
+
+      const latestRawAvatar = latestReq?.owner_avatar || '';
+      const latestFullAvatar = resolveFullAvatarUrl(req, latestRawAvatar);
 
       return {
         user: {
@@ -1254,6 +1273,11 @@ export async function getMyAgencyApplication(req, res) {
               agency_name: pendingReq.agency_name,
               agency_code: pendingReq.agency_code,
               commission_rate: parseFloat(pendingReq.commission_rate || 10),
+              agency_logo: pendingRawAvatar,
+              logo_url: pendingRawAvatar,
+              profile_picture: pendingRawAvatar,
+              profile_picture_url: pendingFullAvatar || pendingRawAvatar,
+              full_avatar_url: pendingFullAvatar,
               host_type: pendingReq.host_type,
               message: pendingReq.message,
               status: pendingReq.status,
@@ -1266,6 +1290,11 @@ export async function getMyAgencyApplication(req, res) {
               agency_id: latestReq.agency_id,
               agency_name: latestReq.agency_name,
               agency_code: latestReq.agency_code,
+              agency_logo: latestRawAvatar,
+              logo_url: latestRawAvatar,
+              profile_picture: latestRawAvatar,
+              profile_picture_url: latestFullAvatar || latestRawAvatar,
+              full_avatar_url: latestFullAvatar,
               host_type: latestReq.host_type,
               status: latestReq.status,
               applied_at: latestReq.created_at,
