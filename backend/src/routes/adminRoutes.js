@@ -26,6 +26,9 @@ import {
   deleteGift,
   getTopContributorsAdmin,
   clearGiftHistoryAdmin,
+  getGlobalGiftBannerConfigAdmin,
+  updateGlobalGiftBannerConfigAdmin,
+  sendTestGlobalGiftBannerAdmin,
   getWithdrawals,
   processWithdrawal,
   getSettings,
@@ -248,6 +251,9 @@ router.post('/streams/:roomId/terminate', terminateStream);
 router.get('/gifts/top-contributors', getTopContributorsAdmin);
 router.delete('/gifts/history', clearGiftHistoryAdmin);
 router.post('/gifts/clear-history', clearGiftHistoryAdmin);
+router.get('/gifts/global-banner', getGlobalGiftBannerConfigAdmin);
+router.put('/gifts/global-banner', updateGlobalGiftBannerConfigAdmin);
+router.post('/gifts/global-banner/test', sendTestGlobalGiftBannerAdmin);
 router.get('/gifts', getGiftsAdmin);
 router.post('/gifts', createGift);
 router.put('/gifts/:id', updateGift);

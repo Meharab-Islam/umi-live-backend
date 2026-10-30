@@ -9,7 +9,7 @@ import {
   getLiveDurationRewardHistory,
   getLiveDurationRewardStats,
 } from '../services/liveRewardService.js';
-import { getStarProgressionConfig, calculateUserStars } from '../services/systemService.js';
+import { getStarProgressionConfig, calculateUserStars, getGlobalGiftBannerConfig } from '../services/systemService.js';
 import { invalidateWalletWithdrawalCache } from './walletController.js';
 import { deleteMultipleFilesFromStorage } from '../services/fileStorageService.js';
 
@@ -969,6 +969,143 @@ export async function clearGiftHistoryAdmin(req, res) {
   } catch (err) {
     console.error('clearGiftHistoryAdmin error:', err);
     return res.status(500).json({ success: false, message: 'Failed to clear gift history.', error: err.message });
+  }
+}
+
+export async function getGlobalGiftBannerConfigAdmin(req, res) {
+  try {
+    const config = await getGlobalGiftBannerConfig();
+    return res.json({ success: true, config });
+  } catch (err) {
+    console.error('getGlobalGiftBannerConfigAdmin error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to fetch global gift banner configuration.', error: err.message });
+  }
+}
+
+export async function updateGlobalGiftBannerConfigAdmin(req, res) {
+  try {
+    const { enabled, image_url, min_coins, duration_seconds } = req.body;
+
+    const queries = [];
+    if (enabled !== undefined) {
+      queries.push(
+        query(
+          `INSERT INTO system_settings (key_name, key_value, description)
+           VALUES ('global_gift_banner_enabled', ?, 'Master switch to enable real-time global gift announcement banners across all screens')
+           ON DUPLICATE KEY UPDATE key_value = VALUES(key_value)`,
+          [enabled ? 'true' : 'false']
+        )
+      );
+    }
+
+    if (image_url !== undefined) {
+      queries.push(
+        query(
+          `INSERT INTO system_settings (key_name, key_value, description)
+           VALUES ('global_gift_banner_image', ?, 'Background image asset displayed on global gift broadcast banners')
+           ON DUPLICATE KEY UPDATE key_value = VALUES(key_value)`,
+          [String(image_url).trim()]
+        )
+      );
+    }
+
+    if (min_coins !== undefined) {
+      const parsedCoins = Math.max(0, parseInt(min_coins, 10) || 0);
+      queries.push(
+        query(
+          `INSERT INTO system_settings (key_name, key_value, description)
+           VALUES ('global_gift_banner_min_coins', ?, 'Minimum total coin value required for a gift to trigger the global announcement banner')
+           ON DUPLICATE KEY UPDATE key_value = VALUES(key_value)`,
+          [String(parsedCoins)]
+        )
+      );
+    }
+
+    if (duration_seconds !== undefined) {
+      const parsedDuration = Math.max(2, Math.min(15, parseInt(duration_seconds, 10) || 4));
+      queries.push(
+        query(
+          `INSERT INTO system_settings (key_name, key_value, description)
+           VALUES ('global_gift_banner_duration', ?, 'Duration in seconds for displaying each global gift announcement banner in the queue')
+           ON DUPLICATE KEY UPDATE key_value = VALUES(key_value)`,
+          [String(parsedDuration)]
+        )
+      );
+    }
+
+    await Promise.all(queries);
+
+    // Instant Redis cache invalidation
+    await Promise.allSettled([
+      cache.del('config:global_gift_banner'),
+      cache.del('settings:all'),
+    ]);
+
+    const updatedConfig = await getGlobalGiftBannerConfig();
+
+    const io = req.io || req.app.get('io');
+    if (io) {
+      io.emit('global_gift_banner_config_updated', updatedConfig);
+    }
+
+    return res.json({
+      success: true,
+      message: 'Global gift banner configuration updated successfully.',
+      config: updatedConfig,
+    });
+  } catch (err) {
+    console.error('updateGlobalGiftBannerConfigAdmin error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to update global gift banner configuration.', error: err.message });
+  }
+}
+
+export async function sendTestGlobalGiftBannerAdmin(req, res) {
+  try {
+    const bannerConfig = await getGlobalGiftBannerConfig();
+    const io = req.io || req.app.get('io');
+    if (!io) {
+      return res.status(500).json({ success: false, message: 'Socket.IO server instance not available.' });
+    }
+
+    const testPayload = {
+      id: `test_banner_${Date.now()}`,
+      sender: {
+        id: req.user?.id || 1,
+        name: req.user?.full_name || 'Admin',
+        avatar_url: req.user?.avatar_url || '',
+        level: 99,
+      },
+      receiver: {
+        id: 2,
+        name: 'VIP Star Host',
+        avatar_url: '',
+      },
+      receivers_count: 1,
+      gift: {
+        id: 999,
+        name: 'Super Sports Car',
+        icon_url: '/uploads/gifts/sports_car_thumb_1791794086432-13704975.png',
+        count: 1,
+        coin_cost: 5000,
+      },
+      coins: 5000,
+      total_coins: 5000,
+      room_id: 'TEST_ROOM',
+      banner_image_url: bannerConfig.image_url,
+      duration_seconds: bannerConfig.duration_seconds || 4,
+      timestamp: new Date().toISOString(),
+    };
+
+    io.emit('global_gift_banner', testPayload);
+
+    return res.json({
+      success: true,
+      message: 'Test global gift banner announcement sent to all connected clients.',
+      payload: testPayload,
+    });
+  } catch (err) {
+    console.error('sendTestGlobalGiftBannerAdmin error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to emit test banner.', error: err.message });
   }
 }
 

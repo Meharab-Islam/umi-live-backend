@@ -49,6 +49,23 @@ export const giftApi = {
       body: formData,
     });
   },
+
+  getGlobalBannerConfig: async () => {
+    return await request('/admin/gifts/global-banner');
+  },
+
+  updateGlobalBannerConfig: async (data) => {
+    return await request('/admin/gifts/global-banner', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  sendTestBanner: async () => {
+    return await request('/admin/gifts/global-banner/test', {
+      method: 'POST',
+    });
+  },
 };
 
 export default giftApi;

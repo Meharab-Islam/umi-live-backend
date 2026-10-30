@@ -26,6 +26,10 @@ import {
   Check,
   FileCode,
   Zap,
+  Megaphone,
+  Send,
+  Eye,
+  Settings2,
 } from 'lucide-react';
 import giftApi from '../api/giftApi';
 import { adminApi } from '../api/adminApi';
@@ -104,6 +108,20 @@ export default function Gifts({ onToast }) {
   const [clearingHistory, setClearingHistory] = useState(false);
   const [clearPeriod, setClearPeriod] = useState('all'); // 'all' | 'month'
 
+  // ==========================================
+  // Global Gift Announcement Banner State
+  // ==========================================
+  const [bannerConfig, setBannerConfig] = useState({
+    enabled: true,
+    image_url: '/uploads/gifts/global_gift_banner_bg.png',
+    min_coins: 0,
+    duration_seconds: 4,
+  });
+  const [loadingBannerConfig, setLoadingBannerConfig] = useState(false);
+  const [savingBannerConfig, setSavingBannerConfig] = useState(false);
+  const [uploadingBannerImage, setUploadingBannerImage] = useState(false);
+  const [testingBanner, setTestingBanner] = useState(false);
+
   const quickIcons = ['🌹', '💖', '🍦', '👑', '🏎️', '🚀', '🏰', '🐉', '🛥️', '⭐', '🎉', '🦄'];
 
   // ==========================================
@@ -147,8 +165,73 @@ export default function Gifts({ onToast }) {
   useEffect(() => {
     if (activeTab === 'contributors') {
       fetchTopContributors();
+    } else if (activeTab === 'globalBanner') {
+      fetchBannerConfig();
     }
   }, [activeTab, period]);
+
+  const fetchBannerConfig = async () => {
+    try {
+      setLoadingBannerConfig(true);
+      const res = await giftApi.getGlobalBannerConfig();
+      if (res.success && res.config) {
+        setBannerConfig(res.config);
+      }
+    } catch (err) {
+      if (onToast) onToast('Failed to load global gift banner configuration.', 'error');
+    } finally {
+      setLoadingBannerConfig(false);
+    }
+  };
+
+  const handleSaveBannerConfig = async () => {
+    try {
+      setSavingBannerConfig(true);
+      const res = await giftApi.updateGlobalBannerConfig(bannerConfig);
+      if (res.success) {
+        if (onToast) onToast('Global gift banner configuration updated successfully!', 'success');
+      } else {
+        if (onToast) onToast(res.message || 'Failed to update configuration.', 'error');
+      }
+    } catch (err) {
+      if (onToast) onToast(err.message || 'Failed to update configuration.', 'error');
+    } finally {
+      setSavingBannerConfig(false);
+    }
+  };
+
+  const handleSendTestBanner = async () => {
+    try {
+      setTestingBanner(true);
+      const res = await giftApi.sendTestBanner();
+      if (res.success) {
+        if (onToast) onToast('Test announcement broadcasted! Check live stream and mobile app.', 'success');
+      } else {
+        if (onToast) onToast(res.message || 'Failed to send test banner.', 'error');
+      }
+    } catch (err) {
+      if (onToast) onToast(err.message || 'Failed to send test banner.', 'error');
+    } finally {
+      setTestingBanner(false);
+    }
+  };
+
+  const handleBannerImageUpload = async (file) => {
+    try {
+      setUploadingBannerImage(true);
+      const res = await giftApi.uploadMedia(file);
+      if (res.success && res.url) {
+        setBannerConfig((prev) => ({ ...prev, image_url: res.url }));
+        if (onToast) onToast('Banner background image uploaded successfully!', 'success');
+      } else {
+        if (onToast) onToast(res.message || 'Upload failed', 'error');
+      }
+    } catch (err) {
+      if (onToast) onToast(err.message || 'Upload failed', 'error');
+    } finally {
+      setUploadingBannerImage(false);
+    }
+  };
 
   // ==========================================
   // Catalog Handlers
@@ -414,7 +497,6 @@ export default function Gifts({ onToast }) {
                 border: 'none',
                 fontSize: '0.84rem',
                 fontWeight: 700,
-                cursor: 'pointer',
                 background: activeTab === 'contributors' ? 'linear-gradient(135deg, #f59e0b, #d97706)' : 'transparent',
                 color: activeTab === 'contributors' ? '#ffffff' : 'var(--text-muted)',
                 transition: 'all 0.15s ease',
@@ -422,6 +504,27 @@ export default function Gifts({ onToast }) {
             >
               <Trophy size={16} />
               <span>Top Contributors</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('globalBanner')}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.45rem',
+                padding: '0.45rem 0.95rem',
+                borderRadius: '7px',
+                border: 'none',
+                fontSize: '0.84rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                background: activeTab === 'globalBanner' ? 'linear-gradient(135deg, #a855f7, #6366f1)' : 'transparent',
+                color: activeTab === 'globalBanner' ? '#ffffff' : 'var(--text-muted)',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              <Megaphone size={16} />
+              <span>Global Gift Banner</span>
             </button>
           </div>
 
@@ -1045,6 +1148,302 @@ export default function Gifts({ onToast }) {
               >
                 {clearingHistory ? 'Clearing Data...' : 'Confirm Clear History'}
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================= */}
+      {/* TAB 3: Global Gift Announcement Banner Settings           */}
+      {/* ========================================================= */}
+      {activeTab === 'globalBanner' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          {/* Header Card */}
+          <div className="panel-card" style={{ padding: '1.5rem', background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.08), rgba(99, 102, 241, 0.05))', border: '1px solid rgba(168, 85, 247, 0.25)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'linear-gradient(135deg, #a855f7, #6366f1)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 14px rgba(168, 85, 247, 0.35)' }}>
+                  <Megaphone size={26} color="#ffffff" />
+                </div>
+                <div>
+                  <h2 style={{ margin: 0, fontSize: '1.35rem', fontWeight: 800, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    Global Gift Announcement Banner
+                    <span style={{ fontSize: '0.72rem', padding: '3px 8px', borderRadius: '20px', background: bannerConfig.enabled ? 'rgba(34, 197, 94, 0.15)' : 'rgba(239, 68, 68, 0.15)', color: bannerConfig.enabled ? '#22c55e' : '#ef4444', border: bannerConfig.enabled ? '1px solid rgba(34, 197, 94, 0.3)' : '1px solid rgba(239, 68, 68, 0.3)', fontWeight: 800 }}>
+                      {bannerConfig.enabled ? 'ACTIVE ON ALL SCREENS' : 'DISABLED'}
+                    </span>
+                  </h2>
+                  <p style={{ margin: '4px 0 0', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                    Whenever any user sends a gift in any room, this banner pops up across every screen (Home, Explore, Profile, and all active live streams).
+                  </p>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={handleSendTestBanner}
+                  disabled={testingBanner || !bannerConfig.enabled}
+                  style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 700 }}
+                >
+                  <Send size={15} />
+                  <span>{testingBanner ? 'Sending Test...' : 'Send Test Banner'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={handleSaveBannerConfig}
+                  disabled={savingBannerConfig}
+                  style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 800, background: 'linear-gradient(135deg, #a855f7, #6366f1)' }}
+                >
+                  <Check size={16} />
+                  <span>{savingBannerConfig ? 'Saving Changes...' : 'Save Configuration'}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Live Interactive Banner Preview */}
+          <div className="panel-card" style={{ padding: '1.5rem' }}>
+            <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 1rem', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)' }}>
+              <Eye size={18} color="#a855f7" />
+              <span>Real-Time Banner Preview (Mobile App Simulation)</span>
+            </h3>
+
+            <div style={{ background: '#0a0a0f', padding: '2rem 1.5rem', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+              {/* The Banner Graphic Container */}
+              <div
+                style={{
+                  position: 'relative',
+                  width: '100%',
+                  maxWidth: '560px',
+                  minHeight: '74px',
+                  borderRadius: '16px',
+                  overflow: 'hidden',
+                  backgroundImage: bannerConfig.image_url ? `url(${resolveMediaUrl(bannerConfig.image_url)})` : 'linear-gradient(135deg, #4c1d95, #1e1b4b)',
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  boxShadow: '0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(168, 85, 247, 0.35)',
+                  border: '1px solid rgba(255, 255, 255, 0.25)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  padding: '0.65rem 1rem',
+                  gap: '0.85rem',
+                }}
+              >
+                {/* Subtle dark backdrop filter to ensure text contrast */}
+                <div style={{ position: 'absolute', inset: 0, background: 'rgba(15, 23, 42, 0.45)', backdropFilter: 'blur(3px)', zIndex: 0 }} />
+
+                {/* Banner Content Layer */}
+                <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', gap: '8px' }}>
+                  {/* Sender */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
+                    <div style={{ position: 'relative' }}>
+                      <div style={{ width: '42px', height: '42px', borderRadius: '50%', border: '2px solid #fbbf24', background: '#3b82f6', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: '0.9rem', overflow: 'hidden' }}>
+                        <span>VIP</span>
+                      </div>
+                      <span style={{ position: 'absolute', bottom: '-4px', right: '-4px', background: '#f59e0b', color: '#000', fontSize: '0.6rem', fontWeight: 900, padding: '1px 4px', borderRadius: '6px' }}>Lv.99</span>
+                    </div>
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ color: '#fbbf24', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Top Gifter</div>
+                      <div style={{ color: '#ffffff', fontSize: '0.88rem', fontWeight: 800, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Farhan King</div>
+                    </div>
+                  </div>
+
+                  {/* Gift Icon & Action Badge */}
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0, padding: '0 6px' }}>
+                    <div style={{ fontSize: '1.75rem', filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.6))' }}>🏎️</div>
+                    <div style={{ background: 'linear-gradient(90deg, #f59e0b, #ef4444)', color: '#fff', fontSize: '0.68rem', fontWeight: 900, padding: '2px 8px', borderRadius: '10px', marginTop: '2px', whiteSpace: 'nowrap' }}>
+                      Sports Car x1
+                    </div>
+                  </div>
+
+                  {/* Receiver */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0, textAlign: 'right' }}>
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ color: '#a78bfa', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Sent To</div>
+                      <div style={{ color: '#ffffff', fontSize: '0.88rem', fontWeight: 800, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Nusrat Star</div>
+                    </div>
+                    <div style={{ width: '42px', height: '42px', borderRadius: '50%', border: '2px solid #a78bfa', background: '#ec4899', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: '0.9rem' }}>
+                      <span>STAR</span>
+                    </div>
+                  </div>
+
+                  {/* Coins Badge */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(0, 0, 0, 0.65)', border: '1px solid #fbbf24', borderRadius: '12px', padding: '4px 10px', flexShrink: 0 }}>
+                    <Coins size={15} color="#fbbf24" />
+                    <span style={{ color: '#fef08a', fontSize: '0.85rem', fontWeight: 900 }}>5,000 Coins</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Configuration Form Controls */}
+          <div className="panel-card" style={{ padding: '1.5rem' }}>
+            <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 1.25rem', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)' }}>
+              <Settings2 size={18} color="#6366f1" />
+              <span>Banner Design & Behavior Settings</span>
+            </h3>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
+              {/* 1. Master Toggle */}
+              <div style={{ background: 'var(--bg-primary)', padding: '1.25rem', borderRadius: '12px', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                <div>
+                  <label style={{ fontSize: '0.92rem', fontWeight: 800, color: 'var(--text-main)', display: 'block', marginBottom: '4px' }}>
+                    Enable Global Gift Banner
+                  </label>
+                  <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', margin: 0 }}>
+                    When enabled, virtual gifts trigger an animated announcement across all active screens and rooms in the mobile app.
+                  </p>
+                </div>
+                <div style={{ marginTop: '1rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <button
+                    type="button"
+                    onClick={() => setBannerConfig((prev) => ({ ...prev, enabled: !prev.enabled }))}
+                    style={{
+                      width: '52px',
+                      height: '28px',
+                      borderRadius: '14px',
+                      border: 'none',
+                      cursor: 'pointer',
+                      background: bannerConfig.enabled ? '#22c55e' : '#64748b',
+                      position: 'relative',
+                      transition: 'background 0.2s',
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: '22px',
+                        height: '22px',
+                        borderRadius: '50%',
+                        background: '#ffffff',
+                        position: 'absolute',
+                        top: '3px',
+                        left: bannerConfig.enabled ? '27px' : '3px',
+                        transition: 'left 0.2s',
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                      }}
+                    />
+                  </button>
+                  <span style={{ fontSize: '0.85rem', fontWeight: 700, color: bannerConfig.enabled ? '#22c55e' : '#64748b' }}>
+                    {bannerConfig.enabled ? 'Enabled (Active)' : 'Disabled'}
+                  </span>
+                </div>
+              </div>
+
+              {/* 2. Min Coins Threshold */}
+              <div style={{ background: 'var(--bg-primary)', padding: '1.25rem', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+                <label style={{ fontSize: '0.92rem', fontWeight: 800, color: 'var(--text-main)', display: 'block', marginBottom: '4px' }}>
+                  Minimum Coins Required
+                </label>
+                <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', margin: '0 0 0.85rem' }}>
+                  Set to <strong>0</strong> to announce ALL gifts sent. Or set to 1,000 to only announce gifts of 1,000+ coins.
+                </p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <input
+                    type="number"
+                    min="0"
+                    step="100"
+                    className="form-control"
+                    value={bannerConfig.min_coins}
+                    onChange={(e) => setBannerConfig((prev) => ({ ...prev, min_coins: Math.max(0, parseInt(e.target.value, 10) || 0) }))}
+                    style={{ fontWeight: 700, maxWidth: '180px' }}
+                  />
+                  <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}>Coins minimum</span>
+                </div>
+              </div>
+
+              {/* 3. Display Duration */}
+              <div style={{ background: 'var(--bg-primary)', padding: '1.25rem', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+                <label style={{ fontSize: '0.92rem', fontWeight: 800, color: 'var(--text-main)', display: 'block', marginBottom: '4px' }}>
+                  Display Duration (Seconds)
+                </label>
+                <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', margin: '0 0 0.85rem' }}>
+                  How long each gift announcement stays visible before smoothly sliding up to display the next queued gift.
+                </p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <input
+                    type="number"
+                    min="2"
+                    max="15"
+                    className="form-control"
+                    value={bannerConfig.duration_seconds}
+                    onChange={(e) => setBannerConfig((prev) => ({ ...prev, duration_seconds: Math.max(2, Math.min(15, parseInt(e.target.value, 10) || 4)) }))}
+                    style={{ fontWeight: 700, maxWidth: '140px' }}
+                  />
+                  <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}>Seconds per banner</span>
+                </div>
+              </div>
+
+              {/* 4. Sequential Queue Engine Info */}
+              <div style={{ background: 'var(--bg-primary)', padding: '1.25rem', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+                <label style={{ fontSize: '0.92rem', fontWeight: 800, color: 'var(--text-main)', display: 'block', marginBottom: '4px' }}>
+                  Sequential FIFO Queue Engine
+                </label>
+                <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', margin: '0 0 0.85rem' }}>
+                  If multiple users gift simultaneously across different rooms, gifts are queued and shown one-by-one in order. None are dropped.
+                </p>
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '4px 10px', background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.3)', borderRadius: '8px', color: '#3b82f6', fontSize: '0.78rem', fontWeight: 800 }}>
+                  <Zap size={14} />
+                  <span>Zero-Drop Multi-Room Queue Active</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Banner Background Image Customization */}
+            <div style={{ marginTop: '1.5rem', background: 'var(--bg-primary)', padding: '1.25rem', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+              <label style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--text-main)', display: 'block', marginBottom: '4px' }}>
+                Banner Background Graphic Asset
+              </label>
+              <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: '0 0 1rem' }}>
+                Upload a custom background graphic (PNG, JPG, WEBP) or paste an image URL. Recommended resolution: <strong>1200 x 240px</strong> or wide horizontal ratio.
+              </p>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+                <label
+                  className="btn btn-secondary"
+                  style={{ cursor: uploadingBannerImage ? 'not-allowed' : 'pointer', display: 'inline-flex', alignItems: 'center', gap: '8px', fontWeight: 700 }}
+                >
+                  <Upload size={16} />
+                  <span>{uploadingBannerImage ? 'Uploading Image...' : 'Upload New Background Image'}</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    style={{ display: 'none' }}
+                    disabled={uploadingBannerImage}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleBannerImageUpload(file);
+                    }}
+                  />
+                </label>
+
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setBannerConfig((prev) => ({ ...prev, image_url: '/uploads/gifts/global_gift_banner_bg.png' }))}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '0.82rem' }}
+                >
+                  <RotateCcw size={14} />
+                  <span>Reset Default Graphic</span>
+                </button>
+              </div>
+
+              <div style={{ marginTop: '1rem' }}>
+                <label style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>
+                  Image Asset Path / URL:
+                </label>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={bannerConfig.image_url}
+                  onChange={(e) => setBannerConfig((prev) => ({ ...prev, image_url: e.target.value }))}
+                  placeholder="/uploads/gifts/global_gift_banner_bg.png"
+                  style={{ fontSize: '0.84rem' }}
+                />
+              </div>
             </div>
           </div>
         </div>

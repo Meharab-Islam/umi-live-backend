@@ -2,6 +2,7 @@ import { query, getPool } from '../../config/db.js';
 import { cache } from '../../config/redis.js';
 import { recordCoinsSpentAndCheckLevelUp } from '../../services/levelService.js';
 import { enqueueRoomGift } from '../../services/giftQueueService.js';
+import { getGlobalGiftBannerConfig } from '../../services/systemService.js';
 
 /**
  * Mobile Get Available Gifts Catalog
@@ -408,14 +409,26 @@ export async function sendGift(req, res) {
     });
 
     // 13. Query fresh updated balances directly from MySQL
-    const [freshSender] = await connection.execute('SELECT coins FROM users WHERE id = ?', [senderId]);
+    const [freshSender] = await connection.execute('SELECT coins, diamonds FROM users WHERE id = ?', [senderId]);
     const senderUpdatedCoins = freshSender[0]?.coins ?? 0;
+    const senderUpdatedDiamonds = freshSender[0]?.diamonds ?? 0;
 
     const [freshReceiverRows] = await connection.execute(
-      `SELECT id, coins FROM users WHERE id IN (${userPlaceholders})`,
+      `SELECT id, coins, diamonds FROM users WHERE id IN (${userPlaceholders})`,
       targetReceiverIds
     );
     const freshReceiverCoinsMap = new Map(freshReceiverRows.map((row) => [row.id, row.coins]));
+
+    // 13b. Pre-warm Redis with exact fresh balances so subsequent GETs get 100% real-time data
+    const redisWarmUpdates = [
+      cache.set(`user:balance:${senderId}`, { coins: senderUpdatedCoins, diamonds: senderUpdatedDiamonds }, 30),
+    ];
+    for (const row of freshReceiverRows) {
+      redisWarmUpdates.push(
+        cache.set(`user:balance:${row.id}`, { coins: row.coins, diamonds: row.diamonds || 0 }, 30)
+      );
+    }
+    await Promise.allSettled(redisWarmUpdates);
 
     // 14. Resolve Gift Media URLs
     const animType = String(gift.animation_type || '').toLowerCase();
@@ -537,6 +550,44 @@ export async function sendGift(req, res) {
         senderUpdatedCoins,
         receiversList,
       });
+
+      // 17. Broadcast real-time Global Gift Announcement Banner across all rooms and screens
+      getGlobalGiftBannerConfig().then((bannerConfig) => {
+        if (bannerConfig && bannerConfig.enabled && totalCoinCostAll >= bannerConfig.min_coins) {
+          const globalBannerPayload = {
+            id: `gift_banner_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`,
+            sender: {
+              id: senderId,
+              name: senders[0]?.full_name || `User #${senderId}`,
+              avatar_url: toAbsoluteUrl(senders[0]?.avatar_url),
+              level: senders[0]?.level || 1,
+            },
+            receiver: {
+              id: primaryReceiver.id,
+              name: primaryReceiver.name,
+              avatar_url: primaryReceiver.avatar_url,
+            },
+            receivers_count: receiversList.length,
+            gift: {
+              id: gift.id,
+              name: gift.name,
+              icon_url: toAbsoluteUrl(gift.icon_url),
+              count: giftCount,
+              coin_cost: gift.coin_cost,
+            },
+            coins: totalCoinCostAll,
+            total_coins: totalCoinCostAll,
+            room_id: recordedRoomId || '',
+            banner_image_url: toAbsoluteUrl(bannerConfig.image_url),
+            duration_seconds: bannerConfig.duration_seconds || 4,
+            timestamp: new Date().toISOString(),
+          };
+
+          req.io.emit('global_gift_banner', globalBannerPayload);
+        }
+      }).catch((e) => {
+        console.warn('Global gift banner emit error:', e.message);
+      });
     }
 
     const resultPayload = {
@@ -656,5 +707,38 @@ export async function getUserGiftContributions(req, res) {
   } catch (err) {
     console.error('getUserGiftContributions error:', err);
     return res.status(500).json({ success: false, message: 'Failed to fetch user gift contributions.', error: err.message });
+  }
+}
+
+/**
+ * Mobile: Get Global Gift Announcement Banner Config
+ * GET /api/mobile/gifts/global-banner-config
+ */
+export async function getGlobalGiftBannerConfigMobile(req, res) {
+  try {
+    const config = await getGlobalGiftBannerConfig();
+    const protocol = req.protocol || 'http';
+    const hostHeader = req.get ? req.get('host') : (req.headers?.host || 'localhost:5050');
+    const baseUrl = `${protocol}://${hostHeader}`;
+    const toAbsoluteUrl = (path) => {
+      if (!path) return null;
+      if (typeof path !== 'string') return path;
+      if (path.startsWith('http://') || path.startsWith('https://')) return path;
+      if (path.startsWith('/uploads') || path.startsWith('uploads/')) {
+        return `${baseUrl}${path.startsWith('/') ? '' : '/'}${path}`;
+      }
+      return path;
+    };
+
+    return res.json({
+      success: true,
+      config: {
+        ...config,
+        image_url: toAbsoluteUrl(config.image_url),
+      },
+    });
+  } catch (err) {
+    console.error('getGlobalGiftBannerConfigMobile error:', err);
+    return res.status(500).json({ success: false, message: 'Failed to fetch global gift banner config.' });
   }
 }

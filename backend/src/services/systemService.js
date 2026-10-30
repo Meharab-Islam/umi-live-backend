@@ -68,3 +68,34 @@ export function calculateUserStars(metricValue, starConfig) {
   return parseFloat(cappedStars.toFixed(precision));
 }
 
+/**
+ * Returns Global Gift Announcement Banner Configuration with Redis Cache-Aside
+ */
+export async function getGlobalGiftBannerConfig() {
+  try {
+    return await cache.getOrSet('config:global_gift_banner', 120, async () => {
+      const rows = await query(`
+        SELECT key_name, key_value 
+        FROM system_settings 
+        WHERE key_name IN ('global_gift_banner_enabled', 'global_gift_banner_image', 'global_gift_banner_min_coins', 'global_gift_banner_duration')
+      `);
+      const map = {};
+      for (const r of rows || []) map[r.key_name] = r.key_value;
+      return {
+        enabled: map['global_gift_banner_enabled'] !== 'false',
+        image_url: map['global_gift_banner_image'] || '/uploads/gifts/global_gift_banner_bg.png',
+        min_coins: Math.max(0, parseInt(map['global_gift_banner_min_coins'] || '0', 10)),
+        duration_seconds: Math.max(2, Math.min(15, parseInt(map['global_gift_banner_duration'] || '4', 10))),
+      };
+    });
+  } catch (e) {
+    return {
+      enabled: true,
+      image_url: '/uploads/gifts/global_gift_banner_bg.png',
+      min_coins: 0,
+      duration_seconds: 4,
+    };
+  }
+}
+
+

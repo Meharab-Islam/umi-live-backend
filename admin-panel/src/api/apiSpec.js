@@ -4115,6 +4115,33 @@ export const API_SPEC = {
       ]
     },
     {
+      "id": "gifts-global-banner-config",
+      "category": "gifts",
+      "method": "GET",
+      "path": "/api/mobile/gifts/global-banner-config",
+      "summary": "Get Global Gift Banner Configuration",
+      "description": "Returns settings for the floating global gift banner popups shown across all rooms and screens. Cached via Redis ('config:global_gift_banner', 120s TTL).",
+      "requiresAuth": false,
+      "requestHeaders": [],
+      "parameters": [],
+      "requestBody": null,
+      "responses": [
+        {
+          "status": 200,
+          "description": "Global gift banner configuration returned successfully.",
+          "example": {
+            "success": true,
+            "config": {
+              "enabled": true,
+              "image_url": "/uploads/gifts/global_gift_banner_bg.png",
+              "min_coins": 0,
+              "duration_seconds": 4
+            }
+          }
+        }
+      ]
+    },
+    {
       "id": "wallet-balance",
       "category": "wallet",
       "method": "GET",

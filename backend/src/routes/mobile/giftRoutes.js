@@ -1,5 +1,5 @@
 import express from 'express';
-import { getGifts, sendGift, getUserGiftContributions } from '../../controllers/mobile/giftController.js';
+import { getGifts, sendGift, getUserGiftContributions, getGlobalGiftBannerConfigMobile } from '../../controllers/mobile/giftController.js';
 import { getTopGifters } from '../../controllers/mobile/leaderboardController.js';
 import { requireAuth } from '../../middlewares/authMiddleware.js';
 
@@ -7,6 +7,9 @@ const router = express.Router();
 
 // Public: Get all active virtual gifts
 router.get('/', getGifts);
+
+// Public: Get global gift announcement banner configuration
+router.get('/global-banner-config', getGlobalGiftBannerConfigMobile);
 
 // Public: Get global top gifters leaderboard
 router.get('/top-gifters', getTopGifters);
