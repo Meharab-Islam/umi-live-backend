@@ -8401,6 +8401,9 @@ export const API_SPEC = {
               "id": 2,
               "full_name": "Nila Akter",
               "email": "nila@umi.live",
+              "avatar_url": "/uploads/avatars/nila_pic.jpg",
+              "profile_picture": "/uploads/avatars/nila_pic.jpg",
+              "profile_picture_url": "http://107.174.137.29:5050/uploads/avatars/nila_pic.jpg",
               "role": "host",
               "coins": 5395,
               "diamonds": 18500,
@@ -8408,6 +8411,9 @@ export const API_SPEC = {
               "is_banned": false,
               "created_at": "2026-10-10T08:00:00.000Z"
             },
+            "profile_picture": "/uploads/avatars/nila_pic.jpg",
+            "profile_picture_url": "http://107.174.137.29:5050/uploads/avatars/nila_pic.jpg",
+            "avatar_url": "/uploads/avatars/nila_pic.jpg",
             "deviceSummary": {
               "totalDevices": 2,
               "bannedDevices": 0,

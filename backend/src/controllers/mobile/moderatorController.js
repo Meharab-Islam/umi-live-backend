@@ -1,6 +1,19 @@
 import { query } from '../../config/db.js';
 import { cache } from '../../config/redis.js';
 
+export function resolveFullAvatarUrl(req, avatarUrl) {
+  if (!avatarUrl || typeof avatarUrl !== 'string' || !avatarUrl.trim()) {
+    return null;
+  }
+  const clean = avatarUrl.trim();
+  if (clean.startsWith('http://') || clean.startsWith('https://')) {
+    return clean;
+  }
+  const host = req?.get ? (req.get('host') || '107.174.137.29:5050') : '107.174.137.29:5050';
+  const proto = req?.headers?.['x-forwarded-proto'] || req?.protocol || 'http';
+  return `${proto}://${host}${clean.startsWith('/') ? '' : '/'}${clean}`;
+}
+
 /**
  * GET /api/mobile/moderator/users/search
  * Search users by User ID, Name, or Email.
@@ -69,22 +82,34 @@ export async function searchUsersForModeration(req, res) {
       }
 
       const rows = await query(sql, params);
-      return (rows || []).map((u) => ({
-        id: u.id,
-        full_name: u.full_name,
-        email: u.email,
-        avatar_url: u.avatar_url,
-        role: u.role,
-        coins: u.coins,
-        diamonds: u.diamonds,
-        level: u.level || 1,
-        is_banned: !!u.is_banned,
-        created_at: u.created_at,
-        devices_summary: {
-          total: parseInt(u.total_devices_count || 0, 10),
-          banned: parseInt(u.banned_devices_count || 0, 10),
-        },
-      }));
+      return (rows || []).map((u) => {
+        const rawAvatar = u.avatar_url || null;
+        const fullAvatar = resolveFullAvatarUrl(req, rawAvatar);
+        return {
+          id: u.id,
+          full_name: u.full_name,
+          email: u.email,
+          avatar_url: rawAvatar,
+          profile_picture: rawAvatar,
+          profile_picture_url: fullAvatar || rawAvatar,
+          profile_image: rawAvatar,
+          avatar: rawAvatar,
+          image: rawAvatar,
+          photo: rawAvatar,
+          full_avatar_url: fullAvatar,
+          full_profile_picture: fullAvatar,
+          role: u.role,
+          coins: u.coins,
+          diamonds: u.diamonds,
+          level: u.level || 1,
+          is_banned: !!u.is_banned,
+          created_at: u.created_at,
+          devices_summary: {
+            total: parseInt(u.total_devices_count || 0, 10),
+            banned: parseInt(u.banned_devices_count || 0, 10),
+          },
+        };
+      });
     });
 
     return res.json({
@@ -163,13 +188,23 @@ export async function getUserAndDevices(req, res) {
 
       const totalDevices = devices.length;
       const bannedDevices = devices.filter((d) => d.is_banned).length;
+      const rawAvatar = user.avatar_url || null;
+      const fullAvatar = resolveFullAvatarUrl(req, rawAvatar);
 
       return {
         user: {
           id: user.id,
           full_name: user.full_name,
           email: user.email,
-          avatar_url: user.avatar_url,
+          avatar_url: rawAvatar,
+          profile_picture: rawAvatar,
+          profile_picture_url: fullAvatar || rawAvatar,
+          profile_image: rawAvatar,
+          avatar: rawAvatar,
+          image: rawAvatar,
+          photo: rawAvatar,
+          full_avatar_url: fullAvatar,
+          full_profile_picture: fullAvatar,
           bio: user.bio,
           role: user.role,
           host_type: user.host_type,
@@ -194,9 +229,32 @@ export async function getUserAndDevices(req, res) {
       return res.status(404).json({ success: false, message: `User #${cleanUserId} not found.` });
     }
 
+    const userProfilePic = data.user.profile_picture || data.user.avatar_url || null;
+    const fullAvatar = resolveFullAvatarUrl(req, userProfilePic) || data.user.full_avatar_url || userProfilePic;
+
     return res.json({
       success: true,
-      user: data.user,
+      user: {
+        ...data.user,
+        avatar_url: userProfilePic,
+        profile_picture: userProfilePic,
+        profile_picture_url: fullAvatar,
+        profile_image: userProfilePic,
+        avatar: userProfilePic,
+        image: userProfilePic,
+        photo: userProfilePic,
+        full_avatar_url: fullAvatar,
+        full_profile_picture: fullAvatar,
+      },
+      profile_picture: userProfilePic,
+      profile_picture_url: fullAvatar,
+      avatar_url: userProfilePic,
+      profile_image: userProfilePic,
+      avatar: userProfilePic,
+      image: userProfilePic,
+      photo: userProfilePic,
+      full_avatar_url: fullAvatar,
+      full_profile_picture: fullAvatar,
       deviceSummary: data.deviceSummary,
       devices: data.devices,
     });
@@ -528,7 +586,14 @@ export async function getBannedDevicesList(req, res) {
             id: r.user_id,
             full_name: r.user_name,
             email: r.user_email,
-            avatar_url: r.user_avatar,
+            avatar_url: r.user_avatar || null,
+            profile_picture: r.user_avatar || null,
+            profile_picture_url: resolveFullAvatarUrl(req, r.user_avatar) || r.user_avatar || null,
+            profile_image: r.user_avatar || null,
+            avatar: r.user_avatar || null,
+            image: r.user_avatar || null,
+            full_avatar_url: resolveFullAvatarUrl(req, r.user_avatar) || r.user_avatar || null,
+            full_profile_picture: resolveFullAvatarUrl(req, r.user_avatar) || r.user_avatar || null,
             is_banned: !!r.user_is_banned,
           },
         })),
