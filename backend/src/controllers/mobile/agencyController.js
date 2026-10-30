@@ -796,6 +796,8 @@ export async function removeHostFromAgency(req, res) {
     await cache.del(`host:agency_summary:${hostId}`);
     await cache.del(`user:${hostId}`);
     await cache.del(`user:profile:${hostId}`);
+    await cache.del(`user:agency_application:${hostId}`);
+    await cache.del('agencies:all');
 
     return res.json({
       success: true,
@@ -1253,6 +1255,8 @@ export async function rejectHostRequest(req, res) {
 
     // 3. Invalidate Redis Caches
     await invalidateAgencyCache(agency.id);
+    await cache.del(`user:agency_application:${request.user_id}`);
+    await cache.del('agencies:all');
 
     return res.json({
       success: true,
@@ -1583,6 +1587,7 @@ export async function applyToAgency(req, res) {
  * POST /api/mobile/agency/requests/:requestId/cancel
  * DELETE /api/mobile/agency/my-application
  * Allows an applicant user to cancel their pending host recruitment application.
+ * Immediately unlocks user to submit a new application with zero wait time.
  */
 export async function cancelHostApplication(req, res) {
   try {
@@ -1590,7 +1595,7 @@ export async function cancelHostApplication(req, res) {
     const targetRequestId = req.params.requestId ? parseInt(req.params.requestId, 10) : null;
 
     let querySql = `
-      SELECT ahr.*, a.name AS agency_name, a.agency_code
+      SELECT ahr.*, a.name AS agency_name, a.agency_code, a.owner_id AS agency_owner_id
       FROM agency_host_requests ahr
       INNER JOIN agencies a ON a.id = ahr.agency_id
       WHERE ahr.user_id = ? AND ahr.status = 'pending'
@@ -1605,38 +1610,149 @@ export async function cancelHostApplication(req, res) {
 
     const [request] = await query(querySql, queryParams);
 
-    if (!request) {
-      return res.status(404).json({
-        success: false,
-        message: 'No active pending application was found to cancel.',
-      });
-    }
-
-    // 1. MySQL SSOT: Update status to 'cancelled'
+    // 1. MySQL SSOT: Update all pending requests for this user to 'cancelled' so no lingering row blocks them
     await query(
       `UPDATE agency_host_requests 
        SET status = 'cancelled', updated_at = CURRENT_TIMESTAMP 
-       WHERE id = ? AND user_id = ?`,
-      [request.id, userId]
+       WHERE user_id = ? AND status = 'pending'`,
+      [userId]
     );
 
-    // 2. Invalidate Redis Caches
-    await invalidateAgencyCache(request.agency_id);
+    // 2. Invalidate Redis Caches immediately
+    if (request?.agency_id) {
+      await invalidateAgencyCache(request.agency_id);
+    }
     await cache.del(`user:agency_application:${userId}`);
+    await cache.del(`user:${userId}`);
+    await cache.del(`user:profile:${userId}`);
+    await cache.del('agencies:all');
+
+    // 3. Real-time Socket Event: notify user and agency owner
+    const io = getLiveIO();
+    if (io) {
+      io.to(`user_${userId}`).emit('agency:application_status_changed', {
+        status: 'cancelled',
+        message: 'Your application has been cancelled. You can now apply immediately.',
+      });
+      if (request?.agency_owner_id) {
+        io.to(`user_${request.agency_owner_id}`).emit('agency:host_request_cancelled', {
+          request_id: request.id,
+          user_id: userId,
+        });
+      }
+    }
 
     return res.json({
       success: true,
-      message: `Your host join application to "${request.agency_name}" has been cancelled successfully. You are now free to submit a new application.`,
+      message: `Your host join application${request?.agency_name ? ` to "${request.agency_name}"` : ''} has been cancelled successfully. You are now free to submit a new application immediately without any waiting time.`,
       data: {
-        request_id: request.id,
-        agency_id: request.agency_id,
-        agency_name: request.agency_name,
+        request_id: request?.id || null,
+        agency_id: request?.agency_id || null,
+        agency_name: request?.agency_name || null,
         status: 'cancelled',
       },
     });
   } catch (error) {
     console.error('cancelHostApplication error:', error);
     return res.status(500).json({ success: false, message: 'Failed to cancel agency application.' });
+  }
+}
+
+/**
+ * POST /api/mobile/agency/leave
+ * POST /api/mobile/agency/my-application/leave
+ * DELETE /api/mobile/agency/leave
+ * Allows an affiliated host/user to voluntarily leave their current agency immediately.
+ * Zero cooldown: user can immediately apply to any agency right away with zero waiting time.
+ */
+export async function leaveAgency(req, res) {
+  try {
+    const userId = req.user.id;
+
+    // 1. Find user and current agency affiliation
+    const [user] = await query(
+      'SELECT id, full_name, agency_id, role FROM users WHERE id = ?',
+      [userId]
+    );
+
+    if (!user || !user.agency_id) {
+      return res.status(400).json({
+        success: false,
+        message: 'You are not currently affiliated with any agency.',
+      });
+    }
+
+    const currentAgencyId = user.agency_id;
+    const [agency] = await query('SELECT id, name, owner_id FROM agencies WHERE id = ?', [currentAgencyId]);
+
+    // 2. Terminate active live rooms if user is streaming
+    const liveRooms = await query(
+      `SELECT room_id FROM live_rooms WHERE host_id = ? AND status = 'live'`,
+      [userId]
+    );
+    if (liveRooms.length > 0) {
+      await query(
+        `UPDATE live_rooms SET status = 'ended', ended_at = CURRENT_TIMESTAMP WHERE host_id = ? AND status = 'live'`,
+        [userId]
+      );
+      for (const room of liveRooms) {
+        await cache.del(`room:${room.room_id}`);
+      }
+      await cache.delByPattern('mobile:rooms:*');
+    }
+
+    // 3. MySQL SSOT: Reset agency affiliation and cancel any lingering pending requests
+    await query(
+      `UPDATE users 
+       SET agency_id = NULL, role = 'user', broadcast_banned_until = NULL, broadcast_ban_reason = NULL, broadcast_banned_at = NULL 
+       WHERE id = ?`,
+      [userId]
+    );
+
+    await query(
+      `UPDATE agency_host_requests 
+       SET status = 'cancelled', updated_at = CURRENT_TIMESTAMP 
+       WHERE user_id = ? AND status = 'pending'`,
+      [userId]
+    );
+
+    // 4. Invalidate Redis Caches
+    await invalidateAgencyCache(currentAgencyId);
+    await cache.del(`user:agency_application:${userId}`);
+    await cache.del(`host:agency_summary:${userId}`);
+    await cache.del(`user:${userId}`);
+    await cache.del(`user:profile:${userId}`);
+    await cache.del('agencies:all');
+
+    // 5. Real-time Socket Event: Notify user and agency owner
+    const io = getLiveIO();
+    if (io) {
+      io.to(`user_${userId}`).emit('agency:affiliation_updated', {
+        agency_id: null,
+        is_affiliated: false,
+        role: 'user',
+        message: `You have left ${agency?.name || 'the agency'}. You can now apply to any agency immediately.`,
+      });
+      if (agency?.owner_id) {
+        io.to(`user_${agency.owner_id}`).emit('agency:host_left', {
+          agency_id: currentAgencyId,
+          host_id: userId,
+          host_name: user.full_name,
+        });
+      }
+    }
+
+    return res.json({
+      success: true,
+      message: `You have left "${agency?.name || 'the agency'}" successfully. You can now apply to another agency immediately without any waiting time.`,
+      data: {
+        agency_id: null,
+        role: 'user',
+      },
+    });
+  } catch (error) {
+    console.error('leaveAgency error:', error);
+    return res.status(500).json({ success: false, message: 'Failed to leave agency.' });
   }
 }
 

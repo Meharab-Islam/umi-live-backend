@@ -114,9 +114,9 @@
     "semantic_hash": ""
   },
   "backend/src/controllers/adminController.js": {
-    "mtime": 1793359015.611593,
-    "seen": 1793359299.517664,
-    "ast_hash": "755cf1fe5fbe30241b9a65292df5ba1c",
+    "mtime": 1793368385.4536152,
+    "seen": 1793368824.180502,
+    "ast_hash": "2949121bc0403170b0d25f941839834c",
     "semantic_hash": ""
   },
   "backend/src/controllers/authController.js": {
@@ -198,9 +198,9 @@
     "semantic_hash": ""
   },
   "admin-panel/src/pages/Agencies.jsx": {
-    "mtime": 1792933666.925042,
-    "seen": 1792933681.2345111,
-    "ast_hash": "dfdefde7c835b07d5d9f52c7c585a3af",
+    "mtime": 1793368451.4983687,
+    "seen": 1793368824.1797671,
+    "ast_hash": "badc25ef266c5bb93189b875d5b18f0f",
     "semantic_hash": ""
   },
   "README.md": {
@@ -528,9 +528,9 @@
     "semantic_hash": ""
   },
   "admin-panel/src/api/apiSpec.js": {
-    "mtime": 1793363849.5058725,
-    "seen": 1793363902.351821,
-    "ast_hash": "5cb04f456ea389b2acb744ac25738f92",
+    "mtime": 1793368777.5524821,
+    "seen": 1793368824.1789272,
+    "ast_hash": "8724e07be9e3c58dca47e8e31639ae0b",
     "semantic_hash": ""
   },
   "admin-panel/src/pages/ApiDocs.jsx": {
@@ -540,9 +540,9 @@
     "semantic_hash": ""
   },
   "backend/src/routes/docsRoutes.js": {
-    "mtime": 1793363877.1532726,
-    "seen": 1793363902.354205,
-    "ast_hash": "97faed233cf5919cfffd9c78c3c55db5",
+    "mtime": 1793368795.1256506,
+    "seen": 1793368824.181228,
+    "ast_hash": "a9dd72505540f485e26b9c9257227a3f",
     "semantic_hash": ""
   },
   "backend/src/controllers/mobile/authController.js": {
@@ -750,15 +750,15 @@
     "semantic_hash": ""
   },
   "backend/src/controllers/mobile/agencyController.js": {
-    "mtime": 1793363825.6761181,
-    "seen": 1793363902.3535209,
-    "ast_hash": "1874fd3e0d663ed8a2497d9df5d98ac4",
+    "mtime": 1793368538.9242036,
+    "seen": 1793368824.180594,
+    "ast_hash": "44e03f610ad19dbff7a4d63be8b0d717",
     "semantic_hash": ""
   },
   "backend/src/routes/mobile/agencyRoutes.js": {
-    "mtime": 1793361739.020916,
-    "seen": 1793361798.271229,
-    "ast_hash": "e607d6fb8e44f83863c5438c33ff8cbc",
+    "mtime": 1793368557.9188714,
+    "seen": 1793368824.1812649,
+    "ast_hash": "638093aa4d0a84fb59f8777f989c734f",
     "semantic_hash": ""
   },
   "scratch/test_agency_api.mjs": {

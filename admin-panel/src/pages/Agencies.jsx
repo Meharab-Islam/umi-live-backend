@@ -22,6 +22,7 @@ import {
   Eye,
   Video,
   Mic,
+  Coins,
 } from 'lucide-react';
 import agencyApi from '../api/agencyApi';
 import { adminApi } from '../api/adminApi';
@@ -443,19 +444,20 @@ export default function Agencies({ onToast }) {
                 <th>Agency Name</th>
                 <th>Owner Name & Profile</th>
                 <th>Total Host Count</th>
+                <th style={{ minWidth: '140px' }}>Total Coins</th>
                 <th style={{ textAlign: 'right', minWidth: '160px' }}>Action</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan="6" style={{ padding: '3rem 1rem' }}>
+                  <td colSpan="7" style={{ padding: '3rem 1rem' }}>
                     <Loader text="Loading registered agencies & talent networks..." />
                   </td>
                 </tr>
               ) : agencies.length === 0 ? (
                 <tr>
-                  <td colSpan="6" style={{ textAlign: 'center', padding: '2.5rem', color: 'var(--text-dim)' }}>
+                  <td colSpan="7" style={{ textAlign: 'center', padding: '2.5rem', color: 'var(--text-dim)' }}>
                     No agencies registered yet. Click "Create New Agency" to add one.
                   </td>
                 </tr>
@@ -540,6 +542,27 @@ export default function Agencies({ onToast }) {
                       >
                         <Users size={14} style={{ marginRight: '5px' }} />
                         {agency.host_count || 0} Hosts
+                      </span>
+                    </td>
+
+                    {/* 5. Total Coins */}
+                    <td>
+                      <span
+                        className="badge"
+                        style={{
+                          fontSize: '0.82rem',
+                          fontWeight: 800,
+                          padding: '4px 10px',
+                          backgroundColor: 'rgba(245, 158, 11, 0.12)',
+                          color: '#d97706',
+                          border: '1px solid rgba(245, 158, 11, 0.3)',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '5px',
+                        }}
+                      >
+                        <Coins size={14} color="#f59e0b" />
+                        <span>{(agency.total_coins ?? ((agency.owner_coins || 0) + (agency.total_host_coins || 0))).toLocaleString()} 🪙</span>
                       </span>
                     </td>
 
@@ -894,6 +917,13 @@ export default function Agencies({ onToast }) {
                 <div style={{ fontSize: '0.7rem', color: 'var(--text-dim)', fontWeight: 600 }}>TOTAL HOSTS</div>
                 <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#7c3aed', marginTop: '2px' }}>
                   {agencyHosts.length} Hosts
+                </div>
+              </div>
+
+              <div style={{ padding: '0.75rem', borderRadius: '8px', background: 'var(--bg-card-hover)', border: '1px solid var(--border-color)' }}>
+                <div style={{ fontSize: '0.7rem', color: 'var(--text-dim)', fontWeight: 600 }}>TOTAL COINS</div>
+                <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#d97706', marginTop: '2px' }}>
+                  🪙 {Number(selectedAgencyForHosts.total_coins ?? ((selectedAgencyForHosts.owner_coins || 0) + (selectedAgencyForHosts.total_host_coins || 0))).toLocaleString()}
                 </div>
               </div>
 

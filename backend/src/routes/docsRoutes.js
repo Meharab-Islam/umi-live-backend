@@ -9621,6 +9621,39 @@ export const API_SPEC = {
       ]
     },
     {
+      "id": "agency-leave",
+      "category": "agency-management",
+      "method": "POST",
+      "path": "/api/mobile/agency/leave",
+      "summary": "Leave Agency Voluntarily (Zero Wait Time)",
+      "description": "Allows an affiliated host to voluntarily leave their current agency immediately. Clears agency_id, terminates any ongoing live rooms, resets role to user, invalidates all Redis caches, and releases the user to re-apply to another agency instantly with zero cooldown/waiting time.",
+      "requiresAuth": true,
+      "requestHeaders": [
+        {
+          "name": "Authorization",
+          "type": "string",
+          "required": true,
+          "description": "Bearer JWT token"
+        }
+      ],
+      "parameters": [],
+      "requestBody": null,
+      "responses": [
+        {
+          "status": 200,
+          "description": "Agency left successfully with zero waiting time.",
+          "example": {
+            "success": true,
+            "message": "You have left 'Starlight Talent Agency' successfully. You can now apply to another agency immediately without any waiting time.",
+            "data": {
+              "agency_id": null,
+              "role": "user"
+            }
+          }
+        }
+      ]
+    },
+    {
       "id": "entry-effects-catalog",
       "category": "entry-effects",
       "method": "GET",

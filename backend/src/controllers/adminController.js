@@ -1441,15 +1441,37 @@ export async function getAgencies(req, res) {
           u.vip_package as owner_vip_package,
           u.coins as owner_coins,
           u.diamonds as owner_diamonds,
-          COUNT(h.id) as host_count,
-          COALESCE(SUM(h.diamonds), 0) as total_host_diamonds
+          (SELECT COUNT(h.id) FROM users h WHERE h.agency_id = a.id AND h.role != 'superadmin') as host_count,
+          (SELECT COALESCE(SUM(h.coins), 0) FROM users h WHERE h.agency_id = a.id AND h.role != 'superadmin' AND h.id != a.owner_id) as total_host_coins,
+          (SELECT COALESCE(SUM(h.diamonds), 0) FROM users h WHERE h.agency_id = a.id) as total_host_diamonds,
+          (SELECT COALESCE(SUM(gt.coin_amount), 0) 
+           FROM gift_transactions gt 
+           INNER JOIN users u5 ON u5.id = gt.receiver_id 
+           WHERE u5.agency_id = a.id AND gt.created_at >= COALESCE(u5.agency_joined_at, u5.created_at)) AS total_coins_gifted_to_hosts
         FROM agencies a
         JOIN users u ON a.owner_id = u.id
-        LEFT JOIN users h ON h.agency_id = a.id
-        GROUP BY a.id, u.id
         ORDER BY a.id DESC
       `);
-      return rows || [];
+
+      return (rows || []).map((row) => {
+        const commissionRate = parseFloat(row.commission_rate || 10);
+        const totalCoinsGifted = parseInt(row.total_coins_gifted_to_hosts || 0, 10);
+        const totalCommissionCoins = Math.round(totalCoinsGifted * (commissionRate / 100));
+        const ownerCoins = parseInt(row.owner_coins || 0, 10);
+        const hostsCoins = parseInt(row.total_host_coins || 0, 10);
+        // Total coin = all hosts' coins + commission + agency owner's coin
+        const totalCoins = hostsCoins + totalCommissionCoins + ownerCoins;
+
+        return {
+          ...row,
+          host_count: parseInt(row.host_count || 0, 10),
+          owner_coins: ownerCoins,
+          total_host_coins: hostsCoins,
+          total_commission_coins: totalCommissionCoins,
+          total_coins: totalCoins,
+          total_agency_coins: totalCoins,
+        };
+      });
     });
 
     return res.json({ success: true, agencies });
@@ -1674,6 +1696,10 @@ export async function removeUserFromAgency(req, res) {
 
     // Database write succeeded -> Invalidate Redis cache & notify via socket
     await invalidateUserCacheAndNotify(req.io, userId, { role: 'user', agency_id: null });
+    await cache.del(`user:agency_application:${userId}`);
+    await cache.del(`host:agency_summary:${userId}`);
+    await cache.del('agencies:all');
+    await cache.del(`agency:${id}:hosts`);
 
     return res.json({
       success: true,

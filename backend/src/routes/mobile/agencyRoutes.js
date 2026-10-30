@@ -14,6 +14,7 @@ import {
   applyToAgency,
   getMyAgencyApplication,
   cancelHostApplication,
+  leaveAgency,
   getAllAgencies,
   updateAgencyCommission,
   updateAgencyProfile,
@@ -37,6 +38,11 @@ router.post('/apply', requireAuth, applyToAgency);
 router.post('/my-application/cancel', requireAuth, cancelHostApplication);
 router.delete('/my-application', requireAuth, cancelHostApplication);
 router.post('/requests/:requestId/cancel', requireAuth, cancelHostApplication);
+
+// Host Voluntary Agency Exit / Leave (zero cooldown, instant re-apply)
+router.post('/leave', requireAuth, leaveAgency);
+router.delete('/leave', requireAuth, leaveAgency);
+router.post('/my-application/leave', requireAuth, leaveAgency);
 
 // All Agencies Directory (accessible to normal users wishing to apply as host, agencies, and moderators)
 router.get('/list', optionalAuth, getAllAgencies);
