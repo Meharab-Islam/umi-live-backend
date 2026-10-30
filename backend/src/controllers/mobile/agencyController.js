@@ -151,7 +151,10 @@ export async function getAllAgencies(req, res) {
           (SELECT COALESCE(SUM(gt.coin_amount), 0)
            FROM gift_transactions gt
            INNER JOIN users u5 ON u5.id = gt.receiver_id
-           WHERE u5.agency_id = a.id AND gt.created_at >= COALESCE(u5.agency_joined_at, u5.created_at)) AS total_coins_gifted_to_hosts
+           WHERE u5.agency_id = a.id AND gt.created_at >= COALESCE(u5.agency_joined_at, u5.created_at)) AS total_coins_gifted_to_hosts,
+          (SELECT COALESCE(SUM(u_hosts.coins), 0)
+           FROM users u_hosts
+           WHERE u_hosts.agency_id = a.id AND u_hosts.role != 'superadmin' AND u_hosts.id != a.owner_id) AS hosts_total_coins
         FROM agencies a
         LEFT JOIN users u ON u.id = a.owner_id
       `;
@@ -170,6 +173,10 @@ export async function getAllAgencies(req, res) {
         const commissionRate = parseFloat(row.commission_rate || 10);
         const totalCoinsGifted = parseInt(row.total_coins_gifted_to_hosts || 0, 10);
         const totalCommissionCoins = Math.round(totalCoinsGifted * (commissionRate / 100));
+        const ownerCoins = parseInt(row.owner_coins || 0, 10);
+        const hostsCoins = parseInt(row.hosts_total_coins || 0, 10);
+        // Total coin = all hosts' coins + commission + agency owner's coin
+        const totalAgencyCoins = hostsCoins + totalCommissionCoins + ownerCoins;
 
         const rawAgencyLogo = row.logo_url || row.agency_avatar || '';
         const rawLogo = rawAgencyLogo || row.owner_avatar || '';
@@ -195,9 +202,17 @@ export async function getAllAgencies(req, res) {
           logo: rawLogo,
           full_avatar_url: fullLogo,
           full_profile_picture: fullLogo,
-          owner_coins: parseInt(row.owner_coins || 0, 10),
-          total_hosts: parseInt(row.total_hosts_count || 0, 10),
+          total_coins: totalAgencyCoins,
+          coins: totalAgencyCoins,
+          total_coin: totalAgencyCoins,
+          hosts_coins: hostsCoins,
+          hosts_total_coins: hostsCoins,
+          host_coins: hostsCoins,
           total_commission_coins: totalCommissionCoins,
+          commission_coins: totalCommissionCoins,
+          agency_commission: totalCommissionCoins,
+          owner_coins: ownerCoins,
+          total_hosts: parseInt(row.total_hosts_count || 0, 10),
           pending_requests_count: parseInt(row.pending_requests_count || 0, 10),
           banned_hosts_count: parseInt(row.banned_hosts_count || 0, 10),
           owner: {
@@ -211,15 +226,21 @@ export async function getAllAgencies(req, res) {
             avatar: row.owner_avatar || '',
             full_avatar_url: ownerFullAvatar,
             full_profile_picture: ownerFullAvatar,
-            coins: parseInt(row.owner_coins || 0, 10),
+            coins: ownerCoins,
           },
           metrics: {
             total_hosts: parseInt(row.total_hosts_count || 0, 10),
             active_streaming_hosts: parseInt(row.active_streaming_hosts_count || 0, 10),
             banned_hosts_count: parseInt(row.banned_hosts_count || 0, 10),
             pending_requests_count: parseInt(row.pending_requests_count || 0, 10),
+            total_coins: totalAgencyCoins,
+            coins: totalAgencyCoins,
+            hosts_coins: hostsCoins,
+            hosts_total_coins: hostsCoins,
+            owner_coins: ownerCoins,
             total_coins_gifted_to_hosts: totalCoinsGifted,
             total_commission_coins: totalCommissionCoins,
+            commission_coins: totalCommissionCoins,
           },
         };
       });
@@ -273,12 +294,17 @@ export async function getAgencyOverview(req, res) {
         [agency.owner_id]
       );
 
-      // 2. Total affiliated hosts
+      // 2. Total affiliated hosts & their total coins
       const [hostStats] = await query(
-        'SELECT COUNT(id) AS total_hosts FROM users WHERE agency_id = ?',
-        [agency.id]
+        `SELECT 
+           COUNT(id) AS total_hosts,
+           COALESCE(SUM(coins), 0) AS hosts_total_coins
+         FROM users 
+         WHERE agency_id = ? AND role != 'superadmin' AND id != ?`,
+        [agency.id, agency.owner_id]
       );
       const totalHosts = parseInt(hostStats?.total_hosts || 0, 10);
+      const hostsCoins = parseInt(hostStats?.hosts_total_coins || 0, 10);
 
       // 3. Active live streaming hosts right now
       const [streamingStats] = await query(
@@ -314,6 +340,9 @@ export async function getAgencyOverview(req, res) {
       const totalCoinsGifted = parseInt(commissionStats?.total_coins_gifted_to_hosts || 0, 10);
       const commissionRate = await getEffectiveCommissionRate(agency);
       const totalCommissionCoins = Math.round(totalCoinsGifted * (commissionRate / 100));
+      const ownerCoins = parseInt(owner?.coins || 0, 10);
+      // Total coin = all hosts' coins + commission + agency owner's coin
+      const totalAgencyCoins = hostsCoins + totalCommissionCoins + ownerCoins;
 
       // 6. Pending join requests count
       const [pendingStats] = await query(
@@ -350,8 +379,13 @@ export async function getAgencyOverview(req, res) {
         agency_commission_rate: commissionRate,
         agency_commission: totalCommissionCoins,
         agency_commission_coins: totalCommissionCoins,
-        total_coins: owner?.coins || 0,
-        owner_coins: owner?.coins || 0,
+        total_coins: totalAgencyCoins,
+        coins: totalAgencyCoins,
+        total_coin: totalAgencyCoins,
+        hosts_coins: hostsCoins,
+        hosts_total_coins: hostsCoins,
+        host_coins: hostsCoins,
+        owner_coins: ownerCoins,
         total_commission_coins: totalCommissionCoins,
         commission_coin_total: totalCommissionCoins,
         total_hosts: totalHosts,
@@ -368,6 +402,10 @@ export async function getAgencyOverview(req, res) {
           contact_phone: agency.contact_phone || '',
           notes: agency.notes || '',
           created_at: agency.created_at,
+          total_coins: totalAgencyCoins,
+          coins: totalAgencyCoins,
+          hosts_coins: hostsCoins,
+          owner_coins: ownerCoins,
           avatar_url: rawAvatar,
           profile_picture: rawAvatar,
           profile_picture_url: fullAvatar || rawAvatar,
@@ -388,13 +426,18 @@ export async function getAgencyOverview(req, res) {
           avatar: ownerRawAvatar,
           full_avatar_url: ownerFullAvatar,
           full_profile_picture: ownerFullAvatar,
-          coins: owner?.coins || 0,
+          coins: ownerCoins,
           diamonds: owner?.diamonds || 0,
         },
         metrics: {
           total_hosts: totalHosts,
           active_streaming_hosts: activeStreamingHosts,
           banned_hosts_count: bannedHostsCount,
+          total_coins: totalAgencyCoins,
+          coins: totalAgencyCoins,
+          hosts_coins: hostsCoins,
+          hosts_total_coins: hostsCoins,
+          owner_coins: ownerCoins,
           total_commission_coins: totalCommissionCoins,
           total_coins_gifted_to_hosts: totalCoinsGifted,
           pending_requests_count: pendingRequestsCount,
@@ -572,14 +615,36 @@ export async function getAgencyHosts(req, res) {
       });
     });
 
+    // Fetch agency owner profile & coin balance
+    const [ownerRow] = await query(
+      'SELECT id, full_name, email, avatar_url, coins FROM users WHERE id = ?',
+      [agency.owner_id]
+    );
+    const ownerCoins = parseInt(ownerRow?.coins || 0, 10);
+
+    const hostsTotalCoins = (hosts || []).reduce((sum, h) => sum + parseInt(h.coins || 0, 10), 0);
+    const totalCommissionCoins = (hosts || []).reduce((sum, h) => sum + parseInt(h.agency_commission_coins || 0, 10), 0);
+    // User requirement: In agency host management page, total coins = all hosts' coins + commission + agency owner's coin
+    const totalAgencyCoins = hostsTotalCoins + totalCommissionCoins + ownerCoins;
+
     return res.json({
       success: true,
       message: 'Agency hosts list retrieved successfully.',
       count: hosts.length,
+      total_hosts: hosts.length,
       commission_rate: commissionRate,
       commission_rate_percentage: commissionRate,
       agency_commission_rate: commissionRate,
-      total_commission_coins: hosts.reduce((sum, h) => sum + (h.agency_commission_coins || 0), 0),
+      total_coins: totalAgencyCoins,
+      coins: totalAgencyCoins,
+      total_coin: totalAgencyCoins,
+      hosts_coins: hostsTotalCoins,
+      hosts_total_coins: hostsTotalCoins,
+      host_coins: hostsTotalCoins,
+      owner_coins: ownerCoins,
+      total_commission_coins: totalCommissionCoins,
+      commission_coins: totalCommissionCoins,
+      agency_commission: totalCommissionCoins,
       agency: {
         id: agency.id,
         name: agency.name,
@@ -587,6 +652,40 @@ export async function getAgencyHosts(req, res) {
         commission_rate: commissionRate,
         commission_rate_percentage: commissionRate,
         status: agency.status,
+        total_coins: totalAgencyCoins,
+        coins: totalAgencyCoins,
+        total_coin: totalAgencyCoins,
+        hosts_coins: hostsTotalCoins,
+        hosts_total_coins: hostsTotalCoins,
+        host_coins: hostsTotalCoins,
+        owner_coins: ownerCoins,
+        total_commission_coins: totalCommissionCoins,
+        total_hosts: hosts.length,
+      },
+      owner: {
+        id: ownerRow?.id || agency.owner_id,
+        full_name: ownerRow?.full_name || 'Agency Owner',
+        email: ownerRow?.email || '',
+        avatar_url: ownerRow?.avatar_url || '',
+        coins: ownerCoins,
+      },
+      summary: {
+        total_hosts: hosts.length,
+        total_coins: totalAgencyCoins,
+        coins: totalAgencyCoins,
+        hosts_coins: hostsTotalCoins,
+        hosts_total_coins: hostsTotalCoins,
+        owner_coins: ownerCoins,
+        total_commission_coins: totalCommissionCoins,
+      },
+      metrics: {
+        total_hosts: hosts.length,
+        total_coins: totalAgencyCoins,
+        coins: totalAgencyCoins,
+        hosts_coins: hostsTotalCoins,
+        hosts_total_coins: hostsTotalCoins,
+        owner_coins: ownerCoins,
+        total_commission_coins: totalCommissionCoins,
       },
       data: hosts,
     });

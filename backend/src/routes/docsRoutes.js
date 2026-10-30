@@ -8886,7 +8886,7 @@ export const API_SPEC = {
       "method": "GET",
       "path": "/api/mobile/agency/list",
       "summary": "List All Agencies Directory",
-      "description": "Lists all registered agencies with detailed performance summaries: total hosts count, active live streaming hosts, broadcast-banned host count, pending recruitment requests, owner coins, and total commission generated. Accessible to normal users wishing to apply to join as host, affiliated hosts, agency owners, and administrators. Cached in Redis ('agency:list:all', 30s TTL).",
+      "description": "Lists all registered agencies with detailed performance summaries: total agency coins (combined sum of all affiliated hosts' coins + agency commission + owner's coins), hosts coins, total hosts count, active live streaming hosts, broadcast-banned host count, pending recruitment requests, owner coins, and total commission generated. Accessible to normal users wishing to apply to join as host, affiliated hosts, agency owners, and administrators. Cached in Redis ('agency:list:all', 30s TTL).",
       "requiresAuth": false,
       "requestHeaders": [
         {
@@ -8921,6 +8921,11 @@ export const API_SPEC = {
                 "name": "Starlight Talent Agency",
                 "commission_rate": 20,
                 "status": "active",
+                "total_coins": 112790,
+                "coins": 112790,
+                "hosts_coins": 10000,
+                "owner_coins": 99790,
+                "total_commission_coins": 3000,
                 "owner": {
                   "id": 1,
                   "full_name": "System Admin",
@@ -8932,6 +8937,10 @@ export const API_SPEC = {
                   "active_streaming_hosts": 0,
                   "banned_hosts_count": 0,
                   "pending_requests_count": 0,
+                  "total_coins": 112790,
+                  "coins": 112790,
+                  "hosts_coins": 10000,
+                  "owner_coins": 99790,
                   "total_coins_gifted_to_hosts": 15000,
                   "total_commission_coins": 3000
                 }
@@ -8947,7 +8956,7 @@ export const API_SPEC = {
       "method": "GET",
       "path": "/api/mobile/agency/overview",
       "summary": "Get Agency Overview & Commission Metrics",
-      "description": "Returns agency profile, owner coin balance, total host count, active streaming hosts, broadcast-banned host count, and total commission coins earned across all hosts. Cached in Redis ('agency:overview:{agencyId}', 60s TTL).",
+      "description": "Returns agency profile, total coins (all hosts' coins + commission + owner's coins), owner coin balance, total host count, active streaming hosts, broadcast-banned host count, and total commission coins earned across all hosts. Cached in Redis ('agency:overview:{agencyId}', 60s TTL).",
       "requiresAuth": true,
       "requestHeaders": [
         {
@@ -8975,12 +8984,18 @@ export const API_SPEC = {
             "success": true,
             "message": "Agency overview retrieved successfully.",
             "data": {
+              "total_coins": 135190,
+              "coins": 135190,
+              "hosts_coins": 20000,
+              "owner_coins": 99790,
+              "total_commission_coins": 15400,
               "agency": {
                 "id": 1,
                 "agency_code": "AG-101",
                 "name": "Starlight Talent Agency",
                 "commission_rate": 20,
                 "status": "active",
+                "total_coins": 135190,
                 "contact_phone": "+8801700112233"
               },
               "owner": {
@@ -8994,6 +9009,9 @@ export const API_SPEC = {
                 "total_hosts": 5,
                 "active_streaming_hosts": 1,
                 "banned_hosts_count": 0,
+                "total_coins": 135190,
+                "hosts_coins": 20000,
+                "owner_coins": 99790,
                 "total_commission_coins": 15400,
                 "total_coins_gifted_to_hosts": 77000,
                 "pending_requests_count": 2
@@ -9009,7 +9027,7 @@ export const API_SPEC = {
       "method": "GET",
       "path": "/api/mobile/agency/hosts",
       "summary": "Get Affiliated Hosts List with Performance",
-      "description": "Returns all hosts under this agency with live streaming status, video/audio host type, broadcast ban status & remaining time, total stream duration, and commission generated. Cached in Redis ('agency:hosts:{agencyId}', 60s TTL).",
+      "description": "Returns all hosts under this agency with live streaming status, video/audio host type, broadcast ban status & remaining time, total stream duration, and commission generated. Also provides total agency coins (combined sum of all hosts' coins + agency commission + owner's coins) for the host management dashboard. Cached in Redis ('agency:hosts:{agencyId}', 60s TTL).",
       "requiresAuth": true,
       "requestHeaders": [
         {
@@ -9037,6 +9055,22 @@ export const API_SPEC = {
             "success": true,
             "message": "Agency hosts list retrieved successfully.",
             "count": 1,
+            "total_hosts": 1,
+            "total_coins": 106285,
+            "coins": 106285,
+            "hosts_coins": 5495,
+            "owner_coins": 99790,
+            "total_commission_coins": 1000,
+            "commission_rate": 20,
+            "agency": {
+              "id": 1,
+              "name": "Starlight Talent Agency",
+              "agency_code": "AG-101",
+              "total_coins": 106285,
+              "hosts_coins": 5495,
+              "owner_coins": 99790,
+              "total_commission_coins": 1000
+            },
             "data": [
               {
                 "id": 2,
