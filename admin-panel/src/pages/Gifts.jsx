@@ -119,8 +119,8 @@ export default function Gifts({ onToast }) {
   });
   const [loadingBannerConfig, setLoadingBannerConfig] = useState(false);
   const [savingBannerConfig, setSavingBannerConfig] = useState(false);
-  const [uploadingBannerImage, setUploadingBannerImage] = useState(false);
   const [testingBanner, setTestingBanner] = useState(false);
+  const [marqueePreview, setMarqueePreview] = useState(false);
 
   const quickIcons = ['🌹', '💖', '🍦', '👑', '🏎️', '🚀', '🏰', '🐉', '🛥️', '⭐', '🎉', '🦄'];
 
@@ -200,10 +200,10 @@ export default function Gifts({ onToast }) {
     }
   };
 
-  const handleSendTestBanner = async () => {
+  const handleSendTestBanner = async (customPayload = {}) => {
     try {
       setTestingBanner(true);
-      const res = await giftApi.sendTestBanner();
+      const res = await giftApi.sendTestBanner(customPayload);
       if (res.success) {
         if (onToast) onToast('Test announcement broadcasted! Check live stream and mobile app.', 'success');
       } else {
@@ -1178,16 +1178,29 @@ export default function Gifts({ onToast }) {
                 </div>
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
                 <button
                   type="button"
                   className="btn btn-secondary"
-                  onClick={handleSendTestBanner}
+                  onClick={() => handleSendTestBanner({ sender_name: 'Farhan King', receiver_name: 'Nusrat Star', coins: 5000 })}
                   disabled={testingBanner || !bannerConfig.enabled}
-                  style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 700 }}
+                  style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 700, fontSize: '0.82rem' }}
+                  title="Test standard short names banner"
                 >
-                  <Send size={15} />
-                  <span>{testingBanner ? 'Sending Test...' : 'Send Test Banner'}</span>
+                  <Send size={14} />
+                  <span>{testingBanner ? 'Sending...' : 'Test Standard Banner'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => handleSendTestBanner({ sender_name: 'Mohammad Farhan Chowdhury Prince', receiver_name: 'Nusrat Jahan Jannat', coins: 100000 })}
+                  disabled={testingBanner || !bannerConfig.enabled}
+                  style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 700, fontSize: '0.82rem', borderColor: '#a855f7' }}
+                  title="Test long overflow text marquee scrolling on mobile app"
+                >
+                  <Sparkles size={14} color="#a855f7" />
+                  <span>{testingBanner ? 'Sending...' : 'Test Marquee Banner (Long Text)'}</span>
                 </button>
 
                 <button
@@ -1195,21 +1208,61 @@ export default function Gifts({ onToast }) {
                   className="btn btn-primary"
                   onClick={handleSaveBannerConfig}
                   disabled={savingBannerConfig}
-                  style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 800, background: 'linear-gradient(135deg, #a855f7, #6366f1)' }}
+                  style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 800, background: 'linear-gradient(135deg, #a855f7, #6366f1)', fontSize: '0.85rem' }}
                 >
                   <Check size={16} />
-                  <span>{savingBannerConfig ? 'Saving Changes...' : 'Save Configuration'}</span>
+                  <span>{savingBannerConfig ? 'Saving...' : 'Save Configuration'}</span>
                 </button>
               </div>
             </div>
           </div>
 
-          {/* Live Interactive Banner Preview */}
+          {/* Live Interactive Banner Preview with Marquee Simulation */}
           <div className="panel-card" style={{ padding: '1.5rem' }}>
-            <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 1rem', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)' }}>
-              <Eye size={18} color="#a855f7" />
-              <span>Real-Time Banner Preview (Mobile App Simulation)</span>
-            </h3>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', flexWrap: 'wrap', gap: '10px' }}>
+              <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: 0, display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)' }}>
+                <Eye size={18} color="#a855f7" />
+                <span>Real-Time Banner Preview (Mobile App Simulation)</span>
+              </h3>
+
+              <button
+                type="button"
+                onClick={() => setMarqueePreview((prev) => !prev)}
+                className="btn btn-secondary"
+                style={{
+                  fontSize: '0.8rem',
+                  padding: '5px 12px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  borderRadius: '20px',
+                  border: marqueePreview ? '1px solid #a855f7' : '1px solid var(--border-color)',
+                  background: marqueePreview ? 'rgba(168, 85, 247, 0.15)' : 'transparent',
+                  color: marqueePreview ? '#c084fc' : 'var(--text-muted)',
+                  cursor: 'pointer',
+                  fontWeight: 700,
+                }}
+              >
+                <span>{marqueePreview ? '🔄 Previewing: Long Text Marquee' : '⏸️ Previewing: Standard Text'}</span>
+              </button>
+            </div>
+
+            {/* Injected Marquee CSS animation for preview */}
+            <style>{`
+              @keyframes adminRibbonMarquee {
+                0% { transform: translateX(0); }
+                15% { transform: translateX(0); }
+                85% { transform: translateX(-50%); }
+                100% { transform: translateX(-50%); }
+              }
+              .admin-ribbon-marquee-track {
+                display: inline-flex;
+                align-items: center;
+                gap: 2.5rem;
+                white-space: nowrap;
+                animation: adminRibbonMarquee 7s linear infinite;
+              }
+            `}</style>
 
             <div style={{ background: '#0a0a0f', padding: '2rem 1.5rem', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
               {/* The Banner Graphic Container: Transparent PNG with Ribbon-Aligned Text */}
@@ -1254,26 +1307,46 @@ export default function Gifts({ onToast }) {
                     justifyContent: 'center',
                     textAlign: 'center',
                     padding: '0 4px',
+                    overflow: 'hidden',
                     zIndex: 2,
                   }}
                 >
-                  <div
-                    style={{
-                      fontSize: 'clamp(0.68rem, 1.4vw, 0.95rem)',
-                      lineHeight: 1.2,
-                      fontWeight: 900,
-                      textShadow: '0 1px 3px rgba(0,0,0,0.85)',
-                      whiteSpace: 'nowrap',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                    }}
-                  >
-                    <span style={{ color: '#fde047', fontWeight: 900 }}>Farhan King</span>
-                    <span style={{ color: '#ffffff', margin: '0 4px', fontWeight: 700 }}>sent</span>
-                    <span style={{ color: '#fbbf24', fontWeight: 900 }}>🪙 5,000 Coins</span>
-                    <span style={{ color: '#ffffff', margin: '0 4px', fontWeight: 700 }}>to</span>
-                    <span style={{ color: '#e0f2fe', fontWeight: 900 }}>Nusrat Star</span>
-                  </div>
+                  {!marqueePreview ? (
+                    <div
+                      style={{
+                        fontSize: 'clamp(0.68rem, 1.4vw, 0.95rem)',
+                        lineHeight: 1.2,
+                        fontWeight: 900,
+                        textShadow: '0 1px 3px rgba(0,0,0,0.85)',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                      }}
+                    >
+                      <span style={{ color: '#fde047', fontWeight: 900 }}>Farhan King</span>
+                      <span style={{ color: '#ffffff', margin: '0 4px', fontWeight: 700 }}>sent</span>
+                      <span style={{ color: '#fbbf24', fontWeight: 900 }}>🪙 5,000 Coins</span>
+                      <span style={{ color: '#ffffff', margin: '0 4px', fontWeight: 700 }}>to</span>
+                      <span style={{ color: '#e0f2fe', fontWeight: 900 }}>Nusrat Star</span>
+                    </div>
+                  ) : (
+                    <div className="admin-ribbon-marquee-track" style={{ fontSize: 'clamp(0.68rem, 1.4vw, 0.95rem)', fontWeight: 900, textShadow: '0 1px 3px rgba(0,0,0,0.85)' }}>
+                      <span>
+                        <span style={{ color: '#fde047' }}>Mohammad Farhan Chowdhury Prince</span>
+                        <span style={{ color: '#ffffff', margin: '0 4px' }}>sent</span>
+                        <span style={{ color: '#fbbf24' }}>🪙 100,000 Coins</span>
+                        <span style={{ color: '#ffffff', margin: '0 4px' }}>to</span>
+                        <span style={{ color: '#e0f2fe' }}>Nusrat Jahan Jannat</span>
+                      </span>
+                      <span>
+                        <span style={{ color: '#fde047' }}>Mohammad Farhan Chowdhury Prince</span>
+                        <span style={{ color: '#ffffff', margin: '0 4px' }}>sent</span>
+                        <span style={{ color: '#fbbf24' }}>🪙 100,000 Coins</span>
+                        <span style={{ color: '#ffffff', margin: '0 4px' }}>to</span>
+                        <span style={{ color: '#e0f2fe' }}>Nusrat Jahan Jannat</span>
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

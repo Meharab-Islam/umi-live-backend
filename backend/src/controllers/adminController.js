@@ -1067,17 +1067,21 @@ export async function sendTestGlobalGiftBannerAdmin(req, res) {
       return res.status(500).json({ success: false, message: 'Socket.IO server instance not available.' });
     }
 
+    const senderName = req.body?.sender_name || req.user?.full_name || 'Admin';
+    const receiverName = req.body?.receiver_name || 'VIP Star Host';
+    const coins = Number(req.body?.coins) || 5000;
+
     const testPayload = {
       id: `test_banner_${Date.now()}`,
       sender: {
         id: req.user?.id || 1,
-        name: req.user?.full_name || 'Admin',
+        name: senderName,
         avatar_url: req.user?.avatar_url || '',
         level: 99,
       },
       receiver: {
         id: 2,
-        name: 'VIP Star Host',
+        name: receiverName,
         avatar_url: '',
       },
       receivers_count: 1,
@@ -1086,10 +1090,10 @@ export async function sendTestGlobalGiftBannerAdmin(req, res) {
         name: 'Super Sports Car',
         icon_url: '/uploads/gifts/sports_car_thumb_1791794086432-13704975.png',
         count: 1,
-        coin_cost: 5000,
+        coin_cost: coins,
       },
-      coins: 5000,
-      total_coins: 5000,
+      coins: coins,
+      total_coins: coins,
       room_id: 'TEST_ROOM',
       banner_image_url: bannerConfig.image_url,
       duration_seconds: bannerConfig.duration_seconds || 4,

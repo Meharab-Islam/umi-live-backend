@@ -61,9 +61,10 @@ export const giftApi = {
     });
   },
 
-  sendTestBanner: async () => {
+  sendTestBanner: async (data = {}) => {
     return await request('/admin/gifts/global-banner/test', {
       method: 'POST',
+      body: JSON.stringify(data),
     });
   },
 };
