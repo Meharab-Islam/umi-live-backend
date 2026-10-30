@@ -527,7 +527,7 @@ export async function getMe(req, res) {
     });
 
     // 2. Fetch User along with active VIP package, equipped entry effect, and thumbnail
-    const userProfile = await cache.getOrSet(`mobile:user:profile:${userId}`, 30, async () => {
+    const userProfile = await cache.getOrSet(`mobile:user:profile:${userId}`, 10, async () => {
       const rows = await query(
         `SELECT 
            u.id, 

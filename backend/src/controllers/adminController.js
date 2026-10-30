@@ -276,6 +276,47 @@ export async function getUsers(req, res) {
   }
 }
 
+/**
+ * Invalidate all Redis caches for a user and instantly notify mobile app via Socket.IO
+ */
+export async function invalidateUserCacheAndNotify(io, userId, extraData = {}) {
+  const cleanId = Number(userId);
+  if (!cleanId || isNaN(cleanId)) return;
+
+  // 1. Instant Cache Invalidation across all Redis keys
+  await Promise.allSettled([
+    cache.del(`mobile:user:profile:${cleanId}`),
+    cache.del(`mobile:user:public:${cleanId}`),
+    cache.del(`user:${cleanId}`),
+    cache.del(`admin:user:${cleanId}`),
+    cache.del(`user:balance:${cleanId}`),
+    cache.del(`mobile:live:my_active:${cleanId}`),
+    cache.del(`moderator:user_details:${cleanId}`),
+    cache.delByPattern(`host:*:${cleanId}*`),
+    cache.delByPattern('host:*'),
+    cache.delByPattern('moderators:*'),
+    cache.delByPattern('agencies:*'),
+    cache.delByPattern('resellers:*'),
+    cache.delByPattern('admin:users*'),
+    cache.delByPattern('admin:dashboard*'),
+    cache.delByPattern('moderator:*'),
+  ]);
+
+  // 2. Real-time Socket Event to user's personal channel
+  if (io) {
+    const payload = {
+      userId: cleanId,
+      user_id: cleanId,
+      timestamp: Date.now(),
+      ...extraData,
+    };
+    io.to(`user_${cleanId}`).emit('user_profile_updated', payload);
+    io.to(`user_${cleanId}`).emit('user_role_updated', payload);
+    io.to(`user:${cleanId}`).emit('user_profile_updated', payload);
+    io.to(`user:${cleanId}`).emit('user_role_updated', payload);
+  }
+}
+
 export async function updateUser(req, res) {
   try {
     const { id } = req.params;
@@ -329,20 +370,15 @@ export async function updateUser(req, res) {
     params.push(id);
     await query(`UPDATE users SET ${updates.join(', ')} WHERE id = ?`, params);
 
-    // Database write succeeded -> Invalidate Redis cache immediately
-    await Promise.allSettled([
-      cache.del(`user:${id}`),
-      cache.del(`admin:user:${id}`),
-      cache.del(`mobile:user:profile:${id}`),
-      cache.del(`moderator:user_details:${id}`),
-      cache.delByPattern(`host:*:${id}*`),
-      cache.delByPattern('host:*'),
-      cache.delByPattern('admin:users*'),
-      cache.delByPattern('admin:dashboard*'),
-      cache.delByPattern('moderator:*'),
-    ]);
+    // Database write succeeded -> Invalidate Redis cache immediately & notify via socket
+    await invalidateUserCacheAndNotify(req.io, id, {
+      role,
+      host_type,
+      agency_id,
+      is_banned: Boolean(is_banned),
+    });
 
-    const updated = await query('SELECT id, full_name, email, full_name, avatar_url, bio, role, is_banned, coins, diamonds, level, vip_package FROM users WHERE id = ?', [id]);
+    const updated = await query('SELECT id, full_name, email, avatar_url, bio, role, host_type, agency_id, is_banned, coins, diamonds, level, vip_package FROM users WHERE id = ?', [id]);
     return res.json({
       success: true,
       message: 'User updated successfully.',
@@ -1464,11 +1500,8 @@ export async function createAgency(req, res) {
 
     await connection.commit();
 
-    // Database write succeeded -> Invalidate Redis cache
-    await cache.delByPattern('agencies:*');
-    await cache.del(`user:${ownerId}`);
-    await cache.del(`admin:user:${ownerId}`);
-    await cache.delByPattern('admin:users*');
+    // Database write succeeded -> Invalidate Redis cache & notify via socket
+    await invalidateUserCacheAndNotify(req.io, ownerId, { role: 'agency' });
 
     const [created] = await connection.execute(`
       SELECT a.*, u.full_name as owner_name, u.avatar_url as owner_avatar
@@ -1552,13 +1585,8 @@ export async function deleteAgency(req, res) {
 
     await connection.commit();
 
-    // Database write succeeded -> Invalidate Redis cache
-    await cache.delByPattern('agencies:*');
-    await cache.del(`user:${agency.owner_id}`);
-    await cache.del(`admin:user:${agency.owner_id}`);
-    await cache.delByPattern('admin:users*');
-    await cache.delByPattern('hosts:*');
-    await cache.delByPattern('host:*');
+    // Database write succeeded -> Invalidate Redis cache & notify via socket
+    await invalidateUserCacheAndNotify(req.io, agency.owner_id, { role: 'user' });
 
     return res.json({
       success: true,
@@ -1624,12 +1652,8 @@ export async function assignUserToAgency(req, res) {
 
     await connection.commit();
 
-    // Database write succeeded -> Invalidate Redis cache
-    await cache.delByPattern('agencies:*');
-    await cache.del(`user:${userId}`);
-    await cache.del(`admin:user:${userId}`);
-    await cache.delByPattern('admin:users*');
-    await cache.delByPattern('hosts:*');
+    // Database write succeeded -> Invalidate Redis cache & notify via socket
+    await invalidateUserCacheAndNotify(req.io, userId, { role: 'host', host_type: cleanHostType, agency_id: Number(id) });
 
     return res.json({
       success: true,
@@ -1648,11 +1672,8 @@ export async function removeUserFromAgency(req, res) {
     const { id, userId } = req.params;
     await query('UPDATE users SET agency_id = NULL WHERE id = ? AND agency_id = ?', [userId, id]);
 
-    // Database write succeeded -> Invalidate Redis cache
-    await cache.delByPattern('agencies:*');
-    await cache.del(`user:${userId}`);
-    await cache.del(`admin:user:${userId}`);
-    await cache.delByPattern('hosts:*');
+    // Database write succeeded -> Invalidate Redis cache & notify via socket
+    await invalidateUserCacheAndNotify(req.io, userId, { role: 'user', agency_id: null });
 
     return res.json({
       success: true,
@@ -1788,11 +1809,8 @@ export async function addModerator(req, res) {
 
     await connection.commit();
 
-    // Database write succeeded -> Invalidate Redis cache
-    await cache.delByPattern('moderators:*');
-    await cache.del(`user:${targetUserId}`);
-    await cache.del(`admin:user:${targetUserId}`);
-    await cache.delByPattern('admin:users*');
+    // Database write succeeded -> Invalidate Redis cache & notify via socket
+    await invalidateUserCacheAndNotify(req.io, targetUserId, { role: 'moderator' });
 
     return res.status(201).json({
       success: true,
@@ -1873,11 +1891,8 @@ export async function deleteModerator(req, res) {
 
     await connection.commit();
 
-    // Database write succeeded -> Invalidate Redis cache
-    await cache.delByPattern('moderators:*');
-    await cache.del(`user:${userId}`);
-    await cache.del(`admin:user:${userId}`);
-    await cache.delByPattern('admin:users*');
+    // Database write succeeded -> Invalidate Redis cache & notify via socket
+    await invalidateUserCacheAndNotify(req.io, userId, { role: 'user' });
 
     return res.json({
       success: true,
@@ -2854,11 +2869,8 @@ export async function updateHostDetails(req, res) {
     params.push(id);
     await query(`UPDATE users SET ${updates.join(', ')} WHERE id = ? AND role = 'host'`, params);
 
-    // Database write succeeded -> Invalidate Redis cache
-    await cache.delByPattern('hosts:*');
-    await cache.del(`user:${id}`);
-    await cache.del(`admin:user:${id}`);
-    await cache.delByPattern('admin:users*');
+    // Database write succeeded -> Invalidate Redis cache & notify via socket
+    await invalidateUserCacheAndNotify(req.io, id, { role: 'host', host_type, agency_id });
 
     const [updated] = await query(
       `SELECT u.id, u.full_name, u.email, u.host_type, u.agency_id, a.name as agency_name
@@ -3377,12 +3389,8 @@ export async function assignReseller(req, res) {
 
     await connection.commit();
 
-    // Database write succeeded -> Invalidate Redis cache
-    await cache.delByPattern('resellers:*');
-    await cache.del(`user:${targetUserId}`);
-    await cache.del(`user:balance:${targetUserId}`);
-    await cache.del(`admin:user:${targetUserId}`);
-    await cache.delByPattern('admin:users*');
+    // Database write succeeded -> Invalidate Redis cache & notify via socket
+    await invalidateUserCacheAndNotify(req.io, targetUserId, { role: 'reseller' });
 
     const [updatedUser] = await connection.execute(
       'SELECT id, email, full_name, role, coins, level FROM users WHERE id = ?',
@@ -3416,12 +3424,8 @@ export async function deleteReseller(req, res) {
     // Demote role back to 'user'
     await query("UPDATE users SET role = 'user' WHERE id = ? AND role = 'reseller'", [id]);
 
-    // Database write succeeded -> Invalidate Redis cache
-    await cache.delByPattern('resellers:*');
-    await cache.del(`user:${id}`);
-    await cache.del(`user:balance:${id}`);
-    await cache.del(`admin:user:${id}`);
-    await cache.delByPattern('admin:users*');
+    // Database write succeeded -> Invalidate Redis cache & notify via socket
+    await invalidateUserCacheAndNotify(req.io, id, { role: 'user' });
 
     return res.json({
       success: true,

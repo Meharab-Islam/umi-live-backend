@@ -684,6 +684,7 @@ export function setupLiveSocket(io) {
         socket.userId = decoded.id;
         socket.chatUserId = decoded.id;
         socket.join(`user_${decoded.id}`);
+        socket.join(`user:${decoded.id}`);
       }
     }
     const rawUserId = socket.handshake?.auth?.userId || socket.handshake?.query?.userId;
@@ -691,7 +692,17 @@ export function setupLiveSocket(io) {
       socket.userId = Number(rawUserId);
       socket.chatUserId = Number(rawUserId);
       socket.join(`user_${socket.userId}`);
+      socket.join(`user:${socket.userId}`);
     }
+
+    // Explicit listener to join private user channel if requested
+    socket.on('join_user_channel', (payload) => {
+      const targetId = payload?.userId || payload?.user_id || socket.userId;
+      if (targetId) {
+        socket.join(`user_${targetId}`);
+        socket.join(`user:${targetId}`);
+      }
+    });
 
     // Join a live streaming room
     const handleJoinRoom = async ({ roomId, room_id, user }) => {
