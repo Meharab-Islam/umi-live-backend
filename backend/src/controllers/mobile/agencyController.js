@@ -107,7 +107,7 @@ async function resolveAgency(req) {
 /**
  * Invalidate all cached data for an agency.
  */
-async function invalidateAgencyCache(agencyId) {
+export async function invalidateAgencyCache(agencyId) {
   try {
     await cache.del(`agency:overview:${agencyId}`);
     await cache.del(`agency:hosts:${agencyId}`);
@@ -1190,6 +1190,7 @@ export async function approveHostRequest(req, res) {
 
     // 3. Invalidate Redis Caches
     await invalidateAgencyCache(agency.id);
+    await cache.delByPattern('host_requests:*');
     await cache.del(`host:agency_summary:${userId}`);
     await cache.del(`user:${userId}`);
     await cache.del(`user:profile:${userId}`);
@@ -1257,6 +1258,7 @@ export async function rejectHostRequest(req, res) {
 
     // 3. Invalidate Redis Caches
     await invalidateAgencyCache(agency.id);
+    await cache.delByPattern('host_requests:*');
     await cache.del(`user:agency_application:${request.user_id}`);
     await cache.del('agencies:all');
 
@@ -1504,6 +1506,7 @@ export async function applyToAgency(req, res) {
 
     // 5. Invalidate Redis Caches
     await invalidateAgencyCache(agency.id);
+    await cache.delByPattern('host_requests:*');
     await cache.del(`user:agency_application:${userId}`);
 
     // 6. Real-time Socket Notification → Agency Owner sees the new request immediately
@@ -1624,6 +1627,7 @@ export async function cancelHostApplication(req, res) {
     if (request?.agency_id) {
       await invalidateAgencyCache(request.agency_id);
     }
+    await cache.delByPattern('host_requests:*');
     await cache.del(`user:agency_application:${userId}`);
     await cache.del(`user:${userId}`);
     await cache.del(`user:profile:${userId}`);
@@ -1720,6 +1724,7 @@ export async function leaveAgency(req, res) {
 
     // 4. Invalidate Redis Caches
     await invalidateAgencyCache(currentAgencyId);
+    await cache.delByPattern('host_requests:*');
     await cache.del(`user:agency_application:${userId}`);
     await cache.del(`host:agency_summary:${userId}`);
     await cache.del(`user:${userId}`);

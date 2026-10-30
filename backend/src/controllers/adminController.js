@@ -12,6 +12,8 @@ import {
 import { getStarProgressionConfig, calculateUserStars, getGlobalGiftBannerConfig } from '../services/systemService.js';
 import { invalidateWalletWithdrawalCache } from './walletController.js';
 import { deleteMultipleFilesFromStorage } from '../services/fileStorageService.js';
+import { getLiveIO } from '../sockets/liveSocket.js';
+import { invalidateAgencyCache } from './mobile/agencyController.js';
 
 export async function getDashboardStats(req, res) {
   try {
@@ -2916,9 +2918,10 @@ export async function bulkDelete(req, res) {
       case 'host_requests':
       case 'host-requests': {
         const placeholders = cleanIds.map(() => '?').join(',');
-        const result = await query(`DELETE FROM host_requests WHERE id IN (${placeholders})`, cleanIds);
-        deletedCount = result.affectedRows || 0;
-        await cache.delByPattern('host_requests:all:*');
+        const result1 = await query(`DELETE FROM host_requests WHERE id IN (${placeholders})`, cleanIds);
+        const result2 = await query(`DELETE FROM agency_host_requests WHERE id IN (${placeholders})`, cleanIds);
+        deletedCount = (result1.affectedRows || 0) + (result2.affectedRows || 0);
+        await cache.delByPattern('host_requests:*');
         break;
       }
 
@@ -3156,23 +3159,70 @@ export async function updateHostDetails(req, res) {
 
 export async function getHostRequests(req, res) {
   try {
-    const { status, page = 1, limit = 20 } = req.query;
-    const cacheKey = `host_requests:all:${status || 'all'}:${page}:${limit}`;
+    const { status, page = 1, limit = 20, search = '' } = req.query;
+    const cacheKey = `host_requests:all:${status || 'all'}:${page}:${limit}:${search || ''}`;
 
-    const data = await cache.getOrSet(cacheKey, 30, async () => {
+    const data = await cache.getOrSet(cacheKey, 15, async () => {
       const offset = (parseInt(page, 10) - 1) * parseInt(limit, 10);
 
-      let whereSql = '';
+      const whereConditions = [];
       const params = [];
 
       if (status && status !== 'all') {
-        whereSql = 'WHERE hr.status = ?';
+        whereConditions.push('hr.status = ?');
         params.push(status);
       }
 
+      if (search && search.trim()) {
+        whereConditions.push('(u.full_name LIKE ? OR u.email LIKE ? OR u.id = ? OR a.name LIKE ? OR a.agency_code LIKE ?)');
+        const searchPattern = `%${search.trim()}%`;
+        params.push(searchPattern, searchPattern, parseInt(search.trim(), 10) || -1, searchPattern, searchPattern);
+      }
+
+      const whereSql = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : '';
+
+      const baseUnionSql = `
+        SELECT 
+          ahr.id,
+          ahr.user_id,
+          ahr.agency_id,
+          ahr.host_type,
+          ahr.status,
+          COALESCE(ahr.message, '') AS notes,
+          ahr.created_at,
+          ahr.updated_at,
+          'agency_host_requests' AS source_table
+        FROM agency_host_requests ahr
+        UNION ALL
+        SELECT 
+          hr.id,
+          hr.user_id,
+          hr.agency_id,
+          hr.host_type,
+          hr.status,
+          COALESCE(hr.notes, '') AS notes,
+          hr.created_at,
+          hr.updated_at,
+          'host_requests' AS source_table
+        FROM host_requests hr
+        WHERE NOT EXISTS (
+          SELECT 1 FROM agency_host_requests ahr2 
+          WHERE ahr2.user_id = hr.user_id AND ahr2.agency_id = hr.agency_id AND ahr2.status = hr.status
+        )
+      `;
+
       const requests = await query(
         `SELECT 
-          hr.*,
+          hr.id,
+          hr.user_id,
+          hr.agency_id,
+          hr.host_type,
+          hr.status,
+          hr.notes,
+          hr.notes AS message,
+          hr.created_at,
+          hr.updated_at,
+          hr.source_table,
           u.full_name,
           u.email as user_email,
           u.avatar_url as user_avatar,
@@ -3181,7 +3231,7 @@ export async function getHostRequests(req, res) {
           u.diamonds as user_diamonds,
           a.name as agency_name,
           a.agency_code
-         FROM host_requests hr
+         FROM (${baseUnionSql}) hr
          JOIN users u ON hr.user_id = u.id
          LEFT JOIN agencies a ON hr.agency_id = a.id
          ${whereSql}
@@ -3190,7 +3240,14 @@ export async function getHostRequests(req, res) {
         params
       );
 
-      const [totalRows] = await query(`SELECT COUNT(*) as count FROM host_requests hr ${whereSql}`, params);
+      const [totalRows] = await query(
+        `SELECT COUNT(*) as count 
+         FROM (${baseUnionSql}) hr 
+         JOIN users u ON hr.user_id = u.id
+         LEFT JOIN agencies a ON hr.agency_id = a.id
+         ${whereSql}`,
+        params
+      );
 
       const [counts] = await query(`
         SELECT 
@@ -3198,13 +3255,18 @@ export async function getHostRequests(req, res) {
           SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending_requests,
           SUM(CASE WHEN status = 'approved' THEN 1 ELSE 0 END) as approved_requests,
           SUM(CASE WHEN status = 'rejected' THEN 1 ELSE 0 END) as rejected_requests
-        FROM host_requests
+        FROM (${baseUnionSql}) hr
       `);
 
       return {
         requests,
-        summary: counts || { total_requests: 0, pending_requests: 0, approved_requests: 0, rejected_requests: 0 },
-        total: totalRows.count,
+        summary: {
+          total_requests: parseInt(counts?.total_requests || 0, 10),
+          pending_requests: parseInt(counts?.pending_requests || 0, 10),
+          approved_requests: parseInt(counts?.approved_requests || 0, 10),
+          rejected_requests: parseInt(counts?.rejected_requests || 0, 10),
+        },
+        total: totalRows ? (totalRows.count || 0) : 0,
       };
     });
 
@@ -3240,19 +3302,37 @@ export async function createHostRequest(req, res) {
     const cleanHostType = hostType === 'audio' ? 'audio' : 'video';
     const cleanAgencyId = agencyId ? parseInt(agencyId, 10) : null;
 
-    const result = await query(
-      `INSERT INTO host_requests (user_id, agency_id, host_type, status, notes)
-       VALUES (?, ?, ?, 'pending', ?)`,
-      [userId, cleanAgencyId, cleanHostType, notes]
-    );
+    let requestId;
+    if (cleanAgencyId) {
+      const result = await query(
+        `INSERT INTO agency_host_requests (agency_id, user_id, host_type, message, status)
+         VALUES (?, ?, ?, ?, 'pending')`,
+        [cleanAgencyId, userId, cleanHostType, notes]
+      );
+      requestId = result.insertId;
+      await query(
+        `INSERT INTO host_requests (user_id, agency_id, host_type, status, notes)
+         VALUES (?, ?, ?, 'pending', ?)`,
+        [userId, cleanAgencyId, cleanHostType, notes]
+      );
+      await invalidateAgencyCache(cleanAgencyId);
+    } else {
+      const result = await query(
+        `INSERT INTO host_requests (user_id, agency_id, host_type, status, notes)
+         VALUES (?, ?, ?, 'pending', ?)`,
+        [userId, cleanAgencyId, cleanHostType, notes]
+      );
+      requestId = result.insertId;
+    }
 
     // Database write succeeded -> Invalidate Redis cache
     await cache.delByPattern('host_requests:*');
+    await cache.del(`user:agency_application:${userId}`);
 
     return res.status(201).json({
       success: true,
       message: `Host request submitted successfully for ${user.full_name || `User #${userId}`}!`,
-      requestId: result.insertId,
+      requestId,
     });
   } catch (err) {
     console.error('createHostRequest error:', err);
@@ -3272,28 +3352,70 @@ export async function processHostRequest(req, res) {
       return res.status(400).json({ success: false, message: "Status must be 'approved' or 'rejected'." });
     }
 
-    const [requests] = await connection.execute('SELECT * FROM host_requests WHERE id = ?', [id]);
-    if (requests.length === 0) {
+    // 1. Look for request in agency_host_requests first, then host_requests
+    const [agencyReqs] = await connection.execute('SELECT * FROM agency_host_requests WHERE id = ?', [id]);
+    let isAgencyReq = agencyReqs.length > 0;
+    let hr = isAgencyReq ? agencyReqs[0] : null;
+
+    if (!hr) {
+      const [hostReqs] = await connection.execute('SELECT * FROM host_requests WHERE id = ?', [id]);
+      if (hostReqs.length > 0) {
+        hr = hostReqs[0];
+        isAgencyReq = false;
+      }
+    }
+
+    if (!hr) {
       return res.status(404).json({ success: false, message: 'Host request not found.' });
     }
 
-    const hr = requests[0];
     if (hr.status !== 'pending') {
       return res.status(400).json({ success: false, message: `Host request has already been ${hr.status}.` });
     }
 
     await connection.beginTransaction();
 
-    await connection.execute(
-      'UPDATE host_requests SET status = ?, admin_notes = ? WHERE id = ?',
-      [status, adminNotes || `Processed by admin: ${status}`, id]
-    );
+    const hostType = hr.host_type || 'video';
+    const agencyId = hr.agency_id || null;
+    const userId = hr.user_id;
+
+    if (isAgencyReq) {
+      await connection.execute(
+        `UPDATE agency_host_requests 
+         SET status = ?, responded_by = ?, responded_at = CURRENT_TIMESTAMP 
+         WHERE id = ?`,
+        [status, req.user?.id || null, id]
+      );
+      // Sync any matching pending row in host_requests
+      await connection.execute(
+        `UPDATE host_requests 
+         SET status = ?, admin_notes = ? 
+         WHERE user_id = ? AND status = 'pending'`,
+        [status, adminNotes || `Reviewed and ${status} by admin.`, userId]
+      );
+    } else {
+      await connection.execute(
+        `UPDATE host_requests 
+         SET status = ?, admin_notes = ? 
+         WHERE id = ?`,
+        [status, adminNotes || `Reviewed and ${status} by admin.`, id]
+      );
+      // Sync any matching pending row in agency_host_requests
+      await connection.execute(
+        `UPDATE agency_host_requests 
+         SET status = ?, responded_by = ?, responded_at = CURRENT_TIMESTAMP 
+         WHERE user_id = ? AND status = 'pending'`,
+        [status, req.user?.id || null, userId]
+      );
+    }
 
     if (status === 'approved') {
       // Elevate user to host, assign host_type and agency_id
       await connection.execute(
-        "UPDATE users SET role = 'host', host_type = ?, agency_id = ? WHERE id = ?",
-        [hr.host_type, hr.agency_id || null, hr.user_id]
+        `UPDATE users 
+         SET role = 'host', host_type = ?, agency_id = ?, agency_joined_at = CURRENT_TIMESTAMP 
+         WHERE id = ?`,
+        [hostType, agencyId, userId]
       );
     }
 
@@ -3302,13 +3424,43 @@ export async function processHostRequest(req, res) {
     // Database write succeeded -> Invalidate Redis cache
     await cache.delByPattern('host_requests:*');
     await cache.delByPattern('hosts:*');
-    await cache.del(`user:${hr.user_id}`);
-    await cache.del(`admin:user:${hr.user_id}`);
+    if (agencyId) {
+      await invalidateAgencyCache(agencyId);
+    }
+    await cache.del(`host:agency_summary:${userId}`);
+    await cache.del(`user:agency_application:${userId}`);
+    await cache.del(`user:${userId}`);
+    await cache.del(`user:profile:${userId}`);
+    await cache.del(`admin:user:${userId}`);
     await cache.delByPattern('admin:users*');
+    await cache.del('agencies:all');
+
+    // Real-time Socket Event & Notifications
+    try {
+      const io = getLiveIO();
+      if (io) {
+        io.to(`user_${userId}`).emit('agency:host_request_status_changed', {
+          request_id: id,
+          status,
+          host_type: hostType,
+          agency_id: agencyId,
+        });
+        io.to(`user_${userId}`).emit('new_notification', {
+          type: 'host_request_status',
+          title: status === 'approved' ? 'Host Application Approved! 🎉' : 'Host Application Update',
+          body: status === 'approved'
+            ? `Congratulations! Your application has been approved. You are now an official ${hostType.toUpperCase()} Host.`
+            : 'Your host application has been reviewed and was not accepted at this time.',
+          entity_type: 'host_request',
+          entity_id: String(id),
+          created_at: new Date().toISOString(),
+        });
+      }
+    } catch (_) {}
 
     return res.json({
       success: true,
-      message: `Host request #${id} has been ${status}. User promoted to ${hr.host_type.toUpperCase()} Host.`,
+      message: `Host request #${id} has been ${status}. User promoted to ${hostType.toUpperCase()} Host.`,
     });
   } catch (err) {
     await connection.rollback();
