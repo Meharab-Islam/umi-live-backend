@@ -1,16 +1,16 @@
 # Graph Report - umi_backend  (2026-10-30)
 
 ## Corpus Check
-- 392 files · ~5,169,712 words
+- 392 files · ~5,170,088 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 6048 nodes · 16458 edges · 273 communities (184 shown, 89 thin omitted)
+- 6048 nodes · 16458 edges · 276 communities (187 shown, 89 thin omitted)
 - Extraction: 87% EXTRACTED · 13% INFERRED · 0% AMBIGUOUS · INFERRED: 2076 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `58cb6a29`
+- Built from commit: `c48a95c8`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -31,7 +31,7 @@
 - 🚀 UMI LIVE - VPS Deployment & Operations Master Guide
 - agencyController.js
 - test_moderator_agency_oversight.mjs
-- fo
+- Gr
 - getPool
 - workspaces
 - add_host_api_docs.mjs
@@ -62,7 +62,7 @@
 - Loader.jsx
 - n
 - add_audio_live_api_docs.mjs
-- r
+- hr
 - main.7955cbf4.js
 - ys
 - No
@@ -87,10 +87,10 @@
 - Yn
 - i
 - backend/server.js
-- D
+- re
 - controllers/packageController.js
 - ferrywheel/frontend/src/Wheel/WheelContent.js
-- Ue
+- Ri
 - greedylion/frontend/src/Wheel/WheelContent.js
 - greedybaby/frontend/src/Wheel/WheelContent.js
 - Hn
@@ -98,7 +98,7 @@
 - forEach
 - dependencies
 - big_eater/package.json
-- qt
+- i
 - Yn
 - n
 - dn
@@ -108,7 +108,7 @@
 - dependencies
 - teenpatti/backend/package.json
 - a
-- react
+- LegalPolicies.jsx
 - ferrywheel/backend/package.json
 - He
 - greedybaby/backend/package.json
@@ -143,7 +143,7 @@
 - Hn
 - dependencies
 - t
-- hu
+- re
 - GameHistorySchema.js
 - dependencies
 - Games/package.json
@@ -174,20 +174,20 @@
 - greedylion/backend/public/manifest.json
 - greedylion/frontend/public/manifest.json
 - roulettecasino/backend/public/manifest.json
-- jquery
+- wu
 - roulettecasino/frontend/package.json
 - roulettecasino/frontend/public/manifest.json
 - run-dev.js
 - ferrywheel/backend/model/ferryWheelLastHistory.model.js
 - teenpatti/frontend/package.json
 - client.js
-- el
+- H
 - ferrywheel/backend/model/gameAdminCoin.model.js
-- Gifts.jsx
-- axios
-- vl
+- ci
+- qe
+- ye
 - devDependencies
-- axios
+- Zn
 - gameProcessManager.js
 - scripts
 - Frame.js
@@ -200,7 +200,7 @@
 - extends
 - greedybaby/backend/model/ferryWheelGameHistory.model.js
 - greedybaby/backend/model/ferryWheelLastHistory.model.js
-- ye
+- zt
 - greedybaby/backend/model/gameAdminCoin.model.js
 - greedybaby/backend/model/user.model.js
 - greedybaby/backend/model/wallet.model.js
@@ -221,15 +221,18 @@
 - wallet.js
 - @mui/material
 - @testing-library/jest-dom
+- bootstrap
 - t
-- App.jsx
+- react
+- react
 - react
 - nl
 - socket.io
 - @testing-library/jest-dom
+- @testing-library/react
 - @mui/icons-material
 - socket.io
-- i
+- Nu
 - sass
 - socket.io
 - @testing-library/jest-dom
@@ -294,11 +297,11 @@
 ## Import Cycles
 - 3-file cycle: `Games/roulettecasino/frontend/src/App.js -> Games/roulettecasino/frontend/src/GameMain/GameTable.js -> Games/roulettecasino/frontend/src/GameMain/TableContent.js -> Games/roulettecasino/frontend/src/App.js`
 
-## Communities (273 total, 89 thin omitted)
+## Communities (276 total, 89 thin omitted)
 
 ### Community 0 - "730"
 Cohesion: 0.03
-Nodes (96): 730(), aa(), ac(), ar(), As(), Ba(), bo(), Ce() (+88 more)
+Nodes (136): 730(), _a(), aa(), ac(), ae(), As(), Ba(), bi() (+128 more)
 
 ### Community 1 - "query"
 Cohesion: 0.04
@@ -337,12 +340,12 @@ Cohesion: 0.50
 Nodes (3): Expanding the Oxlint configuration, React Compiler, React + Vite
 
 ### Community 10 - "main.c3c26395.js"
-Cohesion: 0.05
-Nodes (46): 391(), 43(), 579(), Bt(), dr(), dt(), ft(), He() (+38 more)
+Cohesion: 0.04
+Nodes (57): 391(), 43(), 579(), Bt(), dr(), G(), ge(), It() (+49 more)
 
 ### Community 11 - "main.6418cc2f.js"
-Cohesion: 0.05
-Nodes (104): al(), At(), au(), Ba(), Bi(), bl(), Br(), Bs() (+96 more)
+Cohesion: 0.04
+Nodes (115): al(), At(), au(), Ba(), Bi(), bl(), Br(), Bs() (+107 more)
 
 ### Community 12 - "Mandatory Production-Grade Redis Caching, Invalidation & .env Architecture Policy"
 Cohesion: 0.29
@@ -360,9 +363,9 @@ Nodes (29): applyToAgency(), approveHostRequest(), banHostBroadcast(), cancelHos
 Cohesion: 0.83
 Nodes (3): checkRedisKey(), makeRequest(), run()
 
-### Community 16 - "fo"
-Cohesion: 0.21
-Nodes (16): ao(), Er(), fo(), io(), j(), K(), ns(), so() (+8 more)
+### Community 16 - "Gr"
+Cohesion: 0.08
+Nodes (29): ar(), bo(), Ce(), eo(), Gr(), Hn(), ir(), Kn() (+21 more)
 
 ### Community 17 - "getPool"
 Cohesion: 0.12
@@ -382,11 +385,11 @@ Nodes (27): getBalances, getPackages, getRechargeConfig, getTransactions, getWit
 
 ### Community 23 - "t"
 Cohesion: 0.07
-Nodes (84): _a(), b(), c(), cancelEmit(), ci(), d(), di(), ee() (+76 more)
+Nodes (85): _a(), b(), c(), cancelEmit(), ci(), d(), di(), ee() (+77 more)
 
 ### Community 34 - "_e"
-Cohesion: 0.15
-Nodes (11): Ao(), Ce(), _e(), It(), Jt(), ko(), Kt(), oe() (+3 more)
+Cohesion: 0.16
+Nodes (9): Ao(), Ce(), _e(), It(), ko(), Kt(), oe(), re() (+1 more)
 
 ### Community 35 - "test_redis_hit_and_freshness.mjs"
 Cohesion: 0.83
@@ -394,7 +397,7 @@ Nodes (3): getRedisRaw(), makeRequest(), run()
 
 ### Community 36 - "730"
 Cohesion: 0.03
-Nodes (168): n(), 730(), _a(), aa(), ac(), al(), ao(), ar() (+160 more)
+Nodes (163): n(), 730(), _a(), aa(), ac(), al(), ao(), ar() (+155 more)
 
 ### Community 37 - "ApiDocs.jsx"
 Cohesion: 0.18
@@ -417,32 +420,32 @@ Cohesion: 0.09
 Nodes (51): __dirname, __filename, signToken(), verifyToken(), getMe(), login(), register(), ensureFcmSchema() (+43 more)
 
 ### Community 47 - "Loader.jsx"
-Cohesion: 0.18
-Nodes (24): adminApi, agencyApi, specialItemApi, userApi, withdrawalApi, BulkActionBar(), Loader(), Pagination() (+16 more)
+Cohesion: 0.15
+Nodes (23): adminApi, agencyApi, deletionRequestApi, liveRewardApi, reportApi, specialItemApi, userApi, withdrawalApi (+15 more)
 
 ### Community 48 - "n"
 Cohesion: 0.06
 Nodes (82): 153(), u(), O(), R(), 234(), E(), j(), k() (+74 more)
 
-### Community 51 - "r"
-Cohesion: 0.10
-Nodes (34): al(), be(), a(), o(), r(), s(), cr(), du() (+26 more)
+### Community 51 - "hr"
+Cohesion: 0.22
+Nodes (11): cr(), en(), hr(), In(), ko(), ln, tn(), Un() (+3 more)
 
 ### Community 52 - "main.7955cbf4.js"
 Cohesion: 0.03
-Nodes (85): Al(), ar(), bi(), bo(), co(), D(), dl(), dt() (+77 more)
+Nodes (92): Al(), ar(), as(), bi(), bo(), bs(), Ce(), co() (+84 more)
 
 ### Community 53 - "ys"
-Cohesion: 0.10
-Nodes (33): aa(), ae(), be(), bo(), Ca(), co(), da(), Do() (+25 more)
+Cohesion: 0.16
+Nodes (22): aa(), ae(), be(), bo(), co(), da(), Do(), Fo() (+14 more)
 
 ### Community 54 - "No"
-Cohesion: 0.04
-Nodes (85): 202(), N(), O(), P(), R(), 234(), A(), k() (+77 more)
+Cohesion: 0.05
+Nodes (86): 202(), N(), O(), P(), R(), 234(), A(), k() (+78 more)
 
 ### Community 55 - "main.21695ab2.js"
 Cohesion: 0.04
-Nodes (77): Ot(), Rt(), ae(), ai(), ar(), Bt(), cc(), Ce() (+69 more)
+Nodes (67): Ot(), Rt(), ae(), ai(), ar(), Bt(), Ce(), ee() (+59 more)
 
 ### Community 57 - "mobile/index.js"
 Cohesion: 0.04
@@ -454,31 +457,31 @@ Nodes (21): addEventListeners(), check(), doClose(), doOpen(), doPoll(), doWrite
 
 ### Community 59 - "main.cd3b4ac3.js"
 Cohesion: 0.04
-Nodes (83): _a(), aa(), An(), Ba(), bl(), Bt(), Ca(), Ce() (+75 more)
+Nodes (92): _a(), aa(), al(), Ba(), bl(), bo(), Bt(), Ca() (+84 more)
 
 ### Community 60 - "Rl"
-Cohesion: 0.11
-Nodes (28): Al(), bi(), Ci(), el(), Fi(), Gi(), _i(), Ii() (+20 more)
+Cohesion: 0.13
+Nodes (23): Al(), bi(), Ci(), Fi(), _i(), Ii(), ki(), ll() (+15 more)
 
 ### Community 61 - "Hn"
 Cohesion: 0.05
 Nodes (7): Bt(), fn(), Gn(), Hn(), Ut(), vn, zt()
 
 ### Community 62 - "i"
-Cohesion: 0.10
-Nodes (44): ae(), Ao(), au(), i(), bo(), bu(), ci(), da() (+36 more)
+Cohesion: 0.09
+Nodes (59): ae(), Ai(), Ao(), au(), i(), Bi(), bu(), cs() (+51 more)
 
 ### Community 63 - "$t"
 Cohesion: 0.08
-Nodes (17): addEventListeners(), check(), doClose(), doOpen(), doPoll(), doWrite(), off(), on() (+9 more)
+Nodes (18): addEventListeners(), check(), doClose(), doOpen(), doPoll(), doWrite(), off(), on() (+10 more)
 
 ### Community 64 - "Gr"
-Cohesion: 0.12
-Nodes (18): cr(), _e(), eo(), Gr(), Hn(), Mn(), nr(), Pe() (+10 more)
+Cohesion: 0.13
+Nodes (17): bo(), Ce(), cr(), _e(), eo(), Gr(), Hn(), Mn() (+9 more)
 
 ### Community 65 - "Te"
-Cohesion: 0.04
-Nodes (8): oe, a(), l(), o(), s(), pull(), re, Te
+Cohesion: 0.05
+Nodes (4): oe, o(), pull(), Te
 
 ### Community 66 - "Ke"
 Cohesion: 0.05
@@ -493,8 +496,8 @@ Cohesion: 0.04
 Nodes (85): _a(), aa(), Ba(), bl(), Bn(), Bt(), Ca(), Ce() (+77 more)
 
 ### Community 70 - "z"
-Cohesion: 0.06
-Nodes (15): fe(), kl(), m(), u(), createSocket(), D, doClose(), doOpen() (+7 more)
+Cohesion: 0.07
+Nodes (13): fe(), m(), B(), createSocket(), D, doClose(), doOpen(), read() (+5 more)
 
 ### Community 71 - "$t"
 Cohesion: 0.08
@@ -505,12 +508,12 @@ Cohesion: 0.07
 Nodes (54): adjustBalance(), applyChipPreset(), armScheduleForTest(), armSpecialEvent(), changeTimezone(), clearRig(), copySnippet(), deleteSchedule() (+46 more)
 
 ### Community 73 - "re"
-Cohesion: 0.08
-Nodes (15): addEventListeners(), check(), doClose(), doOpen(), doPoll(), ee(), l(), ne() (+7 more)
+Cohesion: 0.07
+Nodes (18): addEventListeners(), check(), doClose(), doOpen(), doPoll(), ee(), H(), l() (+10 more)
 
 ### Community 74 - "n"
-Cohesion: 0.10
-Nodes (64): Ac(), as(), b(), be(), C(), co(), n(), D() (+56 more)
+Cohesion: 0.11
+Nodes (52): Ac(), b(), be(), C(), Cl(), co(), cr(), n() (+44 more)
 
 ### Community 75 - "Yn"
 Cohesion: 0.07
@@ -518,15 +521,15 @@ Nodes (10): fn(), gn(), ir(), It(), Kn(), ko(), p(), kt() (+2 more)
 
 ### Community 76 - "i"
 Cohesion: 0.09
-Nodes (51): Ai(), Au(), bt(), bu(), cs(), cu(), Di(), du() (+43 more)
+Nodes (54): Ai(), Au(), bt(), bu(), cs(), cu(), Di(), ds() (+46 more)
 
 ### Community 77 - "backend/server.js"
 Cohesion: 0.09
 Nodes (42): adminControls, app, broadcastAdminUpdate(), calculateOutcomeEvaluations(), cors, crypto, dispatchWebhook(), dotenv (+34 more)
 
-### Community 78 - "D"
+### Community 78 - "re"
 Cohesion: 0.05
-Nodes (22): 202(), A(), N(), fe(), li(), m(), ui(), A() (+14 more)
+Nodes (18): fe(), m(), Te(), B(), D, doClose(), doOpen(), _e() (+10 more)
 
 ### Community 79 - "controllers/packageController.js"
 Cohesion: 0.29
@@ -535,6 +538,10 @@ Nodes (14): checkRoomActionPrivilege(), enrichCategoryWithUserSubscription(), en
 ### Community 80 - "ferrywheel/frontend/src/Wheel/WheelContent.js"
 Cohesion: 0.07
 Nodes (29): App(), coinNumbe, queryParams, adminBaseURL, baseURL, key, socketPath, formatDate() (+21 more)
+
+### Community 81 - "Ri"
+Cohesion: 0.12
+Nodes (29): At(), ee(), fo(), fr(), g(), H(), ho(), b() (+21 more)
 
 ### Community 82 - "greedylion/frontend/src/Wheel/WheelContent.js"
 Cohesion: 0.08
@@ -564,17 +571,17 @@ Nodes (35): cookie-parser, debug, dependencies, cookie-parser, cors, debug, expr
 Cohesion: 0.05
 Nodes (36): autoprefixer, better-sqlite3, author, dependencies, better-sqlite3, cors, dotenv, express (+28 more)
 
-### Community 89 - "qt"
-Cohesion: 0.19
-Nodes (14): al(), bl(), qt(), t(), sl(), $t(), ul(), Ut() (+6 more)
+### Community 89 - "i"
+Cohesion: 0.12
+Nodes (30): as(), bs(), cs(), de(), Di(), ds(), es(), d() (+22 more)
 
 ### Community 90 - "Yn"
-Cohesion: 0.07
-Nodes (10): fn(), gn(), ir(), It(), Kn(), p(), kt(), or() (+2 more)
+Cohesion: 0.08
+Nodes (9): fn(), gn(), ir(), It(), Kn(), p(), kt(), or() (+1 more)
 
 ### Community 91 - "n"
-Cohesion: 0.06
-Nodes (54): as(), b(), bn(), o(), r(), br(), f(), h() (+46 more)
+Cohesion: 0.08
+Nodes (57): b(), bn(), o(), r(), br(), f(), h(), cancelEmit() (+49 more)
 
 ### Community 92 - "dn"
 Cohesion: 0.33
@@ -601,12 +608,12 @@ Cohesion: 0.07
 Nodes (27): author, dependencies, cors, express, http, mongodb, mongoose, nodemon (+19 more)
 
 ### Community 98 - "a"
-Cohesion: 0.12
-Nodes (36): au(), bu(), Cl(), cr(), dt(), du(), Ff(), Fl() (+28 more)
+Cohesion: 0.17
+Nodes (25): au(), bu(), dt(), du(), Fl(), gu(), hl(), ht() (+17 more)
 
-### Community 99 - "react"
-Cohesion: 0.09
-Nodes (24): getApiBase(), dashboardApi, legalApi, liveApi, packageApi, GoogleMeetLiveStage(), MarkdownRenderer(), parseMarkdownToHtml() (+16 more)
+### Community 99 - "LegalPolicies.jsx"
+Cohesion: 0.33
+Nodes (5): legalApi, MarkdownRenderer(), parseMarkdownToHtml(), LandingPage(), LegalPolicies()
 
 ### Community 100 - "ferrywheel/backend/package.json"
 Cohesion: 0.08
@@ -625,12 +632,12 @@ Cohesion: 0.08
 Nodes (24): 1. Register External Webhook Endpoints, ① `round_start` (Countdown Begins):, 1. Start Backend:, ② `bet_placed` (Player Bid Placed):, 2. Start Frontend:, 2. Supported Outgoing Webhook Events & Payloads, 3. Incoming REST APIs for Your App & Backend, ③ `spin_start` (Wheel Spinning): (+16 more)
 
 ### Community 106 - "bl"
-Cohesion: 0.12
-Nodes (36): Ao(), bl(), bo(), Do(), fe(), fu(), G(), gl() (+28 more)
+Cohesion: 0.14
+Nodes (32): Ao(), bl(), bo(), Do(), fe(), fu(), G(), gl() (+24 more)
 
 ### Community 107 - "Te"
-Cohesion: 0.04
-Nodes (11): ae(), Te(), _e(), Ne(), oe, a(), o(), s() (+3 more)
+Cohesion: 0.05
+Nodes (6): ae(), Ae(), Ne(), oe, o(), Te
 
 ### Community 108 - "H"
 Cohesion: 0.14
@@ -645,8 +652,8 @@ Cohesion: 0.21
 Nodes (23): a(), Ba(), ca(), da(), ea(), ei(), Fa(), ga() (+15 more)
 
 ### Community 112 - "o"
-Cohesion: 0.11
-Nodes (29): A(), c(), d(), u(), C(), E(), a(), s() (+21 more)
+Cohesion: 0.10
+Nodes (31): A(), c(), d(), u(), C(), E(), hn(), a() (+23 more)
 
 ### Community 113 - "teenpatti/backend/index.js"
 Cohesion: 0.06
@@ -673,8 +680,8 @@ Cohesion: 0.28
 Nodes (5): GameTable(), fromEvent(), pipe(), WheeSpin(), WinnerModel()
 
 ### Community 119 - "t"
-Cohesion: 0.06
-Nodes (83): At(), b(), c(), cancelEmit(), co(), c(), d(), f() (+75 more)
+Cohesion: 0.08
+Nodes (70): b(), be(), a(), o(), r(), s(), c(), cancelEmit() (+62 more)
 
 ### Community 120 - "ferrywheel/backend/index.js"
 Cohesion: 0.10
@@ -695,7 +702,7 @@ Nodes (25): todayProfit(), getTodayProfit(), todayProfit(), dotenv, path, config
 
 ### Community 122 - "dependencies"
 Cohesion: 0.12
-Nodes (17): dependencies, bootstrap, react, react-dom, react-scripts, sass, socket.io, socket.io-client (+9 more)
+Nodes (17): dependencies, bootstrap, jquery, react-dom, react-scripts, sass, socket.io, socket.io-client (+9 more)
 
 ### Community 123 - "cardSchema.js"
 Cohesion: 0.50
@@ -727,7 +734,7 @@ Nodes (32): clearChatMessages(), deleteConversation(), extractPackageCategory(),
 
 ### Community 130 - "dependencies"
 Cohesion: 0.13
-Nodes (15): @emotion/react, @emotion/styled, dependencies, @emotion/react, @emotion/styled, react, react-dom, react-router-dom (+7 more)
+Nodes (15): @emotion/react, @emotion/styled, dependencies, axios, @emotion/react, @emotion/styled, react, react-dom (+7 more)
 
 ### Community 131 - "Hn"
 Cohesion: 0.08
@@ -735,15 +742,15 @@ Nodes (4): ar(), er(), Hn(), qn()
 
 ### Community 132 - "dependencies"
 Cohesion: 0.13
-Nodes (15): dependencies, bootstrap, jquery, react-dom, react-scripts, @testing-library/react, @testing-library/user-event, web-vitals (+7 more)
+Nodes (15): dependencies, axios, jquery, react-dom, react-scripts, @testing-library/react, @testing-library/user-event, web-vitals (+7 more)
 
 ### Community 133 - "t"
-Cohesion: 0.12
-Nodes (33): aa(), bc(), bs(), cu(), dl(), Ef(), es(), eu() (+25 more)
+Cohesion: 0.13
+Nodes (29): bc(), cc(), cu(), dc(), dl(), eu(), gt(), He() (+21 more)
 
-### Community 134 - "hu"
-Cohesion: 0.23
-Nodes (19): Ai(), Bi(), cs(), cu(), Eu(), fs(), gs(), hs() (+11 more)
+### Community 134 - "re"
+Cohesion: 0.14
+Nodes (5): a(), l(), s(), re, remove()
 
 ### Community 135 - "GameHistorySchema.js"
 Cohesion: 0.50
@@ -763,7 +770,7 @@ Nodes (13): Advanced Configuration, Analyzing the Bundle Size, Available Scripts
 
 ### Community 139 - "wr"
 Cohesion: 0.10
-Nodes (36): ar(), Bn(), cr(), dr(), en(), er(), hr(), In() (+28 more)
+Nodes (37): ar(), Bn(), cr(), dr(), en(), er(), hr(), In() (+29 more)
 
 ### Community 140 - "Learn More"
 Cohesion: 0.14
@@ -786,8 +793,8 @@ Cohesion: 0.17
 Nodes (10): getRecentRounds(), gameUserBridge, getIndex(), result(), express, gameHistoryController, router, express (+2 more)
 
 ### Community 145 - "main.05634587.js"
-Cohesion: 0.05
-Nodes (47): 153(), u(), 391(), 43(), 579(), ao(), Bt(), dr() (+39 more)
+Cohesion: 0.04
+Nodes (62): 153(), u(), 391(), 43(), 579(), al(), bl(), Bt() (+54 more)
 
 ### Community 146 - "ferrywheel/frontend/package.json"
 Cohesion: 0.17
@@ -857,6 +864,10 @@ Nodes (7): background_color, display, icons, name, short_name, start_url, theme_
 Cohesion: 0.25
 Nodes (7): background_color, display, icons, name, short_name, start_url, theme_color
 
+### Community 165 - "wu"
+Cohesion: 0.17
+Nodes (16): aa(), Ef(), el(), Gi(), ia(), ji(), Kc(), qu() (+8 more)
+
 ### Community 166 - "roulettecasino/frontend/package.json"
 Cohesion: 0.22
 Nodes (8): eslintConfig, extends, homepage, react-app, react-app/jest, name, private, version
@@ -874,20 +885,20 @@ Cohesion: 0.25
 Nodes (7): eslintConfig, extends, react-app, react-app/jest, name, private, version
 
 ### Community 171 - "client.js"
-Cohesion: 0.09
-Nodes (34): accountMergeApi, authApi, bannerApi, API_BASE, del(), get(), getCurrentUser(), patch() (+26 more)
-
-### Community 172 - "el"
 Cohesion: 0.07
-Nodes (26): ae(), Ca(), el(), G(), ge(), ie(), J(), ne() (+18 more)
+Nodes (45): accountMergeApi, authApi, bannerApi, API_BASE, del(), get(), getApiBase(), getCurrentUser() (+37 more)
 
-### Community 174 - "Gifts.jsx"
-Cohesion: 0.39
-Nodes (5): giftApi, Gifts(), isMediaUrl(), resolveMediaUrl(), TopContributors()
+### Community 172 - "H"
+Cohesion: 0.13
+Nodes (11): ie(), J(), ne(), oe(), q(), v(), er, H (+3 more)
 
-### Community 176 - "vl"
-Cohesion: 0.11
-Nodes (18): cl(), Cn(), el(), fe(), gl(), H(), hl(), ie() (+10 more)
+### Community 174 - "ci"
+Cohesion: 0.33
+Nodes (9): ci(), di(), fi(), li(), pi(), si(), ui(), uo() (+1 more)
+
+### Community 176 - "ye"
+Cohesion: 0.10
+Nodes (11): An(), Cn(), ei(), ge(), jn(), me(), ml(), Pn() (+3 more)
 
 ### Community 177 - "devDependencies"
 Cohesion: 0.40
@@ -921,29 +932,33 @@ Nodes (4): eslintConfig, extends, react-app, react-app/jest
 Cohesion: 0.50
 Nodes (4): eslintConfig, extends, react-app, react-app/jest
 
+### Community 191 - "zt"
+Cohesion: 0.12
+Nodes (6): ht(), li(), ue(), ye, zt(), o()
+
 ### Community 195 - "redis.js"
 Cohesion: 0.07
 Nodes (37): cache, CACHE_SECTIONS, calculateJitteredTtl(), __dirname, __filename, formatKey(), inFlightFetches, REDIS_COMMAND_TIMEOUT (+29 more)
 
 ### Community 203 - "tn"
-Cohesion: 0.11
-Nodes (10): kl(), Kr(), $r(), Ss(), Gt(), Jr(), rn(), tn (+2 more)
+Cohesion: 0.07
+Nodes (14): 202(), A(), N(), kl(), Kr(), $r(), Ss(), Gt() (+6 more)
 
 ### Community 213 - "t"
 Cohesion: 0.09
 Nodes (67): Ai(), b(), be(), a(), o(), r(), s(), Bi() (+59 more)
 
-### Community 214 - "App.jsx"
-Cohesion: 0.08
-Nodes (23): checkHealth(), deletionRequestApi, gameApi, levelApi, liveRewardApi, streamApi, App(), checkIsAdminPath() (+15 more)
+### Community 214 - "react"
+Cohesion: 0.07
+Nodes (37): checkHealth(), dashboardApi, giftApi, levelApi, streamApi, App(), checkIsAdminPath(), getInitialTab() (+29 more)
 
 ### Community 217 - "nl"
-Cohesion: 0.07
-Nodes (38): ba(), be(), bs(), ci(), Cl(), da(), de(), ds() (+30 more)
+Cohesion: 0.09
+Nodes (29): ao(), ba(), be(), ci(), Cl(), Eu(), fe(), fl() (+21 more)
 
-### Community 224 - "i"
-Cohesion: 0.07
-Nodes (73): bi(), br(), bs(), bu(), ci(), cl(), co(), cu() (+65 more)
+### Community 224 - "Nu"
+Cohesion: 0.11
+Nodes (18): br(), cr(), ee(), jr(), Jt(), K(), kl(), Kr() (+10 more)
 
 ### Community 241 - "dn"
 Cohesion: 0.22
@@ -961,11 +976,11 @@ Nodes (23): formatDuration(), getDefaultAgencyCommission(), getHostAgencySummary
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `730()` connect `730` to `Gr`, `main.c3c26395.js`, `Te`, `H`, `tn`, `D`, `n`, `main.7955cbf4.js`, `No`, `n`?**
+- **Why does `730()` connect `730` to `Gr`, `main.c3c26395.js`, `Te`, `H`, `tn`, `re`, `n`, `main.7955cbf4.js`, `No`, `n`?**
   _High betweenness centrality (0.073) - this node is a cross-community bridge._
-- **Why does `No()` connect `No` to `730`, `i`, `730`, `z`, `bl`, `el`, `main.05634587.js`, `t`, `ys`, `t`, `i`, `qt`, `i`?**
+- **Why does `No()` connect `No` to `730`, `Nu`, `730`, `z`, `re`, `bl`, `H`, `Gr`, `main.05634587.js`, `t`, `ys`, `t`, `i`, `main.cd3b4ac3.js`, `i`?**
   _High betweenness centrality (0.058) - this node is a cross-community bridge._
-- **Why does `la()` connect `i` to `i`, `730`, `730`, `t`, `n`, `main.6418cc2f.js`, `el`, `pl`, `ys`, `main.21695ab2.js`, `t`, `nl`, `Rl`, `i`?**
+- **Why does `la()` connect `i` to `730`, `730`, `wu`, `n`, `main.6418cc2f.js`, `pl`, `ys`, `main.21695ab2.js`, `t`, `nl`, `n`, `Rl`, `i`?**
   _High betweenness centrality (0.054) - this node is a cross-community bridge._
 - **Are the 21 inferred relationships involving `730()` (e.g. with `Qa()` and `Xa()`) actually correct?**
   _`730()` has 21 INFERRED edges - model-reasoned connections that need verification._

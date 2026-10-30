@@ -67,7 +67,25 @@ function emitGiftItem(item) {
   const { io, roomTargets, socketPayload, senderId, senderUpdatedCoins, receiversList } = item;
   if (!io) return;
 
-  const targets = Array.isArray(roomTargets) ? roomTargets : Array.from(roomTargets || []);
+  const rawTargets = Array.isArray(roomTargets) ? roomTargets : Array.from(roomTargets || []);
+  const primaryRoomId = (socketPayload?.roomId || socketPayload?.room_id || '').toString().trim();
+  const targets = Array.from(new Set([...rawTargets, primaryRoomId].filter(Boolean)));
+
+  const gift = socketPayload?.gift || {};
+  const giftName = gift.name || 'Gift';
+  const giftCount = gift.count || 1;
+  const totalCoins = gift.total_coins || gift.totalCoins || (gift.coin_cost ? gift.coin_cost * giftCount : 0);
+  const senderName = socketPayload?.sender?.full_name || socketPayload?.sender?.name || `User #${senderId}`;
+  const senderAvatar = socketPayload?.sender?.avatar_url || '';
+  const senderLevel = socketPayload?.sender?.level || socketPayload?.sender?.user_level || 1;
+
+  const recipientNames = Array.isArray(receiversList) && receiversList.length > 0
+    ? receiversList.map((r) => r.full_name || r.name || `User #${r.id}`).join(', ')
+    : (socketPayload?.receiver?.full_name || socketPayload?.receiver?.name || 'the host');
+
+  const countPrefix = giftCount > 1 ? `${giftCount}x ` : '';
+  const coinNotice = totalCoins > 0 ? ` (🪙 ${Number(totalCoins).toLocaleString()} Coins)` : '';
+  const commentText = `sent ${countPrefix}${giftName}${coinNotice} to ${recipientNames} 🎁`;
 
   for (const rm of targets) {
     if (!rm) continue;
@@ -79,14 +97,75 @@ function emitGiftItem(item) {
     io.to(rm).emit('gift_sent', socketPayload);
     io.to(rm).emit('room_gift', socketPayload);
 
-    // Update balances in room
+    // 1. Professional in-room gift announcement comment visible to all room participants
+    const giftCommentPayload = {
+      id: `gift_cmt_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      roomId: rm,
+      room_id: rm,
+      userId: Number(senderId),
+      user_id: Number(senderId),
+      userName: senderName,
+      user_name: senderName,
+      name: senderName,
+      userAvatar: senderAvatar,
+      user_avatar: senderAvatar,
+      avatar_url: senderAvatar,
+      userLevel: Number(senderLevel),
+      user_level: Number(senderLevel),
+      level: Number(senderLevel),
+      vipTier: 'normal',
+      vip_tier: 'normal',
+      isAdmin: false,
+      is_admin: false,
+      text: commentText,
+      message: commentText,
+      comment: commentText,
+      isGiftNotice: true,
+      is_gift_notice: true,
+      type: 'gift',
+      giftName: giftName,
+      gift_name: giftName,
+      giftIcon: gift.icon_url || gift.icon || '',
+      gift_icon: gift.icon_url || gift.icon || '',
+      giftCount: giftCount,
+      gift_count: giftCount,
+      coinValue: totalCoins,
+      coin_value: totalCoins,
+      timestamp: 'Just now',
+    };
+
+    io.to(rm).emit('comment', giftCommentPayload);
+    io.to(rm).emit('new_comment', giftCommentPayload);
+    io.to(rm).emit('chat_message', giftCommentPayload);
+    io.to(rm).emit('room_message', giftCommentPayload);
+
+    // 2. Real-time in-room balance updates for all participants (host, seats, audience)
     if (senderId && senderUpdatedCoins !== undefined) {
-      io.to(rm).emit('user_balance_updated', { userId: senderId, coins: senderUpdatedCoins });
+      io.to(rm).emit('user_balance_updated', {
+        userId: Number(senderId),
+        user_id: Number(senderId),
+        coins: senderUpdatedCoins,
+        updated_coin: senderUpdatedCoins,
+      });
     }
     if (Array.isArray(receiversList)) {
       for (const r of receiversList) {
         if (r && r.id && r.updated_coin !== undefined) {
-          io.to(rm).emit('user_balance_updated', { userId: r.id, coins: r.updated_coin });
+          io.to(rm).emit('user_balance_updated', {
+            userId: Number(r.id),
+            user_id: Number(r.id),
+            coins: r.updated_coin,
+            updated_coin: r.updated_coin,
+            received_coins: r.received_coins || 0,
+            role: r.role,
+          });
+          io.to(rm).emit('room_user_coins_updated', {
+            userId: Number(r.id),
+            user_id: Number(r.id),
+            coins: r.updated_coin,
+            updated_coin: r.updated_coin,
+            earnedCoins: r.received_coins || 0,
+          });
         }
       }
     }

@@ -94,7 +94,7 @@ export async function sendGift(req, res) {
     // Deduplicate
     targetReceiverIds = [...new Set(targetReceiverIds)];
 
-    // 2. Resolve Active Room if roomId provided
+    // 2. Resolve Active Room if roomId provided or auto-detect from active live sessions
     let activeRoom = null;
     if (targetRoomId) {
       const [rooms] = await connection.execute(
@@ -107,6 +107,69 @@ export async function sendGift(req, res) {
       );
       if (rooms.length > 0) {
         activeRoom = rooms[0];
+      }
+    }
+
+    // Defensive auto-detection if targetRoomId is missing/null but sender is in a live room
+    if (!activeRoom) {
+      // 2a. Check if sender is currently a viewer in an active live room
+      const [viewerRooms] = await connection.execute(
+        `SELECT r.*, u.id as host_user_id, u.full_name as host_name, u.email as host_email,
+                u.avatar_url as host_avatar, u.role as host_role, u.agency_id, u.is_banned as host_banned
+         FROM live_room_viewers v
+         JOIN live_rooms r ON (v.room_id = r.room_id OR v.room_id = r.id)
+         JOIN users u ON r.host_id = u.id
+         WHERE v.user_id = ? AND r.status = 'live'
+         ORDER BY v.joined_at DESC LIMIT 1`,
+        [senderId]
+      );
+      if (viewerRooms.length > 0) {
+        activeRoom = viewerRooms[0];
+      } else {
+        // 2b. Check if sender is seated in an active live room
+        const [seatedRooms] = await connection.execute(
+          `SELECT r.*, u.id as host_user_id, u.full_name as host_name, u.email as host_email,
+                  u.avatar_url as host_avatar, u.role as host_role, u.agency_id, u.is_banned as host_banned
+           FROM live_room_seats s
+           JOIN live_rooms r ON (s.room_id = r.room_id OR s.room_id = r.id)
+           JOIN users u ON r.host_id = u.id
+           WHERE s.user_id = ? AND r.status = 'live'
+           ORDER BY s.updated_at DESC LIMIT 1`,
+          [senderId]
+        );
+        if (seatedRooms.length > 0) {
+          activeRoom = seatedRooms[0];
+        } else if (targetReceiverIds.length > 0) {
+          // 2c. Check if any recipient is host of an active live room
+          const rPlaceholders = targetReceiverIds.map(() => '?').join(',');
+          const [hostRooms] = await connection.execute(
+            `SELECT r.*, u.id as host_user_id, u.full_name as host_name, u.email as host_email,
+                    u.avatar_url as host_avatar, u.role as host_role, u.agency_id, u.is_banned as host_banned
+             FROM live_rooms r
+             JOIN users u ON r.host_id = u.id
+             WHERE r.host_id IN (${rPlaceholders}) AND r.status = 'live'
+             ORDER BY r.created_at DESC LIMIT 1`,
+            targetReceiverIds
+          );
+          if (hostRooms.length > 0) {
+            activeRoom = hostRooms[0];
+          } else {
+            // 2d. Check if any recipient is seated in an active live room
+            const [recSeatedRooms] = await connection.execute(
+              `SELECT r.*, u.id as host_user_id, u.full_name as host_name, u.email as host_email,
+                      u.avatar_url as host_avatar, u.role as host_role, u.agency_id, u.is_banned as host_banned
+               FROM live_room_seats s
+               JOIN live_rooms r ON (s.room_id = r.room_id OR s.room_id = r.id)
+               JOIN users u ON r.host_id = u.id
+               WHERE s.user_id IN (${rPlaceholders}) AND r.status = 'live'
+               ORDER BY s.updated_at DESC LIMIT 1`,
+              targetReceiverIds
+            );
+            if (recSeatedRooms.length > 0) {
+              activeRoom = recSeatedRooms[0];
+            }
+          }
+        }
       }
     }
 
@@ -551,7 +614,12 @@ export async function sendGift(req, res) {
     // 16. Broadcast live event via Socket.IO through the Sequential Room Dispatch Queue (Anti-Duplicate & Paced)
     if (req.io) {
       const roomTargets = new Set(
-        [activeRoom?.room_id, activeRoom?.id ? String(activeRoom.id) : null, targetRoomId ? String(targetRoomId) : null].filter(Boolean)
+        [
+          activeRoom?.room_id,
+          activeRoom?.id ? String(activeRoom.id) : null,
+          targetRoomId ? String(targetRoomId) : null,
+          recordedRoomId ? String(recordedRoomId) : null,
+        ].filter(Boolean)
       );
 
       enqueueRoomGift({

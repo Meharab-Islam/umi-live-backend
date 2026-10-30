@@ -1192,7 +1192,7 @@ export async function handleUserSeatDeparture(roomId, leavingUserId, io = null) 
       // -------------------------------------------------------------
       const targetRoomId = room.room_id || roomId;
 
-      // 1. Vacate departing user's seat and clear any stray references to leaving user
+      // 1. Solid Guard: ONLY vacate the departing user's specific seat, do NOT touch or move other co-hosts
       await query(
         'UPDATE live_room_seats SET user_id = NULL, is_camera_on = 0, is_muted = 0 WHERE (room_id = ? OR room_id = ?) AND (seat_number = ? OR user_id = ?)',
         [targetRoomId, String(room.id || ''), departingSeat.seat_number, leavingUserId]
@@ -1202,60 +1202,7 @@ export async function handleUserSeatDeparture(roomId, leavingUserId, io = null) 
         [targetRoomId, String(room.id || ''), leavingUserId]
       );
 
-      // 2. Rearrange remaining co-hosts into Seat 2, Seat 3, etc. consecutively (closing all holes/gaps)
-      const otherCoHosts = seats
-        .filter(
-          (s) => s.user_id && Number(s.user_id) !== Number(leavingUserId) && Number(s.user_id) !== Number(hostId) && s.seat_number > 1
-        )
-        .sort((a, b) => a.seat_number - b.seat_number);
-
-      let nextSeatNum = 2;
-      for (const coHost of otherCoHosts) {
-        if (nextSeatNum <= totalSeats) {
-          await query(
-            `INSERT INTO live_room_seats (room_id, seat_number, user_id, is_main_seat, is_camera_on, is_muted)
-             VALUES (?, ?, ?, 0, ?, ?)
-             ON DUPLICATE KEY UPDATE user_id = VALUES(user_id), is_main_seat = 0, is_camera_on = VALUES(is_camera_on), is_muted = VALUES(is_muted)`,
-            [targetRoomId, nextSeatNum, coHost.user_id, coHost.is_camera_on, coHost.is_muted]
-          );
-          if (room.id && String(room.id) !== targetRoomId) {
-            await query(
-              `INSERT INTO live_room_seats (room_id, seat_number, user_id, is_main_seat, is_camera_on, is_muted)
-               VALUES (?, ?, ?, 0, ?, ?)
-               ON DUPLICATE KEY UPDATE user_id = VALUES(user_id), is_main_seat = 0, is_camera_on = VALUES(is_camera_on), is_muted = VALUES(is_muted)`,
-              [String(room.id), nextSeatNum, coHost.user_id, coHost.is_camera_on, coHost.is_muted]
-            );
-          }
-          nextSeatNum++;
-        }
-      }
-
-      // 3. Clear trailing empty guest seats from nextSeatNum up to totalSeats
-      for (let s = nextSeatNum; s <= totalSeats; s++) {
-        await query(
-          `INSERT INTO live_room_seats (room_id, seat_number, user_id, is_main_seat, is_camera_on, is_muted)
-           VALUES (?, ?, NULL, 0, 0, 0)
-           ON DUPLICATE KEY UPDATE user_id = NULL, is_main_seat = 0, is_camera_on = 0, is_muted = 0`,
-          [targetRoomId, s]
-        );
-        if (room.id && String(room.id) !== targetRoomId) {
-          await query(
-            `INSERT INTO live_room_seats (room_id, seat_number, user_id, is_main_seat, is_camera_on, is_muted)
-             VALUES (?, ?, NULL, 0, 0, 0)
-             ON DUPLICATE KEY UPDATE user_id = NULL, is_main_seat = 0, is_camera_on = 0, is_muted = 0`,
-            [String(room.id), s]
-          );
-        }
-      }
-
-      // 4. Remove any excess seats if seat_number > totalSeats
-      await query('DELETE FROM live_room_seats WHERE (room_id = ? OR room_id = ?) AND seat_number > ?', [
-        targetRoomId,
-        String(room.id || ''),
-        totalSeats,
-      ]);
-
-      // 5. Instant Redis Invalidation
+      // Instant Redis Invalidation
       await Promise.allSettled([
         cache.del(`mobile:room_details:${roomId}`),
         cache.del(`mobile:room_details:${room.room_id}`),
@@ -1365,6 +1312,26 @@ export async function handleUserSeatDeparture(roomId, leavingUserId, io = null) 
             seats: formattedSeats,
             rawSeats: formattedSeats,
             seatOrder,
+          });
+          io.to(ch).emit('seat_user_removed', {
+            roomId: room.room_id,
+            seatNumber: departingSeat.seat_number,
+            seatIndex: departingSeat.seat_number,
+            seat_index: departingSeat.seat_number,
+            userId: Number(leavingUserId),
+            removedUserId: Number(leavingUserId),
+            user_id: Number(leavingUserId),
+            reason: 'seat_departed',
+          });
+          io.to(ch).emit('seat-user-removed', {
+            roomId: room.room_id,
+            seatNumber: departingSeat.seat_number,
+            seatIndex: departingSeat.seat_number,
+            seat_index: departingSeat.seat_number,
+            userId: Number(leavingUserId),
+            removedUserId: Number(leavingUserId),
+            user_id: Number(leavingUserId),
+            reason: 'seat_departed',
           });
           io.to(ch).emit('seats_rearranged', {
             roomId: room.room_id,
