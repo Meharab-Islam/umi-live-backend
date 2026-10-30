@@ -900,6 +900,11 @@ export async function joinRoom(req, res) {
             message: 'Incorrect room password. Please try again.',
           });
         }
+        // User successfully entered valid password: store in Redis cache for 2 hours
+        await cache.set(`room_unlocked:${canonicalRoomId}:${currentUser.id}`, 'true', 7200);
+      } else {
+        // Can bypass password: mark as unlocked for token and socket access
+        await cache.set(`room_unlocked:${canonicalRoomId}:${currentUser.id}`, 'true', 7200);
       }
     }
 
@@ -4662,7 +4667,7 @@ export async function getLiveKitToken(req, res) {
     const isNum = /^\d+$/.test(String(roomId).trim());
     // 1. Check room exists by either string room_id OR numeric id
     const roomRows = await query(
-      'SELECT id, room_id, host_id, live_type, status FROM live_rooms WHERE room_id = ? OR id = ?',
+      'SELECT id, room_id, host_id, live_type, status, is_locked, room_password FROM live_rooms WHERE room_id = ? OR id = ?',
       [String(roomId), isNum ? Number(roomId) : -1]
     );
     if (roomRows.length === 0) {
@@ -4680,7 +4685,77 @@ export async function getLiveKitToken(req, res) {
       });
     }
 
-    // 2. Determine permissions
+    // 2. Check Room Lock & Password Protection before granting LiveKit streaming token
+    const isRoomLocked = Boolean(room.is_locked && room.room_password);
+    if (isRoomLocked) {
+      const isHost = Number(userId) === Number(room.host_id);
+      const isSuperOrAdmin = req.user?.role === 'admin' || req.user?.role === 'superadmin';
+      let canBypassPassword = isHost || isSuperOrAdmin;
+
+      if (!canBypassPassword && req.user) {
+        // Moderator bypass check
+        if (req.user.role === 'moderator') {
+          const modRows = await query(
+            "SELECT permissions, status FROM moderators WHERE user_id = ? AND status = 'active' LIMIT 1",
+            [userId]
+          );
+          if (modRows.length > 0) {
+            let perms = modRows[0].permissions;
+            if (typeof perms === 'string') {
+              try { perms = JSON.parse(perms); } catch (_) { perms = {}; }
+            }
+            if (perms && (perms.bypass_private_password === true || perms.bypass_room_password === true || perms.all === true || perms.silent_room_entry === true || perms.enter_locked_room === true)) {
+              canBypassPassword = true;
+            }
+          }
+        }
+
+        // Room admin bypass check
+        if (!canBypassPassword) {
+          const roomAdminRows = await query(
+            'SELECT permissions FROM live_room_admins WHERE (room_id = ? OR room_id = ?) AND user_id = ? LIMIT 1',
+            [canonicalRoomId, String(room.id), userId]
+          );
+          if (roomAdminRows.length > 0) {
+            let rPerms = roomAdminRows[0].permissions;
+            if (typeof rPerms === 'string') {
+              try { rPerms = JSON.parse(rPerms); } catch (_) { rPerms = []; }
+            }
+            if (Array.isArray(rPerms)) {
+              if (rPerms.includes('all') || rPerms.includes('bypass_private_password') || rPerms.includes('enter_locked_room')) {
+                canBypassPassword = true;
+              }
+            } else if (rPerms && typeof rPerms === 'object') {
+              if (rPerms.bypass_private_password === true || rPerms.all === true || rPerms.enter_locked_room === true) {
+                canBypassPassword = true;
+              }
+            }
+          }
+        }
+      }
+
+      if (!canBypassPassword) {
+        const inputPassword = (req.body?.password ?? req.body?.room_password ?? req.query?.password ?? req.headers['x-room-password'] ?? '').toString().trim();
+        const isPasswordCorrect = inputPassword && inputPassword === String(room.room_password).trim();
+        const isAlreadyUnlocked = !isPasswordCorrect && userId ? Boolean(await cache.get(`room_unlocked:${canonicalRoomId}:${userId}`)) : false;
+
+        if (!isPasswordCorrect && !isAlreadyUnlocked) {
+          return res.status(403).json({
+            success: false,
+            is_locked: true,
+            is_password_protected: true,
+            requires_password: true,
+            message: 'This live room is locked with a password. Please enter the password to join.',
+          });
+        }
+
+        if (isPasswordCorrect && userId) {
+          await cache.set(`room_unlocked:${canonicalRoomId}:${userId}`, 'true', 7200);
+        }
+      }
+    }
+
+    // 3. Determine permissions
     const isHost = String(room.host_id) === String(userId);
 
     // 3. Check if user is currently occupying a seat
@@ -4907,6 +4982,7 @@ export async function toggleRoomLock(req, res) {
       cache.del(`mobile:room_details:${room.room_id}`),
       cache.del(`mobile:room_details:${room.id}`),
       cache.delByPattern('mobile:rooms:*'),
+      cache.delByPattern(`room_unlocked:${room.room_id}:*`),
     ]);
 
     // 3. Real-time broadcast to all viewers in room (NEVER broadcast plain password)

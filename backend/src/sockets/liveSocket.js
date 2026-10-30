@@ -687,12 +687,37 @@ export function setupLiveSocket(io) {
         // Resolve canonical room id
         const isNum = /^\d+$/.test(String(roomId).trim());
         const rooms = await query(
-          'SELECT id, room_id, host_id FROM live_rooms WHERE room_id = ? OR id = ?',
+          'SELECT id, room_id, host_id, is_locked, room_password FROM live_rooms WHERE room_id = ? OR id = ?',
           [String(roomId), isNum ? Number(roomId) : -1]
         );
         const room = rooms.length > 0 ? rooms[0] : null;
         const canonicalRoomId = room ? room.room_id : String(roomId);
         const numericRoomId = room ? room.id : null;
+
+        // Verify Room Lock & Password Protection before allowing socket to join room
+        if (room && room.is_locked && room.room_password) {
+          const uId = currentUser?.id || user?.id || socket.userId;
+          const isHost = (uId && Number(uId) === Number(room.host_id)) || (socket.userId && Number(socket.userId) === Number(room.host_id));
+          const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'superadmin' || socket.user?.role === 'admin' || socket.user?.role === 'superadmin';
+          let canEnter = isHost || isAdmin;
+
+          if (!canEnter && uId) {
+            const isUnlocked = Boolean(await cache.get(`room_unlocked:${canonicalRoomId}:${uId}`));
+            if (isUnlocked) {
+              canEnter = true;
+            }
+          }
+
+          if (!canEnter) {
+            socket.emit('room_password_required', {
+              roomId: canonicalRoomId,
+              is_locked: true,
+              requires_password: true,
+              message: 'This live room is locked with a password. Please enter the password to join.',
+            });
+            return;
+          }
+        }
 
         // Leave any prior room ONLY if switching to a different room
         if (currentRoom && currentRoom !== canonicalRoomId) {
