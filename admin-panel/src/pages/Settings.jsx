@@ -59,6 +59,7 @@ import {
 } from 'lucide-react';
 import settingsApi from '../api/settingsApi';
 import authApi from '../api/authApi';
+import userApi from '../api/userApi';
 import Loader from '../components/Loader';
 import { uploadFile, resolveAssetUrl, getCurrentUser, setCurrentUser } from '../api/client';
 import FileUploadInput from '../components/FileUploadInput';
@@ -93,10 +94,50 @@ export default function Settings({ onToast, targetSection }) {
     if (targetSection === 'monetization') return 'monetization';
     if (targetSection === 'security') return 'security';
     if (targetSection === 'system') return 'system';
+    if (targetSection === 'danger' || targetSection === 'reset') return 'danger';
     return 'profile';
   };
 
   const [activeTab, setActiveTab] = useState(getInitialTab);
+
+  // Clear All Users & System Reset State
+  const [clearActionPassword, setClearActionPassword] = useState('');
+  const [clearRestartId, setClearRestartId] = useState('2');
+  const [clearConfirmWord, setClearConfirmWord] = useState('');
+  const [clearingAllUsers, setClearingAllUsers] = useState(false);
+  const [showClearActionPassword, setShowClearActionPassword] = useState(false);
+  const [showClearConfirmModal, setShowClearConfirmModal] = useState(false);
+
+  const handleClearAllUsersSubmit = async (e) => {
+    if (e) e.preventDefault();
+    if (!clearActionPassword.trim()) {
+      if (onToast) onToast('Action security password is required.', 'error');
+      return;
+    }
+    if (clearConfirmWord.trim().toUpperCase() !== 'RESET') {
+      if (onToast) onToast('Please type RESET in the confirmation field to proceed.', 'error');
+      return;
+    }
+    try {
+      setClearingAllUsers(true);
+      const res = await userApi.clearAllUsers({
+        action_password: clearActionPassword.trim(),
+        restart_id: parseInt(clearRestartId, 10) || 2,
+      });
+      if (res.success) {
+        if (onToast) onToast(res.message || 'All non-admin users purged and system reset successfully!', 'success');
+        setShowClearConfirmModal(false);
+        setClearActionPassword('');
+        setClearConfirmWord('');
+      } else {
+        if (onToast) onToast(res.message || 'Failed to clear users', 'error');
+      }
+    } catch (err) {
+      if (onToast) onToast(err.message || 'Error clearing all users', 'error');
+    } finally {
+      setClearingAllUsers(false);
+    }
+  };
 
   useEffect(() => {
     if (targetSection) {
@@ -859,6 +900,15 @@ export default function Settings({ onToast, targetSection }) {
       badgeColor: settings.maintenance_mode === 'true' ? '#ef4444' : '#10b981',
       accent: '#3b82f6',
       description: 'Platform maintenance mode, scheduled downtime notices, and global application branding.',
+    },
+    {
+      id: 'danger',
+      name: 'Clear Users & Reset',
+      icon: Trash2,
+      badge: 'Danger Zone',
+      badgeColor: '#ef4444',
+      accent: '#ef4444',
+      description: 'Permanently wipe all registered non-admin users and reset registration IDs back to #2.',
     },
   ];
 
@@ -4052,6 +4102,42 @@ export default function Settings({ onToast, targetSection }) {
               </div>
             </div>
 
+            {/* Quick Link to System User Purge & Reset */}
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '1rem 1.25rem',
+                borderRadius: '12px',
+                background: 'rgba(239, 68, 68, 0.06)',
+                border: '1px solid rgba(239, 68, 68, 0.25)',
+                marginTop: '1.25rem',
+                flexWrap: 'wrap',
+                gap: '1rem',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <Trash2 size={20} color="#ef4444" />
+                <div>
+                  <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#f87171' }}>
+                    Need to Purge Test Users or Reset Registration IDs?
+                  </div>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--text-dim)' }}>
+                    Wipe all non-admin users and reset registration sequence back to ID #2.
+                  </div>
+                </div>
+              </div>
+              <button
+                type="button"
+                className="btn btn-sm btn-secondary"
+                onClick={() => setActiveTab('danger')}
+                style={{ color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.4)' }}
+              >
+                Open Clear Users & Reset →
+              </button>
+            </div>
+
             <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: '1.25rem', marginTop: '1.25rem', borderTop: '1px solid var(--border-color)' }}>
               <button
                 type="button"
@@ -4064,6 +4150,281 @@ export default function Settings({ onToast, targetSection }) {
                 <span>{savingSystem ? 'Saving Configuration...' : 'Save Maintenance & System Settings'}</span>
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* TAB CONTENT: DANGER ZONE & CLEAR ALL USERS */}
+      {activeTab === 'danger' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          {/* Main Danger Zone Panel */}
+          <div
+            className="panel-card"
+            style={{
+              border: '1px solid rgba(239, 68, 68, 0.45)',
+              background: 'var(--bg-card)',
+              boxShadow: '0 8px 30px rgba(239, 68, 68, 0.08)',
+            }}
+          >
+            <div className="panel-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(239, 68, 68, 0.2)', paddingBottom: '1rem', marginBottom: '1.5rem' }}>
+              <div className="panel-title" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div
+                  style={{
+                    width: '38px',
+                    height: '38px',
+                    borderRadius: '10px',
+                    background: 'rgba(239, 68, 68, 0.15)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#ef4444',
+                    border: '1px solid rgba(239, 68, 68, 0.3)',
+                  }}
+                >
+                  <Trash2 size={20} />
+                </div>
+                <div>
+                  <span style={{ fontSize: '1.15rem', fontWeight: 700, color: '#f87171' }}>
+                    Danger Zone: System User Purge & Reset
+                  </span>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--text-dim)', marginTop: '2px' }}>
+                    Permanently wipe non-admin user accounts and restart registration sequence numbers
+                  </div>
+                </div>
+              </div>
+
+              <span
+                style={{
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  padding: '4px 12px',
+                  borderRadius: '20px',
+                  background: 'rgba(239, 68, 68, 0.15)',
+                  color: '#ef4444',
+                  border: '1px solid rgba(239, 68, 68, 0.35)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                }}
+              >
+                High-Impact Operation
+              </span>
+            </div>
+
+            {/* 3 Pillars Overview Banner */}
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+                gap: '1rem',
+                marginBottom: '1.75rem',
+              }}
+            >
+              {/* Pillar 1: Super Admin Protected */}
+              <div
+                style={{
+                  padding: '1.1rem',
+                  borderRadius: '12px',
+                  background: 'rgba(16, 185, 129, 0.08)',
+                  border: '1px solid rgba(16, 185, 129, 0.25)',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.5rem', color: '#10b981', fontWeight: 700, fontSize: '0.9rem' }}>
+                  <Shield size={18} />
+                  <span>Super Admin Preserved</span>
+                </div>
+                <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--text-dim)', lineHeight: 1.5 }}>
+                  Super Admin <strong style={{ color: '#10b981' }}>ID #1 (admin@umi.live)</strong> is strictly guarded and never deleted. Your account, credentials, and settings remain 100% untouched.
+                </p>
+              </div>
+
+              {/* Pillar 2: Reserved Accounts Reclaimed */}
+              <div
+                style={{
+                  padding: '1.1rem',
+                  borderRadius: '12px',
+                  background: 'rgba(139, 92, 246, 0.08)',
+                  border: '1px solid rgba(139, 92, 246, 0.25)',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.5rem', color: '#8b5cf6', fontWeight: 700, fontSize: '0.9rem' }}>
+                  <Sparkles size={18} />
+                  <span>Reserved Pool Maintained</span>
+                </div>
+                <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--text-dim)', lineHeight: 1.5 }}>
+                  Reserved VIP account pool (e.g., IDs 2..100) will be detached and marked back to <strong style={{ color: '#8b5cf6' }}>Available</strong> so they can be assigned again.
+                </p>
+              </div>
+
+              {/* Pillar 3: What gets deleted */}
+              <div
+                style={{
+                  padding: '1.1rem',
+                  borderRadius: '12px',
+                  background: 'rgba(239, 68, 68, 0.08)',
+                  border: '1px solid rgba(239, 68, 68, 0.25)',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.5rem', color: '#ef4444', fontWeight: 700, fontSize: '0.9rem' }}>
+                  <AlertTriangle size={18} />
+                  <span>All Users & Data Purged</span>
+                </div>
+                <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--text-dim)', lineHeight: 1.5 }}>
+                  All viewers, hosts, agencies, moderators, chat messages, live rooms, gift logs, level progress, and transactions will be <strong style={{ color: '#ef4444' }}>permanently deleted</strong>.
+                </p>
+              </div>
+            </div>
+
+            {/* Action Form */}
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                setShowClearConfirmModal(true);
+              }}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '1.25rem',
+                background: 'var(--bg-secondary)',
+                padding: '1.5rem',
+                borderRadius: '14px',
+                border: '1px solid var(--border-color)',
+              }}
+            >
+              {/* Option: Restart ID */}
+              <div>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '0.5rem' }}>
+                  1. Next User Registration Starts From ID:
+                </label>
+                <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
+                  <button
+                    type="button"
+                    onClick={() => setClearRestartId('2')}
+                    className="btn btn-sm"
+                    style={{
+                      background: clearRestartId === '2' ? 'rgba(59, 130, 246, 0.2)' : 'var(--bg-card)',
+                      borderColor: clearRestartId === '2' ? '#3b82f6' : 'var(--border-color)',
+                      color: clearRestartId === '2' ? '#60a5fa' : 'var(--text-main)',
+                      fontWeight: clearRestartId === '2' ? 700 : 500,
+                    }}
+                  >
+                    Start from ID #2 (Fresh User Starting ID)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setClearRestartId('101')}
+                    className="btn btn-sm"
+                    style={{
+                      background: clearRestartId === '101' ? 'rgba(139, 92, 246, 0.2)' : 'var(--bg-card)',
+                      borderColor: clearRestartId === '101' ? '#8b5cf6' : 'var(--border-color)',
+                      color: clearRestartId === '101' ? '#a78bfa' : 'var(--text-main)',
+                      fontWeight: clearRestartId === '101' ? 700 : 500,
+                    }}
+                  >
+                    Start from ID #101 (Preserve #2..#100 for VIPs)
+                  </button>
+                </div>
+                <div style={{ maxWidth: '320px' }}>
+                  <input
+                    type="number"
+                    min="2"
+                    max="1000000"
+                    required
+                    value={clearRestartId}
+                    onChange={(e) => setClearRestartId(e.target.value)}
+                    className="input-field"
+                    style={{ fontFamily: 'monospace', fontWeight: 700 }}
+                    placeholder="2"
+                  />
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: '4px', display: 'block' }}>
+                    MySQL <code>AUTO_INCREMENT</code> will be set to this number. The next person who signs up will get ID #{clearRestartId || '2'}.
+                  </span>
+                </div>
+              </div>
+
+              {/* Security Password */}
+              <div style={{ maxWidth: '420px' }}>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '0.4rem' }}>
+                  2. Super Admin Security Action Password <span style={{ color: '#ef4444' }}>*</span>
+                </label>
+                <div style={{ position: 'relative' }}>
+                  <input
+                    type={showClearActionPassword ? 'text' : 'password'}
+                    required
+                    value={clearActionPassword}
+                    onChange={(e) => setClearActionPassword(e.target.value)}
+                    className="input-field"
+                    placeholder="Enter action security password (default: admin123)"
+                    style={{ paddingRight: '2.5rem' }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowClearActionPassword(!showClearActionPassword)}
+                    style={{
+                      position: 'absolute',
+                      right: '10px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      background: 'none',
+                      border: 'none',
+                      color: 'var(--text-dim)',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                    }}
+                  >
+                    {showClearActionPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: '4px', display: 'block' }}>
+                  Configured under Financial Security (default: <code>admin123</code>).
+                </span>
+              </div>
+
+              {/* Confirmation Text Check */}
+              <div style={{ maxWidth: '420px' }}>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '0.4rem' }}>
+                  3. Type <span style={{ color: '#ef4444', fontFamily: 'monospace' }}>RESET</span> to Unlock: <span style={{ color: '#ef4444' }}>*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={clearConfirmWord}
+                  onChange={(e) => setClearConfirmWord(e.target.value)}
+                  className="input-field"
+                  placeholder="Type RESET here"
+                  style={{ textTransform: 'uppercase', fontFamily: 'monospace', fontWeight: 700 }}
+                />
+              </div>
+
+              {/* Execute Button */}
+              <div style={{ display: 'flex', justifyContent: 'flex-start', paddingTop: '0.5rem' }}>
+                <button
+                  type="submit"
+                  className="btn btn-danger"
+                  disabled={
+                    clearingAllUsers ||
+                    !clearActionPassword.trim() ||
+                    clearConfirmWord.trim().toUpperCase() !== 'RESET'
+                  }
+                  style={{
+                    background: '#ef4444',
+                    borderColor: '#dc2626',
+                    color: '#ffffff',
+                    padding: '0.75rem 1.75rem',
+                    fontSize: '0.92rem',
+                    fontWeight: 700,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    cursor: (clearingAllUsers || !clearActionPassword.trim() || clearConfirmWord.trim().toUpperCase() !== 'RESET') ? 'not-allowed' : 'pointer',
+                    opacity: (clearingAllUsers || !clearActionPassword.trim() || clearConfirmWord.trim().toUpperCase() !== 'RESET') ? 0.6 : 1,
+                  }}
+                >
+                  <Trash2 size={16} />
+                  <span>Wipe All Users & Reset System</span>
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
@@ -5343,6 +5704,94 @@ export default function Settings({ onToast, targetSection }) {
               >
                 {resetModal.loading ? <RefreshCw size={15} className="spin" /> : <Trash2 size={15} />}
                 <span>{resetModal.loading ? 'Resetting...' : 'Confirm & Execute'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* CLEAR ALL USERS & SYSTEM RESET CONFIRMATION MODAL */}
+      {showClearConfirmModal && (
+        <div
+          className="modal-overlay"
+          onClick={(e) => {
+            if (e.target === e.currentTarget && !clearingAllUsers) {
+              setShowClearConfirmModal(false);
+            }
+          }}
+        >
+          <div className="modal-box" style={{ maxWidth: '480px', border: '1px solid rgba(239, 68, 68, 0.45)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '0.75rem' }}>
+              <div
+                style={{
+                  width: '42px',
+                  height: '42px',
+                  borderRadius: '12px',
+                  background: 'rgba(239, 68, 68, 0.15)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#ef4444',
+                }}
+              >
+                <AlertTriangle size={24} />
+              </div>
+              <div>
+                <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 700, color: 'var(--text-main)' }}>
+                  Final Confirmation: Purge All Users?
+                </h3>
+                <span style={{ fontSize: '0.75rem', color: '#ef4444', fontWeight: 600 }}>
+                  This operation cannot be undone
+                </span>
+              </div>
+            </div>
+
+            <div
+              style={{
+                borderRadius: '8px',
+                padding: '0.85rem 1rem',
+                background: 'rgba(239, 68, 68, 0.08)',
+                border: '1px solid rgba(239, 68, 68, 0.25)',
+                fontSize: '0.82rem',
+                color: 'var(--text-main)',
+                lineHeight: 1.5,
+                marginBottom: '1.25rem',
+              }}
+            >
+              Are you sure you want to permanently delete all non-admin users across the entire system?
+              <ul style={{ margin: '8px 0 0 18px', padding: 0 }}>
+                <li>All user wallets, diamonds, levels, gifts, streams, and chats will be wiped.</li>
+                <li>Reserved accounts pool will be preserved and reset to available.</li>
+                <li>Registration will restart immediately from <strong>ID #{clearRestartId || '2'}</strong>.</li>
+                <li><strong style={{ color: '#10b981' }}>Super Admin (ID #1) is 100% safe.</strong></li>
+              </ul>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
+              <button
+                type="button"
+                className="btn btn-secondary"
+                disabled={clearingAllUsers}
+                onClick={() => setShowClearConfirmModal(false)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="btn btn-danger"
+                disabled={clearingAllUsers}
+                onClick={handleClearAllUsersSubmit}
+                style={{
+                  background: '#ef4444',
+                  borderColor: '#dc2626',
+                  color: '#ffffff',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                }}
+              >
+                {clearingAllUsers ? <RefreshCw size={15} className="spin" /> : <Trash2 size={15} />}
+                <span>{clearingAllUsers ? 'Purging System...' : 'Yes, Permanently Purge'}</span>
               </button>
             </div>
           </div>

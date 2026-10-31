@@ -75,41 +75,6 @@ export default function Users({ onToast }) {
   const [actionPassword, setActionPassword] = useState('');
   const [showActionPassword, setShowActionPassword] = useState(false);
 
-  // Clear All Users State
-  const [clearAllModalOpen, setClearAllModalOpen] = useState(false);
-  const [clearActionPassword, setClearActionPassword] = useState('');
-  const [clearRestartId, setClearRestartId] = useState('2');
-  const [clearingAllUsers, setClearingAllUsers] = useState(false);
-
-  const handleClearAllUsersSubmit = async (e) => {
-    e.preventDefault();
-    if (!clearActionPassword) {
-      if (onToast) onToast('Action security password is required.', 'error');
-      return;
-    }
-    try {
-      setClearingAllUsers(true);
-      const res = await userApi.clearAllUsers({
-        action_password: clearActionPassword,
-        restart_id: parseInt(clearRestartId, 10) || 2,
-      });
-      if (res.success) {
-        if (onToast) onToast(res.message || 'All users cleared successfully!', 'success');
-        setClearAllModalOpen(false);
-        setClearActionPassword('');
-        setSelectedUserIds([]);
-        setPage(1);
-        await fetchUsers(activeSearch, 1, pageSize);
-      } else {
-        if (onToast) onToast(res.message || 'Failed to clear users', 'error');
-      }
-    } catch (err) {
-      if (onToast) onToast(err.message || 'Error clearing all users', 'error');
-    } finally {
-      setClearingAllUsers(false);
-    }
-  };
-
   const handleToggleSelectAll = () => {
     if (selectedUserIds.length === users.length) {
       setSelectedUserIds([]);
@@ -441,28 +406,6 @@ export default function Users({ onToast }) {
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <button
-              type="button"
-              onClick={() => setClearAllModalOpen(true)}
-              className="btn btn-secondary"
-              style={{
-                borderColor: 'rgba(239, 68, 68, 0.4)',
-                color: '#f87171',
-                background: 'rgba(239, 68, 68, 0.08)',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                whiteSpace: 'nowrap',
-                fontSize: '0.82rem',
-                padding: '0.45rem 0.85rem',
-                borderRadius: '8px',
-              }}
-              title="Permanently remove all regular users and reset user registration IDs back to #2"
-            >
-              <Trash2 size={14} />
-              Clear All Users (Reset to #2)
-            </button>
-
             <div style={{ fontSize: '0.82rem', color: 'var(--text-dim)' }}>
               Showing {users.length} users
             </div>
@@ -1055,102 +998,6 @@ export default function Users({ onToast }) {
                 <span>{deletingUser ? 'Deleting...' : 'Confirm Delete'}</span>
               </button>
             </div>
-          </div>
-        </div>
-      )}
-      {/* Clear All Users Modal */}
-      {clearAllModalOpen && (
-        <div className="modal-backdrop" onClick={() => setClearAllModalOpen(false)}>
-          <div
-            className="modal-card"
-            onClick={(e) => e.stopPropagation()}
-            style={{ maxWidth: '460px', padding: '2rem 1.75rem' }}
-          >
-            <div
-              style={{
-                width: '60px',
-                height: '60px',
-                borderRadius: '50%',
-                background: 'rgba(239, 68, 68, 0.15)',
-                color: '#ef4444',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                margin: '0 auto 1.25rem',
-                border: '1px solid rgba(239, 68, 68, 0.3)',
-              }}
-            >
-              <Trash2 size={30} />
-            </div>
-
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 700, textAlign: 'center', marginBottom: '0.5rem', color: 'var(--text-main)' }}>
-              Purge All Users & Restart IDs
-            </h3>
-
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-dim)', textAlign: 'center', lineHeight: 1.5, marginBottom: '1.25rem' }}>
-              Permanently delete <strong style={{ color: '#ef4444' }}>ALL users across all pages in the entire system</strong> (not just the current page), including their level progress, chat histories, live stream logs, agency ties, and gift transactions.
-              <strong style={{ display: 'block', color: '#10b981', marginTop: '6px' }}>
-                ✓ Super Administrator (ID #1) is strictly preserved.
-              </strong>
-            </p>
-
-            <form onSubmit={handleClearAllUsersSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <div>
-                <label style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-dim)', textTransform: 'uppercase', display: 'block', marginBottom: '0.4rem' }}>
-                  Restart New User Registrations From ID:
-                </label>
-                <input
-                  type="number"
-                  min="2"
-                  max="1000000"
-                  required
-                  value={clearRestartId}
-                  onChange={(e) => setClearRestartId(e.target.value)}
-                  className="input-field"
-                  style={{ width: '100%', fontFamily: 'monospace', fontWeight: 700 }}
-                  placeholder="2"
-                />
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: '4px', display: 'block' }}>
-                  Next user will register with ID #{clearRestartId || '2'}.
-                </span>
-              </div>
-
-              <div>
-                <label style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-dim)', textTransform: 'uppercase', display: 'block', marginBottom: '0.4rem' }}>
-                  Action Security Password *
-                </label>
-                <input
-                  type="password"
-                  required
-                  value={clearActionPassword}
-                  onChange={(e) => setClearActionPassword(e.target.value)}
-                  className="input-field"
-                  style={{ width: '100%' }}
-                  placeholder="Enter security password (admin123)"
-                />
-              </div>
-
-              <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={() => setClearAllModalOpen(false)}
-                  disabled={clearingAllUsers}
-                  style={{ flex: 1 }}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="btn btn-danger"
-                  disabled={clearingAllUsers}
-                  style={{ flex: 1.3, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
-                >
-                  <Trash2 size={15} />
-                  <span>{clearingAllUsers ? 'Purging System...' : 'Confirm Wipe & Reset to #2'}</span>
-                </button>
-              </div>
-            </form>
           </div>
         </div>
       )}
