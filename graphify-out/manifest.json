@@ -6372,9 +6372,9 @@
     "semantic_hash": ""
   },
   "admin-panel/src/pages/ReservedAccounts.jsx": {
-    "mtime": 1793418057.8157063,
-    "seen": 1793418124.239485,
-    "ast_hash": "9692a702fca736ae5401a0b99bedfa35",
+    "mtime": 1793419052.2318864,
+    "seen": 1793419095.061145,
+    "ast_hash": "c10644486027692a28947de4aad9896a",
     "semantic_hash": ""
   },
   "backend/src/controllers/reservedAccountController.js": {
