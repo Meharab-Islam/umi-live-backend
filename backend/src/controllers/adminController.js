@@ -6991,6 +6991,7 @@ export async function clearAllUsers(req, res) {
 
     // 1. Truncate user-generated content and transaction tables
     const tablesToTruncate = [
+      'agencies',
       'agency_host_requests',
       'chat_messages',
       'chat_message_media',
@@ -7033,18 +7034,18 @@ export async function clearAllUsers(req, res) {
       } catch (_) {}
     }
 
-    // 2. Delete all users except Super Admin (ID 1 / superadmin)
+    // 2. Delete ALL users in the entire system except strictly Super Admin (ID 1)
     const [delResult] = await conn.query(`
       DELETE FROM users 
-      WHERE email != 'admin@umi.live' AND role != 'superadmin'
+      WHERE id != 1 AND email != 'admin@umi.live'
     `);
     const deletedCount = delResult.affectedRows || 0;
 
-    // 3. Reset Super Admin balances & status
+    // 3. Reset Super Admin (ID 1) balances & status
     await conn.query(`
       UPDATE users 
       SET coins = 0, diamonds = 0, star = 0, level = 99, is_banned = 0
-      WHERE email = 'admin@umi.live' OR role = 'superadmin'
+      WHERE id = 1 OR email = 'admin@umi.live'
     `);
 
     // 4. Reclaim and reset all reserved accounts back to available

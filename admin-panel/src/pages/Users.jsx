@@ -97,8 +97,9 @@ export default function Users({ onToast }) {
         if (onToast) onToast(res.message || 'All users cleared successfully!', 'success');
         setClearAllModalOpen(false);
         setClearActionPassword('');
-        fetchUsers();
-        fetchSummary();
+        setSelectedUserIds([]);
+        setPage(1);
+        await fetchUsers(activeSearch, 1, pageSize);
       } else {
         if (onToast) onToast(res.message || 'Failed to clear users', 'error');
       }
@@ -1087,7 +1088,7 @@ export default function Users({ onToast }) {
             </h3>
 
             <p style={{ fontSize: '0.85rem', color: 'var(--text-dim)', textAlign: 'center', lineHeight: 1.5, marginBottom: '1.25rem' }}>
-              Permanently delete all non-admin users, level progress, chat histories, live stream logs, and gift transactions.
+              Permanently delete <strong style={{ color: '#ef4444' }}>ALL users across all pages in the entire system</strong> (not just the current page), including their level progress, chat histories, live stream logs, agency ties, and gift transactions.
               <strong style={{ display: 'block', color: '#10b981', marginTop: '6px' }}>
                 ✓ Super Administrator (ID #1) is strictly preserved.
               </strong>
