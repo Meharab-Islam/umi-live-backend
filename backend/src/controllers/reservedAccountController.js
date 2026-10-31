@@ -279,8 +279,15 @@ export async function addReservedIds(req, res) {
       });
     }
 
+    if (idsToAdd.includes(1)) {
+      return res.status(400).json({
+        success: false,
+        message: 'ID #1 belongs strictly to the Super Administrator and cannot be added to the reserved pool.',
+      });
+    }
+
     // Check collisions with active users table
-    const [existingUsers] = await query(
+    const existingUsers = await query(
       `SELECT id FROM users WHERE id IN (${idsToAdd.map(() => '?').join(',')})`,
       idsToAdd
     );
@@ -294,7 +301,7 @@ export async function addReservedIds(req, res) {
     }
 
     // Check existing reserved_accounts
-    const [existingReserved] = await query(
+    const existingReserved = await query(
       `SELECT reserved_id FROM reserved_accounts WHERE reserved_id IN (${idsToAdd.map(() => '?').join(',')})`,
       idsToAdd
     );
@@ -349,7 +356,7 @@ export async function addReservedIds(req, res) {
 /**
  * POST /api/admin/reserved-accounts/set-range
  * Configure reserved pool starting from ID 2 up to end_id (e.g. 100, 200).
- * Seeds all missing IDs in that range and sets users AUTO_INCREMENT to end_id + 1.
+ * Prunes unassigned IDs outside this range, seeds missing IDs, and sets users AUTO_INCREMENT to end_id + 1.
  */
 export async function setReservedRange(req, res) {
   try {
@@ -370,6 +377,20 @@ export async function setReservedRange(req, res) {
         message: 'End ID cannot exceed 2000 to maintain system responsiveness.',
       });
     }
+
+    // 0. Remove any unassigned available IDs outside the requested range [start, end]
+    // (such as old seeded golden VIPs: 8888, 9999, 123456, 666666, etc. or unassigned IDs above end_id)
+    await query(
+      `DELETE FROM reserved_accounts WHERE status = 'available' AND (reserved_id < ? OR reserved_id > ?)`,
+      [start, end]
+    );
+
+    // Also remove available reserved records that collide with active users
+    await query(
+      `DELETE r FROM reserved_accounts r 
+       INNER JOIN users u ON r.reserved_id = u.id 
+       WHERE r.status = 'available'`
+    );
 
     // 1. Find which IDs from start to end already exist in reserved_accounts
     const rangeIds = [];

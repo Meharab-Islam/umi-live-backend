@@ -135,17 +135,6 @@ async function cleanFreshSystem() {
         const reservedValues = [];
         for (let i = 2; i <= 100; i++) {
           reservedValues.push([i, 'vip', 'available', null, null, `System Reserved VIP #${i}`]);
-        }
-        const goldenVips = [
-          [666666, 'vip', 'available', null, null, 'Golden VIP #666666'],
-          [777777, 'vip', 'available', null, null, 'Super Golden VIP #777777'],
-          [888888, 'vip', 'available', null, null, 'Lucky Fortune VIP #888888'],
-          [999999, 'vip', 'available', null, null, 'Supreme Royal VIP #999999'],
-          [123456, 'special', 'available', null, null, 'Sequential Special #123456'],
-          [8888, 'special', 'available', null, null, 'Double Lucky #8888'],
-          [9999, 'special', 'available', null, null, 'Quad Nine #9999'],
-        ];
-        reservedValues.push(...goldenVips);
         await connection.query(
           `INSERT IGNORE INTO reserved_accounts (reserved_id, category, status, assigned_to_user_id, assigned_at, notes) VALUES ?`,
           [reservedValues]
@@ -153,9 +142,14 @@ async function cleanFreshSystem() {
         console.log(`  ✓ Seeded default pool of ${reservedValues.length} Reserved Accounts (IDs 2..100).`);
       }
 
-      // Reset users AUTO_INCREMENT to 101 so normal users start right after reserved IDs 2..100
-      await connection.query('ALTER TABLE users AUTO_INCREMENT = 101');
-      console.log('  ✓ Set users AUTO_INCREMENT to 101.');
+      // Reset users AUTO_INCREMENT right after reserved pool or max user ID
+      const [maxUserRows] = await connection.query('SELECT MAX(id) as max_id FROM users');
+      const currentMax = maxUserRows[0]?.max_id || 0;
+      const [maxReservedRows] = await connection.query('SELECT MAX(reserved_id) as max_res FROM reserved_accounts WHERE reserved_id < 10000');
+      const maxReserved = maxReservedRows[0]?.max_res || 100;
+      const targetAutoInc = Math.max(currentMax + 1, maxReserved + 1);
+      await connection.query(`ALTER TABLE users AUTO_INCREMENT = ${targetAutoInc}`);
+      console.log(`  ✓ Set users AUTO_INCREMENT to ${targetAutoInc}.`);
     } catch (resErr) {
       console.warn('  ⚠ Reserved accounts setup note:', resErr.message);
     }

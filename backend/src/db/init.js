@@ -1559,33 +1559,22 @@ export async function initializeDatabase() {
         reservedValues.push([i, 'vip', 'available', null, null, `System Reserved VIP #${i}`]);
       }
 
-      // 2. Special Golden / Prestige Numbers
-      const goldenVips = [
-        [666666, 'vip', 'available', null, null, 'Golden VIP #666666'],
-        [777777, 'vip', 'available', null, null, 'Super Golden VIP #777777'],
-        [888888, 'vip', 'available', null, null, 'Lucky Fortune VIP #888888'],
-        [999999, 'vip', 'available', null, null, 'Supreme Royal VIP #999999'],
-        [123456, 'special', 'available', null, null, 'Sequential Special #123456'],
-        [8888, 'special', 'available', null, null, 'Double Lucky #8888'],
-        [9999, 'special', 'available', null, null, 'Quad Nine #9999'],
-      ];
-      reservedValues.push(...goldenVips);
-
       await connection.query(
         `INSERT IGNORE INTO reserved_accounts (reserved_id, category, status, assigned_to_user_id, assigned_at, notes) VALUES ?`,
         [reservedValues]
       );
-      console.log(`✅ [DB Init] Successfully seeded ${reservedValues.length} Reserved Accounts / VIP IDs.`);
+      console.log(`✅ [DB Init] Successfully seeded ${reservedValues.length} Reserved Accounts (IDs 2 to 100).`);
     }
 
-    // Ensure users table AUTO_INCREMENT starts at 101 (immediately following reserved pool 2..100)
+    // Ensure users table AUTO_INCREMENT starts right after the reserved pool or max user ID
     try {
       const [maxUserRows] = await connection.query('SELECT MAX(id) as max_id FROM users');
       const currentMax = maxUserRows[0]?.max_id || 0;
-      if (currentMax <= 100) {
-        await connection.query('ALTER TABLE users AUTO_INCREMENT = 101;');
-        console.log('⚡ [DB Init] users AUTO_INCREMENT offset set to 101 (reserving IDs 2..100).');
-      }
+      const [maxReservedRows] = await connection.query('SELECT MAX(reserved_id) as max_res FROM reserved_accounts WHERE reserved_id < 10000');
+      const maxReserved = maxReservedRows[0]?.max_res || 100;
+      const targetAutoInc = Math.max(currentMax + 1, maxReserved + 1);
+      await connection.query(`ALTER TABLE users AUTO_INCREMENT = ${targetAutoInc};`);
+      console.log(`⚡ [DB Init] users AUTO_INCREMENT synchronized to ${targetAutoInc}.`);
     } catch (autoIncErr) {
       // Non-critical, ignore if alter table auto_increment fails
     }
