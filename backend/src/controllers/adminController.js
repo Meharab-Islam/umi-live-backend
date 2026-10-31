@@ -196,19 +196,20 @@ export async function getUsers(req, res) {
       let params = [];
 
       if (userId) {
-        conditions.push('u.id = ?');
-        params.push(parseInt(userId, 10));
+        conditions.push('(u.id = ? OR FIND_IN_SET(?, REPLACE(IFNULL(u.previous_ids, ""), " ", "")) > 0)');
+        params.push(parseInt(userId, 10), parseInt(userId, 10));
       } else if (search) {
         const cleanSearch = String(search).trim().replace(/^#/, '');
         const isNumeric = !isNaN(cleanSearch) && cleanSearch !== '';
         if (isNumeric) {
-          // Exact unique User ID match
-          conditions.push('u.id = ?');
-          params.push(parseInt(cleanSearch, 10));
+          // Exact unique User ID match OR historical previous ID match
+          const num = parseInt(cleanSearch, 10);
+          conditions.push('(u.id = ? OR FIND_IN_SET(?, REPLACE(IFNULL(u.previous_ids, ""), " ", "")) > 0)');
+          params.push(num, num);
         } else {
-          conditions.push('(u.full_name LIKE ? OR u.email LIKE ?)');
+          conditions.push('(u.full_name LIKE ? OR u.email LIKE ? OR u.previous_ids LIKE ?)');
           const s = `%${cleanSearch}%`;
-          params.push(s, s);
+          params.push(s, s, s);
         }
       }
 
@@ -230,7 +231,8 @@ export async function getUsers(req, res) {
       const users = await query(
         `SELECT u.id, u.email, u.full_name, u.avatar_url, u.bio, u.role, u.host_type, u.agency_id,
                 a.name as agency_name, a.agency_code,
-                u.coins, u.diamonds, u.level, u.star, u.total_coins_spent, u.vip_package, u.is_banned, u.created_at, u.updated_at
+                u.coins, u.diamonds, u.level, u.star, u.total_coins_spent, u.vip_package, u.is_banned,
+                u.previous_ids, u.created_at, u.updated_at
          FROM users u
          LEFT JOIN agencies a ON u.agency_id = a.id
          ${whereSql}
@@ -2103,11 +2105,11 @@ export async function getUserDetails(req, res) {
         `SELECT u.id, u.email, u.full_name, u.avatar_url, u.bio, u.role, u.host_type,
                 u.agency_id, a.name as agency_name, a.agency_code,
                 u.coins, u.diamonds, u.level, u.vip_package, u.is_banned,
-                u.created_at, u.updated_at
+                u.previous_ids, u.created_at, u.updated_at
          FROM users u
          LEFT JOIN agencies a ON u.agency_id = a.id
-         WHERE u.id = ? AND u.role != 'superadmin'`,
-        [userId]
+         WHERE (u.id = ? OR FIND_IN_SET(?, REPLACE(IFNULL(u.previous_ids, ""), " ", "")) > 0) AND u.role != 'superadmin'`,
+        [userId, userId]
       );
 
       if (!user) {

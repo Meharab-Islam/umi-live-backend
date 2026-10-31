@@ -488,7 +488,7 @@ export default function Users({ onToast }) {
                       </td>
 
                       {/* 1. User ID Column First (single line, supports up to 5 digits) */}
-                      <td className="user-id-cell" style={{ whiteSpace: 'nowrap', width: '125px', minWidth: '125px' }}>
+                      <td className="user-id-cell" style={{ whiteSpace: 'nowrap', width: '135px', minWidth: '135px' }}>
                         <span
                           className="user-id-badge"
                           onClick={() => setDetailsModalUser(u)}
@@ -496,6 +496,33 @@ export default function Users({ onToast }) {
                         >
                           ID: #{u.id}
                         </span>
+                        {u.previous_ids && (
+                          <div
+                            style={{
+                              fontSize: '0.72rem',
+                              color: 'var(--text-dim, #94a3b8)',
+                              marginTop: '3px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '4px',
+                            }}
+                            title={`Historical / Previous ID(s): ${u.previous_ids}`}
+                          >
+                            <span style={{ opacity: 0.8, fontSize: '0.68rem', fontWeight: 500 }}>Prev:</span>
+                            <span style={{
+                              fontWeight: 700,
+                              color: '#d97706',
+                              background: 'rgba(245, 158, 11, 0.12)',
+                              border: '1px solid rgba(245, 158, 11, 0.25)',
+                              padding: '1px 5px',
+                              borderRadius: '4px',
+                              fontSize: '0.7rem',
+                              fontFamily: 'monospace',
+                            }}>
+                              #{u.previous_ids}
+                            </span>
+                          </div>
+                        )}
                       </td>
 
                       {/* 2. User Profile */}

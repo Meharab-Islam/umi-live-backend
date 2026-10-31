@@ -113,11 +113,11 @@ export async function getReservedAccounts(req, res) {
         const term = `%${search.trim().replace(/^#/, '')}%`;
         const numTerm = parseInt(search.trim().replace(/^#/, ''), 10);
         if (!isNaN(numTerm)) {
-          whereClauses.push('(ra.reserved_id = ? OR u.full_name LIKE ? OR u.email LIKE ?)');
-          params.push(numTerm, term, term);
+          whereClauses.push('(ra.reserved_id = ? OR u.id = ? OR FIND_IN_SET(?, REPLACE(IFNULL(u.previous_ids, ""), " ", "")) > 0 OR u.full_name LIKE ? OR u.email LIKE ?)');
+          params.push(numTerm, numTerm, numTerm, term, term);
         } else {
-          whereClauses.push('(u.full_name LIKE ? OR u.email LIKE ?)');
-          params.push(term, term);
+          whereClauses.push('(u.full_name LIKE ? OR u.email LIKE ? OR u.previous_ids LIKE ?)');
+          params.push(term, term, term);
         }
       }
 
@@ -149,6 +149,7 @@ export async function getReservedAccounts(req, res) {
            u.email as assigned_user_email,
            u.avatar_url as assigned_user_avatar,
            u.role as assigned_user_role,
+           u.previous_ids as assigned_user_previous_ids,
            u.coins as assigned_user_coins,
            u.diamonds as assigned_user_diamonds
          FROM reserved_accounts ra
@@ -516,7 +517,7 @@ export async function assignReservedId(req, res) {
 
     // 2. Verify target user exists
     const [userRows] = await conn.execute(
-      'SELECT id, email, full_name, role, coins, diamonds FROM users WHERE id = ? FOR UPDATE',
+      'SELECT id, email, full_name, role, coins, diamonds, previous_ids FROM users WHERE id = ? FOR UPDATE',
       [cleanUserId]
     );
 
@@ -549,11 +550,20 @@ export async function assignReservedId(req, res) {
     // 4. Temporarily disable foreign keys for atomic cascading update
     await conn.query('SET FOREIGN_KEY_CHECKS = 0');
 
-    // 4a. Update primary users table
-    await conn.execute('UPDATE users SET id = ?, updated_at = NOW() WHERE id = ?', [
-      cleanReservedId,
-      cleanUserId,
-    ]);
+    // 4a. Update primary users table & record previous ID history
+    const existingPrev = (targetUser.previous_ids || '')
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
+    if (!existingPrev.includes(String(cleanUserId))) {
+      existingPrev.push(String(cleanUserId));
+    }
+    const updatedPreviousIds = existingPrev.join(', ');
+
+    await conn.execute(
+      'UPDATE users SET id = ?, previous_ids = ?, updated_at = NOW() WHERE id = ?',
+      [cleanReservedId, updatedPreviousIds, cleanUserId]
+    );
 
     // 4b. Update all referencing tables
     for (const [table, col] of USER_RELATION_TABLES) {
@@ -567,7 +577,7 @@ export async function assignReservedId(req, res) {
       }
     }
 
-    // 4c. Update reserved_accounts status
+    // 4c. Update reserved_accounts status for newly assigned ID
     const assignmentNote = notes || `Assigned to ${targetUser.full_name || targetUser.email} (formerly #${cleanUserId})`;
     await conn.execute(
       `UPDATE reserved_accounts 
@@ -579,7 +589,22 @@ export async function assignReservedId(req, res) {
       [cleanReservedId, assignmentNote, cleanReservedId]
     );
 
-    // 4d. Re-enable foreign key checks
+    // 4d. Reclaim & place the vacated former ID (cleanUserId) back into the reserved_accounts pool as Available!
+    // This allows the former ID to be reassigned to any other user anytime.
+    const vacatedNote = `Vacated from ${targetUser.full_name || targetUser.email || 'user'} (upgraded to VIP #${cleanReservedId})`;
+    await conn.execute(
+      `INSERT INTO reserved_accounts (reserved_id, category, status, assigned_to_user_id, assigned_at, notes)
+       VALUES (?, 'vip', 'available', NULL, NULL, ?)
+       ON DUPLICATE KEY UPDATE 
+         status = 'available', 
+         assigned_to_user_id = NULL, 
+         assigned_at = NULL, 
+         notes = VALUES(notes), 
+         updated_at = NOW()`,
+      [cleanUserId, vacatedNote]
+    );
+
+    // 4e. Re-enable foreign key checks
     await conn.query('SET FOREIGN_KEY_CHECKS = 1');
 
     await conn.commit();
@@ -590,10 +615,11 @@ export async function assignReservedId(req, res) {
 
     return res.json({
       success: true,
-      message: `User #${cleanUserId} (${targetUser.full_name || targetUser.email}) successfully upgraded to VIP ID #${cleanReservedId}.`,
+      message: `User #${cleanUserId} (${targetUser.full_name || targetUser.email}) successfully upgraded to VIP ID #${cleanReservedId}. Former ID #${cleanUserId} returned to Reserved Pool as Available.`,
       user: {
         id: cleanReservedId,
         previous_id: cleanUserId,
+        previous_ids: updatedPreviousIds,
         full_name: targetUser.full_name,
         email: targetUser.email,
         role: targetUser.role,
@@ -664,7 +690,7 @@ export async function releaseReservedId(req, res) {
     const assignedUserId = reservedRecord.assigned_to_user_id;
 
     // Check if user still exists
-    const [userRows] = await conn.execute('SELECT id, email FROM users WHERE id = ? FOR UPDATE', [
+    const [userRows] = await conn.execute('SELECT id, email, previous_ids FROM users WHERE id = ? FOR UPDATE', [
       assignedUserId,
     ]);
 
@@ -675,11 +701,21 @@ export async function releaseReservedId(req, res) {
       const [maxRows] = await conn.execute('SELECT MAX(id) as max_id FROM users');
       newAllocatedId = Math.max(100000, (maxRows[0]?.max_id || 100000) + 1);
 
+      const existingPrev = (userRows[0].previous_ids || '')
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean);
+      if (!existingPrev.includes(String(cleanReservedId))) {
+        existingPrev.push(String(cleanReservedId));
+      }
+      const updatedPreviousIds = existingPrev.join(', ');
+
       await conn.query('SET FOREIGN_KEY_CHECKS = 0');
 
-      // Update user ID to new allocated ID
-      await conn.execute('UPDATE users SET id = ?, updated_at = NOW() WHERE id = ?', [
+      // Update user ID to new allocated ID and preserve previous ID history
+      await conn.execute('UPDATE users SET id = ?, previous_ids = ?, updated_at = NOW() WHERE id = ?', [
         newAllocatedId,
+        updatedPreviousIds,
         assignedUserId,
       ]);
 

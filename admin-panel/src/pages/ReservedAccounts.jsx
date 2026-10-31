@@ -896,6 +896,11 @@ export default function ReservedAccounts({ onToast }) {
                               <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', fontFamily: 'monospace' }}>
                                 {acc.assigned_user_email}
                               </div>
+                              {acc.assigned_user_previous_ids && (
+                                <div style={{ fontSize: '0.7rem', color: '#d97706', fontFamily: 'monospace', marginTop: '2px' }}>
+                                  Prev: #{acc.assigned_user_previous_ids}
+                                </div>
+                              )}
                             </div>
                           </div>
                         ) : (
@@ -1305,9 +1310,16 @@ export default function ReservedAccounts({ onToast }) {
                             </div>
                           </div>
                         </div>
-                        <span style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: '0.78rem', color: 'var(--primary)' }}>
-                          #{u.id}
-                        </span>
+                        <div style={{ textAlign: 'right' }}>
+                          <span style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: '0.78rem', color: 'var(--primary)' }}>
+                            #{u.id}
+                          </span>
+                          {u.previous_ids && (
+                            <div style={{ fontSize: '0.68rem', color: '#d97706', fontFamily: 'monospace' }}>
+                              Prev: #{u.previous_ids}
+                            </div>
+                          )}
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -1339,6 +1351,11 @@ export default function ReservedAccounts({ onToast }) {
                         <span style={{ fontSize: '0.72rem', color: 'var(--primary)', marginLeft: '6px', fontFamily: 'monospace' }}>
                           Currently #{targetUser.id}
                         </span>
+                        {targetUser.previous_ids && (
+                          <span style={{ fontSize: '0.7rem', color: '#d97706', marginLeft: '6px', fontFamily: 'monospace' }}>
+                            (Prev: #{targetUser.previous_ids})
+                          </span>
+                        )}
                       </div>
                       <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', fontFamily: 'monospace' }}>
                         {targetUser.email}
@@ -1371,9 +1388,16 @@ export default function ReservedAccounts({ onToast }) {
                 }}
               >
                 <CheckCircle size={15} style={{ flexShrink: 0, marginTop: '2px' }} />
-                <span>
-                  <strong>Zero Data Loss:</strong> All coins, diamonds, followers, live room records, and messages will atomically migrate to VIP ID #{selectedRecord.reserved_id}.
-                </span>
+                <div>
+                  <div>
+                    <strong>Zero Data Loss:</strong> All coins, diamonds, followers, live room records, and messages will atomically migrate to VIP ID #{selectedRecord.reserved_id}.
+                  </div>
+                  {targetUser && (
+                    <div style={{ marginTop: '4px', color: '#047857' }}>
+                      <strong>Auto-Reserve Pool:</strong> Former ID #{targetUser.id} will be placed back into the Reserved Pool as <em>Available</em> so it can be assigned to someone else.
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Assignment Note */}

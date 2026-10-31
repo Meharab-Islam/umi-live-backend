@@ -107,6 +107,7 @@ async function cleanFreshSystem() {
             bio = 'Super Administrator of Umi Live', 
             role = 'superadmin',
             host_type = 'none',
+            previous_ids = NULL,
             is_banned = 0
         WHERE id = ?
       `, [adminRows[0].id]);
@@ -135,6 +136,7 @@ async function cleanFreshSystem() {
         const reservedValues = [];
         for (let i = 2; i <= 100; i++) {
           reservedValues.push([i, 'vip', 'available', null, null, `System Reserved VIP #${i}`]);
+        }
         await connection.query(
           `INSERT IGNORE INTO reserved_accounts (reserved_id, category, status, assigned_to_user_id, assigned_at, notes) VALUES ?`,
           [reservedValues]

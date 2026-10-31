@@ -990,6 +990,7 @@ export async function initializeDatabase() {
       }
     };
 
+    await safeAddColumn('users', 'previous_ids', "VARCHAR(255) NULL AFTER id");
     await safeAddColumn('users', 'mobile_number', "VARCHAR(30) DEFAULT '' AFTER bio");
     await safeAddColumn('users', 'country', "VARCHAR(50) DEFAULT '' AFTER mobile_number");
     await safeAddColumn('users', 'star', "INT DEFAULT 0 AFTER level");

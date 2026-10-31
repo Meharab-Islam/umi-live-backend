@@ -42,6 +42,7 @@ export async function getUserProfile(req, res) {
            u.agency_id,
            a.name as agency_name,
            a.agency_code,
+           u.previous_ids,
            u.created_at,
            (SELECT COUNT(*) FROM user_follows WHERE following_id = u.id) AS followers_count,
            (SELECT COUNT(*) FROM user_follows WHERE follower_id = u.id) AS following_count,

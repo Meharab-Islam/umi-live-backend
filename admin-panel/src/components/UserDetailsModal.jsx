@@ -499,6 +499,22 @@ export default function UserDetailsModal({
                   <span className="badge badge-purple" style={{ fontSize: '0.8rem', fontWeight: 600, whiteSpace: 'nowrap' }}>
                     ID: #{user.id}
                   </span>
+                  {user.previous_ids && (
+                    <span
+                      className="badge"
+                      style={{
+                        fontSize: '0.78rem',
+                        fontWeight: 600,
+                        whiteSpace: 'nowrap',
+                        backgroundColor: 'rgba(245, 158, 11, 0.15)',
+                        color: '#d97706',
+                        border: '1px solid rgba(245, 158, 11, 0.3)',
+                      }}
+                      title={`Historical / Previous ID(s): ${user.previous_ids}`}
+                    >
+                      Prev ID(s): #{user.previous_ids}
+                    </span>
+                  )}
                 </div>
 
                 <div style={{ fontSize: '0.8rem', color: 'var(--text-dim)', display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '4px', flexWrap: 'wrap' }}>
@@ -1057,6 +1073,14 @@ export default function UserDetailsModal({
                       <span style={{ color: 'var(--text-dim)' }}>Unique User ID:</span>{' '}
                       <strong style={{ fontFamily: 'var(--font-mono)', color: 'var(--primary)' }}>#{user.id}</strong>
                     </div>
+                    {user.previous_ids && (
+                      <div>
+                        <span style={{ color: 'var(--text-dim)' }}>Previous ID(s):</span>{' '}
+                        <strong style={{ fontFamily: 'var(--font-mono)', color: '#d97706', background: 'rgba(245, 158, 11, 0.12)', padding: '2px 6px', borderRadius: '4px' }}>
+                          #{user.previous_ids}
+                        </strong>
+                      </div>
+                    )}
                     <div>
                       <span style={{ color: 'var(--text-dim)' }}>Email:</span>{' '}
                       <strong>{user.email || 'N/A'}</strong>
