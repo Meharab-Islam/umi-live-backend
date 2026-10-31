@@ -121,7 +121,46 @@ async function cleanFreshSystem() {
       console.log('  ✓ Super Admin created successfully (admin@umi.live / admin123).');
     }
 
-    // 4. Re-enable Foreign Key Checks
+    // 4. Reset & Ensure Reserved Accounts Pool (VIP IDs)
+    try {
+      await connection.query(`
+        UPDATE reserved_accounts 
+        SET status = 'available', assigned_to_user_id = NULL, assigned_at = NULL, notes = 'System Reserved VIP ID'
+      `);
+      console.log('  ✓ Reserved Accounts pool reclaimed & reset to Available status.');
+
+      // Check if reserved_accounts has records; if not, seed default pool (IDs 2..100)
+      const [resCount] = await connection.query('SELECT COUNT(*) as count FROM reserved_accounts');
+      if (resCount[0].count === 0) {
+        const reservedValues = [];
+        for (let i = 2; i <= 100; i++) {
+          reservedValues.push([i, 'vip', 'available', null, null, `System Reserved VIP #${i}`]);
+        }
+        const goldenVips = [
+          [666666, 'vip', 'available', null, null, 'Golden VIP #666666'],
+          [777777, 'vip', 'available', null, null, 'Super Golden VIP #777777'],
+          [888888, 'vip', 'available', null, null, 'Lucky Fortune VIP #888888'],
+          [999999, 'vip', 'available', null, null, 'Supreme Royal VIP #999999'],
+          [123456, 'special', 'available', null, null, 'Sequential Special #123456'],
+          [8888, 'special', 'available', null, null, 'Double Lucky #8888'],
+          [9999, 'special', 'available', null, null, 'Quad Nine #9999'],
+        ];
+        reservedValues.push(...goldenVips);
+        await connection.query(
+          `INSERT IGNORE INTO reserved_accounts (reserved_id, category, status, assigned_to_user_id, assigned_at, notes) VALUES ?`,
+          [reservedValues]
+        );
+        console.log(`  ✓ Seeded default pool of ${reservedValues.length} Reserved Accounts (IDs 2..100).`);
+      }
+
+      // Reset users AUTO_INCREMENT to 101 so normal users start right after reserved IDs 2..100
+      await connection.query('ALTER TABLE users AUTO_INCREMENT = 101');
+      console.log('  ✓ Set users AUTO_INCREMENT to 101.');
+    } catch (resErr) {
+      console.warn('  ⚠ Reserved accounts setup note:', resErr.message);
+    }
+
+    // 5. Re-enable Foreign Key Checks
     await connection.query('SET FOREIGN_KEY_CHECKS = 1');
 
     // 5. Invalidate & Flush Redis Cache completely

@@ -6961,6 +6961,142 @@ export async function deleteAdminConversation(req, res) {
   }
 }
 
+/**
+ * POST /api/admin/users/clear-all
+ * Purge/delete all regular users, reset related history, reclaim reserved accounts,
+ * and restart auto-increment from ID 2 (or specified offset).
+ * Super Admin (admin@umi.live, ID 1) is strictly preserved.
+ */
+export async function clearAllUsers(req, res) {
+  let conn;
+  try {
+    const { action_password, restart_id = 2 } = req.body;
+
+    // Verify Action Security Password
+    const settingsRows = await query(
+      "SELECT key_value FROM system_settings WHERE key_name = 'action_security_password' LIMIT 1"
+    );
+    const requiredPassword = settingsRows[0]?.key_value || 'admin123';
+
+    if (!action_password || action_password !== requiredPassword) {
+      return res.status(403).json({
+        success: false,
+        message: 'Invalid Action Security Password.',
+      });
+    }
+
+    conn = await getPool().getConnection();
+    await conn.beginTransaction();
+    await conn.query('SET FOREIGN_KEY_CHECKS = 0');
+
+    // 1. Truncate user-generated content and transaction tables
+    const tablesToTruncate = [
+      'agency_host_requests',
+      'chat_messages',
+      'chat_message_media',
+      'conversations',
+      'gift_transactions',
+      'host_requests',
+      'live_duration_reward_history',
+      'live_room_admins',
+      'live_room_kicks',
+      'live_room_messages',
+      'live_room_seat_requests',
+      'live_room_seats',
+      'live_room_viewers',
+      'live_rooms',
+      'moderation_reports',
+      'moderators',
+      'notifications',
+      'p2p_calls',
+      'post_comments',
+      'post_media',
+      'post_reactions',
+      'posts',
+      'reseller_sales',
+      'transactions',
+      'user_blocks',
+      'user_devices',
+      'user_entry_effects',
+      'user_fcm_tokens',
+      'user_follows',
+      'user_level_rewards',
+      'user_package_subscriptions',
+      'user_theme_items',
+      'user_thumbnails',
+      'withdrawals',
+    ];
+
+    for (const table of tablesToTruncate) {
+      try {
+        await conn.query(`TRUNCATE TABLE \`${table}\``);
+      } catch (_) {}
+    }
+
+    // 2. Delete all users except Super Admin (ID 1 / superadmin)
+    const [delResult] = await conn.query(`
+      DELETE FROM users 
+      WHERE email != 'admin@umi.live' AND role != 'superadmin'
+    `);
+    const deletedCount = delResult.affectedRows || 0;
+
+    // 3. Reset Super Admin balances & status
+    await conn.query(`
+      UPDATE users 
+      SET coins = 0, diamonds = 0, star = 0, level = 99, is_banned = 0
+      WHERE email = 'admin@umi.live' OR role = 'superadmin'
+    `);
+
+    // 4. Reclaim and reset all reserved accounts back to available
+    try {
+      await conn.query(`
+        UPDATE reserved_accounts 
+        SET status = 'available', assigned_to_user_id = NULL, assigned_at = NULL, notes = 'System Reserved VIP'
+      `);
+    } catch (_) {}
+
+    // 5. Reset users AUTO_INCREMENT to restart_id (default: 2)
+    const nextAutoInc = Math.max(2, parseInt(restart_id, 10) || 2);
+    await conn.query(`ALTER TABLE users AUTO_INCREMENT = ${nextAutoInc}`);
+
+    await conn.query('SET FOREIGN_KEY_CHECKS = 1');
+    await conn.commit();
+    conn.release();
+
+    // 6. Completely flush Redis caches
+    try {
+      if (cache && typeof cache.flushAll === 'function') {
+        await cache.flushAll();
+      } else {
+        await cache.delByPattern('*');
+      }
+    } catch (redisErr) {
+      console.warn('Redis flush warning in clearAllUsers:', redisErr.message);
+    }
+
+    return res.json({
+      success: true,
+      message: `System purged successfully! ${deletedCount} users removed. User registrations will now restart from ID #${nextAutoInc}.`,
+      deletedUsersCount: deletedCount,
+      nextAutoIncrement: nextAutoInc,
+    });
+  } catch (err) {
+    if (conn) {
+      try {
+        await conn.query('SET FOREIGN_KEY_CHECKS = 1');
+        await conn.rollback();
+      } catch (_) {}
+      conn.release();
+    }
+    console.error('[Clear All Users Error]:', err);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to purge users from system.',
+      error: err.message,
+    });
+  }
+}
+
 
 
 

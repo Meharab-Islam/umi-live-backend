@@ -18,6 +18,11 @@ export const API_SPEC = {
   ],
   "categories": [
     {
+      "id": "reserved-accounts",
+      "name": "💎 Reserved Accounts & VIP IDs",
+      "description": "Exclusive VIP and prestigious account ID pool management, atomic ID assignment to existing users without data loss, release, and reservation guards."
+    },
+    {
       "id": "games",
       "name": "🎮 Integrated Mini-Games",
       "description": "Multiplayer live mini-games catalog, direct web URLs, socket endpoints, round settlement webhooks, and real-time wallet coin synchronization for all 7 integrated games (Big Eater, Fruit Slot, Ferry Wheel, Greedy Baby, Greedy Lion, Roulette, Teen Patti)."
@@ -12239,6 +12244,134 @@ export const API_SPEC = {
       "codeSnippets": {
         "curl": "curl -X GET \"https://yourdomain.com/api/mobile/themes/my\" \\\n  -H \"Authorization: Bearer <TOKEN>\"",
         "flutter": "import 'package:http/http.dart' as http;\nimport 'dart:convert';\n\nFuture<Map<String, dynamic>> fetchMyThemes(String token) async {\n  final res = await http.get(\n    Uri.parse('https://yourdomain.com/api/mobile/themes/my'),\n    headers: {'Authorization': 'Bearer $token'},\n  );\n  return jsonDecode(res.body);\n}"
+      }
+    },
+    {
+      "id": "reserved-accounts-list",
+      "category": "reserved-accounts",
+      "method": "GET",
+      "path": "/api/admin/reserved-accounts",
+      "summary": "List Reserved Accounts & VIP IDs",
+      "description": "Retrieve paginated list of all reserved VIP account IDs, with status filters (available, assigned), category filters, and search query.",
+      "requiresAuth": true,
+      "requestHeaders": [
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>",
+          "required": true,
+          "description": "Admin JWT Bearer token."
+        }
+      ],
+      "parameters": [
+        {
+          "name": "status",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "Filter by status: 'all', 'available', 'assigned'."
+        },
+        {
+          "name": "category",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "Filter by category: 'vip', 'special', 'agency_lead', 'founder', 'system'."
+        },
+        {
+          "name": "search",
+          "in": "query",
+          "required": false,
+          "type": "string",
+          "description": "Search by ID number, user name, or email."
+        }
+      ],
+      "responses": [
+        {
+          "status": 200,
+          "description": "Reserved accounts list fetched successfully.",
+          "example": {
+            "success": true,
+            "accounts": [
+              {
+                "id": 1,
+                "reserved_id": 1001,
+                "category": "vip",
+                "status": "available",
+                "assigned_to_user_id": null,
+                "assigned_at": null,
+                "notes": "System Reserved VIP #1001"
+              }
+            ],
+            "pagination": {
+              "total": 58,
+              "page": 1,
+              "limit": 50,
+              "totalPages": 2
+            }
+          }
+        }
+      ],
+      "codeSnippets": {
+        "curl": "curl -X GET \"https://yourdomain.com/api/admin/reserved-accounts?status=available\" \\\n  -H \"Authorization: Bearer <ADMIN_TOKEN>\"",
+        "flutter": "import 'package:http/http.dart' as http;\nimport 'dart:convert';\n\nFuture<Map<String, dynamic>> fetchReservedAccounts(String token) async {\n  final res = await http.get(\n    Uri.parse('https://yourdomain.com/api/admin/reserved-accounts?status=available'),\n    headers: {'Authorization': 'Bearer $token'},\n  );\n  return jsonDecode(res.body);\n}"
+      }
+    },
+    {
+      "id": "reserved-accounts-assign",
+      "category": "reserved-accounts",
+      "method": "POST",
+      "path": "/api/admin/reserved-accounts/assign",
+      "summary": "Assign Reserved ID to User",
+      "description": "Atomically updates target user's account ID to the reserved VIP number and links all transactions, live rooms, seats, gifts, followers, and wallet balances without data loss.",
+      "requiresAuth": true,
+      "requestHeaders": [
+        {
+          "name": "Authorization",
+          "value": "Bearer <token>",
+          "required": true,
+          "description": "Admin JWT Bearer token."
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json",
+          "required": true,
+          "description": "JSON payload."
+        }
+      ],
+      "requestBody": {
+        "type": "object",
+        "required": ["reserved_id", "user_id"],
+        "schema": {
+          "reserved_id": { "type": "number", "description": "Exclusive ID number to assign" },
+          "user_id": { "type": "number", "description": "Current ID of the target user" },
+          "notes": { "type": "string", "description": "Optional administrative note or grant reason" }
+        },
+        "example": {
+          "reserved_id": 777777,
+          "user_id": 100543,
+          "notes": "Top Creator Host Award 2026"
+        }
+      },
+      "responses": [
+        {
+          "status": 200,
+          "description": "User account ID migrated to VIP ID successfully.",
+          "example": {
+            "success": true,
+            "message": "User #100543 (Rahim) successfully upgraded to VIP ID #777777.",
+            "user": {
+              "id": 777777,
+              "previous_id": 100543,
+              "full_name": "Rahim",
+              "email": "rahim@umi.live",
+              "role": "host"
+            }
+          }
+        }
+      ],
+      "codeSnippets": {
+        "curl": "curl -X POST \"https://yourdomain.com/api/admin/reserved-accounts/assign\" \\\n  -H \"Authorization: Bearer <ADMIN_TOKEN>\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"reserved_id\": 777777, \"user_id\": 100543, \"notes\": \"Top Creator Award\"}'",
+        "flutter": "import 'package:http/http.dart' as http;\nimport 'dart:convert';\n\nFuture<Map<String, dynamic>> assignVipId(String token, int reservedId, int userId) async {\n  final res = await http.post(\n    Uri.parse('https://yourdomain.com/api/admin/reserved-accounts/assign'),\n    headers: {\n      'Authorization': 'Bearer $token',\n      'Content-Type': 'application/json',\n    },\n    body: jsonEncode({\n      'reserved_id': reservedId,\n      'user_id': userId,\n      'notes': 'Award',\n    }),\n  );\n  return jsonDecode(res.body);\n}"
       }
     }
   ]

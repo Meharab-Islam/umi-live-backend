@@ -57,6 +57,13 @@ export const userApi = {
       method: 'DELETE',
     });
   },
+
+  clearAllUsers: async (data = {}) => {
+    return await request('/admin/users/clear-all', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
 };
 
 export default userApi;

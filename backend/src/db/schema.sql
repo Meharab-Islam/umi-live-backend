@@ -31,6 +31,22 @@ CREATE TABLE IF NOT EXISTS users (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- Reserved Accounts / VIP Account IDs
+CREATE TABLE IF NOT EXISTS reserved_accounts (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  reserved_id INT NOT NULL UNIQUE,
+  category ENUM('vip', 'special', 'agency_lead', 'founder', 'system') DEFAULT 'vip',
+  status ENUM('available', 'assigned') DEFAULT 'available',
+  assigned_to_user_id INT NULL,
+  assigned_at TIMESTAMP NULL,
+  notes VARCHAR(255) NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_status (status),
+  INDEX idx_category (category),
+  INDEX idx_reserved_id (reserved_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 -- Agencies Table
 CREATE TABLE IF NOT EXISTS agencies (
   id INT AUTO_INCREMENT PRIMARY KEY,

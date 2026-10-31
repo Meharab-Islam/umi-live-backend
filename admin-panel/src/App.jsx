@@ -20,6 +20,7 @@ import EntryEffects from './pages/EntryEffects';
 import SpecialItems from './pages/SpecialItems';
 import Banners from './pages/Banners';
 import AccountMerge from './pages/AccountMerge';
+import ReservedAccounts from './pages/ReservedAccounts';
 import ApiDocs from './pages/ApiDocs';
 import TopContributors from './pages/TopContributors';
 import Posts from './pages/Posts';
@@ -55,6 +56,7 @@ const VALID_TABS = [
   'chats',
   'posts',
   'account-merge',
+  'reserved-accounts',
   'packages',
   'create-category',
   'thumbnails',
@@ -323,6 +325,7 @@ export default function App() {
     users: 'Users',
     posts: 'Posts',
     'account-merge': 'Account Merge',
+    'reserved-accounts': 'Reserved Accounts',
     packages: 'VIP Packages',
     'create-category': 'Categories',
     thumbnails: 'Thumbnails',
@@ -447,6 +450,10 @@ export default function App() {
 
           {activeTab === 'account-merge' && (
             <AccountMerge onToast={addToast} />
+          )}
+
+          {activeTab === 'reserved-accounts' && (
+            <ReservedAccounts onToast={addToast} />
           )}
 
           {activeTab === 'create-category' && (

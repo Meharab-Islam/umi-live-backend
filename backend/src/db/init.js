@@ -1531,6 +1531,65 @@ export async function initializeDatabase() {
     await safeAddIndex('live_room_seats', 'idx_seats_room_num', '(room_id, seat_number)');
     await safeAddIndex('live_room_seats', 'idx_seats_user', '(user_id)');
 
+    // ── Reserved Accounts Table & VIP IDs Seeding ──────────────────────────
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS reserved_accounts (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        reserved_id INT NOT NULL UNIQUE,
+        category ENUM('vip', 'special', 'agency_lead', 'founder', 'system') DEFAULT 'vip',
+        status ENUM('available', 'assigned') DEFAULT 'available',
+        assigned_to_user_id INT NULL,
+        assigned_at TIMESTAMP NULL,
+        notes VARCHAR(255) NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        INDEX idx_status (status),
+        INDEX idx_category (category),
+        INDEX idx_reserved_id (reserved_id)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `);
+
+    const [reservedCountRows] = await connection.query('SELECT COUNT(*) as count FROM reserved_accounts');
+    if (reservedCountRows[0].count === 0) {
+      console.log('💎 [DB Init] Seeding initial pool of Reserved Accounts / VIP IDs (IDs 2 to 100)...');
+      const reservedValues = [];
+
+      // 1. Initial Reserved Range: ID 2 to 100 (immediately following Super Admin ID 1)
+      for (let i = 2; i <= 100; i++) {
+        reservedValues.push([i, 'vip', 'available', null, null, `System Reserved VIP #${i}`]);
+      }
+
+      // 2. Special Golden / Prestige Numbers
+      const goldenVips = [
+        [666666, 'vip', 'available', null, null, 'Golden VIP #666666'],
+        [777777, 'vip', 'available', null, null, 'Super Golden VIP #777777'],
+        [888888, 'vip', 'available', null, null, 'Lucky Fortune VIP #888888'],
+        [999999, 'vip', 'available', null, null, 'Supreme Royal VIP #999999'],
+        [123456, 'special', 'available', null, null, 'Sequential Special #123456'],
+        [8888, 'special', 'available', null, null, 'Double Lucky #8888'],
+        [9999, 'special', 'available', null, null, 'Quad Nine #9999'],
+      ];
+      reservedValues.push(...goldenVips);
+
+      await connection.query(
+        `INSERT IGNORE INTO reserved_accounts (reserved_id, category, status, assigned_to_user_id, assigned_at, notes) VALUES ?`,
+        [reservedValues]
+      );
+      console.log(`✅ [DB Init] Successfully seeded ${reservedValues.length} Reserved Accounts / VIP IDs.`);
+    }
+
+    // Ensure users table AUTO_INCREMENT starts at 101 (immediately following reserved pool 2..100)
+    try {
+      const [maxUserRows] = await connection.query('SELECT MAX(id) as max_id FROM users');
+      const currentMax = maxUserRows[0]?.max_id || 0;
+      if (currentMax <= 100) {
+        await connection.query('ALTER TABLE users AUTO_INCREMENT = 101;');
+        console.log('⚡ [DB Init] users AUTO_INCREMENT offset set to 101 (reserving IDs 2..100).');
+      }
+    } catch (autoIncErr) {
+      // Non-critical, ignore if alter table auto_increment fails
+    }
+
     await connection.end();
     return true;
   } catch (error) {

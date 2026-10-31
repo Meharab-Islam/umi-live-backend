@@ -18,6 +18,7 @@ import {
   getRechargeHistory,
   deleteUser,
   bulkDelete,
+  clearAllUsers,
   getStreams,
   terminateStream,
   getGiftsAdmin,
@@ -152,6 +153,15 @@ import {
   getMergeHistory,
 } from '../controllers/accountMergeController.js';
 import {
+  getReservedAccounts,
+  getReservedStats,
+  addReservedIds,
+  setReservedRange,
+  assignReservedId,
+  releaseReservedId,
+  deleteReservedId,
+} from '../controllers/reservedAccountController.js';
+import {
   getAdminThemeItems,
   getThemeStats,
   createThemeItem,
@@ -205,6 +215,7 @@ router.get('/users/:userId/chats/:conversationId/messages', getConversationMessa
 router.patch('/users/:id', updateUser);
 router.delete('/users/:id', deleteUser);
 router.post('/bulk-delete', bulkDelete);
+router.post('/users/clear-all', clearAllUsers);
 router.post('/users/:id/balance', adjustBalance);
 router.post('/recharge-coin', rechargeCoins);
 router.get('/recharge-history', getRechargeHistory);
@@ -347,6 +358,15 @@ router.patch('/themes/:id/default', setDefaultThemeItem);
 router.get('/merge-accounts/preview', previewMerge);
 router.post('/merge-accounts/execute', executeMerge);
 router.get('/merge-accounts/history', getMergeHistory);
+
+// Reserved Accounts / VIP IDs Management
+router.get('/reserved-accounts/stats', getReservedStats);
+router.get('/reserved-accounts', getReservedAccounts);
+router.post('/reserved-accounts', addReservedIds);
+router.post('/reserved-accounts/set-range', setReservedRange);
+router.post('/reserved-accounts/assign', assignReservedId);
+router.post('/reserved-accounts/release', releaseReservedId);
+router.delete('/reserved-accounts/:id', deleteReservedId);
 
 // Real-Time Socket & Message Tester
 router.get('/chat-tester/users', getChatTesterUsers);

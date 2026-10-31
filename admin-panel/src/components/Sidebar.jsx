@@ -38,6 +38,7 @@ import {
   FileText,
   MessageSquare,
   Gamepad2,
+  BookmarkCheck,
 } from 'lucide-react';
 
 import packageApi from '../api/packageApi';
@@ -113,6 +114,7 @@ export default function Sidebar({
           { id: 'posts', label: 'Posts', icon: Newspaper },
           { id: 'levels', label: 'Levels', icon: TrendingUp },
           { id: 'account-merge', label: 'Account Merge', icon: GitMerge },
+          { id: 'reserved-accounts', label: 'Reserved Accounts', icon: BookmarkCheck },
         ],
       },
       {
