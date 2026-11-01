@@ -1,5 +1,6 @@
 import { query } from '../../config/db.js';
 import { cache } from '../../config/redis.js';
+import { resolveFullAvatarUrl } from './agencyController.js';
 
 /**
  * Public Mobile Endpoint: Get Top Gifters Leaderboard
