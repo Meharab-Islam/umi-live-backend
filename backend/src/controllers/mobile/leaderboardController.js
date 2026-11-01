@@ -221,7 +221,9 @@ export async function getTopAgencies(req, res) {
         const totalCoins = hostsTotalCoins;
 
         // Strictly use agency logo/avatar (NEVER fall back to owner personal avatar)
-        const agencyLogo = row.logo_url || row.agency_avatar || '';
+        const rawAgencyLogo = row.logo_url || row.agency_avatar || '';
+        const fallbackLogo = `https://api.dicebear.com/7.x/identicon/png?seed=${encodeURIComponent(row.agency_code || row.name || 'agency')}&backgroundColor=7c3aed,ec4899`;
+        const agencyLogo = rawAgencyLogo ? resolveFullAvatarUrl(req, rawAgencyLogo) : fallbackLogo;
 
         return {
           rank: offset + index + 1,
@@ -232,6 +234,9 @@ export async function getTopAgencies(req, res) {
           logo_url: agencyLogo,
           avatar_url: agencyLogo,
           profile_picture: agencyLogo,
+          profile_picture_url: agencyLogo,
+          full_avatar_url: agencyLogo,
+          full_profile_picture: agencyLogo,
           commission_rate: commissionRate,
           status: row.status,
           contact_phone: row.contact_phone || '',

@@ -180,8 +180,9 @@ export async function getAllAgencies(req, res) {
 
         // Strictly use agency logo/avatar (NEVER fall back to owner personal avatar)
         const rawAgencyLogo = row.logo_url || row.agency_avatar || '';
-        const rawLogo = rawAgencyLogo;
-        const fullLogo = rawLogo ? resolveFullAvatarUrl(req, rawLogo) : '';
+        const fallbackLogo = `https://api.dicebear.com/7.x/identicon/png?seed=${encodeURIComponent(row.agency_code || row.name || 'agency')}&backgroundColor=7c3aed,ec4899`;
+        const rawLogo = rawAgencyLogo || fallbackLogo;
+        const fullLogo = rawAgencyLogo ? resolveFullAvatarUrl(req, rawAgencyLogo) : fallbackLogo;
         const ownerFullAvatar = resolveFullAvatarUrl(req, row.owner_avatar || '');
 
         return {
@@ -196,12 +197,12 @@ export async function getAllAgencies(req, res) {
           created_at: row.created_at,
           owner_name: row.owner_name || 'Agency Owner',
           owner_avatar: row.owner_avatar || '',
-          avatar_url: rawLogo,
-          profile_picture: rawLogo,
-          profile_picture_url: fullLogo || rawLogo,
-          profile_image: rawLogo,
-          logo_url: rawLogo,
-          logo: rawLogo,
+          avatar_url: fullLogo,
+          profile_picture: fullLogo,
+          profile_picture_url: fullLogo,
+          profile_image: fullLogo,
+          logo_url: fullLogo,
+          logo: fullLogo,
           full_avatar_url: fullLogo,
           full_profile_picture: fullLogo,
           total_coins: totalAgencyCoins,

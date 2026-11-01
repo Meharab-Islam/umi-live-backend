@@ -114,9 +114,9 @@
     "semantic_hash": ""
   },
   "backend/src/controllers/adminController.js": {
-    "mtime": 1793547696.1359959,
-    "seen": 1793547796.237088,
-    "ast_hash": "5d6c3b779311e205c508acaec3f7bdd6",
+    "mtime": 1793548806.2061036,
+    "seen": 1793549076.933364,
+    "ast_hash": "370b4cfe1b6c93ae33aa103d872c8099",
     "semantic_hash": ""
   },
   "backend/src/controllers/authController.js": {
@@ -198,9 +198,9 @@
     "semantic_hash": ""
   },
   "admin-panel/src/pages/Agencies.jsx": {
-    "mtime": 1793369625.4752529,
-    "seen": 1793369645.103267,
-    "ast_hash": "821b4094ec905acf2c124067480f6433",
+    "mtime": 1793549035.881414,
+    "seen": 1793549076.932565,
+    "ast_hash": "26595d3f5bc7aa2f624f4290d6ee8cb3",
     "semantic_hash": ""
   },
   "README.md": {
@@ -6381,6 +6381,12 @@
     "mtime": 1793420630.049445,
     "seen": 1793420775.5229802,
     "ast_hash": "9bccf4377cd005612ed33536c1d470a5",
+    "semantic_hash": ""
+  },
+  "admin-panel/src/components/AgencyDetailsView.jsx": {
+    "mtime": 1793548926.0376215,
+    "seen": 1793549076.93218,
+    "ast_hash": "d7310fd7a6150883d71c79395db61fef",
     "semantic_hash": ""
   }
 }
