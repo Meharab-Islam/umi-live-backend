@@ -995,7 +995,8 @@ export async function handleUserSeatDeparture(roomId, leavingUserId, io = null) 
     if (rooms.length === 0) return null;
     const room = rooms[0];
     const hostId = room.host_id;
-    const totalSeats = parseInt(room.total_seats, 10) || 8;
+    const isVideo = (room.live_type || '').toLowerCase() === 'video';
+    const totalSeats = isVideo ? 12 : (parseInt(room.total_seats, 10) || 7);
 
     // Fetch all current seats for this room
     const seats = await query(
@@ -2794,10 +2795,10 @@ export async function approveSeatRequest(req, res) {
     }
 
     let assignSeatNum = parseInt(seat_number || seatNumber || requestRow.seat_number, 10);
-    if (isVideoLive || !assignSeatNum || assignSeatNum < 2) {
+    if (!assignSeatNum || assignSeatNum < 2 || assignSeatNum > totalSeats) {
       const freeSeats = await query(
-        'SELECT seat_number FROM live_room_seats WHERE (room_id = ? OR room_id = ?) AND user_id IS NULL AND seat_number > 1 AND is_locked = 0 ORDER BY seat_number ASC LIMIT 1',
-        [canonicalRoomId, String(numericRoomId)]
+        'SELECT seat_number FROM live_room_seats WHERE (room_id = ? OR room_id = ?) AND user_id IS NULL AND seat_number > 1 AND seat_number <= ? AND is_locked = 0 ORDER BY seat_number ASC LIMIT 1',
+        [canonicalRoomId, String(numericRoomId), totalSeats]
       );
       if (freeSeats.length === 0) {
         return res.status(400).json({ success: false, message: 'No available free seats in this room.' });
@@ -2812,8 +2813,8 @@ export async function approveSeatRequest(req, res) {
     );
     if (targetSeat.length > 0 && (targetSeat[0].user_id || targetSeat[0].is_locked)) {
       const fallbackFreeSeats = await query(
-        'SELECT seat_number FROM live_room_seats WHERE (room_id = ? OR room_id = ?) AND user_id IS NULL AND seat_number > 1 AND is_locked = 0 ORDER BY seat_number ASC LIMIT 1',
-        [canonicalRoomId, String(numericRoomId)]
+        'SELECT seat_number FROM live_room_seats WHERE (room_id = ? OR room_id = ?) AND user_id IS NULL AND seat_number > 1 AND seat_number <= ? AND is_locked = 0 ORDER BY seat_number ASC LIMIT 1',
+        [canonicalRoomId, String(numericRoomId), totalSeats]
       );
       if (fallbackFreeSeats.length === 0) {
         return res.status(400).json({ success: false, message: 'All seats in this room are currently occupied.' });
