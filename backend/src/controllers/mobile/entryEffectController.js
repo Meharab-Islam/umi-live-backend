@@ -2,6 +2,31 @@ import { query } from '../../config/db.js';
 import { cache } from '../../config/redis.js';
 
 /**
+ * Normalizes relative upload paths into fully qualified HTTPS URLs
+ * so mobile apps and socket clients can render GIF images, SVGA, and sound immediately.
+ */
+export function resolveAbsoluteUrl(req, path) {
+  if (!path || typeof path !== 'string' || !path.trim()) return null;
+  const clean = path.trim();
+  if (clean.startsWith('http://') || clean.startsWith('https://')) {
+    if (clean.startsWith('http://bmpro.lolipoplive.top')) {
+      return clean.replace('http://', 'https://');
+    }
+    return clean;
+  }
+  // Pure emoji check (e.g. 🚗, ⚡)
+  if (!clean.startsWith('/') && !clean.includes('.')) {
+    return clean;
+  }
+  const forwardedProto = req?.headers?.['x-forwarded-proto'];
+  const hostHeader = req?.get ? req.get('host') : (req?.headers?.host || 'bmpro.lolipoplive.top');
+  const isHttps = forwardedProto === 'https' || req?.protocol === 'https' || hostHeader.includes('lolipoplive.top');
+  const protocol = isHttps ? 'https' : (req?.protocol || 'http');
+  const cleanPath = clean.startsWith('/') ? clean : `/${clean}`;
+  return `${protocol}://${hostHeader}${cleanPath}`;
+}
+
+/**
  * Fetch active entry effect subscriptions map for a user (Cache-Aside)
  */
 export async function getUserActiveEntryEffectsMap(userId) {
@@ -83,6 +108,10 @@ export async function getEntryEffectCatalog(req, res) {
 
       const item = {
         ...eff,
+        preview_image_url: resolveAbsoluteUrl(req, eff.preview_image_url),
+        svga_url: resolveAbsoluteUrl(req, eff.svga_url),
+        gif_url: resolveAbsoluteUrl(req, eff.gif_url),
+        sound_url: resolveAbsoluteUrl(req, eff.sound_url),
         is_active: Boolean(eff.is_active),
         is_purchased: isPurchased,
         is_equipped: isEquipped,
@@ -157,10 +186,10 @@ export async function getMyEntryEffects(req, res) {
         effect_id: row.effect_id,
         name: row.effect_name,
         effect_type: row.effect_type,
-        preview_image_url: row.preview_image_url,
-        svga_url: row.svga_url,
-        gif_url: row.gif_url,
-        sound_url: row.sound_url,
+        preview_image_url: resolveAbsoluteUrl(req, row.preview_image_url),
+        svga_url: resolveAbsoluteUrl(req, row.svga_url),
+        gif_url: resolveAbsoluteUrl(req, row.gif_url),
+        sound_url: resolveAbsoluteUrl(req, row.sound_url),
         validity_days: row.validity_days,
         start_date: row.start_date,
         expires_at: row.expires_at,
@@ -382,7 +411,7 @@ export async function toggleEntryEffect(req, res) {
         effect_id: existing.effect_id,
         name: existing.effect_name,
         effect_type: existing.effect_type,
-        preview_image_url: existing.preview_image_url,
+        preview_image_url: resolveAbsoluteUrl(req, existing.preview_image_url),
       });
     }
   } catch (err) {

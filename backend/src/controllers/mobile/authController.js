@@ -12,6 +12,7 @@ import {
   isWeakDictionaryPassword,
 } from '../../middlewares/securityMiddleware.js';
 import { getUserSpecialPrivileges } from '../../services/userPrivilegeService.js';
+import { resolveAbsoluteUrl } from './giftController.js';
 
 /**
  * Mobile User Registration
@@ -642,15 +643,15 @@ export async function getMe(req, res) {
         id: userProfile.effect_id,
         name: userProfile.effect_name,
         effect_type: userProfile.effect_type,
-        preview_image_url: userProfile.effect_preview,
-        svga_url: userProfile.effect_svga,
-        gif_url: userProfile.effect_gif,
-        sound_url: userProfile.effect_sound,
+        preview_image_url: resolveAbsoluteUrl(req, userProfile.effect_preview),
+        svga_url: resolveAbsoluteUrl(req, userProfile.effect_svga),
+        gif_url: resolveAbsoluteUrl(req, userProfile.effect_gif),
+        sound_url: resolveAbsoluteUrl(req, userProfile.effect_sound),
       } : null,
       active_thumbnail: userProfile.thumbnail_id ? {
         id: userProfile.thumbnail_id,
         name: userProfile.thumbnail_name,
-        image_url: userProfile.thumbnail_image,
+        image_url: resolveAbsoluteUrl(req, userProfile.thumbnail_image),
       } : null,
       star: userProfile.star || 0,
       coin: userProfile.coins || 0,

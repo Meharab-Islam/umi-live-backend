@@ -7,6 +7,7 @@ import { handleLiveEndedNotifications } from '../services/notificationService.js
 import { enqueueRoomGift, clearRoomGiftQueue } from '../services/giftQueueService.js';
 import { checkUserInvisibleRoomEnterPrivilege } from '../services/userPrivilegeService.js';
 import { getRoomMusicState, setRoomMusicState, clearRoomMusicState } from '../services/roomMusicService.js';
+import { resolveAbsoluteUrl } from '../controllers/mobile/giftController.js';
 
 // Store connected viewers: roomId -> Set of socket IDs (Module-level scope)
 const roomViewers = new Map();
@@ -964,6 +965,41 @@ export function setupLiveSocket(io) {
             timestamp: new Date().toISOString(),
           };
           io.to(canonicalRoomId).emit('user-joined', joinedPayload);
+
+          // Broadcast Entry Effect (Mount, Car, Dragon, Pegasus) if user has an active equipped effect
+          try {
+            const entryRows = await query(
+              `SELECT ee.id, ee.name, ee.effect_type, ee.preview_image_url, ee.svga_url, ee.gif_url, ee.sound_url,
+                      pc.name as vip_tier
+               FROM user_entry_effects uee
+               JOIN entry_effects ee ON ee.id = uee.effect_id AND ee.is_active = 1
+               LEFT JOIN user_package_subscriptions ups ON ups.user_id = uee.user_id AND ups.status = 'active' AND ups.expires_at > NOW() AND ups.is_equipped = 1
+               LEFT JOIN package_categories pc ON pc.id = ups.category_id
+               WHERE uee.user_id = ? AND uee.status = 'active' AND uee.expires_at > NOW() AND uee.is_equipped = 1
+               LIMIT 1`,
+              [currentUser.id]
+            );
+            if (entryRows && entryRows.length > 0) {
+              const eff = entryRows[0];
+              const effectPayload = {
+                roomId: canonicalRoomId,
+                userId: currentUser.id,
+                userName: currentUser.full_name || currentUser.name || 'User',
+                userAvatar: currentUser.avatar_url || currentUser.avatar || '',
+                effectId: eff.id,
+                effectName: eff.name,
+                effectType: eff.effect_type,
+                svgaUrl: resolveAbsoluteUrl(null, eff.svga_url),
+                gifUrl: resolveAbsoluteUrl(null, eff.gif_url),
+                soundUrl: resolveAbsoluteUrl(null, eff.sound_url),
+                vipTier: eff.vip_tier || null,
+              };
+              io.to(canonicalRoomId).emit('entry_effect', effectPayload);
+              io.to(canonicalRoomId).emit('entry-effect', effectPayload);
+            }
+          } catch (entryErr) {
+            console.warn('Entry effect broadcast error:', entryErr.message);
+          }
         } else if (isStealth) {
           // Notify the connecting socket directly that they are in stealth mode
           socket.emit('stealth_mode_active', {
