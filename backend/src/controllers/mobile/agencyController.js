@@ -175,8 +175,8 @@ export async function getAllAgencies(req, res) {
         const totalCommissionCoins = Math.round(totalCoinsGifted * (commissionRate / 100));
         const ownerCoins = parseInt(row.owner_coins || 0, 10);
         const hostsCoins = parseInt(row.hosts_total_coins || 0, 10);
-        // Total coin = all hosts' coins + commission + agency owner's coin
-        const totalAgencyCoins = hostsCoins + totalCommissionCoins + ownerCoins;
+        // Agency coins strictly represent the sum of all affiliated hosts' coins (excluding owner balance and commission)
+        const totalAgencyCoins = hostsCoins;
 
         const rawAgencyLogo = row.logo_url || row.agency_avatar || '';
         const rawLogo = rawAgencyLogo || row.owner_avatar || '';
@@ -341,8 +341,8 @@ export async function getAgencyOverview(req, res) {
       const commissionRate = await getEffectiveCommissionRate(agency);
       const totalCommissionCoins = Math.round(totalCoinsGifted * (commissionRate / 100));
       const ownerCoins = parseInt(owner?.coins || 0, 10);
-      // Total coin = all hosts' coins + commission + agency owner's coin
-      const totalAgencyCoins = hostsCoins + totalCommissionCoins + ownerCoins;
+      // Agency coins strictly represent the sum of all affiliated hosts' coins (excluding owner balance and commission)
+      const totalAgencyCoins = hostsCoins;
 
       // 6. Pending join requests count
       const [pendingStats] = await query(
@@ -626,8 +626,8 @@ export async function getAgencyHosts(req, res) {
 
     const hostsTotalCoins = (hosts || []).reduce((sum, h) => sum + parseInt(h.coins || 0, 10), 0);
     const totalCommissionCoins = (hosts || []).reduce((sum, h) => sum + parseInt(h.agency_commission_coins || 0, 10), 0);
-    // User requirement: In agency host management page, total coins = all hosts' coins + commission + agency owner's coin
-    const totalAgencyCoins = hostsTotalCoins + totalCommissionCoins + ownerCoins;
+    // Agency coins strictly represent the sum of all affiliated hosts' coins (excluding owner balance and commission)
+    const totalAgencyCoins = hostsTotalCoins;
 
     return res.json({
       success: true,

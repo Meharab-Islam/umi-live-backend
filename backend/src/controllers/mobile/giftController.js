@@ -281,8 +281,8 @@ export async function sendGift(req, res) {
     const adminCommissionRate = parseFloat(settingsMap['admin_gift_commission_percent'] || '15.0');
     const defaultAgencyCommissionRate = parseFloat(settingsMap['agency_gift_commission_percent'] || '10.0');
 
-    // 9. Fetch Agency details for any host recipients with agency
-    const agencyIds = [...new Set(validReceivers.filter((r) => r.role === 'host' && r.agency_id).map((r) => r.agency_id))];
+    // 9. Fetch Agency details for any recipients with agency affiliation
+    const agencyIds = [...new Set(validReceivers.filter((r) => r.agency_id).map((r) => r.agency_id))];
     const agencyMap = new Map();
     if (agencyIds.length > 0) {
       const agencyPlaceholders = agencyIds.map(() => '?').join(',');
@@ -301,7 +301,7 @@ export async function sendGift(req, res) {
     let totalAdminCoins = 0;
 
     for (const receiver of validReceivers) {
-      const isHost = receiver.role === 'host';
+      const isHost = receiver.role === 'host' || !!receiver.agency_id;
       const adminCoins = Math.floor(costPerReceiver * (adminCommissionRate / 100));
       totalAdminCoins += adminCoins;
 
@@ -310,18 +310,21 @@ export async function sendGift(req, res) {
       let agencyName = '';
       let agencyRate = 0;
 
-      if (isHost && receiver.agency_id && agencyMap.has(receiver.agency_id)) {
+      // Agency commission applies if the receiver is a host under an active agency (not the agency owner themselves)
+      if (receiver.agency_id && agencyMap.has(receiver.agency_id)) {
         const agency = agencyMap.get(receiver.agency_id);
-        agencyRate = parseFloat(agency.commission_rate || defaultAgencyCommissionRate);
-        agencyCoins = Math.floor(costPerReceiver * (agencyRate / 100));
-        agencyOwnerId = agency.owner_id;
-        agencyName = agency.name;
+        if (receiver.id !== agency.owner_id) {
+          agencyRate = parseFloat(agency.commission_rate || defaultAgencyCommissionRate);
+          agencyCoins = Math.floor(costPerReceiver * (agencyRate / 100));
+          agencyOwnerId = agency.owner_id;
+          agencyName = agency.name;
 
-        if (agencyCoins > 0 && agencyOwnerId) {
-          const current = agencyEarningsMap.get(agencyOwnerId) || { agencyName, coins: 0, rate: agencyRate, hostNames: [] };
-          current.coins += agencyCoins;
-          current.hostNames.push(receiver.full_name);
-          agencyEarningsMap.set(agencyOwnerId, current);
+          if (agencyCoins > 0 && agencyOwnerId) {
+            const current = agencyEarningsMap.get(agencyOwnerId) || { agencyName, coins: 0, rate: agencyRate, hostNames: [] };
+            current.coins += agencyCoins;
+            current.hostNames.push(receiver.full_name);
+            agencyEarningsMap.set(agencyOwnerId, current);
+          }
         }
       }
 
@@ -440,6 +443,8 @@ export async function sendGift(req, res) {
       cache.delByPattern('admin:gifts:top_contributors*'),
       cache.delByPattern('leaderboard:gifters:*'),
       cache.delByPattern('agency:top:*'),
+      cache.delByPattern('agency:list:*'),
+      cache.delByPattern('agencies:*'),
       cache.delByPattern(`user:transactions:${senderId}*`),
       cache.delByPattern('admin:dashboard*'),
       cache.delByPattern('admin:users*'),
@@ -503,6 +508,30 @@ export async function sendGift(req, res) {
         cache.set(`user:balance:${row.id}`, { coins: row.coins, diamonds: row.diamonds || 0 }, 30)
       );
     }
+
+    // Pre-warm Redis & emit real-time balance update to agency owners receiving commission
+    for (const [agencyOwnerId, agData] of agencyEarningsMap.entries()) {
+      if (agData.coins > 0) {
+        const [freshOwnerRows] = await connection.execute('SELECT coins, diamonds FROM users WHERE id = ?', [agencyOwnerId]);
+        if (freshOwnerRows.length > 0) {
+          const ownerCoins = freshOwnerRows[0].coins;
+          const ownerDiamonds = freshOwnerRows[0].diamonds || 0;
+          redisWarmUpdates.push(
+            cache.set(`user:balance:${agencyOwnerId}`, { coins: ownerCoins, diamonds: ownerDiamonds }, 30)
+          );
+          if (req.io) {
+            req.io.to(`user_${agencyOwnerId}`).emit('user:balance_updated', {
+              userId: agencyOwnerId,
+              coins: ownerCoins,
+              diamonds: ownerDiamonds,
+              earned_commission: agData.coins,
+              source: 'agency_commission',
+            });
+          }
+        }
+      }
+    }
+
     await Promise.allSettled(redisWarmUpdates);
 
     // 14. Resolve Gift Media URLs

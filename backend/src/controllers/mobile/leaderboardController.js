@@ -148,7 +148,7 @@ export async function getTopAgencies(req, res) {
         params.push(pattern, pattern, pattern);
       }
 
-      // Order by comprehensive agency total coins (hosts' coins + agency commission + owner recharge & gifts + owner balance) DESC, then total hosts DESC
+      // Order by pure agency hosts' total coins DESC, then total hosts DESC
       const sql = `
         SELECT 
           a.id,
@@ -164,15 +164,18 @@ export async function getTopAgencies(req, res) {
           u.full_name AS owner_name,
           u.avatar_url AS owner_avatar,
           COALESCE(u.coins, 0) AS owner_coins,
-          (SELECT COUNT(u2.id) FROM users u2 WHERE u2.agency_id = a.id AND u2.role != 'superadmin') AS total_hosts,
+          (SELECT COUNT(u2.id) FROM users u2 WHERE u2.agency_id = a.id AND u2.role != 'superadmin' AND u2.id != a.owner_id) AS total_hosts,
           (SELECT COUNT(DISTINCT lr.host_id) 
            FROM live_rooms lr 
            INNER JOIN users u3 ON u3.id = lr.host_id 
            WHERE u3.agency_id = a.id AND u3.role != 'superadmin' AND lr.status = 'live') AS active_streaming_hosts,
+          (SELECT COALESCE(SUM(u4.coins), 0)
+           FROM users u4
+           WHERE u4.agency_id = a.id AND u4.role != 'superadmin' AND u4.id != a.owner_id) AS hosts_total_coins,
           (SELECT COALESCE(SUM(gt.coin_amount), 0)
            FROM gift_transactions gt
-           INNER JOIN users u4 ON u4.id = gt.receiver_id
-           WHERE u4.agency_id = a.id AND u4.role != 'superadmin') AS hosts_total_coins,
+           INNER JOIN users u5 ON u5.id = gt.receiver_id
+           WHERE u5.agency_id = a.id AND u5.role != 'superadmin') AS total_coins_gifted_to_hosts,
           (SELECT COALESCE(SUM(t.amount), 0)
            FROM transactions t
            WHERE t.user_id = a.owner_id AND t.type = 'agency_commission') AS agency_commission_coins,
@@ -186,11 +189,9 @@ export async function getTopAgencies(req, res) {
         LEFT JOIN users u ON u.id = a.owner_id
         ${whereClause}
         ORDER BY (
-          (SELECT COALESCE(SUM(gt.coin_amount), 0) FROM gift_transactions gt INNER JOIN users u4 ON u4.id = gt.receiver_id WHERE u4.agency_id = a.id AND u4.role != 'superadmin') +
-          (SELECT COALESCE(SUM(t.amount), 0) FROM transactions t WHERE t.user_id = a.owner_id AND t.type = 'agency_commission') +
-          (SELECT COALESCE(SUM(t2.amount), 0) FROM transactions t2 WHERE t2.user_id = a.owner_id AND t2.type IN ('coin_purchase', 'recharge', 'deposit')) +
-          (SELECT COALESCE(SUM(gt2.coin_amount), 0) FROM gift_transactions gt2 WHERE gt2.receiver_id = a.owner_id) +
-          COALESCE(u.coins, 0)
+          SELECT COALESCE(SUM(u_h.coins), 0) 
+          FROM users u_h 
+          WHERE u_h.agency_id = a.id AND u_h.role != 'superadmin' AND u_h.id != a.owner_id
         ) DESC, total_hosts DESC, a.id ASC
         LIMIT ? OFFSET ?
       `;
@@ -208,15 +209,16 @@ export async function getTopAgencies(req, res) {
         const commissionRate = parseFloat(row.commission_rate || 10);
         const hostsTotalCoins = parseInt(row.hosts_total_coins || 0, 10);
         let agencyCommissionCoins = parseInt(row.agency_commission_coins || 0, 10);
-        if (agencyCommissionCoins === 0 && hostsTotalCoins > 0) {
-          agencyCommissionCoins = Math.round(hostsTotalCoins * (commissionRate / 100));
+        const totalCoinsGifted = parseInt(row.total_coins_gifted_to_hosts || 0, 10);
+        if (agencyCommissionCoins === 0 && totalCoinsGifted > 0) {
+          agencyCommissionCoins = Math.round(totalCoinsGifted * (commissionRate / 100));
         }
         const ownerRechargeCoins = parseInt(row.owner_recharge_coins || 0, 10);
         const ownerGiftCoins = parseInt(row.owner_gift_coins || 0, 10);
         const ownerCurrentCoins = parseInt(row.owner_coins || 0, 10);
 
-        // Combined Grand Total Coins (Hosts coins + Agency commission + Owner recharge/gifts + current balance)
-        const totalCoins = hostsTotalCoins + agencyCommissionCoins + ownerRechargeCoins + ownerGiftCoins + ownerCurrentCoins;
+        // Agency coin display strictly reflects all affiliated hosts' total coins (excluding owner personal coins/commission)
+        const totalCoins = hostsTotalCoins;
 
         const agencyLogo = row.logo_url || row.agency_avatar || row.owner_avatar || '';
 
@@ -233,7 +235,12 @@ export async function getTopAgencies(req, res) {
           contact_phone: row.contact_phone || '',
           created_at: row.created_at,
           total_coins: totalCoins,
+          coins: totalCoins,
+          total_coin: totalCoins,
+          hosts_coins: hostsTotalCoins,
           hosts_total_coins: hostsTotalCoins,
+          host_coins: hostsTotalCoins,
+          total_coins_gifted_to_hosts: totalCoinsGifted,
           total_commission_coins: agencyCommissionCoins,
           agency_commission_coins: agencyCommissionCoins,
           owner_recharge_coins: ownerRechargeCoins,

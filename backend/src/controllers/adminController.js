@@ -1463,8 +1463,8 @@ export async function getAgencies(req, res) {
         const totalCommissionCoins = Math.round(totalCoinsGifted * (commissionRate / 100));
         const ownerCoins = parseInt(row.owner_coins || 0, 10);
         const hostsCoins = parseInt(row.total_host_coins || 0, 10);
-        // Total coin = all hosts' coins + commission + agency owner's coin
-        const totalCoins = hostsCoins + totalCommissionCoins + ownerCoins;
+        // Agency coins strictly represent the sum of all affiliated hosts' coins (excluding owner balance and commission)
+        const totalCoins = hostsCoins;
 
         return {
           ...row,
