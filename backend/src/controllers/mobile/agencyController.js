@@ -178,15 +178,17 @@ export async function getAllAgencies(req, res) {
         // Agency coins strictly represent the sum of all affiliated hosts' coins (excluding owner balance and commission)
         const totalAgencyCoins = hostsCoins;
 
+        // Strictly use agency logo/avatar (NEVER fall back to owner personal avatar)
         const rawAgencyLogo = row.logo_url || row.agency_avatar || '';
-        const rawLogo = rawAgencyLogo || row.owner_avatar || '';
-        const fullLogo = resolveFullAvatarUrl(req, rawLogo);
+        const rawLogo = rawAgencyLogo;
+        const fullLogo = rawLogo ? resolveFullAvatarUrl(req, rawLogo) : '';
         const ownerFullAvatar = resolveFullAvatarUrl(req, row.owner_avatar || '');
 
         return {
           id: row.id,
           agency_code: row.agency_code,
           name: row.name,
+          agency_name: row.name,
           commission_rate: commissionRate,
           status: row.status,
           contact_phone: row.contact_phone || '',
@@ -353,9 +355,10 @@ export async function getAgencyOverview(req, res) {
       );
       const pendingRequestsCount = parseInt(pendingStats?.pending_requests_count || 0, 10);
 
+      // Strictly use agency logo/avatar (NEVER fall back to owner personal avatar)
       const rawAgencyLogo = agency.logo_url || agency.avatar_url || '';
-      const rawAvatar = rawAgencyLogo || owner?.avatar_url || '';
-      const fullAvatar = resolveFullAvatarUrl(req, rawAvatar);
+      const rawAvatar = rawAgencyLogo;
+      const fullAvatar = rawAvatar ? resolveFullAvatarUrl(req, rawAvatar) : '';
       const ownerRawAvatar = owner?.avatar_url || '';
       const ownerFullAvatar = resolveFullAvatarUrl(req, ownerRawAvatar);
 
@@ -651,6 +654,9 @@ export async function getAgencyHosts(req, res) {
         id: agency.id,
         name: agency.name,
         agency_code: agency.agency_code,
+        logo_url: agency.logo_url || agency.avatar_url || '',
+        avatar_url: agency.logo_url || agency.avatar_url || '',
+        profile_picture: agency.logo_url || agency.avatar_url || '',
         commission_rate: commissionRate,
         commission_rate_percentage: commissionRate,
         status: agency.status,

@@ -220,13 +220,15 @@ export async function getTopAgencies(req, res) {
         // Agency coin display strictly reflects all affiliated hosts' total coins (excluding owner personal coins/commission)
         const totalCoins = hostsTotalCoins;
 
-        const agencyLogo = row.logo_url || row.agency_avatar || row.owner_avatar || '';
+        // Strictly use agency logo/avatar (NEVER fall back to owner personal avatar)
+        const agencyLogo = row.logo_url || row.agency_avatar || '';
 
         return {
           rank: offset + index + 1,
           id: row.id,
           agency_code: row.agency_code,
           name: row.name,
+          agency_name: row.name,
           logo_url: agencyLogo,
           avatar_url: agencyLogo,
           profile_picture: agencyLogo,
