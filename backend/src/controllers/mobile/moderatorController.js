@@ -145,7 +145,8 @@ export async function getUserAndDevices(req, res) {
       const userRows = await query(
         `SELECT 
            id, full_name, email, avatar_url, bio, role, host_type, agency_id, 
-           coins, diamonds, level, is_banned, created_at, updated_at
+           coins, diamonds, level, is_banned, broadcast_banned_until, broadcast_ban_reason, broadcast_banned_at,
+           created_at, updated_at
          FROM users 
          WHERE id = ?`,
         [cleanUserId]
@@ -213,6 +214,9 @@ export async function getUserAndDevices(req, res) {
           diamonds: user.diamonds,
           level: user.level || 1,
           is_banned: !!user.is_banned,
+          is_broadcast_banned: user.broadcast_banned_until ? new Date(user.broadcast_banned_until) > new Date() : false,
+          broadcast_banned_until: user.broadcast_banned_until || null,
+          broadcast_ban_reason: user.broadcast_ban_reason || null,
           created_at: user.created_at,
           updated_at: user.updated_at,
         },

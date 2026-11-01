@@ -547,6 +547,9 @@ export async function getMe(req, res) {
            u.agency_id, 
            u.is_banned, 
            u.is_profile_locked, 
+           u.broadcast_banned_until,
+           u.broadcast_ban_reason,
+           u.broadcast_banned_at,
            u.created_at,
            (SELECT COUNT(*) FROM user_follows WHERE following_id = u.id) AS followers_count,
            (SELECT COUNT(*) FROM user_follows WHERE follower_id = u.id) AS following_count,
@@ -668,6 +671,12 @@ export async function getMe(req, res) {
       is_banned: !!userProfile.is_banned,
       is_profile_locked: Boolean(userProfile.is_profile_locked),
       is_locked: Boolean(userProfile.is_profile_locked),
+      is_broadcast_banned: userProfile.broadcast_banned_until ? new Date(userProfile.broadcast_banned_until) > new Date() : false,
+      broadcast_banned_until: userProfile.broadcast_banned_until || null,
+      broadcast_ban_reason: userProfile.broadcast_ban_reason || null,
+      broadcast_remaining_seconds: userProfile.broadcast_banned_until && new Date(userProfile.broadcast_banned_until) > new Date()
+        ? Math.max(0, Math.round((new Date(userProfile.broadcast_banned_until).getTime() - Date.now()) / 1000))
+        : 0,
       created_at: userProfile.created_at,
       ...await getUserSpecialPrivileges(userId, userProfile.role),
     };

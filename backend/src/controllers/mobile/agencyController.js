@@ -830,12 +830,20 @@ export async function removeHostFromAgency(req, res) {
  */
 export async function banHostBroadcast(req, res) {
   try {
-    const agency = await resolveAgency(req);
-    if (!agency) {
-      return res.status(404).json({ success: false, message: 'Agency profile not found.' });
+    const isElevated =
+      req.user.role === 'admin' ||
+      req.user.role === 'superadmin' ||
+      req.user.role === 'moderator';
+
+    let agency = null;
+    if (!isElevated) {
+      agency = await resolveAgency(req);
+      if (!agency) {
+        return res.status(404).json({ success: false, message: 'Agency profile not found.' });
+      }
     }
 
-    const hostId = parseInt(req.params.hostId, 10);
+    const hostId = parseInt(req.params.hostId || req.params.userId || req.body.hostId || req.body.userId, 10);
     if (!hostId || isNaN(hostId)) {
       return res.status(400).json({ success: false, message: 'Invalid host ID provided.' });
     }
@@ -845,10 +853,10 @@ export async function banHostBroadcast(req, res) {
       durationHours,
       durationDays,
       bannedUntil,
-      reason = 'Agency broadcast policy violation',
+      reason = isElevated ? 'Broadcast suspension by platform moderator' : 'Agency broadcast policy violation',
     } = req.body || {};
 
-    // 1. Verify host belongs to this agency
+    // 1. Verify host exists
     const [host] = await query(
       'SELECT id, full_name, agency_id FROM users WHERE id = ?',
       [hostId]
@@ -858,7 +866,7 @@ export async function banHostBroadcast(req, res) {
       return res.status(404).json({ success: false, message: 'Host user not found.' });
     }
 
-    if (host.agency_id !== agency.id) {
+    if (!isElevated && agency && host.agency_id !== agency.id) {
       return res.status(400).json({ success: false, message: 'Host does not belong to your agency.' });
     }
 
@@ -918,10 +926,16 @@ export async function banHostBroadcast(req, res) {
     );
 
     // 5. Invalidate Redis Caches
-    await invalidateAgencyCache(agency.id);
+    if (agency?.id) {
+      await invalidateAgencyCache(agency.id);
+    } else if (host.agency_id) {
+      await invalidateAgencyCache(host.agency_id);
+    }
     await cache.del(`host:agency_summary:${hostId}`);
     await cache.del(`user:${hostId}`);
     await cache.del(`user:profile:${hostId}`);
+    await cache.del(`mobile:user:profile:${hostId}`);
+    await cache.del(`moderator:user_details:${hostId}`);
 
     return res.json({
       success: true,
@@ -949,17 +963,25 @@ export async function banHostBroadcast(req, res) {
  */
 export async function unbanHostBroadcast(req, res) {
   try {
-    const agency = await resolveAgency(req);
-    if (!agency) {
-      return res.status(404).json({ success: false, message: 'Agency profile not found.' });
+    const isElevated =
+      req.user.role === 'admin' ||
+      req.user.role === 'superadmin' ||
+      req.user.role === 'moderator';
+
+    let agency = null;
+    if (!isElevated) {
+      agency = await resolveAgency(req);
+      if (!agency) {
+        return res.status(404).json({ success: false, message: 'Agency profile not found.' });
+      }
     }
 
-    const hostId = parseInt(req.params.hostId, 10);
+    const hostId = parseInt(req.params.hostId || req.params.userId || req.body.hostId || req.body.userId, 10);
     if (!hostId || isNaN(hostId)) {
       return res.status(400).json({ success: false, message: 'Invalid host ID provided.' });
     }
 
-    // 1. Verify host belongs to this agency
+    // 1. Verify host exists
     const [host] = await query(
       'SELECT id, full_name, agency_id, broadcast_banned_until FROM users WHERE id = ?',
       [hostId]
@@ -969,7 +991,7 @@ export async function unbanHostBroadcast(req, res) {
       return res.status(404).json({ success: false, message: 'Host user not found.' });
     }
 
-    if (host.agency_id !== agency.id) {
+    if (!isElevated && agency && host.agency_id !== agency.id) {
       return res.status(400).json({ success: false, message: 'Host does not belong to your agency.' });
     }
 
@@ -982,10 +1004,16 @@ export async function unbanHostBroadcast(req, res) {
     );
 
     // 3. Invalidate Redis Caches
-    await invalidateAgencyCache(agency.id);
+    if (agency?.id) {
+      await invalidateAgencyCache(agency.id);
+    } else if (host.agency_id) {
+      await invalidateAgencyCache(host.agency_id);
+    }
     await cache.del(`host:agency_summary:${hostId}`);
     await cache.del(`user:${hostId}`);
     await cache.del(`user:profile:${hostId}`);
+    await cache.del(`mobile:user:profile:${hostId}`);
+    await cache.del(`moderator:user_details:${hostId}`);
 
     return res.json({
       success: true,

@@ -50,6 +50,18 @@ router.post('/users/:userId/ban', requireModerator, toggleUserBan);
 router.put('/users/:userId/ban', requireModerator, toggleUserBan);
 
 /**
+ * User Live Broadcast Suspension Controls (Suspends live creation only, retains all other app permissions)
+ * POST /api/mobile/moderator/users/:userId/ban-broadcast
+ * POST /api/mobile/moderator/users/:userId/unban-broadcast
+ * POST /api/mobile/moderator/hosts/:hostId/ban-broadcast
+ * POST /api/mobile/moderator/hosts/:hostId/unban-broadcast
+ */
+router.post('/users/:userId/ban-broadcast', requireModerator, banHostBroadcast);
+router.post('/users/:userId/unban-broadcast', requireModerator, unbanHostBroadcast);
+router.post('/hosts/:hostId/ban-broadcast', requireModerator, banHostBroadcast);
+router.post('/hosts/:hostId/unban-broadcast', requireModerator, unbanHostBroadcast);
+
+/**
  * User-Scoped Device Ban Controls (First select User ID, then ban that user's device)
  * POST /api/mobile/moderator/users/:userId/devices/:deviceId/ban
  * PUT  /api/mobile/moderator/users/:userId/devices/:deviceId/ban

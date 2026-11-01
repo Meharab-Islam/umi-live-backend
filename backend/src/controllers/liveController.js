@@ -11,6 +11,28 @@ export async function createRoom(req, res) {
       return res.status(400).json({ success: false, message: 'Stream title is required.' });
     }
 
+    // Verify host broadcast permission (SSOT)
+    const [hostProfile] = await query(
+      'SELECT id, is_banned, broadcast_banned_until, broadcast_ban_reason FROM users WHERE id = ?',
+      [hostId]
+    );
+
+    if (hostProfile) {
+      if (hostProfile.is_banned) {
+        return res.status(403).json({ success: false, message: 'Your account has been suspended by administration.' });
+      }
+
+      if (hostProfile.broadcast_banned_until && new Date(hostProfile.broadcast_banned_until) > new Date()) {
+        const expiresAt = new Date(hostProfile.broadcast_banned_until).toISOString();
+        return res.status(403).json({
+          success: false,
+          message: `You are temporarily suspended from broadcasting live rooms until ${expiresAt}. Reason: ${hostProfile.broadcast_ban_reason || 'Agency broadcasting suspension.'}`,
+          broadcast_banned_until: expiresAt,
+          reason: hostProfile.broadcast_ban_reason,
+        });
+      }
+    }
+
     // Check if host already has an active live room, end previous if open
     await query("UPDATE live_rooms SET status = 'ended', ended_at = CURRENT_TIMESTAMP WHERE host_id = ? AND status = 'live'", [hostId]);
 
