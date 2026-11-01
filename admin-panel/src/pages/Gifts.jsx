@@ -299,9 +299,10 @@ export default function Gifts({ onToast }) {
       if (res.success && res.url) {
         setFormData((prev) => {
           const next = { ...prev, [targetField]: res.url };
-          // If uploading GIF as animation, set both icon_url and animation_url
-          if (targetField === 'animation_url' && formatMode === 'gif') {
+          // GIF mode: GIF file sets both icon_url (for preview) AND animation_url (for playback)
+          if (formatMode === 'gif' && (targetField === 'animation_url' || targetField === 'icon_url')) {
             next.icon_url = res.url;
+            next.animation_url = res.url;
           }
           return next;
         });
@@ -645,9 +646,9 @@ export default function Gifts({ onToast }) {
                         minHeight: '80px',
                       }}
                     >
-                      {isMediaUrl(gift.icon_url) ? (
+                      {isMediaUrl(gift.icon_url || gift.animation_url) ? (
                         <img
-                          src={resolveMediaUrl(gift.icon_url)}
+                          src={resolveMediaUrl(gift.icon_url || gift.animation_url)}
                           alt={gift.name || 'Gift'}
                           style={{
                             width: '76px',
@@ -655,6 +656,7 @@ export default function Gifts({ onToast }) {
                             objectFit: 'contain',
                             borderRadius: '10px',
                             filter: 'drop-shadow(0 4px 10px rgba(0,0,0,0.25))',
+                            imageRendering: 'auto',
                           }}
                           onError={(e) => {
                             e.target.style.display = 'none';
@@ -1745,7 +1747,7 @@ export default function Gifts({ onToast }) {
                         <span>{uploadingAnimation ? 'Uploading GIF...' : 'Choose .GIF File'}</span>
                         <input
                           type="file"
-                          accept="image/gif,.gif"
+                          accept="image/gif,image/*,.gif"
                           style={{ display: 'none' }}
                           disabled={uploadingAnimation}
                           onChange={(e) => {
@@ -1755,12 +1757,20 @@ export default function Gifts({ onToast }) {
                         />
                       </label>
 
-                      {formData.icon_url && isMediaUrl(formData.icon_url) && (
+                      {(formData.icon_url || formData.animation_url) && isMediaUrl(formData.icon_url || formData.animation_url) && (
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                           <img
-                            src={resolveMediaUrl(formData.icon_url)}
+                            src={resolveMediaUrl(formData.icon_url || formData.animation_url)}
                             alt="GIF Preview"
-                            style={{ width: '48px', height: '48px', objectFit: 'contain', borderRadius: '6px', background: 'rgba(0,0,0,0.3)', border: '1px solid var(--border-color)' }}
+                            style={{
+                              width: '64px',
+                              height: '64px',
+                              objectFit: 'contain',
+                              borderRadius: '8px',
+                              background: 'rgba(0,0,0,0.45)',
+                              border: '2px solid rgba(236, 72, 153, 0.5)',
+                              imageRendering: 'auto',
+                            }}
                           />
                           <span style={{ fontSize: '0.75rem', color: '#10b981', fontWeight: 600 }}>✓ Animated GIF Ready</span>
                         </div>
@@ -1770,7 +1780,7 @@ export default function Gifts({ onToast }) {
                       type="text"
                       className="input-field"
                       placeholder="Or paste GIF URL (/uploads/gifts/...gif)"
-                      value={formData.icon_url}
+                      value={formData.icon_url || formData.animation_url || ''}
                       onChange={(e) => setFormData({ ...formData, icon_url: e.target.value, animation_url: e.target.value })}
                       style={{ marginTop: '0.4rem', fontSize: '0.8rem' }}
                     />
@@ -1800,12 +1810,13 @@ export default function Gifts({ onToast }) {
                         />
                       </label>
 
-                      {formData.sound_url && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      {formData.sound_url && isMediaUrl(formData.sound_url) && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                           <audio
+                            key={formData.sound_url}
                             src={resolveMediaUrl(formData.sound_url)}
                             controls
-                            style={{ height: '32px', maxWidth: '240px' }}
+                            style={{ height: '34px', maxWidth: '260px', borderRadius: '8px' }}
                           />
                           <span style={{ fontSize: '0.75rem', color: '#10b981', fontWeight: 600 }}>✓ Audio Attached</span>
                         </div>
