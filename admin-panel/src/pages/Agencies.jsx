@@ -30,6 +30,7 @@ import userApi from '../api/userApi';
 import Loader from '../components/Loader';
 import Pagination from '../components/Pagination';
 import UserDetailsModal from '../components/UserDetailsModal';
+import AgencyDetailsView from '../components/AgencyDetailsView';
 import BulkActionBar from '../components/BulkActionBar';
 import { useEconomy } from '../context/EconomyContext';
 
@@ -42,6 +43,9 @@ export default function Agencies({ onToast }) {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [detailsUserId, setDetailsUserId] = useState(null);
+
+  // Dedicated Full Page View State (STRICTLY NO POPUP)
+  const [viewingAgency, setViewingAgency] = useState(null);
 
   // Bulk Selection
   const [selectedAgencyIds, setSelectedAgencyIds] = useState([]);
@@ -80,11 +84,6 @@ export default function Agencies({ onToast }) {
 
   // Modals state
   const [createModalOpen, setCreateModalOpen] = useState(false);
-  const [selectedAgencyForHosts, setSelectedAgencyForHosts] = useState(null);
-  const [agencyHosts, setAgencyHosts] = useState([]);
-  const [loadingHosts, setLoadingHosts] = useState(false);
-  const [hostPage, setHostPage] = useState(1);
-  const [hostPageSize, setHostPageSize] = useState(5);
   const [deleteConfirmAgency, setDeleteConfirmAgency] = useState(null);
   const [deletingAgency, setDeletingAgency] = useState(false);
 
@@ -97,17 +96,11 @@ export default function Agencies({ onToast }) {
   // Create Agency Form
   const [newAgency, setNewAgency] = useState({
     name: '',
+    logo_url: '',
     commissionRate: 10,
     contactPhone: '',
     notes: '',
   });
-
-  // Explicit Server-Side Host Lookup for Recruitment (Scalable to millions)
-  const [hostSearchInput, setHostSearchInput] = useState('');
-  const [searchingHost, setSearchingHost] = useState(false);
-  const [hostSearchError, setHostSearchError] = useState('');
-  const [foundHostUser, setFoundHostUser] = useState(null);
-  const [selectedHostType, setSelectedHostType] = useState('video');
 
   const fetchAgencies = async () => {
     try {
@@ -115,6 +108,11 @@ export default function Agencies({ onToast }) {
       const res = await agencyApi.getAgencies();
       if (res.success) {
         setAgencies(res.agencies);
+        // If viewing an agency, keep it fresh
+        if (viewingAgency) {
+          const fresh = res.agencies.find((a) => a.id === viewingAgency.id);
+          if (fresh) setViewingAgency(fresh);
+        }
       }
     } catch (err) {
       onToast(err.message, 'error');
@@ -185,6 +183,7 @@ export default function Agencies({ onToast }) {
       const payload = {
         name: newAgency.name.trim(),
         ownerId: selectedOwner.id,
+        logo_url: newAgency.logo_url?.trim() || null,
         commissionRate: newAgency.commissionRate,
         contactPhone: newAgency.contactPhone,
         notes: newAgency.notes,
@@ -197,117 +196,7 @@ export default function Agencies({ onToast }) {
         setSelectedOwner(null);
         setOwnerSearchInput('');
         setOwnerSearchError('');
-        setNewAgency({ name: '', commissionRate: 10, contactPhone: '', notes: '' });
-        fetchAgencies();
-      }
-    } catch (err) {
-      onToast(err.message, 'error');
-    }
-  };
-
-  const openManageHostsModal = async (agency) => {
-    setSelectedAgencyForHosts(agency);
-    setLoadingHosts(true);
-    setHostSearchInput('');
-    setHostSearchError('');
-    setFoundHostUser(null);
-    setSelectedHostType('video');
-    setHostPage(1);
-    try {
-      const res = await agencyApi.getAgencyHosts(agency.id);
-      if (res.success) {
-        setAgencyHosts(res.hosts);
-      }
-    } catch (err) {
-      onToast(err.message, 'error');
-    } finally {
-      setLoadingHosts(false);
-    }
-  };
-
-  // On-demand Server Lookup for Host Candidate strictly by unique User ID
-  const handleSearchHost = async (e) => {
-    if (e) e.preventDefault();
-    const cleanId = hostSearchInput.trim().replace(/^#/, '');
-    if (!cleanId || isNaN(cleanId)) {
-      onToast('Please enter a valid numeric User ID (e.g. 5)', 'error');
-      return;
-    }
-
-    setSearchingHost(true);
-    setHostSearchError('');
-    setFoundHostUser(null);
-    try {
-      const res = await userApi.getUsers({ search: cleanId, limit: 1 });
-      if (res.success && res.users && res.users.length > 0) {
-        const candidate = res.users[0];
-        if (selectedAgencyForHosts && candidate.agency_id === selectedAgencyForHosts.id) {
-          setHostSearchError(`User ID #${candidate.id} (${candidate.full_name || 'User'}) is already assigned to this agency.`);
-        } else {
-          setFoundHostUser(candidate);
-          setSelectedHostType(candidate.host_type === 'audio' ? 'audio' : 'video');
-        }
-      } else {
-        setHostSearchError(`Host candidate with unique User ID #${cleanId} not found.`);
-      }
-    } catch (err) {
-      setHostSearchError(err.message || 'Error searching user');
-    } finally {
-      setSearchingHost(false);
-    }
-  };
-
-  const handleRecruitHost = async () => {
-    if (!selectedAgencyForHosts || !foundHostUser) return;
-
-    try {
-      const res = await agencyApi.assignUserToAgency(
-        selectedAgencyForHosts.id,
-        foundHostUser.id,
-        selectedHostType
-      );
-      if (res.success) {
-        onToast(res.message, 'success');
-        setFoundHostUser(null);
-        setSelectedHostType('video');
-        setHostSearchInput('');
-        setHostSearchError('');
-        // Refresh agency hosts
-        const updated = await agencyApi.getAgencyHosts(selectedAgencyForHosts.id);
-        if (updated.success) setAgencyHosts(updated.hosts);
-        fetchAgencies();
-      }
-    } catch (err) {
-      onToast(err.message, 'error');
-    }
-  };
-
-  const handleToggleHostType = async (userId, currentType) => {
-    const newType = currentType === 'audio' ? 'video' : 'audio';
-    try {
-      const res = await userApi.updateUser(userId, { host_type: newType });
-      if (res.success) {
-        onToast(`Host #${userId} type switched to ${newType === 'audio' ? '🎙️ Audio Host' : '📹 Video Host'}!`, 'success');
-        setAgencyHosts((prev) =>
-          prev.map((h) => (h.id === userId ? { ...h, host_type: newType } : h))
-        );
-        fetchAgencies();
-      }
-    } catch (err) {
-      onToast(err.message, 'error');
-    }
-  };
-
-  const handleRemoveHost = async (userId) => {
-    if (!window.confirm('Remove this host from this agency?')) return;
-    try {
-      const res = await agencyApi.removeUserFromAgency(selectedAgencyForHosts.id, userId);
-      if (res.success) {
-        onToast('Host removed from agency.', 'success');
-        const updated = agencyHosts.filter((h) => h.id !== userId);
-        setAgencyHosts(updated);
-        const maxPage = Math.ceil(updated.length / hostPageSize) || 1;
-        if (hostPage > maxPage) setHostPage(maxPage);
+        setNewAgency({ name: '', logo_url: '', commissionRate: 10, contactPhone: '', notes: '' });
         fetchAgencies();
       }
     } catch (err) {
@@ -322,6 +211,9 @@ export default function Agencies({ onToast }) {
       const res = await agencyApi.deleteAgency(deleteConfirmAgency.id);
       if (res.success) {
         onToast(res.message || 'Agency deleted successfully.', 'success');
+        if (viewingAgency && viewingAgency.id === deleteConfirmAgency.id) {
+          setViewingAgency(null);
+        }
         setDeleteConfirmAgency(null);
         fetchAgencies();
       }
@@ -337,7 +229,7 @@ export default function Agencies({ onToast }) {
   const totalRecruitedHosts = agencies.reduce((acc, a) => acc + (parseInt(a.host_count, 10) || 0), 0);
   const totalAgencyDiamonds = agencies.reduce((acc, a) => acc + (parseInt(a.total_host_diamonds, 10) || 0), 0);
 
-  // If viewing details of a host/user, render as a dedicated full-page view!
+  // 1. If viewing details of a host/user, render as a dedicated full-page view!
   if (detailsUserId) {
     return (
       <UserDetailsModal
@@ -345,7 +237,23 @@ export default function Agencies({ onToast }) {
         onClose={() => setDetailsUserId(null)}
         onToast={onToast}
         isPage={true}
-        backTitle="Back to Agencies"
+        backTitle={viewingAgency ? `Back to ${viewingAgency.name}` : 'Back to Agencies'}
+      />
+    );
+  }
+
+  // 2. If viewing agency details, render as a dedicated FULL-PAGE VIEW (Strictly NO POPUP!)
+  if (viewingAgency) {
+    return (
+      <AgencyDetailsView
+        agency={viewingAgency}
+        onBack={() => {
+          setViewingAgency(null);
+          fetchAgencies();
+        }}
+        onViewUser={(userId) => setDetailsUserId(userId)}
+        onDeleteAgency={(agency) => setDeleteConfirmAgency(agency)}
+        onToast={onToast}
       />
     );
   }
@@ -464,12 +372,13 @@ export default function Agencies({ onToast }) {
               ) : (
                 agencies.slice((page - 1) * pageSize, page * pageSize).map((agency) => {
                   const isSelected = selectedAgencyIds.includes(agency.id);
+                  const agencyLogo = agency.logo_url || agency.avatar_url;
                   return (
                   <tr
                     key={agency.id}
-                    onClick={() => openManageHostsModal(agency)}
+                    onClick={() => setViewingAgency(agency)}
                     style={{ cursor: 'pointer', ...(isSelected ? { backgroundColor: 'rgba(239, 68, 68, 0.08)' } : {}) }}
-                    title="Tap to view full agency details & host roster"
+                    title="Tap to open full agency details & host roster page"
                   >
                     {/* Selection Checkbox */}
                     <td
@@ -492,18 +401,61 @@ export default function Agencies({ onToast }) {
                       </span>
                     </td>
 
-                    {/* 2. Agency Name */}
+                    {/* 2. Agency Name WITH Agency Profile / Logo Image in front */}
                     <td>
-                      <div>
-                        <div style={{ fontWeight: 700, color: 'var(--text-main)', fontSize: '0.95rem' }}>
-                          {agency.name}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                        <div style={{ position: 'relative', width: '38px', height: '38px', flexShrink: 0 }}>
+                          {agencyLogo ? (
+                            <img
+                              src={agencyLogo}
+                              alt={agency.name}
+                              onError={(e) => {
+                                e.currentTarget.style.display = 'none';
+                                if (e.currentTarget.nextSibling) {
+                                  e.currentTarget.nextSibling.style.display = 'flex';
+                                }
+                              }}
+                              style={{
+                                width: '38px',
+                                height: '38px',
+                                borderRadius: '10px',
+                                objectFit: 'cover',
+                                border: '1px solid rgba(139, 92, 246, 0.35)',
+                                background: 'rgba(139, 92, 246, 0.1)',
+                              }}
+                            />
+                          ) : null}
+                          <div
+                            style={{
+                              width: '38px',
+                              height: '38px',
+                              borderRadius: '10px',
+                              background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(236, 72, 153, 0.2) 100%)',
+                              border: '1px solid rgba(139, 92, 246, 0.35)',
+                              display: agencyLogo ? 'none' : 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              color: '#c4b5fd',
+                            }}
+                          >
+                            <Building2 size={20} />
+                          </div>
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '3px' }}>
-                          {agency.status === 'active' ? (
-                            <span className="badge badge-success" style={{ fontSize: '0.68rem', padding: '1px 6px' }}>Active</span>
-                          ) : (
-                            <span className="badge badge-danger" style={{ fontSize: '0.68rem', padding: '1px 6px' }}>Inactive</span>
-                          )}
+
+                        <div>
+                          <div style={{ fontWeight: 700, color: 'var(--text-main)', fontSize: '0.95rem' }}>
+                            {agency.name}
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '3px' }}>
+                            <span className="user-id-badge" style={{ fontSize: '0.68rem', padding: '1px 5px' }}>
+                              {agency.agency_code || `AGY-${agency.owner_id || agency.id}`}
+                            </span>
+                            {agency.status === 'active' ? (
+                              <span className="badge badge-success" style={{ fontSize: '0.68rem', padding: '1px 6px' }}>Active</span>
+                            ) : (
+                              <span className="badge badge-danger" style={{ fontSize: '0.68rem', padding: '1px 6px' }}>Inactive</span>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </td>
@@ -536,16 +488,30 @@ export default function Agencies({ onToast }) {
 
                     {/* 4. Total Host Count */}
                     <td>
-                      <span
+                      <button
+                        type="button"
                         className="badge badge-primary"
-                        style={{ fontSize: '0.82rem', fontWeight: 700, padding: '4px 10px' }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setViewingAgency(agency);
+                        }}
+                        style={{
+                          fontSize: '0.82rem',
+                          fontWeight: 700,
+                          padding: '4px 10px',
+                          border: 'none',
+                          cursor: 'pointer',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                        }}
+                        title="Open agency host roster page"
                       >
                         <Users size={14} style={{ marginRight: '5px' }} />
                         {agency.host_count || 0} Hosts
-                      </span>
+                      </button>
                     </td>
 
-                    {/* 5. Total Coins */}
+                    {/* 5. Total Coins (Host coins summation) */}
                     <td>
                       <span
                         className="badge"
@@ -566,7 +532,7 @@ export default function Agencies({ onToast }) {
                       </span>
                     </td>
 
-                    {/* 5. Delete Agency Button */}
+                    {/* 6. Delete Agency Button */}
                     <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
                       <button
                         type="button"
@@ -618,7 +584,7 @@ export default function Agencies({ onToast }) {
 
             <form onSubmit={handleCreateAgency} style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
               
-              {/* STEP 1: Explicit User ID Search (No auto-search / No extra user list) */}
+              {/* STEP 1: Explicit User ID Search */}
               <div style={{
                 background: 'rgba(139, 92, 246, 0.06)',
                 border: '1px solid rgba(139, 92, 246, 0.25)',
@@ -718,7 +684,7 @@ export default function Agencies({ onToast }) {
 
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <span style={{ fontSize: '0.72rem', color: '#6d28d9', background: '#ede9fe', padding: '3px 8px', borderRadius: '6px', fontWeight: 700 }}>
-                        Agency ID: #{selectedOwner.id} (Matches Owner User ID)
+                        Agency ID: #{selectedOwner.id}
                       </span>
                       <button
                         type="button"
@@ -733,7 +699,7 @@ export default function Agencies({ onToast }) {
                 )}
               </div>
 
-              {/* STEP 2: Agency Name (With Quick Buttons for Owner Name vs Custom) */}
+              {/* STEP 2: Agency Name */}
               <div>
                 <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '0.35rem' }}>
                   2. Agency Name:
@@ -781,23 +747,22 @@ export default function Agencies({ onToast }) {
                     >
                       "{selectedOwner.full_name || `Host #${selectedOwner.id}`} Agency"
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => setNewAgency({ ...newAgency, name: `${selectedOwner.full_name || `Host #${selectedOwner.id}`} Live` })}
-                      style={{
-                        background: 'rgba(255,255,255,0.05)',
-                        border: '1px solid var(--border-color)',
-                        color: '#c4b5fd',
-                        borderRadius: '6px',
-                        padding: '2px 8px',
-                        fontSize: '0.72rem',
-                        cursor: 'pointer',
-                      }}
-                    >
-                      "{selectedOwner.full_name || `Host #${selectedOwner.id}`} Live"
-                    </button>
                   </div>
                 )}
+              </div>
+
+              {/* STEP 3: Agency Profile / Logo Image URL */}
+              <div>
+                <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.35rem' }}>
+                  3. Agency Logo / Profile Image URL (Optional):
+                </label>
+                <input
+                  type="text"
+                  className="input-field"
+                  placeholder="https://example.com/logo.png"
+                  value={newAgency.logo_url}
+                  onChange={(e) => setNewAgency({ ...newAgency, logo_url: e.target.value })}
+                />
               </div>
 
               {/* Commission Rate & Phone */}
@@ -863,491 +828,6 @@ export default function Agencies({ onToast }) {
           </div>
         </div>
       )}
-
-      {/* Modal: Agency Full Details & Managed Hosts with Host Pagination */}
-      {selectedAgencyForHosts && (
-        <div className="modal-overlay">
-          <div className="modal-box" style={{ maxWidth: '720px', maxHeight: '90vh', overflowY: 'auto' }}>
-            {/* Modal Header */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.85rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: 'var(--primary-gradient)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
-                  <Building2 size={22} />
-                </div>
-                <div>
-                  <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                    <span>{selectedAgencyForHosts.name}</span>
-                    <span className="user-id-badge" style={{ fontSize: '0.78rem' }}>
-                      Agency ID: #{selectedAgencyForHosts.owner_id || selectedAgencyForHosts.id}
-                    </span>
-                  </h3>
-                  <div style={{ fontSize: '0.78rem', color: 'var(--text-dim)', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span className={`badge ${selectedAgencyForHosts.status === 'active' ? 'badge-success' : 'badge-danger'}`} style={{ fontSize: '0.68rem', padding: '1px 6px' }}>
-                      Status: {selectedAgencyForHosts.status}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                className="btn btn-secondary btn-sm"
-                onClick={() => setSelectedAgencyForHosts(null)}
-                style={{ borderRadius: '50%', width: '32px', height: '32px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-              >
-                ✕
-              </button>
-            </div>
-
-            {/* Agency Overview Metrics Grid */}
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
-              gap: '0.75rem',
-              marginBottom: '1.25rem',
-            }}>
-              <div style={{ padding: '0.75rem', borderRadius: '8px', background: 'var(--bg-card-hover)', border: '1px solid var(--border-color)' }}>
-                <div style={{ fontSize: '0.7rem', color: 'var(--text-dim)', fontWeight: 600 }}>COMMISSION RATE</div>
-                <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#059669', marginTop: '2px' }}>
-                  {selectedAgencyForHosts.commission_rate}%
-                </div>
-              </div>
-
-              <div style={{ padding: '0.75rem', borderRadius: '8px', background: 'var(--bg-card-hover)', border: '1px solid var(--border-color)' }}>
-                <div style={{ fontSize: '0.7rem', color: 'var(--text-dim)', fontWeight: 600 }}>TOTAL HOSTS</div>
-                <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#7c3aed', marginTop: '2px' }}>
-                  {agencyHosts.length} Hosts
-                </div>
-              </div>
-
-              <div style={{ padding: '0.75rem', borderRadius: '8px', background: 'var(--bg-card-hover)', border: '1px solid var(--border-color)' }}>
-                <div style={{ fontSize: '0.7rem', color: 'var(--text-dim)', fontWeight: 600 }}>TOTAL COINS</div>
-                <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#d97706', marginTop: '2px' }}>
-                  🪙 {Number(selectedAgencyForHosts.total_coins ?? ((selectedAgencyForHosts.owner_coins || 0) + (selectedAgencyForHosts.total_host_coins || 0))).toLocaleString()}
-                </div>
-              </div>
-
-              {isDiamondMode && (
-                <div style={{ padding: '0.75rem', borderRadius: '8px', background: 'var(--bg-card-hover)', border: '1px solid var(--border-color)' }}>
-                  <div style={{ fontSize: '0.7rem', color: 'var(--text-dim)', fontWeight: 600 }}>HOST DIAMONDS</div>
-                  <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0284c7', marginTop: '2px' }}>
-                    💎 {Number(selectedAgencyForHosts.total_host_diamonds || 0).toLocaleString()}
-                  </div>
-                </div>
-              )}
-
-              <div style={{ padding: '0.75rem', borderRadius: '8px', background: 'var(--bg-card-hover)', border: '1px solid var(--border-color)' }}>
-                <div style={{ fontSize: '0.7rem', color: 'var(--text-dim)', fontWeight: 600 }}>CONTACT PHONE</div>
-                <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-main)', marginTop: '4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {selectedAgencyForHosts.contact_phone || 'None'}
-                </div>
-              </div>
-            </div>
-
-            {/* Owner Profile Showcase Banner */}
-            <div
-              style={{
-                padding: '0.85rem 1rem',
-                borderRadius: '10px',
-                background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.05) 0%, rgba(2, 132, 199, 0.05) 100%)',
-                border: '1px solid rgba(124, 58, 237, 0.2)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                marginBottom: '1.25rem',
-                flexWrap: 'wrap',
-                gap: '10px',
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <img
-                  src={selectedAgencyForHosts.owner_avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${selectedAgencyForHosts.owner_id}`}
-                  alt={String(selectedAgencyForHosts.owner_id)}
-                  style={{ width: '42px', height: '42px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #7c3aed' }}
-                />
-                <div>
-                  <div style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <span>Owner: {selectedAgencyForHosts.owner_name || `User #${selectedAgencyForHosts.owner_id}`}</span>
-                    <span className="user-id-badge" style={{ fontSize: '0.7rem', padding: '1px 5px' }}>
-                      Owner ID: #{selectedAgencyForHosts.owner_id}
-                    </span>
-                  </div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: '1px' }}>
-                    Role: <strong style={{ textTransform: 'capitalize' }}>{selectedAgencyForHosts.owner_role || 'Agency Owner'}</strong>
-                  </div>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                className="btn btn-secondary btn-sm"
-                onClick={() => setDetailsUserId(selectedAgencyForHosts.owner_id)}
-                style={{ fontSize: '0.75rem', gap: '5px' }}
-              >
-                <Eye size={13} />
-                <span>View Owner Profile</span>
-              </button>
-            </div>
-
-            {/* Recruit Host by User ID (Explicit Server Lookup) */}
-            <div style={{
-              background: 'rgba(139, 92, 246, 0.06)',
-              border: '1px solid rgba(139, 92, 246, 0.22)',
-              borderRadius: '10px',
-              padding: '0.85rem 1rem',
-              marginBottom: '1.25rem',
-            }}>
-              <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#c4b5fd', marginBottom: '0.25rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <UserPlus size={15} />
-                <span>Recruit Broadcaster / Host by User ID</span>
-              </div>
-              <p style={{ fontSize: '0.74rem', color: 'var(--text-dim)', marginBottom: '0.65rem' }}>
-                Enter the exact User ID to assign as a certified host under this agency.
-              </p>
-
-              <div style={{ display: 'flex', gap: '8px', marginBottom: '0.5rem' }}>
-                <div className="search-input-wrap" style={{ flex: 1 }}>
-                  <Search size={16} />
-                  <input
-                    type="text"
-                    className="input-field"
-                    placeholder="Enter User ID (e.g. 5) to find host..."
-                    value={hostSearchInput}
-                    onChange={(e) => {
-                      setHostSearchInput(e.target.value);
-                      setHostSearchError('');
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                        handleSearchHost();
-                      }
-                    }}
-                  />
-                </div>
-                <button
-                  type="button"
-                  className="btn btn-primary btn-sm"
-                  onClick={handleSearchHost}
-                  disabled={searchingHost}
-                  style={{ whiteSpace: 'nowrap' }}
-                >
-                  {searchingHost ? 'Searching...' : 'Find User'}
-                </button>
-              </div>
-
-              {hostSearchError && (
-                <div style={{
-                  padding: '0.5rem 0.75rem',
-                  fontSize: '0.78rem',
-                  color: '#fda4af',
-                  background: 'rgba(244, 63, 94, 0.1)',
-                  border: '1px solid rgba(244, 63, 94, 0.25)',
-                  borderRadius: '6px',
-                  marginBottom: '0.5rem',
-                }}>
-                  ⚠️ {hostSearchError}
-                </div>
-              )}
-
-              {/* Found Host Candidate Preview & Confirm Action */}
-              {foundHostUser && (
-                <div style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '10px',
-                  marginTop: '0.65rem',
-                  padding: '0.85rem',
-                  background: 'rgba(16, 185, 129, 0.08)',
-                  border: '1px solid rgba(16, 185, 129, 0.35)',
-                  borderRadius: '10px',
-                }}>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    flexWrap: 'wrap',
-                    gap: '10px',
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-                      <img
-                        src={foundHostUser.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${foundHostUser.id}`}
-                        alt={String(foundHostUser.id)}
-                        style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover' }}
-                      />
-                      <div>
-                        <div style={{ fontSize: '0.88rem', fontWeight: 700, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          <span>{foundHostUser.full_name || `Host #${foundHostUser.id}`}</span>
-                          <span style={{ fontSize: '0.7rem', color: '#6d28d9', background: '#ede9fe', padding: '1px 5px', borderRadius: '4px', fontWeight: 600, whiteSpace: 'nowrap' }}>
-                            ID: #{foundHostUser.id}
-                          </span>
-                          <span style={{ fontSize: '0.7rem', color: '#b45309', background: '#fef3c7', padding: '1px 5px', borderRadius: '4px', fontWeight: 600 }}>
-                            Lv.{foundHostUser.level}
-                          </span>
-                        </div>
-                        <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)', display: 'flex', gap: '8px', marginTop: '2px', flexWrap: 'wrap' }}>
-                          <span style={{ color: '#0284c7', fontWeight: 600 }}>Role: <strong>{foundHostUser.role}</strong></span>
-                          <span style={{ color: '#be185d', fontWeight: 600 }}>👑 {foundHostUser.vip_package || 'Standard'}</span>
-                          <span style={{ color: '#b45309', fontWeight: 600 }}>🪙 {Number(foundHostUser.coins || 0).toLocaleString()}</span>
-                          {isDiamondMode && (
-                            <span style={{ color: '#0e7490', fontWeight: 600 }}>💎 {Number(foundHostUser.diamonds || 0).toLocaleString()}</span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-
-                    <button
-                      type="button"
-                      className="btn btn-primary btn-sm"
-                      onClick={handleRecruitHost}
-                      style={{ padding: '7px 16px', fontWeight: 600 }}
-                    >
-                      <UserPlus size={15} />
-                      <span>Confirm Recruitment</span>
-                    </button>
-                  </div>
-
-                  {/* Host Type Selection Toggle */}
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '10px',
-                    paddingTop: '8px',
-                    borderTop: '1px dashed rgba(16, 185, 129, 0.3)',
-                    flexWrap: 'wrap',
-                  }}>
-                    <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-main)' }}>
-                      Assign Host Type:
-                    </span>
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                      <button
-                        type="button"
-                        onClick={() => setSelectedHostType('video')}
-                        style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '6px',
-                          padding: '5px 12px',
-                          borderRadius: '6px',
-                          fontSize: '0.78rem',
-                          fontWeight: 700,
-                          cursor: 'pointer',
-                          background: selectedHostType === 'video' ? 'linear-gradient(135deg, #ec4899, #8b5cf6)' : 'var(--bg-primary)',
-                          color: selectedHostType === 'video' ? '#ffffff' : 'var(--text-dim)',
-                          border: selectedHostType === 'video' ? '1px solid transparent' : '1px solid var(--border-color)',
-                          boxShadow: selectedHostType === 'video' ? '0 2px 6px rgba(236, 72, 153, 0.3)' : 'none',
-                          transition: 'all 0.15s ease',
-                        }}
-                      >
-                        <Video size={13} />
-                        <span>📹 Video Host</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setSelectedHostType('audio')}
-                        style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '6px',
-                          padding: '5px 12px',
-                          borderRadius: '6px',
-                          fontSize: '0.78rem',
-                          fontWeight: 700,
-                          cursor: 'pointer',
-                          background: selectedHostType === 'audio' ? 'linear-gradient(135deg, #0284c7, #06b6d4)' : 'var(--bg-primary)',
-                          color: selectedHostType === 'audio' ? '#ffffff' : 'var(--text-dim)',
-                          border: selectedHostType === 'audio' ? '1px solid transparent' : '1px solid var(--border-color)',
-                          boxShadow: selectedHostType === 'audio' ? '0 2px 6px rgba(2, 132, 199, 0.3)' : 'none',
-                          transition: 'all 0.15s ease',
-                        }}
-                      >
-                        <Mic size={13} />
-                        <span>🎙️ Audio Host</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Current Recruited Hosts Section with Pagination */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
-              <h4 style={{ fontSize: '0.92rem', fontWeight: 700, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <Users size={16} color="var(--primary)" />
-                <span>Agency Broadcaster Roster ({agencyHosts.length} Hosts)</span>
-              </h4>
-              {agencyHosts.length > 0 && (
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>
-                  Page {hostPage} of {Math.ceil(agencyHosts.length / hostPageSize) || 1}
-                </span>
-              )}
-            </div>
-
-            {loadingHosts ? (
-              <div style={{ padding: '2rem' }}>
-                <Loader size="sm" text="Fetching agency broadcasters..." />
-              </div>
-            ) : agencyHosts.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '1.75rem', color: 'var(--text-dim)', border: '1px dashed var(--border-color)', borderRadius: '10px' }}>
-                No broadcasters signed under this agency yet. Enter a User ID above to recruit hosts!
-              </div>
-            ) : (
-              <>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.55rem', minHeight: '160px' }}>
-                  {agencyHosts.slice((hostPage - 1) * hostPageSize, hostPage * hostPageSize).map((host) => (
-                    <div
-                      key={host.id}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        padding: '0.65rem 0.85rem',
-                        background: 'var(--bg-primary)',
-                        border: '1px solid var(--border-color)',
-                        borderRadius: '10px',
-                      }}
-                    >
-                      <div
-                        style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', cursor: 'pointer' }}
-                        onClick={() => setDetailsUserId(host.id)}
-                        title="Click to view full user profile & telemetry"
-                      >
-                        <span style={{
-                          fontFamily: 'var(--font-mono)',
-                          fontSize: '0.72rem',
-                          color: '#6d28d9',
-                          background: 'rgba(124, 58, 237, 0.12)',
-                          padding: '2px 6px',
-                          borderRadius: '4px',
-                          fontWeight: 800,
-                          whiteSpace: 'nowrap',
-                        }}>
-                          ID: #{host.id}
-                        </span>
-                        <img
-                          src={host.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${host.id}`}
-                          alt={String(host.id)}
-                          style={{ width: '34px', height: '34px', borderRadius: '50%', objectFit: 'cover' }}
-                        />
-                        <div>
-                          <div style={{ fontWeight: 600, color: 'var(--text-main)', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-                            <span>{host.full_name || `Host #${host.id}`}</span>
-                            {host.host_type === 'audio' ? (
-                              <span style={{
-                                fontSize: '0.68rem',
-                                color: '#0284c7',
-                                background: 'rgba(2, 132, 199, 0.12)',
-                                border: '1px solid rgba(2, 132, 199, 0.3)',
-                                padding: '1px 6px',
-                                borderRadius: '4px',
-                                fontWeight: 700,
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: '3px',
-                              }}>
-                                <Mic size={11} /> Audio Host
-                              </span>
-                            ) : (
-                              <span style={{
-                                fontSize: '0.68rem',
-                                color: '#ec4899',
-                                background: 'rgba(236, 72, 153, 0.12)',
-                                border: '1px solid rgba(236, 72, 153, 0.3)',
-                                padding: '1px 6px',
-                                borderRadius: '4px',
-                                fontWeight: 700,
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: '3px',
-                              }}>
-                                <Video size={11} /> Video Host
-                              </span>
-                            )}
-                            {host.level && (
-                              <span style={{ fontSize: '0.7rem', color: '#b45309', background: '#fef3c7', padding: '1px 5px', borderRadius: '4px', fontWeight: 600 }}>
-                                Lv.{host.level}
-                              </span>
-                            )}
-                          </div>
-                          <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)', display: 'flex', gap: '8px', marginTop: '2px', flexWrap: 'wrap' }}>
-                            <span style={{ color: '#be185d', fontWeight: 600 }}>👑 {host.vip_package || 'Standard'}</span>
-                            <span style={{ color: '#f59e0b' }}>🪙 {Number(host.coins || 0).toLocaleString()} coins</span>
-                            {isDiamondMode && (
-                              <span style={{ color: '#06b6d4' }}>💎 {Number(host.diamonds || 0).toLocaleString()} diamonds</span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <button
-                          type="button"
-                          className="btn btn-secondary btn-sm"
-                          onClick={() => handleToggleHostType(host.id, host.host_type)}
-                          title={`Switch host type to ${host.host_type === 'audio' ? 'Video Host' : 'Audio Host'}`}
-                          style={{ fontSize: '0.72rem', padding: '3px 8px', gap: '4px' }}
-                        >
-                          {host.host_type === 'audio' ? <Video size={12} /> : <Mic size={12} />}
-                          <span>To {host.host_type === 'audio' ? 'Video' : 'Audio'}</span>
-                        </button>
-
-                        <button
-                          type="button"
-                          className="btn btn-secondary btn-sm"
-                          onClick={() => setDetailsUserId(host.id)}
-                          title="View full host profile details and controls"
-                          style={{ fontSize: '0.72rem', padding: '3px 8px', gap: '4px' }}
-                        >
-                          <Eye size={12} />
-                          <span>Details</span>
-                        </button>
-
-                        <button
-                          type="button"
-                          className="btn btn-secondary btn-sm"
-                          onClick={() => handleRemoveHost(host.id)}
-                          title="Remove host from agency"
-                          style={{ color: '#fda4af', borderColor: 'rgba(244, 63, 94, 0.3)', fontSize: '0.72rem', padding: '3px 8px' }}
-                        >
-                          <Trash2 size={12} />
-                          <span>Remove</span>
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Host Roster Pagination */}
-                <div style={{ marginTop: '0.85rem' }}>
-                  <Pagination
-                    currentPage={hostPage}
-                    totalPages={Math.ceil(agencyHosts.length / hostPageSize) || 1}
-                    totalItems={agencyHosts.length}
-                    pageSize={hostPageSize}
-                    onPageChange={(p) => setHostPage(p)}
-                    onPageSizeChange={(sz) => {
-                      setHostPageSize(sz);
-                      setHostPage(1);
-                    }}
-                    pageSizeOptions={[5, 10, 15]}
-                  />
-                </div>
-              </>
-            )}
-
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1.25rem', paddingTop: '0.75rem', borderTop: '1px solid var(--border-color)' }}>
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={() => setSelectedAgencyForHosts(null)}
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
 
       {/* Delete Agency Confirmation Modal */}
       {deleteConfirmAgency && (

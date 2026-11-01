@@ -1490,7 +1490,7 @@ export async function createAgency(req, res) {
   const connection = await pool.getConnection();
 
   try {
-    const { name, ownerId, commissionRate = 10, contactPhone = '', notes = '' } = req.body;
+    const { name, ownerId, commissionRate = 10, contactPhone = '', notes = '', logo_url = null, avatar_url = null } = req.body;
 
     if (!name || !ownerId) {
       return res.status(400).json({ success: false, message: 'Agency name and owner are required.' });
@@ -1511,6 +1511,7 @@ export async function createAgency(req, res) {
     }
 
     const agencyCode = `AGY-${ownerId}`;
+    const agencyLogo = logo_url || avatar_url || null;
 
     await connection.beginTransaction();
 
@@ -1519,9 +1520,9 @@ export async function createAgency(req, res) {
 
     // 2. Insert new agency record where agency.id = ownerId (Owner's User ID IS the Agency ID)
     await connection.execute(
-      `INSERT INTO agencies (id, agency_code, name, owner_id, commission_rate, status, contact_phone, notes)
-       VALUES (?, ?, ?, ?, ?, 'active', ?, ?)`,
-      [ownerId, agencyCode, name, ownerId, parseFloat(commissionRate) || 10, contactPhone, notes]
+      `INSERT INTO agencies (id, agency_code, name, logo_url, avatar_url, owner_id, commission_rate, status, contact_phone, notes)
+       VALUES (?, ?, ?, ?, ?, ?, ?, 'active', ?, ?)`,
+      [ownerId, agencyCode, name, agencyLogo, agencyLogo, ownerId, parseFloat(commissionRate) || 10, contactPhone, notes]
     );
 
     await connection.commit();
@@ -1553,7 +1554,7 @@ export async function createAgency(req, res) {
 export async function updateAgency(req, res) {
   try {
     const { id } = req.params;
-    const { name, commissionRate, status, contactPhone, notes } = req.body;
+    const { name, commissionRate, status, contactPhone, notes, logo_url, avatar_url } = req.body;
 
     const updates = [];
     const params = [];
@@ -1563,6 +1564,8 @@ export async function updateAgency(req, res) {
     if (status !== undefined) { updates.push('status = ?'); params.push(status); }
     if (contactPhone !== undefined) { updates.push('contact_phone = ?'); params.push(contactPhone); }
     if (notes !== undefined) { updates.push('notes = ?'); params.push(notes); }
+    if (logo_url !== undefined) { updates.push('logo_url = ?'); params.push(logo_url); }
+    if (avatar_url !== undefined) { updates.push('avatar_url = ?'); params.push(avatar_url); }
 
     if (updates.length === 0) {
       return res.status(400).json({ success: false, message: 'No fields provided.' });
@@ -1573,6 +1576,7 @@ export async function updateAgency(req, res) {
 
     // Database write succeeded -> Invalidate Redis cache
     await cache.delByPattern('agencies:*');
+    await cache.delByPattern('agency:*');
     await cache.delByPattern('host:*');
 
     return res.json({ success: true, message: 'Agency updated successfully.' });
@@ -1762,9 +1766,17 @@ export async function getAgencyHosts(req, res) {
       [id]
     );
 
-    // Fetch agency owner and commission details
+    // Fetch complete agency profile and owner details
     const [agencyRow] = await query(
-      `SELECT a.id, a.name, a.owner_id, a.commission_rate, u.coins as owner_coins
+      `SELECT a.*, 
+              u.full_name as owner_name, 
+              u.avatar_url as owner_avatar, 
+              u.email as owner_email,
+              u.role as owner_role,
+              u.level as owner_level,
+              u.vip_package as owner_vip_package,
+              u.coins as owner_coins,
+              u.diamonds as owner_diamonds
        FROM agencies a
        LEFT JOIN users u ON u.id = a.owner_id
        WHERE a.id = ?`,
@@ -1782,11 +1794,20 @@ export async function getAgencyHosts(req, res) {
     const totalGifted = parseInt(commRow?.total_gifted || 0, 10);
     const commRate = parseFloat(agencyRow?.commission_rate || 10);
     const totalCommission = Math.round(totalGifted * (commRate / 100));
-    // User requirement: total coins = host coins + owner coins + agency commission
-    const totalCoins = hostCoins + ownerCoins + totalCommission;
+    // Agency coins strictly represent the sum of all affiliated hosts' coins (excluding owner balance and commission)
+    const totalCoins = hostCoins;
 
     return res.json({
       success: true,
+      agency: {
+        ...agencyRow,
+        owner_coins: ownerCoins,
+        total_host_coins: hostCoins,
+        total_commission_coins: totalCommission,
+        total_coins: totalCoins,
+        total_agency_coins: totalCoins,
+        host_count: hosts.length,
+      },
       hosts,
       total_coins: totalCoins,
       coins: totalCoins,
