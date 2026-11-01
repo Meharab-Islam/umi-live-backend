@@ -81,7 +81,27 @@ export async function buildRoomResponse(roomId, currentUser = null) {
   const durationSeconds = Math.max(0, Math.floor((now.getTime() - startedAt.getTime()) / 1000));
   const liveDurationFormatted = formatDuration(durationSeconds);
 
-  const totalSeats = parseInt(room.total_seats, 10) || 8;
+  const isVideo = (room.live_type || '').toLowerCase() === 'video';
+  const totalSeats = isVideo ? 12 : (parseInt(room.total_seats, 10) || 8);
+
+  if (isVideo && parseInt(room.total_seats, 10) !== 12) {
+    await query('UPDATE live_rooms SET total_seats = 12 WHERE id = ? OR room_id = ?', [room.id, canonicalRoomId]);
+  }
+
+  // Ensure all seats up to totalSeats exist in live_room_seats
+  await query(
+    `INSERT INTO live_room_seats (room_id, seat_number, user_id, is_main_seat, is_camera_on, is_muted)
+     VALUES (?, 1, ?, 1, 1, 0)
+     ON DUPLICATE KEY UPDATE user_id = VALUES(user_id), is_main_seat = 1`,
+    [canonicalRoomId, room.host_id]
+  );
+  for (let s = 2; s <= totalSeats; s++) {
+    await query(
+      `INSERT IGNORE INTO live_room_seats (room_id, seat_number, user_id, is_main_seat, is_camera_on, is_muted)
+       VALUES (?, ?, NULL, 0, 0, 0)`,
+      [canonicalRoomId, s]
+    );
+  }
 
   // 4. Fetch Seats from live_room_seats
   let seatRows = await query(
@@ -114,53 +134,6 @@ export async function buildRoomResponse(roomId, currentUser = null) {
      ORDER BY s.seat_number ASC`,
     [canonicalRoomId, String(roomId)]
   );
-
-  // If seats haven't been seeded for this room yet, auto-initialize
-  if (seatRows.length === 0) {
-    await query(
-      `INSERT INTO live_room_seats (room_id, seat_number, user_id, is_main_seat, is_camera_on, is_muted)
-       VALUES (?, 1, ?, 1, 1, 0)
-       ON DUPLICATE KEY UPDATE user_id = VALUES(user_id), is_main_seat = 1`,
-      [canonicalRoomId, room.host_id]
-    );
-    for (let s = 2; s <= totalSeats; s++) {
-      await query(
-        `INSERT IGNORE INTO live_room_seats (room_id, seat_number, user_id, is_main_seat, is_camera_on, is_muted)
-         VALUES (?, ?, NULL, 0, 0, 0)`,
-        [canonicalRoomId, s]
-      );
-    }
-    seatRows = await query(
-      `SELECT s.id as seat_id, s.seat_number, s.is_main_seat, s.is_camera_on, s.is_muted, s.is_locked,
-              u.id as user_id, u.full_name as user_name, u.avatar_url as user_avatar,
-              u.coins as user_coin, u.diamonds as user_diamond, u.role as user_role, u.level as user_level,
-              COALESCE(u.star, 0) as user_star,
-              COALESCE(u.star, 0) as user_stars,
-              st.image_url as equipped_thumbnail,
-              ee.preview_image_url as equipped_entry_preview,
-              ee.svga_url as equipped_entry_svga,
-              COALESCE(pp.image_url, pc.badge_icon, '') as package_image,
-              pc.color_code as package_color,
-              pc.name as package_category_name
-       FROM live_room_seats s
-       LEFT JOIN users u ON s.user_id = u.id
-       LEFT JOIN user_thumbnails ut ON ut.user_id = u.id AND ut.status = 'active' AND ut.is_equipped = 1 AND ut.expires_at > NOW()
-       LEFT JOIN special_thumbnails st ON ut.thumbnail_id = st.id
-       LEFT JOIN user_entry_effects uee ON uee.user_id = u.id AND uee.status = 'active' AND uee.is_equipped = 1 AND uee.expires_at > NOW()
-       LEFT JOIN entry_effects ee ON uee.effect_id = ee.id
-       LEFT JOIN user_package_subscriptions ups 
-         ON ups.id = (
-           SELECT id FROM user_package_subscriptions 
-           WHERE user_id = u.id AND status = 'active' AND expires_at > NOW() 
-           ORDER BY is_equipped DESC, expires_at DESC LIMIT 1
-         )
-       LEFT JOIN privilege_packages pp ON pp.id = ups.package_id
-       LEFT JOIN package_categories pc ON pc.id = ups.category_id AND pc.is_active = 1
-       WHERE (s.room_id = ? OR s.room_id = ?)
-       ORDER BY s.seat_number ASC`,
-      [canonicalRoomId, String(roomId)]
-    );
-  }
 
   const seatMap = {};
   for (const row of seatRows) {
@@ -700,9 +673,8 @@ export async function createRoom(req, res) {
     let seatCount;
 
     if (liveType === 'video') {
-      // Video Live: Max 12 seats!
-      const requested = parseInt(rawSeats, 10);
-      seatCount = requested ? Math.min(12, Math.max(2, requested)) : 12;
+      // Video Live: Always 12 seats (1 Host + 11 Guests)
+      seatCount = 12;
     } else {
       // Audio Live: Minimum 7 seats! (1 Host + 6 Guest seats). Default is 7.
       const requested = parseInt(rawSeats, 10);
@@ -1699,7 +1671,17 @@ export async function takeSeat(req, res) {
       return res.status(404).json({ success: false, message: 'Live room not active.' });
     }
     const room = rooms[0];
-    const totalSeats = parseInt(room.total_seats, 10) || 7;
+    const isVideo = (room.live_type || '').toLowerCase() === 'video';
+    const totalSeats = isVideo ? 12 : (parseInt(room.total_seats, 10) || 7);
+
+    // Ensure all seats up to totalSeats exist in DB
+    for (let s = 2; s <= totalSeats; s++) {
+      await query(
+        `INSERT IGNORE INTO live_room_seats (room_id, seat_number, user_id, is_main_seat, is_camera_on, is_muted)
+         VALUES (?, ?, NULL, 0, 0, 0)`,
+        [roomId, s]
+      );
+    }
 
     // Strict Video Live Rule: Direct seating requires host acceptance OR VIP self-seat-accept privilege
     if (room.live_type === 'video') {
@@ -2012,11 +1994,13 @@ export async function lockSeat(req, res) {
       return res.status(400).json({ success: false, message: 'Invalid seat number. Cannot lock Seat 1 (host seat).' });
     }
 
-    const rooms = await query('SELECT id, room_id, host_id, total_seats FROM live_rooms WHERE room_id = ? AND status = "live"', [roomId]);
+    const rooms = await query('SELECT id, room_id, host_id, total_seats, live_type FROM live_rooms WHERE room_id = ? AND status = "live"', [roomId]);
     if (rooms.length === 0) {
       return res.status(404).json({ success: false, message: 'Active live room not found.' });
     }
     const room = rooms[0];
+    const isVideo = (room.live_type || '').toLowerCase() === 'video';
+    const totalSeats = isVideo ? 12 : (parseInt(room.total_seats, 10) || 7);
 
     // Check caller permission: Host, Room Admin, or Platform Admin
     let isAuthorized = (callerId === room.host_id) || (callerRole === 'admin') || (callerRole === 'superadmin');
@@ -2030,7 +2014,7 @@ export async function lockSeat(req, res) {
 
     let seats = await query('SELECT * FROM live_room_seats WHERE room_id = ? AND seat_number = ?', [roomId, num]);
     if (seats.length === 0) {
-      if (num <= (room.total_seats || 7)) {
+      if (num <= totalSeats) {
         await query(
           'INSERT INTO live_room_seats (room_id, seat_number, user_id, is_main_seat, is_camera_on, is_muted, is_locked) VALUES (?, ?, NULL, 0, 0, 0, 0)',
           [roomId, num]
@@ -2412,6 +2396,17 @@ export async function requestSeat(req, res) {
       return res.status(404).json({ success: false, message: 'Live room not active or not found.' });
     }
     const room = rooms[0];
+    const isVideo = (room.live_type || '').toLowerCase() === 'video';
+    const totalSeats = isVideo ? 12 : (parseInt(room.total_seats, 10) || 7);
+
+    // Ensure all seats up to totalSeats exist in DB
+    for (let s = 2; s <= totalSeats; s++) {
+      await query(
+        `INSERT IGNORE INTO live_room_seats (room_id, seat_number, user_id, is_main_seat, is_camera_on, is_muted)
+         VALUES (?, ?, NULL, 0, 0, 0)`,
+        [roomId, s]
+      );
+    }
 
     // Check if user already on a seat in this room
     const existingSeat = await query('SELECT seat_number FROM live_room_seats WHERE room_id = ? AND user_id = ?', [roomId, userId]);
@@ -2759,6 +2754,17 @@ export async function approveSeatRequest(req, res) {
 
     // Determine seat number
     const isVideoLive = (room.live_type || 'video') !== 'audio';
+    const totalSeats = isVideoLive ? 12 : (parseInt(room.total_seats, 10) || 7);
+
+    // Ensure all seats up to totalSeats exist in DB
+    for (let s = 2; s <= totalSeats; s++) {
+      await query(
+        `INSERT IGNORE INTO live_room_seats (room_id, seat_number, user_id, is_main_seat, is_camera_on, is_muted)
+         VALUES (?, ?, NULL, 0, 0, 0)`,
+        [canonicalRoomId, s]
+      );
+    }
+
     let assignSeatNum = parseInt(seat_number || seatNumber || requestRow.seat_number, 10);
     if (isVideoLive || !assignSeatNum || assignSeatNum < 2) {
       const freeSeats = await query(
@@ -3460,7 +3466,8 @@ export async function lockAllEmptySeats(req, res) {
     }
 
     // Ensure all seats up to total_seats exist in DB
-    const totalSeats = parseInt(room.total_seats, 10) || 7;
+    const isVideo = (room.live_type || '').toLowerCase() === 'video';
+    const totalSeats = isVideo ? 12 : (parseInt(room.total_seats, 10) || 7);
     for (let s = 2; s <= totalSeats; s++) {
       await query(
         `INSERT IGNORE INTO live_room_seats (room_id, seat_number, user_id, is_main_seat, is_camera_on, is_muted, is_locked)
