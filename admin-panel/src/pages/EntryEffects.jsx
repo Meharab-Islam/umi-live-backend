@@ -70,7 +70,7 @@ export default function EntryEffects({ onToast, embedded = false }) {
       if (res.success) {
         onToast(`Successfully deleted ${res.count || selectedEffectIds.length} entry effects.`, 'success');
         setSelectedEffectIds([]);
-        loadEffects();
+        fetchEffects();
       }
     } catch (err) {
       onToast(err.message || 'Failed to bulk delete entry effects.', 'error');
@@ -98,11 +98,11 @@ export default function EntryEffects({ onToast, embedded = false }) {
     try {
       setBulkRevokingSubs(true);
       for (const subId of selectedSubIds) {
-        await specialItemApi.revokeEntryEffectSubscription(subId).catch(() => {});
+        await specialItemApi.revokeEntryEffect(subId).catch(() => {});
       }
       onToast(`Revoked ${selectedSubIds.length} entry effect assignments.`, 'success');
       setSelectedSubIds([]);
-      loadSubscribers();
+      fetchSubscribers();
     } catch (err) {
       onToast(err.message || 'Failed to revoke subscriptions.', 'error');
     } finally {
@@ -346,6 +346,9 @@ export default function EntryEffects({ onToast, embedded = false }) {
         setAssignUser(null);
         setAssignEffectId('');
         setAssignCustomDays('');
+        setSubSearch('');
+        setSubPage(1);
+        setCurrentTab('assigned');
         fetchSubscribers();
         fetchEffects();
       }
@@ -474,7 +477,10 @@ export default function EntryEffects({ onToast, embedded = false }) {
 
         <button
           type="button"
-          onClick={() => setCurrentTab('assigned')}
+          onClick={() => {
+            setCurrentTab('assigned');
+            fetchSubscribers();
+          }}
           style={{
             padding: '0.6rem 1.25rem',
             borderRadius: '10px',

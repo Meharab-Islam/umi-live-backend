@@ -152,13 +152,20 @@ export async function getThumbnailSubscribers(req, res) {
     const conditions = [];
     const params = [];
 
-    if (thumbnailId) {
+    if (thumbnailId && thumbnailId !== 'undefined' && thumbnailId !== 'null') {
       conditions.push('ut.thumbnail_id = ?');
       params.push(thumbnailId);
     }
-    if (search) {
-      conditions.push('(u.id = ? OR u.full_name LIKE ? OR u.email LIKE ?)');
-      params.push(search, `%${search}%`, `%${search}%`);
+
+    const cleanSearch = (search && search !== 'undefined' && search !== 'null') ? String(search).trim() : '';
+    if (cleanSearch) {
+      if (/^\d+$/.test(cleanSearch)) {
+        conditions.push('(u.id = ? OR u.full_name LIKE ? OR u.email LIKE ?)');
+        params.push(parseInt(cleanSearch, 10), `%${cleanSearch}%`, `%${cleanSearch}%`);
+      } else {
+        conditions.push('(u.full_name LIKE ? OR u.email LIKE ?)');
+        params.push(`%${cleanSearch}%`, `%${cleanSearch}%`);
+      }
     }
 
     const whereSql = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
@@ -495,13 +502,20 @@ export async function getEntryEffectSubscribers(req, res) {
     const conditions = [];
     const params = [];
 
-    if (effectId) {
+    if (effectId && effectId !== 'undefined' && effectId !== 'null') {
       conditions.push('uee.effect_id = ?');
       params.push(effectId);
     }
-    if (search) {
-      conditions.push('(u.id = ? OR u.full_name LIKE ? OR u.email LIKE ?)');
-      params.push(search, `%${search}%`, `%${search}%`);
+
+    const cleanSearch = (search && search !== 'undefined' && search !== 'null') ? String(search).trim() : '';
+    if (cleanSearch) {
+      if (/^\d+$/.test(cleanSearch)) {
+        conditions.push('(u.id = ? OR u.full_name LIKE ? OR u.email LIKE ?)');
+        params.push(parseInt(cleanSearch, 10), `%${cleanSearch}%`, `%${cleanSearch}%`);
+      } else {
+        conditions.push('(u.full_name LIKE ? OR u.email LIKE ?)');
+        params.push(`%${cleanSearch}%`, `%${cleanSearch}%`);
+      }
     }
 
     const whereSql = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
@@ -514,6 +528,7 @@ export async function getEntryEffectSubscribers(req, res) {
         uee.start_date,
         uee.expires_at,
         uee.status,
+        uee.is_equipped,
         CASE WHEN uee.status = 'active' AND uee.expires_at > NOW() THEN 1 ELSE 0 END as is_currently_active,
         GREATEST(0, TIMESTAMPDIFF(DAY, NOW(), uee.expires_at)) as days_remaining,
         u.full_name as user_name,
@@ -546,7 +561,7 @@ export async function getEntryEffectSubscribers(req, res) {
       success: true,
       subscribers: subscribers || [],
       pagination: {
-        total: totalRows.count,
+        total: totalRows?.count ? parseInt(totalRows.count, 10) : (subscribers || []).length,
         page: parseInt(page, 10),
         limit: parseInt(limit, 10),
       },
@@ -581,7 +596,7 @@ export async function grantEntryEffectToUser(req, res) {
       ? parsedCustom
       : (parseInt(eff.validity_days, 10) || 30);
 
-    // Check if user already holds active effect; extend if so
+    // Check if user already holds active effect; extend and equip if so
     const [existing] = await query(`
       SELECT * FROM user_entry_effects 
       WHERE user_id = ? AND effect_id = ? AND status = 'active' AND expires_at > NOW()
@@ -591,22 +606,25 @@ export async function grantEntryEffectToUser(req, res) {
     if (existing) {
       await query(`
         UPDATE user_entry_effects 
-        SET expires_at = DATE_ADD(expires_at, INTERVAL ? DAY), updated_at = NOW()
+        SET expires_at = DATE_ADD(expires_at, INTERVAL ? DAY), status = 'active', is_equipped = 1, updated_at = NOW()
         WHERE id = ?
       `, [durationDays, existing.id]);
     } else {
+      await query('UPDATE user_entry_effects SET is_equipped = 0 WHERE user_id = ?', [cleanUserId]);
       await query(`
         INSERT INTO user_entry_effects 
-        (user_id, effect_id, start_date, expires_at, status)
-        VALUES (?, ?, NOW(), DATE_ADD(NOW(), INTERVAL ? DAY), 'active')
+        (user_id, effect_id, start_date, expires_at, status, is_equipped)
+        VALUES (?, ?, NOW(), DATE_ADD(NOW(), INTERVAL ? DAY), 'active', 1)
       `, [cleanUserId, eff.id, durationDays]);
     }
 
     // Invalidate caches
     await cache.delByPattern('entry_effects:*');
+    await cache.delByPattern('mobile:entry-effects:*');
     await cache.del(`user:${cleanUserId}`);
     await cache.del(`user:entry_effects:${cleanUserId}`);
     await cache.del(`mobile:user:profile:${cleanUserId}`);
+    await cache.del(`user:profile:${cleanUserId}`);
 
     return res.json({
       success: true,

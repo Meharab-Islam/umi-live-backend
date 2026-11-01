@@ -316,19 +316,6 @@
       "source_location": "L2"
     },
     {
-      "id": "games_greedybaby_backend_public_static_js_main_05634587_y",
-      "label": "Y",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 145,
-      "community_name": "main.05634587.js",
-      "file_type": "code",
-      "norm_label": "y",
-      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
-      "source_location": "L2"
-    },
-    {
       "id": "games_greedybaby_backend_public_static_js_main_05634587_be",
       "label": "be",
       "_callable": true,
@@ -338,6 +325,19 @@
       "community_name": "tn",
       "file_type": "code",
       "norm_label": "be",
+      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_greedybaby_backend_public_static_js_main_05634587_gn",
+      "label": "gn()",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 152,
+      "community_name": "tn",
+      "file_type": "code",
+      "norm_label": "gn()",
       "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
       "source_location": "L2"
     },
@@ -465,7 +465,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 217,
-      "community_name": "nl",
+      "community_name": ".add",
       "file_type": "code",
       "norm_label": "be()",
       "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
@@ -810,19 +810,6 @@
       "source_location": "L2"
     },
     {
-      "id": "games_greedybaby_backend_public_static_js_main_05634587_gn",
-      "label": "gn()",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 70,
-      "community_name": "z",
-      "file_type": "code",
-      "norm_label": "gn()",
-      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
-      "source_location": "L2"
-    },
-    {
       "id": "games_greedybaby_backend_public_static_js_main_05634587_v",
       "label": "V",
       "_callable": true,
@@ -832,6 +819,19 @@
       "community_name": "z",
       "file_type": "code",
       "norm_label": "v",
+      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_greedybaby_backend_public_static_js_main_05634587_y",
+      "label": "Y",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 70,
+      "community_name": "z",
+      "file_type": "code",
+      "norm_label": "y",
       "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
       "source_location": "L2"
     },
@@ -8284,26 +8284,38 @@
       "source_location": "L1"
     },
     {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_aa",
-      "label": "aa()",
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_al",
+      "label": "al()",
       "_callable": true,
       "_origin": "ast",
       "community": 11,
       "community_name": "main.6418cc2f.js",
       "file_type": "code",
-      "norm_label": "aa()",
+      "norm_label": "al()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
       "source_location": "L2"
     },
     {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_ae",
-      "label": "ae()",
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_at",
+      "label": "At()",
       "_callable": true,
       "_origin": "ast",
       "community": 11,
       "community_name": "main.6418cc2f.js",
       "file_type": "code",
-      "norm_label": "ae()",
+      "norm_label": "at()",
+      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_au",
+      "label": "au()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "main.6418cc2f.js",
+      "file_type": "code",
+      "norm_label": "au()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
       "source_location": "L2"
     },
@@ -8316,18 +8328,6 @@
       "community_name": "main.6418cc2f.js",
       "file_type": "code",
       "norm_label": "ba()",
-      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_be",
-      "label": "be()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "main.6418cc2f.js",
-      "file_type": "code",
-      "norm_label": "be()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
       "source_location": "L2"
     },
@@ -8352,18 +8352,6 @@
       "community_name": "main.6418cc2f.js",
       "file_type": "code",
       "norm_label": "bl()",
-      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_bo",
-      "label": "bo()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "main.6418cc2f.js",
-      "file_type": "code",
-      "norm_label": "bo()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
       "source_location": "L2"
     },
@@ -8416,6 +8404,18 @@
       "source_location": "L2"
     },
     {
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_cl",
+      "label": "cl()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "main.6418cc2f.js",
+      "file_type": "code",
+      "norm_label": "cl()",
+      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
+      "source_location": "L2"
+    },
+    {
       "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_clear",
       "label": "clear()",
       "_callable": true,
@@ -8424,18 +8424,6 @@
       "community_name": "main.6418cc2f.js",
       "file_type": "code",
       "norm_label": "clear()",
-      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_co",
-      "label": "co()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "main.6418cc2f.js",
-      "file_type": "code",
-      "norm_label": "co()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
       "source_location": "L2"
     },
@@ -8452,26 +8440,26 @@
       "source_location": "L2"
     },
     {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_da",
-      "label": "da()",
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_cs",
+      "label": "cs()",
       "_callable": true,
       "_origin": "ast",
       "community": 11,
       "community_name": "main.6418cc2f.js",
       "file_type": "code",
-      "norm_label": "da()",
+      "norm_label": "cs()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
       "source_location": "L2"
     },
     {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_do",
-      "label": "Do()",
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_cu",
+      "label": "cu()",
       "_callable": true,
       "_origin": "ast",
       "community": 11,
       "community_name": "main.6418cc2f.js",
       "file_type": "code",
-      "norm_label": "do()",
+      "norm_label": "cu()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
       "source_location": "L2"
     },
@@ -8548,6 +8536,18 @@
       "source_location": "L2"
     },
     {
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_el",
+      "label": "el()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "main.6418cc2f.js",
+      "file_type": "code",
+      "norm_label": "el()",
+      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
+      "source_location": "L2"
+    },
+    {
       "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_eo",
       "label": "eo()",
       "_callable": true,
@@ -8572,6 +8572,18 @@
       "source_location": "L2"
     },
     {
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_eu",
+      "label": "Eu()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "main.6418cc2f.js",
+      "file_type": "code",
+      "norm_label": "eu()",
+      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
+      "source_location": "L2"
+    },
+    {
       "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_fa",
       "label": "Fa()",
       "_callable": true,
@@ -8584,14 +8596,14 @@
       "source_location": "L2"
     },
     {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_fo",
-      "label": "Fo()",
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_fe",
+      "label": "fe()",
       "_callable": true,
       "_origin": "ast",
       "community": 11,
       "community_name": "main.6418cc2f.js",
       "file_type": "code",
-      "norm_label": "fo()",
+      "norm_label": "fe()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
       "source_location": "L2"
     },
@@ -8608,14 +8620,14 @@
       "source_location": "L2"
     },
     {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_fu",
-      "label": "fu()",
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_ft",
+      "label": "ft()",
       "_callable": true,
       "_origin": "ast",
       "community": 11,
       "community_name": "main.6418cc2f.js",
       "file_type": "code",
-      "norm_label": "fu()",
+      "norm_label": "ft()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
       "source_location": "L2"
     },
@@ -8628,6 +8640,18 @@
       "community_name": "main.6418cc2f.js",
       "file_type": "code",
       "norm_label": "ga()",
+      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_gl",
+      "label": "gl()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "main.6418cc2f.js",
+      "file_type": "code",
+      "norm_label": "gl()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
       "source_location": "L2"
     },
@@ -8692,14 +8716,62 @@
       "source_location": "L2"
     },
     {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_ia",
-      "label": "ia()",
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_hl",
+      "label": "hl()",
       "_callable": true,
       "_origin": "ast",
       "community": 11,
       "community_name": "main.6418cc2f.js",
       "file_type": "code",
-      "norm_label": "ia()",
+      "norm_label": "hl()",
+      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_hs",
+      "label": "hs()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "main.6418cc2f.js",
+      "file_type": "code",
+      "norm_label": "hs()",
+      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_ht",
+      "label": "ht()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "main.6418cc2f.js",
+      "file_type": "code",
+      "norm_label": "ht()",
+      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_hu",
+      "label": "hu()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "main.6418cc2f.js",
+      "file_type": "code",
+      "norm_label": "hu()",
+      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_ie",
+      "label": "ie()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "main.6418cc2f.js",
+      "file_type": "code",
+      "norm_label": "ie()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
       "source_location": "L2"
     },
@@ -8716,6 +8788,30 @@
       "source_location": "L2"
     },
     {
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_il",
+      "label": "il()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "main.6418cc2f.js",
+      "file_type": "code",
+      "norm_label": "il()",
+      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_io",
+      "label": "Io()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "main.6418cc2f.js",
+      "file_type": "code",
+      "norm_label": "io()",
+      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
+      "source_location": "L2"
+    },
+    {
       "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_is",
       "label": "is()",
       "_callable": true,
@@ -8724,6 +8820,18 @@
       "community_name": "main.6418cc2f.js",
       "file_type": "code",
       "norm_label": "is()",
+      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_iu",
+      "label": "iu()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "main.6418cc2f.js",
+      "file_type": "code",
+      "norm_label": "iu()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
       "source_location": "L2"
     },
@@ -8740,14 +8848,14 @@
       "source_location": "L2"
     },
     {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_jo",
-      "label": "jo()",
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_ju",
+      "label": "ju()",
       "_callable": true,
       "_origin": "ast",
       "community": 11,
       "community_name": "main.6418cc2f.js",
       "file_type": "code",
-      "norm_label": "jo()",
+      "norm_label": "ju()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
       "source_location": "L2"
     },
@@ -8764,6 +8872,30 @@
       "source_location": "L2"
     },
     {
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_ki",
+      "label": "ki()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "main.6418cc2f.js",
+      "file_type": "code",
+      "norm_label": "ki()",
+      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_kl",
+      "label": "kl()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "main.6418cc2f.js",
+      "file_type": "code",
+      "norm_label": "kl()",
+      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
+      "source_location": "L2"
+    },
+    {
       "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_ks",
       "label": "ks()",
       "_callable": true,
@@ -8772,6 +8904,18 @@
       "community_name": "main.6418cc2f.js",
       "file_type": "code",
       "norm_label": "ks()",
+      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_ku",
+      "label": "ku()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "main.6418cc2f.js",
+      "file_type": "code",
+      "norm_label": "ku()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
       "source_location": "L2"
     },
@@ -8788,14 +8932,26 @@
       "source_location": "L2"
     },
     {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_le",
-      "label": "le()",
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_ll",
+      "label": "ll()",
       "_callable": true,
       "_origin": "ast",
       "community": 11,
       "community_name": "main.6418cc2f.js",
       "file_type": "code",
-      "norm_label": "le()",
+      "norm_label": "ll()",
+      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_lu",
+      "label": "lu()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "main.6418cc2f.js",
+      "file_type": "code",
+      "norm_label": "lu()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
       "source_location": "L2"
     },
@@ -8808,6 +8964,18 @@
       "community_name": "main.6418cc2f.js",
       "file_type": "code",
       "norm_label": "ma()",
+      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_me_i",
+      "label": "i()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "main.6418cc2f.js",
+      "file_type": "code",
+      "norm_label": "i()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
       "source_location": "L2"
     },
@@ -8836,6 +9004,18 @@
       "source_location": "L2"
     },
     {
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_ms",
+      "label": "ms()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "main.6418cc2f.js",
+      "file_type": "code",
+      "norm_label": "ms()",
+      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
+      "source_location": "L2"
+    },
+    {
       "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_mt",
       "label": "mt()",
       "_callable": true,
@@ -8844,6 +9024,18 @@
       "community_name": "main.6418cc2f.js",
       "file_type": "code",
       "norm_label": "mt()",
+      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_mu",
+      "label": "mu()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "main.6418cc2f.js",
+      "file_type": "code",
+      "norm_label": "mu()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
       "source_location": "L2"
     },
@@ -8884,18 +9076,6 @@
       "source_location": "L2"
     },
     {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_ni",
-      "label": "ni()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "main.6418cc2f.js",
-      "file_type": "code",
-      "norm_label": "ni()",
-      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
-      "source_location": "L2"
-    },
-    {
       "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_ns",
       "label": "ns()",
       "_callable": true,
@@ -8920,26 +9100,26 @@
       "source_location": "L2"
     },
     {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_oa",
-      "label": "oa()",
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_o",
+      "label": "_o()",
       "_callable": true,
       "_origin": "ast",
       "community": 11,
       "community_name": "main.6418cc2f.js",
       "file_type": "code",
-      "norm_label": "oa()",
+      "norm_label": "_o()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
       "source_location": "L2"
     },
     {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_oo",
-      "label": "Oo()",
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_ol",
+      "label": "ol()",
       "_callable": true,
       "_origin": "ast",
       "community": 11,
       "community_name": "main.6418cc2f.js",
       "file_type": "code",
-      "norm_label": "oo()",
+      "norm_label": "ol()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
       "source_location": "L2"
     },
@@ -8952,6 +9132,18 @@
       "community_name": "main.6418cc2f.js",
       "file_type": "code",
       "norm_label": "os()",
+      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_ou",
+      "label": "ou()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "main.6418cc2f.js",
+      "file_type": "code",
+      "norm_label": "ou()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
       "source_location": "L2"
     },
@@ -8992,14 +9184,14 @@
       "source_location": "L2"
     },
     {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_po",
-      "label": "Po()",
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_pl",
+      "label": "pl()",
       "_callable": true,
       "_origin": "ast",
       "community": 11,
       "community_name": "main.6418cc2f.js",
       "file_type": "code",
-      "norm_label": "po()",
+      "norm_label": "pl()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
       "source_location": "L2"
     },
@@ -9024,18 +9216,6 @@
       "community_name": "main.6418cc2f.js",
       "file_type": "code",
       "norm_label": "pt()",
-      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_pu",
-      "label": "pu()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "main.6418cc2f.js",
-      "file_type": "code",
-      "norm_label": "pu()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
       "source_location": "L2"
     },
@@ -9124,6 +9304,18 @@
       "source_location": "L2"
     },
     {
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_rl",
+      "label": "rl()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "main.6418cc2f.js",
+      "file_type": "code",
+      "norm_label": "rl()",
+      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
+      "source_location": "L2"
+    },
+    {
       "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_ro",
       "label": "Ro()",
       "_callable": true,
@@ -9160,26 +9352,14 @@
       "source_location": "L2"
     },
     {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_sa",
-      "label": "sa()",
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_ru",
+      "label": "ru()",
       "_callable": true,
       "_origin": "ast",
       "community": 11,
       "community_name": "main.6418cc2f.js",
       "file_type": "code",
-      "norm_label": "sa()",
-      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_se",
-      "label": "se()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "main.6418cc2f.js",
-      "file_type": "code",
-      "norm_label": "se()",
+      "norm_label": "ru()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
       "source_location": "L2"
     },
@@ -9196,6 +9376,18 @@
       "source_location": "L2"
     },
     {
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_sl",
+      "label": "sl()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "main.6418cc2f.js",
+      "file_type": "code",
+      "norm_label": "sl()",
+      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
+      "source_location": "L2"
+    },
+    {
       "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_ss",
       "label": "Ss()",
       "_callable": true,
@@ -9204,6 +9396,18 @@
       "community_name": "main.6418cc2f.js",
       "file_type": "code",
       "norm_label": "ss()",
+      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_su",
+      "label": "su()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "main.6418cc2f.js",
+      "file_type": "code",
+      "norm_label": "su()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
       "source_location": "L2"
     },
@@ -9244,6 +9448,18 @@
       "source_location": "L2"
     },
     {
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_tl",
+      "label": "tl()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "main.6418cc2f.js",
+      "file_type": "code",
+      "norm_label": "tl()",
+      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
+      "source_location": "L2"
+    },
+    {
       "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_ts",
       "label": "ts()",
       "_callable": true,
@@ -9256,14 +9472,26 @@
       "source_location": "L2"
     },
     {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_ua",
-      "label": "ua()",
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_tu",
+      "label": "tu()",
       "_callable": true,
       "_origin": "ast",
       "community": 11,
       "community_name": "main.6418cc2f.js",
       "file_type": "code",
-      "norm_label": "ua()",
+      "norm_label": "tu()",
+      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_ul",
+      "label": "ul()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "main.6418cc2f.js",
+      "file_type": "code",
+      "norm_label": "ul()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
       "source_location": "L2"
     },
@@ -9292,6 +9520,18 @@
       "source_location": "L2"
     },
     {
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_uu",
+      "label": "uu()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "main.6418cc2f.js",
+      "file_type": "code",
+      "norm_label": "uu()",
+      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
+      "source_location": "L2"
+    },
+    {
       "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_va",
       "label": "Va()",
       "_callable": true,
@@ -9304,6 +9544,18 @@
       "source_location": "L2"
     },
     {
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_vl",
+      "label": "vl()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "main.6418cc2f.js",
+      "file_type": "code",
+      "norm_label": "vl()",
+      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
+      "source_location": "L2"
+    },
+    {
       "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_vr",
       "label": "Vr()",
       "_callable": true,
@@ -9312,6 +9564,18 @@
       "community_name": "main.6418cc2f.js",
       "file_type": "code",
       "norm_label": "vr()",
+      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_vu",
+      "label": "vu()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "main.6418cc2f.js",
+      "file_type": "code",
+      "norm_label": "vu()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
       "source_location": "L2"
     },
@@ -9340,6 +9604,18 @@
       "source_location": "L2"
     },
     {
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_wl",
+      "label": "wl()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "main.6418cc2f.js",
+      "file_type": "code",
+      "norm_label": "wl()",
+      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
+      "source_location": "L2"
+    },
+    {
       "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_ws",
       "label": "ws()",
       "_callable": true,
@@ -9348,6 +9624,18 @@
       "community_name": "main.6418cc2f.js",
       "file_type": "code",
       "norm_label": "ws()",
+      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_wu",
+      "label": "wu()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "main.6418cc2f.js",
+      "file_type": "code",
+      "norm_label": "wu()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
       "source_location": "L2"
     },
@@ -9412,6 +9700,18 @@
       "source_location": "L2"
     },
     {
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_xu",
+      "label": "xu()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "main.6418cc2f.js",
+      "file_type": "code",
+      "norm_label": "xu()",
+      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
+      "source_location": "L2"
+    },
+    {
       "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_ya",
       "label": "Ya()",
       "_callable": true,
@@ -9424,14 +9724,50 @@
       "source_location": "L2"
     },
     {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_ys",
-      "label": "ys()",
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_yi",
+      "label": "yi()",
       "_callable": true,
       "_origin": "ast",
       "community": 11,
       "community_name": "main.6418cc2f.js",
       "file_type": "code",
-      "norm_label": "ys()",
+      "norm_label": "yi()",
+      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_yl",
+      "label": "yl()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "main.6418cc2f.js",
+      "file_type": "code",
+      "norm_label": "yl()",
+      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_yt",
+      "label": "yt()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "main.6418cc2f.js",
+      "file_type": "code",
+      "norm_label": "yt()",
+      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_yu",
+      "label": "yu()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "main.6418cc2f.js",
+      "file_type": "code",
+      "norm_label": "yu()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
       "source_location": "L2"
     },
@@ -9448,14 +9784,14 @@
       "source_location": "L2"
     },
     {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_zo",
-      "label": "zo()",
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_zi",
+      "label": "zi()",
       "_callable": true,
       "_origin": "ast",
       "community": 11,
       "community_name": "main.6418cc2f.js",
       "file_type": "code",
-      "norm_label": "zo()",
+      "norm_label": "zi()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
       "source_location": "L2"
     },
@@ -14257,7 +14593,7 @@
       "file_type": "code",
       "norm_label": "getbanneddeviceslist()",
       "source_file": "backend/src/controllers/mobile/moderatorController.js",
-      "source_location": "L519"
+      "source_location": "L587"
     },
     {
       "id": "backend_src_controllers_mobile_moderatorcontroller_getuseranddevices",
@@ -14281,7 +14617,7 @@
       "file_type": "code",
       "norm_label": "registerdeviceforuser()",
       "source_file": "backend/src/controllers/mobile/moderatorController.js",
-      "source_location": "L628"
+      "source_location": "L696"
     },
     {
       "id": "backend_src_controllers_mobile_moderatorcontroller_resolvefullavatarurl",
@@ -14317,7 +14653,7 @@
       "file_type": "code",
       "norm_label": "toggledeviceban()",
       "source_file": "backend/src/controllers/mobile/moderatorController.js",
-      "source_location": "L381"
+      "source_location": "L449"
     },
     {
       "id": "backend_src_controllers_mobile_moderatorcontroller_toggleuserban",
@@ -14728,6 +15064,30 @@
       "source_location": "L2"
     },
     {
+      "id": "games_greedybaby_backend_public_static_js_main_05634587_730_al",
+      "label": "al()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 145,
+      "community_name": "main.05634587.js",
+      "file_type": "code",
+      "norm_label": "al()",
+      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_greedybaby_backend_public_static_js_main_05634587_730_bl",
+      "label": "bl()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 145,
+      "community_name": "main.05634587.js",
+      "file_type": "code",
+      "norm_label": "bl()",
+      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
+      "source_location": "L2"
+    },
+    {
       "id": "games_greedybaby_backend_public_static_js_main_05634587_730_br",
       "label": "br()",
       "_callable": true,
@@ -14764,6 +15124,18 @@
       "source_location": "L2"
     },
     {
+      "id": "games_greedybaby_backend_public_static_js_main_05634587_730_dt",
+      "label": "dt()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 145,
+      "community_name": "main.05634587.js",
+      "file_type": "code",
+      "norm_label": "dt()",
+      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
+      "source_location": "L2"
+    },
+    {
       "id": "games_greedybaby_backend_public_static_js_main_05634587_730_g",
       "label": "G()",
       "_callable": true,
@@ -14772,6 +15144,18 @@
       "community_name": "main.05634587.js",
       "file_type": "code",
       "norm_label": "g()",
+      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_greedybaby_backend_public_static_js_main_05634587_730_ga",
+      "label": "Ga()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 145,
+      "community_name": "main.05634587.js",
+      "file_type": "code",
+      "norm_label": "ga()",
       "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
       "source_location": "L2"
     },
@@ -14788,6 +15172,30 @@
       "source_location": "L2"
     },
     {
+      "id": "games_greedybaby_backend_public_static_js_main_05634587_730_it",
+      "label": "It()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 145,
+      "community_name": "main.05634587.js",
+      "file_type": "code",
+      "norm_label": "it()",
+      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_greedybaby_backend_public_static_js_main_05634587_730_mt",
+      "label": "mt()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 145,
+      "community_name": "main.05634587.js",
+      "file_type": "code",
+      "norm_label": "mt()",
+      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
+      "source_location": "L2"
+    },
+    {
       "id": "games_greedybaby_backend_public_static_js_main_05634587_730_pr",
       "label": "pr()",
       "_callable": true,
@@ -14796,6 +15204,42 @@
       "community_name": "main.05634587.js",
       "file_type": "code",
       "norm_label": "pr()",
+      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_greedybaby_backend_public_static_js_main_05634587_730_qt",
+      "label": "qt()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 145,
+      "community_name": "main.05634587.js",
+      "file_type": "code",
+      "norm_label": "qt()",
+      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_greedybaby_backend_public_static_js_main_05634587_730_qt_t",
+      "label": "t()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 145,
+      "community_name": "main.05634587.js",
+      "file_type": "code",
+      "norm_label": "t()",
+      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_greedybaby_backend_public_static_js_main_05634587_730_t",
+      "label": "$t()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 145,
+      "community_name": "main.05634587.js",
+      "file_type": "code",
+      "norm_label": "$t()",
       "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
       "source_location": "L2"
     },
@@ -14812,6 +15256,18 @@
       "source_location": "L2"
     },
     {
+      "id": "games_greedybaby_backend_public_static_js_main_05634587_730_ut",
+      "label": "Ut()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 145,
+      "community_name": "main.05634587.js",
+      "file_type": "code",
+      "norm_label": "ut()",
+      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
+      "source_location": "L2"
+    },
+    {
       "id": "games_greedybaby_backend_public_static_js_main_05634587_730_vr",
       "label": "vr()",
       "_callable": true,
@@ -14824,6 +15280,30 @@
       "source_location": "L2"
     },
     {
+      "id": "games_greedybaby_backend_public_static_js_main_05634587_730_wl",
+      "label": "wl()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 145,
+      "community_name": "main.05634587.js",
+      "file_type": "code",
+      "norm_label": "wl()",
+      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_greedybaby_backend_public_static_js_main_05634587_730_wt",
+      "label": "wt()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 145,
+      "community_name": "main.05634587.js",
+      "file_type": "code",
+      "norm_label": "wt()",
+      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
+      "source_location": "L2"
+    },
+    {
       "id": "games_greedybaby_backend_public_static_js_main_05634587_730_x",
       "label": "X()",
       "_callable": true,
@@ -14832,6 +15312,18 @@
       "community_name": "main.05634587.js",
       "file_type": "code",
       "norm_label": "x()",
+      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_greedybaby_backend_public_static_js_main_05634587_730_yo",
+      "label": "yo()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 145,
+      "community_name": "main.05634587.js",
+      "file_type": "code",
+      "norm_label": "yo()",
       "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
       "source_location": "L2"
     },
@@ -14992,18 +15484,6 @@
       "source_location": "L2"
     },
     {
-      "id": "games_greedybaby_backend_public_static_js_main_05634587_createsocket",
-      "label": "createSocket()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 145,
-      "community_name": "main.05634587.js",
-      "file_type": "code",
-      "norm_label": "createsocket()",
-      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
-      "source_location": "L2"
-    },
-    {
       "id": "games_greedybaby_backend_public_static_js_main_05634587_dr",
       "label": "Dr()",
       "_callable": true,
@@ -15012,6 +15492,18 @@
       "community_name": "main.05634587.js",
       "file_type": "code",
       "norm_label": "dr()",
+      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_greedybaby_backend_public_static_js_main_05634587_dt",
+      "label": "Dt()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 145,
+      "community_name": "main.05634587.js",
+      "file_type": "code",
+      "norm_label": "dt()",
       "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
       "source_location": "L2"
     },
@@ -15256,6 +15748,18 @@
       "source_location": "L2"
     },
     {
+      "id": "games_greedybaby_backend_public_static_js_main_05634587_nt",
+      "label": "Nt()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 145,
+      "community_name": "main.05634587.js",
+      "file_type": "code",
+      "norm_label": "nt()",
+      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
+      "source_location": "L2"
+    },
+    {
       "id": "games_greedybaby_backend_public_static_js_main_05634587_off",
       "label": "off()",
       "_callable": true,
@@ -15264,18 +15768,6 @@
       "community_name": "main.05634587.js",
       "file_type": "code",
       "norm_label": "off()",
-      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_greedybaby_backend_public_static_js_main_05634587_p",
-      "label": "P()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 145,
-      "community_name": "main.05634587.js",
-      "file_type": "code",
-      "norm_label": "p()",
       "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
       "source_location": "L2"
     },
@@ -15300,18 +15792,6 @@
       "community_name": "main.05634587.js",
       "file_type": "code",
       "norm_label": "pt()",
-      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_greedybaby_backend_public_static_js_main_05634587_request",
-      "label": "request()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 145,
-      "community_name": "main.05634587.js",
-      "file_type": "code",
-      "norm_label": "request()",
       "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
       "source_location": "L2"
     },
@@ -15424,54 +15904,6 @@
       "source_location": "L2"
     },
     {
-      "id": "games_greedybaby_backend_public_static_js_main_05634587_y_doclose",
-      "label": ".doClose()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 145,
-      "community_name": "main.05634587.js",
-      "file_type": "code",
-      "norm_label": ".doclose()",
-      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_greedybaby_backend_public_static_js_main_05634587_y_doopen",
-      "label": ".doOpen()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 145,
-      "community_name": "main.05634587.js",
-      "file_type": "code",
-      "norm_label": ".doopen()",
-      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_greedybaby_backend_public_static_js_main_05634587_y_name",
-      "label": ".name()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 145,
-      "community_name": "main.05634587.js",
-      "file_type": "code",
-      "norm_label": ".name()",
-      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_greedybaby_backend_public_static_js_main_05634587_y_uri",
-      "label": ".uri()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 145,
-      "community_name": "main.05634587.js",
-      "file_type": "code",
-      "norm_label": ".uri()",
-      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
-      "source_location": "L2"
-    },
-    {
       "id": "games_greedybaby_backend_public_static_js_main_05634587_zr",
       "label": "zr()",
       "_callable": true,
@@ -15480,6 +15912,18 @@
       "community_name": "main.05634587.js",
       "file_type": "code",
       "norm_label": "zr()",
+      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_greedybaby_backend_public_static_js_main_05634587_zt",
+      "label": "zt()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 145,
+      "community_name": "main.05634587.js",
+      "file_type": "code",
+      "norm_label": "zt()",
       "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
       "source_location": "L2"
     },
@@ -15616,6 +16060,30 @@
       "source_location": "L2"
     },
     {
+      "id": "games_greedybaby_backend_public_static_js_main_05634587_gn_constructor",
+      "label": ".constructor()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 152,
+      "community_name": "tn",
+      "file_type": "code",
+      "norm_label": ".constructor()",
+      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_greedybaby_backend_public_static_js_main_05634587_gn_geturi",
+      "label": ".getUri()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 152,
+      "community_name": "tn",
+      "file_type": "code",
+      "norm_label": ".geturi()",
+      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
+      "source_location": "L2"
+    },
+    {
       "id": "games_greedybaby_backend_public_static_js_main_05634587_gt",
       "label": "Gt()",
       "_callable": true,
@@ -15624,6 +16092,18 @@
       "community_name": "tn",
       "file_type": "code",
       "norm_label": "gt()",
+      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_greedybaby_backend_public_static_js_main_05634587_jt",
+      "label": "jt()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 152,
+      "community_name": "tn",
+      "file_type": "code",
+      "norm_label": "jt()",
       "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
       "source_location": "L2"
     },
@@ -22648,36 +23128,12 @@
       "source_location": "L36"
     },
     {
-      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_al",
-      "label": "Al()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 217,
-      "community_name": "nl",
-      "file_type": "code",
-      "norm_label": "al()",
-      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_ba",
-      "label": "ba()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 217,
-      "community_name": "nl",
-      "file_type": "code",
-      "norm_label": "ba()",
-      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
-      "source_location": "L2"
-    },
-    {
       "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_be_add",
       "label": ".add()",
       "_callable": true,
       "_origin": "ast",
       "community": 217,
-      "community_name": "nl",
+      "community_name": ".add",
       "file_type": "code",
       "norm_label": ".add()",
       "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
@@ -22689,7 +23145,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 217,
-      "community_name": "nl",
+      "community_name": ".add",
       "file_type": "code",
       "norm_label": ".constructor()",
       "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
@@ -22701,7 +23157,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 217,
-      "community_name": "nl",
+      "community_name": ".add",
       "file_type": "code",
       "norm_label": ".decodestring()",
       "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
@@ -22713,7 +23169,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 217,
-      "community_name": "nl",
+      "community_name": ".add",
       "file_type": "code",
       "norm_label": ".destroy()",
       "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
@@ -22725,7 +23181,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 217,
-      "community_name": "nl",
+      "community_name": ".add",
       "file_type": "code",
       "norm_label": ".ispayloadvalid()",
       "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
@@ -22737,177 +23193,9 @@
       "_callable": true,
       "_origin": "ast",
       "community": 217,
-      "community_name": "nl",
+      "community_name": ".add",
       "file_type": "code",
       "norm_label": ".tryparse()",
-      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_ci",
-      "label": "ci()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 217,
-      "community_name": "nl",
-      "file_type": "code",
-      "norm_label": "ci()",
-      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_cl",
-      "label": "Cl()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 217,
-      "community_name": "nl",
-      "file_type": "code",
-      "norm_label": "cl()",
-      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_de",
-      "label": "de()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 217,
-      "community_name": "nl",
-      "file_type": "code",
-      "norm_label": "de()",
-      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_dl",
-      "label": "dl()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 217,
-      "community_name": "nl",
-      "file_type": "code",
-      "norm_label": "dl()",
-      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_el",
-      "label": "el()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 217,
-      "community_name": "nl",
-      "file_type": "code",
-      "norm_label": "el()",
-      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_eu",
-      "label": "Eu()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 217,
-      "community_name": "nl",
-      "file_type": "code",
-      "norm_label": "eu()",
-      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_fl",
-      "label": "fl()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 217,
-      "community_name": "nl",
-      "file_type": "code",
-      "norm_label": "fl()",
-      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_ge",
-      "label": "ge()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 217,
-      "community_name": "nl",
-      "file_type": "code",
-      "norm_label": "ge()",
-      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_ha",
-      "label": "ha()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 217,
-      "community_name": "nl",
-      "file_type": "code",
-      "norm_label": "ha()",
-      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_hl",
-      "label": "hl()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 217,
-      "community_name": "nl",
-      "file_type": "code",
-      "norm_label": "hl()",
-      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_ho",
-      "label": "Ho()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 217,
-      "community_name": "nl",
-      "file_type": "code",
-      "norm_label": "ho()",
-      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_ie",
-      "label": "ie()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 217,
-      "community_name": "nl",
-      "file_type": "code",
-      "norm_label": "ie()",
-      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_ji",
-      "label": "ji()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 217,
-      "community_name": "nl",
-      "file_type": "code",
-      "norm_label": "ji()",
-      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_jl",
-      "label": "jl()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 217,
-      "community_name": "nl",
-      "file_type": "code",
-      "norm_label": "jl()",
       "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
       "source_location": "L2"
     },
@@ -22917,153 +23205,9 @@
       "_callable": true,
       "_origin": "ast",
       "community": 217,
-      "community_name": "nl",
+      "community_name": ".add",
       "file_type": "code",
       "norm_label": "kl()",
-      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_le",
-      "label": "le()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 217,
-      "community_name": "nl",
-      "file_type": "code",
-      "norm_label": "le()",
-      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_ll",
-      "label": "ll()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 217,
-      "community_name": "nl",
-      "file_type": "code",
-      "norm_label": "ll()",
-      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_ma",
-      "label": "ma()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 217,
-      "community_name": "nl",
-      "file_type": "code",
-      "norm_label": "ma()",
-      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_me",
-      "label": "me()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 217,
-      "community_name": "nl",
-      "file_type": "code",
-      "norm_label": "me()",
-      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_mu",
-      "label": "mu()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 217,
-      "community_name": "nl",
-      "file_type": "code",
-      "norm_label": "mu()",
-      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_nl",
-      "label": "nl()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 217,
-      "community_name": "nl",
-      "file_type": "code",
-      "norm_label": "nl()",
-      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_nu",
-      "label": "Nu()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 217,
-      "community_name": "nl",
-      "file_type": "code",
-      "norm_label": "nu()",
-      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_rl",
-      "label": "rl()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 217,
-      "community_name": "nl",
-      "file_type": "code",
-      "norm_label": "rl()",
-      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_se",
-      "label": "se()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 217,
-      "community_name": "nl",
-      "file_type": "code",
-      "norm_label": "se()",
-      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_sl",
-      "label": "Sl()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 217,
-      "community_name": "nl",
-      "file_type": "code",
-      "norm_label": "sl()",
-      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_ul",
-      "label": "ul()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 217,
-      "community_name": "nl",
-      "file_type": "code",
-      "norm_label": "ul()",
-      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_va",
-      "label": "Va()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 217,
-      "community_name": "nl",
-      "file_type": "code",
-      "norm_label": "va()",
       "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
       "source_location": "L2"
     },
@@ -23073,45 +23217,9 @@
       "_callable": true,
       "_origin": "ast",
       "community": 217,
-      "community_name": "nl",
+      "community_name": ".add",
       "file_type": "code",
       "norm_label": "ve()",
-      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_wu",
-      "label": "wu()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 217,
-      "community_name": "nl",
-      "file_type": "code",
-      "norm_label": "wu()",
-      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_x",
-      "label": "X()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 217,
-      "community_name": "nl",
-      "file_type": "code",
-      "norm_label": "x()",
-      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_xl",
-      "label": "xl()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 217,
-      "community_name": "nl",
-      "file_type": "code",
-      "norm_label": "xl()",
       "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
       "source_location": "L2"
     },
@@ -23121,7 +23229,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 217,
-      "community_name": "nl",
+      "community_name": ".add",
       "file_type": "code",
       "norm_label": "xs()",
       "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
@@ -23133,21 +23241,9 @@
       "_callable": true,
       "_origin": "ast",
       "community": 217,
-      "community_name": "nl",
+      "community_name": ".add",
       "file_type": "code",
       "norm_label": "ya()",
-      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_yo",
-      "label": "yo()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 217,
-      "community_name": "nl",
-      "file_type": "code",
-      "norm_label": "yo()",
       "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
       "source_location": "L2"
     },
@@ -23157,7 +23253,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 217,
-      "community_name": "nl",
+      "community_name": ".add",
       "file_type": "code",
       "norm_label": "yr()",
       "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
@@ -23169,7 +23265,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 217,
-      "community_name": "nl",
+      "community_name": ".add",
       "file_type": "code",
       "norm_label": ".has()",
       "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
@@ -23524,6 +23620,18 @@
       "source_location": "L2"
     },
     {
+      "id": "games_roulettecasino_backend_public_static_js_main_5751c868_ce",
+      "label": "Ce()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 220,
+      "community_name": "i",
+      "file_type": "code",
+      "norm_label": "ce()",
+      "source_file": "Games/roulettecasino/backend/public/static/js/main.5751c868.js",
+      "source_location": "L2"
+    },
+    {
       "id": "games_roulettecasino_backend_public_static_js_main_5751c868_da",
       "label": "da()",
       "_callable": true,
@@ -23532,18 +23640,6 @@
       "community_name": "i",
       "file_type": "code",
       "norm_label": "da()",
-      "source_file": "Games/roulettecasino/backend/public/static/js/main.5751c868.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_roulettecasino_backend_public_static_js_main_5751c868_ds",
-      "label": "ds()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 220,
-      "community_name": "i",
-      "file_type": "code",
-      "norm_label": "ds()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.5751c868.js",
       "source_location": "L2"
     },
@@ -23688,6 +23784,18 @@
       "community_name": "i",
       "file_type": "code",
       "norm_label": "ni()",
+      "source_file": "Games/roulettecasino/backend/public/static/js/main.5751c868.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_roulettecasino_backend_public_static_js_main_5751c868_oe",
+      "label": "oe()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 220,
+      "community_name": "i",
+      "file_type": "code",
+      "norm_label": "oe()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.5751c868.js",
       "source_location": "L2"
     },
@@ -23892,30 +24000,6 @@
       "community_name": "i",
       "file_type": "code",
       "norm_label": "ys()",
-      "source_file": "Games/roulettecasino/backend/public/static/js/main.5751c868.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_roulettecasino_backend_public_static_js_main_5751c868_yu",
-      "label": "yu()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 220,
-      "community_name": "i",
-      "file_type": "code",
-      "norm_label": "yu()",
-      "source_file": "Games/roulettecasino/backend/public/static/js/main.5751c868.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_roulettecasino_backend_public_static_js_main_5751c868_zs",
-      "label": "zs()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 220,
-      "community_name": "i",
-      "file_type": "code",
-      "norm_label": "zs()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.5751c868.js",
       "source_location": "L2"
     },
@@ -28528,602 +28612,266 @@
       "source_location": "L6"
     },
     {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_al",
-      "label": "al()",
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_aa",
+      "label": "aa()",
       "_callable": true,
       "_origin": "ast",
       "community": 38,
-      "community_name": "i",
+      "community_name": "ys",
       "file_type": "code",
-      "norm_label": "al()",
+      "norm_label": "aa()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
       "source_location": "L2"
     },
     {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_at",
-      "label": "At()",
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_ae",
+      "label": "ae()",
       "_callable": true,
       "_origin": "ast",
       "community": 38,
-      "community_name": "i",
+      "community_name": "ys",
       "file_type": "code",
-      "norm_label": "at()",
+      "norm_label": "ae()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
       "source_location": "L2"
     },
     {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_au",
-      "label": "au()",
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_be",
+      "label": "be()",
       "_callable": true,
       "_origin": "ast",
       "community": 38,
-      "community_name": "i",
+      "community_name": "ys",
       "file_type": "code",
-      "norm_label": "au()",
+      "norm_label": "be()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
       "source_location": "L2"
     },
     {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_cl",
-      "label": "cl()",
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_bo",
+      "label": "bo()",
       "_callable": true,
       "_origin": "ast",
       "community": 38,
-      "community_name": "i",
+      "community_name": "ys",
       "file_type": "code",
-      "norm_label": "cl()",
+      "norm_label": "bo()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
       "source_location": "L2"
     },
     {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_cs",
-      "label": "cs()",
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_co",
+      "label": "co()",
       "_callable": true,
       "_origin": "ast",
       "community": 38,
-      "community_name": "i",
+      "community_name": "ys",
       "file_type": "code",
-      "norm_label": "cs()",
+      "norm_label": "co()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
       "source_location": "L2"
     },
     {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_cu",
-      "label": "cu()",
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_da",
+      "label": "da()",
       "_callable": true,
       "_origin": "ast",
       "community": 38,
-      "community_name": "i",
+      "community_name": "ys",
       "file_type": "code",
-      "norm_label": "cu()",
+      "norm_label": "da()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
       "source_location": "L2"
     },
     {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_el",
-      "label": "el()",
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_do",
+      "label": "Do()",
       "_callable": true,
       "_origin": "ast",
       "community": 38,
-      "community_name": "i",
+      "community_name": "ys",
       "file_type": "code",
-      "norm_label": "el()",
+      "norm_label": "do()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
       "source_location": "L2"
     },
     {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_eu",
-      "label": "Eu()",
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_fo",
+      "label": "Fo()",
       "_callable": true,
       "_origin": "ast",
       "community": 38,
-      "community_name": "i",
+      "community_name": "ys",
       "file_type": "code",
-      "norm_label": "eu()",
+      "norm_label": "fo()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
       "source_location": "L2"
     },
     {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_fe",
-      "label": "fe()",
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_fu",
+      "label": "fu()",
       "_callable": true,
       "_origin": "ast",
       "community": 38,
-      "community_name": "i",
+      "community_name": "ys",
       "file_type": "code",
-      "norm_label": "fe()",
+      "norm_label": "fu()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
       "source_location": "L2"
     },
     {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_ft",
-      "label": "ft()",
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_ia",
+      "label": "ia()",
       "_callable": true,
       "_origin": "ast",
       "community": 38,
-      "community_name": "i",
+      "community_name": "ys",
       "file_type": "code",
-      "norm_label": "ft()",
+      "norm_label": "ia()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
       "source_location": "L2"
     },
     {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_gl",
-      "label": "gl()",
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_jo",
+      "label": "jo()",
       "_callable": true,
       "_origin": "ast",
       "community": 38,
-      "community_name": "i",
+      "community_name": "ys",
       "file_type": "code",
-      "norm_label": "gl()",
+      "norm_label": "jo()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
       "source_location": "L2"
     },
     {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_hl",
-      "label": "hl()",
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_le",
+      "label": "le()",
       "_callable": true,
       "_origin": "ast",
       "community": 38,
-      "community_name": "i",
+      "community_name": "ys",
       "file_type": "code",
-      "norm_label": "hl()",
+      "norm_label": "le()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
       "source_location": "L2"
     },
     {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_hs",
-      "label": "hs()",
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_ni",
+      "label": "ni()",
       "_callable": true,
       "_origin": "ast",
       "community": 38,
-      "community_name": "i",
+      "community_name": "ys",
       "file_type": "code",
-      "norm_label": "hs()",
+      "norm_label": "ni()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
       "source_location": "L2"
     },
     {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_ht",
-      "label": "ht()",
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_oa",
+      "label": "oa()",
       "_callable": true,
       "_origin": "ast",
       "community": 38,
-      "community_name": "i",
+      "community_name": "ys",
       "file_type": "code",
-      "norm_label": "ht()",
+      "norm_label": "oa()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
       "source_location": "L2"
     },
     {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_hu",
-      "label": "hu()",
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_oo",
+      "label": "Oo()",
       "_callable": true,
       "_origin": "ast",
       "community": 38,
-      "community_name": "i",
+      "community_name": "ys",
       "file_type": "code",
-      "norm_label": "hu()",
+      "norm_label": "oo()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
       "source_location": "L2"
     },
     {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_ie",
-      "label": "ie()",
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_po",
+      "label": "Po()",
       "_callable": true,
       "_origin": "ast",
       "community": 38,
-      "community_name": "i",
+      "community_name": "ys",
       "file_type": "code",
-      "norm_label": "ie()",
+      "norm_label": "po()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
       "source_location": "L2"
     },
     {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_il",
-      "label": "il()",
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_pu",
+      "label": "pu()",
       "_callable": true,
       "_origin": "ast",
       "community": 38,
-      "community_name": "i",
+      "community_name": "ys",
       "file_type": "code",
-      "norm_label": "il()",
+      "norm_label": "pu()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
       "source_location": "L2"
     },
     {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_io",
-      "label": "Io()",
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_sa",
+      "label": "sa()",
       "_callable": true,
       "_origin": "ast",
       "community": 38,
-      "community_name": "i",
+      "community_name": "ys",
       "file_type": "code",
-      "norm_label": "io()",
+      "norm_label": "sa()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
       "source_location": "L2"
     },
     {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_iu",
-      "label": "iu()",
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_se",
+      "label": "se()",
       "_callable": true,
       "_origin": "ast",
       "community": 38,
-      "community_name": "i",
+      "community_name": "ys",
       "file_type": "code",
-      "norm_label": "iu()",
+      "norm_label": "se()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
       "source_location": "L2"
     },
     {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_ju",
-      "label": "ju()",
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_ua",
+      "label": "ua()",
       "_callable": true,
       "_origin": "ast",
       "community": 38,
-      "community_name": "i",
+      "community_name": "ys",
       "file_type": "code",
-      "norm_label": "ju()",
+      "norm_label": "ua()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
       "source_location": "L2"
     },
     {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_ki",
-      "label": "ki()",
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_ys",
+      "label": "ys()",
       "_callable": true,
       "_origin": "ast",
       "community": 38,
-      "community_name": "i",
+      "community_name": "ys",
       "file_type": "code",
-      "norm_label": "ki()",
+      "norm_label": "ys()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
       "source_location": "L2"
     },
     {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_kl",
-      "label": "kl()",
+      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_zo",
+      "label": "zo()",
       "_callable": true,
       "_origin": "ast",
       "community": 38,
-      "community_name": "i",
+      "community_name": "ys",
       "file_type": "code",
-      "norm_label": "kl()",
-      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_ku",
-      "label": "ku()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 38,
-      "community_name": "i",
-      "file_type": "code",
-      "norm_label": "ku()",
-      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_ll",
-      "label": "ll()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 38,
-      "community_name": "i",
-      "file_type": "code",
-      "norm_label": "ll()",
-      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_lu",
-      "label": "lu()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 38,
-      "community_name": "i",
-      "file_type": "code",
-      "norm_label": "lu()",
-      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_me_i",
-      "label": "i()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 38,
-      "community_name": "i",
-      "file_type": "code",
-      "norm_label": "i()",
-      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_ms",
-      "label": "ms()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 38,
-      "community_name": "i",
-      "file_type": "code",
-      "norm_label": "ms()",
-      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_mu",
-      "label": "mu()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 38,
-      "community_name": "i",
-      "file_type": "code",
-      "norm_label": "mu()",
-      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_o",
-      "label": "_o()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 38,
-      "community_name": "i",
-      "file_type": "code",
-      "norm_label": "_o()",
-      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_ol",
-      "label": "ol()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 38,
-      "community_name": "i",
-      "file_type": "code",
-      "norm_label": "ol()",
-      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_ou",
-      "label": "ou()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 38,
-      "community_name": "i",
-      "file_type": "code",
-      "norm_label": "ou()",
-      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_pl",
-      "label": "pl()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 38,
-      "community_name": "i",
-      "file_type": "code",
-      "norm_label": "pl()",
-      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_rl",
-      "label": "rl()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 38,
-      "community_name": "i",
-      "file_type": "code",
-      "norm_label": "rl()",
-      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_ru",
-      "label": "ru()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 38,
-      "community_name": "i",
-      "file_type": "code",
-      "norm_label": "ru()",
-      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_sl",
-      "label": "sl()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 38,
-      "community_name": "i",
-      "file_type": "code",
-      "norm_label": "sl()",
-      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_su",
-      "label": "su()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 38,
-      "community_name": "i",
-      "file_type": "code",
-      "norm_label": "su()",
-      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_tl",
-      "label": "tl()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 38,
-      "community_name": "i",
-      "file_type": "code",
-      "norm_label": "tl()",
-      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_tu",
-      "label": "tu()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 38,
-      "community_name": "i",
-      "file_type": "code",
-      "norm_label": "tu()",
-      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_ul",
-      "label": "ul()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 38,
-      "community_name": "i",
-      "file_type": "code",
-      "norm_label": "ul()",
-      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_uu",
-      "label": "uu()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 38,
-      "community_name": "i",
-      "file_type": "code",
-      "norm_label": "uu()",
-      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_vl",
-      "label": "vl()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 38,
-      "community_name": "i",
-      "file_type": "code",
-      "norm_label": "vl()",
-      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_vu",
-      "label": "vu()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 38,
-      "community_name": "i",
-      "file_type": "code",
-      "norm_label": "vu()",
-      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_wl",
-      "label": "wl()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 38,
-      "community_name": "i",
-      "file_type": "code",
-      "norm_label": "wl()",
-      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_wu",
-      "label": "wu()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 38,
-      "community_name": "i",
-      "file_type": "code",
-      "norm_label": "wu()",
-      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_xu",
-      "label": "xu()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 38,
-      "community_name": "i",
-      "file_type": "code",
-      "norm_label": "xu()",
-      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_yi",
-      "label": "yi()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 38,
-      "community_name": "i",
-      "file_type": "code",
-      "norm_label": "yi()",
-      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_yl",
-      "label": "yl()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 38,
-      "community_name": "i",
-      "file_type": "code",
-      "norm_label": "yl()",
-      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_yt",
-      "label": "yt()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 38,
-      "community_name": "i",
-      "file_type": "code",
-      "norm_label": "yt()",
-      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_yu",
-      "label": "yu()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 38,
-      "community_name": "i",
-      "file_type": "code",
-      "norm_label": "yu()",
-      "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_roulettecasino_backend_public_static_js_main_6418cc2f_zi",
-      "label": "zi()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 38,
-      "community_name": "i",
-      "file_type": "code",
-      "norm_label": "zi()",
+      "norm_label": "zo()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.6418cc2f.js",
       "source_location": "L2"
     },
@@ -30088,6 +29836,18 @@
       "source_location": "L2"
     },
     {
+      "id": "games_greedybaby_backend_public_static_js_main_05634587_vn",
+      "label": "vn()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 43,
+      "community_name": "i",
+      "file_type": "code",
+      "norm_label": "vn()",
+      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
+      "source_location": "L2"
+    },
+    {
       "id": "games_greedybaby_backend_public_static_js_main_05634587_vn_i",
       "label": "i()",
       "_callable": true,
@@ -30096,6 +29856,30 @@
       "community_name": "i",
       "file_type": "code",
       "norm_label": "i()",
+      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_greedybaby_backend_public_static_js_main_05634587_vn_o",
+      "label": "o()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 43,
+      "community_name": "i",
+      "file_type": "code",
+      "norm_label": "o()",
+      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_greedybaby_backend_public_static_js_main_05634587_vn_r",
+      "label": "r()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 43,
+      "community_name": "i",
+      "file_type": "code",
+      "norm_label": "r()",
       "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
       "source_location": "L2"
     },
@@ -31588,6 +31372,18 @@
       "source_location": "L2"
     },
     {
+      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_al",
+      "label": "Al()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "main.7955cbf4.js",
+      "file_type": "code",
+      "norm_label": "al()",
+      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
+      "source_location": "L2"
+    },
+    {
       "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_an",
       "label": "An()",
       "_callable": true,
@@ -31612,6 +31408,18 @@
       "source_location": "L2"
     },
     {
+      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_ba",
+      "label": "ba()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "main.7955cbf4.js",
+      "file_type": "code",
+      "norm_label": "ba()",
+      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
+      "source_location": "L2"
+    },
+    {
       "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_bi",
       "label": "bi()",
       "_callable": true,
@@ -31624,18 +31432,6 @@
       "source_location": "L2"
     },
     {
-      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_bo",
-      "label": "bo()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 52,
-      "community_name": "main.7955cbf4.js",
-      "file_type": "code",
-      "norm_label": "bo()",
-      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
-      "source_location": "L2"
-    },
-    {
       "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_bs",
       "label": "bs()",
       "_callable": true,
@@ -31644,6 +31440,30 @@
       "community_name": "main.7955cbf4.js",
       "file_type": "code",
       "norm_label": "bs()",
+      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_ci",
+      "label": "ci()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "main.7955cbf4.js",
+      "file_type": "code",
+      "norm_label": "ci()",
+      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_cl",
+      "label": "Cl()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "main.7955cbf4.js",
+      "file_type": "code",
+      "norm_label": "cl()",
       "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
       "source_location": "L2"
     },
@@ -31704,6 +31524,30 @@
       "community_name": "main.7955cbf4.js",
       "file_type": "code",
       "norm_label": "da()",
+      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_de",
+      "label": "de()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "main.7955cbf4.js",
+      "file_type": "code",
+      "norm_label": "de()",
+      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_dl",
+      "label": "dl()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "main.7955cbf4.js",
+      "file_type": "code",
+      "norm_label": "dl()",
       "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
       "source_location": "L2"
     },
@@ -31780,6 +31624,18 @@
       "source_location": "L2"
     },
     {
+      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_el",
+      "label": "el()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "main.7955cbf4.js",
+      "file_type": "code",
+      "norm_label": "el()",
+      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
+      "source_location": "L2"
+    },
+    {
       "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_eo",
       "label": "eo()",
       "_callable": true,
@@ -31816,6 +31672,18 @@
       "source_location": "L2"
     },
     {
+      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_eu",
+      "label": "Eu()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "main.7955cbf4.js",
+      "file_type": "code",
+      "norm_label": "eu()",
+      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
+      "source_location": "L2"
+    },
+    {
       "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_fa",
       "label": "fa()",
       "_callable": true,
@@ -31840,6 +31708,18 @@
       "source_location": "L2"
     },
     {
+      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_fl",
+      "label": "fl()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "main.7955cbf4.js",
+      "file_type": "code",
+      "norm_label": "fl()",
+      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
+      "source_location": "L2"
+    },
+    {
       "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_ga",
       "label": "Ga()",
       "_callable": true,
@@ -31848,6 +31728,18 @@
       "community_name": "main.7955cbf4.js",
       "file_type": "code",
       "norm_label": "ga()",
+      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_ge",
+      "label": "ge()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "main.7955cbf4.js",
+      "file_type": "code",
+      "norm_label": "ge()",
       "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
       "source_location": "L2"
     },
@@ -31900,18 +31792,6 @@
       "source_location": "L2"
     },
     {
-      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_gt",
-      "label": "gt()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 52,
-      "community_name": "main.7955cbf4.js",
-      "file_type": "code",
-      "norm_label": "gt()",
-      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
-      "source_location": "L2"
-    },
-    {
       "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_h",
       "label": "H()",
       "_callable": true,
@@ -31924,14 +31804,38 @@
       "source_location": "L2"
     },
     {
-      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_he",
-      "label": "He()",
+      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_ha",
+      "label": "ha()",
       "_callable": true,
       "_origin": "ast",
       "community": 52,
       "community_name": "main.7955cbf4.js",
       "file_type": "code",
-      "norm_label": "he()",
+      "norm_label": "ha()",
+      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_hl",
+      "label": "hl()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "main.7955cbf4.js",
+      "file_type": "code",
+      "norm_label": "hl()",
+      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_ho",
+      "label": "Ho()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "main.7955cbf4.js",
+      "file_type": "code",
+      "norm_label": "ho()",
       "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
       "source_location": "L2"
     },
@@ -31956,6 +31860,18 @@
       "community_name": "main.7955cbf4.js",
       "file_type": "code",
       "norm_label": "ic()",
+      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_ie",
+      "label": "ie()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "main.7955cbf4.js",
+      "file_type": "code",
+      "norm_label": "ie()",
       "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
       "source_location": "L2"
     },
@@ -31992,6 +31908,30 @@
       "community_name": "main.7955cbf4.js",
       "file_type": "code",
       "norm_label": "ja()",
+      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_ji",
+      "label": "ji()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "main.7955cbf4.js",
+      "file_type": "code",
+      "norm_label": "ji()",
+      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_jl",
+      "label": "jl()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "main.7955cbf4.js",
+      "file_type": "code",
+      "norm_label": "jl()",
       "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
       "source_location": "L2"
     },
@@ -32044,6 +31984,18 @@
       "source_location": "L2"
     },
     {
+      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_le",
+      "label": "le()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "main.7955cbf4.js",
+      "file_type": "code",
+      "norm_label": "le()",
+      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
+      "source_location": "L2"
+    },
+    {
       "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_li",
       "label": "li()",
       "_callable": true,
@@ -32052,6 +32004,18 @@
       "community_name": "main.7955cbf4.js",
       "file_type": "code",
       "norm_label": "li()",
+      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_ll",
+      "label": "ll()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "main.7955cbf4.js",
+      "file_type": "code",
+      "norm_label": "ll()",
       "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
       "source_location": "L2"
     },
@@ -32092,6 +32056,30 @@
       "source_location": "L2"
     },
     {
+      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_ma",
+      "label": "ma()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "main.7955cbf4.js",
+      "file_type": "code",
+      "norm_label": "ma()",
+      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_me",
+      "label": "me()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "main.7955cbf4.js",
+      "file_type": "code",
+      "norm_label": "me()",
+      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
+      "source_location": "L2"
+    },
+    {
       "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_ml",
       "label": "ml()",
       "_callable": true,
@@ -32100,6 +32088,18 @@
       "community_name": "main.7955cbf4.js",
       "file_type": "code",
       "norm_label": "ml()",
+      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_mu",
+      "label": "mu()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "main.7955cbf4.js",
+      "file_type": "code",
+      "norm_label": "mu()",
       "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
       "source_location": "L2"
     },
@@ -32116,6 +32116,18 @@
       "source_location": "L2"
     },
     {
+      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_nl",
+      "label": "nl()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "main.7955cbf4.js",
+      "file_type": "code",
+      "norm_label": "nl()",
+      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
+      "source_location": "L2"
+    },
+    {
       "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_nr",
       "label": "nr()",
       "_callable": true,
@@ -32124,6 +32136,18 @@
       "community_name": "main.7955cbf4.js",
       "file_type": "code",
       "norm_label": "nr()",
+      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_nu",
+      "label": "Nu()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "main.7955cbf4.js",
+      "file_type": "code",
+      "norm_label": "nu()",
       "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
       "source_location": "L2"
     },
@@ -32224,18 +32248,6 @@
       "source_location": "L2"
     },
     {
-      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_qe",
-      "label": "Qe()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 52,
-      "community_name": "main.7955cbf4.js",
-      "file_type": "code",
-      "norm_label": "qe()",
-      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
-      "source_location": "L2"
-    },
-    {
       "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_qo",
       "label": "Qo()",
       "_callable": true,
@@ -32272,6 +32284,18 @@
       "source_location": "L2"
     },
     {
+      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_rl",
+      "label": "rl()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "main.7955cbf4.js",
+      "file_type": "code",
+      "norm_label": "rl()",
+      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
+      "source_location": "L2"
+    },
+    {
       "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_rn",
       "label": "rn()",
       "_callable": true,
@@ -32280,18 +32304,6 @@
       "community_name": "main.7955cbf4.js",
       "file_type": "code",
       "norm_label": "rn()",
-      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_ro",
-      "label": "Ro()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 52,
-      "community_name": "main.7955cbf4.js",
-      "file_type": "code",
-      "norm_label": "ro()",
       "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
       "source_location": "L2"
     },
@@ -32320,6 +32332,18 @@
       "source_location": "L2"
     },
     {
+      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_se",
+      "label": "se()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "main.7955cbf4.js",
+      "file_type": "code",
+      "norm_label": "se()",
+      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
+      "source_location": "L2"
+    },
+    {
       "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_set",
       "label": "set()",
       "_callable": true,
@@ -32328,6 +32352,18 @@
       "community_name": "main.7955cbf4.js",
       "file_type": "code",
       "norm_label": "set()",
+      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_sl",
+      "label": "Sl()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "main.7955cbf4.js",
+      "file_type": "code",
+      "norm_label": "sl()",
       "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
       "source_location": "L2"
     },
@@ -32452,6 +32488,18 @@
       "source_location": "L2"
     },
     {
+      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_ul",
+      "label": "ul()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "main.7955cbf4.js",
+      "file_type": "code",
+      "norm_label": "ul()",
+      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
+      "source_location": "L2"
+    },
+    {
       "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_ur",
       "label": "ur()",
       "_callable": true,
@@ -32508,6 +32556,18 @@
       "community_name": "main.7955cbf4.js",
       "file_type": "code",
       "norm_label": "v()",
+      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_va",
+      "label": "Va()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "main.7955cbf4.js",
+      "file_type": "code",
+      "norm_label": "va()",
       "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
       "source_location": "L2"
     },
@@ -32620,6 +32680,30 @@
       "source_location": "L2"
     },
     {
+      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_wu",
+      "label": "wu()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "main.7955cbf4.js",
+      "file_type": "code",
+      "norm_label": "wu()",
+      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_x",
+      "label": "X()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "main.7955cbf4.js",
+      "file_type": "code",
+      "norm_label": "x()",
+      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
+      "source_location": "L2"
+    },
+    {
       "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_xa",
       "label": "Xa()",
       "_callable": true,
@@ -32652,6 +32736,18 @@
       "community_name": "main.7955cbf4.js",
       "file_type": "code",
       "norm_label": "xi()",
+      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_xl",
+      "label": "xl()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "main.7955cbf4.js",
+      "file_type": "code",
+      "norm_label": "xl()",
       "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
       "source_location": "L2"
     },
@@ -32704,6 +32800,18 @@
       "source_location": "L2"
     },
     {
+      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_yo",
+      "label": "yo()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "main.7955cbf4.js",
+      "file_type": "code",
+      "norm_label": "yo()",
+      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
+      "source_location": "L2"
+    },
+    {
       "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_ys",
       "label": "Ys()",
       "_callable": true,
@@ -32736,18 +32844,6 @@
       "community_name": "main.7955cbf4.js",
       "file_type": "code",
       "norm_label": "zs()",
-      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_zu",
-      "label": "zu()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 52,
-      "community_name": "main.7955cbf4.js",
-      "file_type": "code",
-      "norm_label": "zu()",
       "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
       "source_location": "L2"
     },
@@ -33744,18 +33840,6 @@
       "community_name": "No",
       "file_type": "code",
       "norm_label": ".ondecoded()",
-      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_greedybaby_backend_public_static_js_main_05634587_on",
-      "label": "on()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 54,
-      "community_name": "No",
-      "file_type": "code",
-      "norm_label": "on()",
       "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
       "source_location": "L2"
     },
@@ -39904,6 +39988,18 @@
       "source_location": "L2"
     },
     {
+      "id": "games_greedybaby_backend_public_static_js_main_05634587_oe_onopen",
+      "label": ".onOpen()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 65,
+      "community_name": "Te",
+      "file_type": "code",
+      "norm_label": ".onopen()",
+      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
+      "source_location": "L2"
+    },
+    {
       "id": "games_greedybaby_backend_public_static_js_main_05634587_oe_onping",
       "label": ".onping()",
       "_callable": true,
@@ -42100,14 +42196,14 @@
       "source_location": "L2"
     },
     {
-      "id": "games_roulettecasino_backend_public_static_js_main_5751c868_bt",
-      "label": "Bt()",
+      "id": "games_roulettecasino_backend_public_static_js_main_5751c868_bo",
+      "label": "bo()",
       "_callable": true,
       "_origin": "ast",
       "community": 69,
       "community_name": "main.5751c868.js",
       "file_type": "code",
-      "norm_label": "bt()",
+      "norm_label": "bo()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.5751c868.js",
       "source_location": "L2"
     },
@@ -42120,18 +42216,6 @@
       "community_name": "main.5751c868.js",
       "file_type": "code",
       "norm_label": "ca()",
-      "source_file": "Games/roulettecasino/backend/public/static/js/main.5751c868.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_roulettecasino_backend_public_static_js_main_5751c868_ce",
-      "label": "Ce()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 69,
-      "community_name": "main.5751c868.js",
-      "file_type": "code",
-      "norm_label": "ce()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.5751c868.js",
       "source_location": "L2"
     },
@@ -42168,6 +42252,18 @@
       "community_name": "main.5751c868.js",
       "file_type": "code",
       "norm_label": "constructor()",
+      "source_file": "Games/roulettecasino/backend/public/static/js/main.5751c868.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_roulettecasino_backend_public_static_js_main_5751c868_ds",
+      "label": "ds()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 69,
+      "community_name": "main.5751c868.js",
+      "file_type": "code",
+      "norm_label": "ds()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.5751c868.js",
       "source_location": "L2"
     },
@@ -42300,6 +42396,18 @@
       "community_name": "main.5751c868.js",
       "file_type": "code",
       "norm_label": "ha()",
+      "source_file": "Games/roulettecasino/backend/public/static/js/main.5751c868.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_roulettecasino_backend_public_static_js_main_5751c868_he",
+      "label": "He()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 69,
+      "community_name": "main.5751c868.js",
+      "file_type": "code",
+      "norm_label": "he()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.5751c868.js",
       "source_location": "L2"
     },
@@ -42604,18 +42712,6 @@
       "source_location": "L2"
     },
     {
-      "id": "games_roulettecasino_backend_public_static_js_main_5751c868_oe",
-      "label": "oe()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 69,
-      "community_name": "main.5751c868.js",
-      "file_type": "code",
-      "norm_label": "oe()",
-      "source_file": "Games/roulettecasino/backend/public/static/js/main.5751c868.js",
-      "source_location": "L2"
-    },
-    {
       "id": "games_roulettecasino_backend_public_static_js_main_5751c868_ol",
       "label": "ol()",
       "_callable": true,
@@ -42708,18 +42804,6 @@
       "community_name": "main.5751c868.js",
       "file_type": "code",
       "norm_label": "qs()",
-      "source_file": "Games/roulettecasino/backend/public/static/js/main.5751c868.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_roulettecasino_backend_public_static_js_main_5751c868_qt",
-      "label": "Qt()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 69,
-      "community_name": "main.5751c868.js",
-      "file_type": "code",
-      "norm_label": "qt()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.5751c868.js",
       "source_location": "L2"
     },
@@ -42976,6 +43060,18 @@
       "source_location": "L2"
     },
     {
+      "id": "games_roulettecasino_backend_public_static_js_main_5751c868_ve",
+      "label": "Ve()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 69,
+      "community_name": "main.5751c868.js",
+      "file_type": "code",
+      "norm_label": "ve()",
+      "source_file": "Games/roulettecasino/backend/public/static/js/main.5751c868.js",
+      "source_location": "L2"
+    },
+    {
       "id": "games_roulettecasino_backend_public_static_js_main_5751c868_vi",
       "label": "vi()",
       "_callable": true,
@@ -43012,6 +43108,18 @@
       "source_location": "L2"
     },
     {
+      "id": "games_roulettecasino_backend_public_static_js_main_5751c868_we",
+      "label": "We()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 69,
+      "community_name": "main.5751c868.js",
+      "file_type": "code",
+      "norm_label": "we()",
+      "source_file": "Games/roulettecasino/backend/public/static/js/main.5751c868.js",
+      "source_location": "L2"
+    },
+    {
       "id": "games_roulettecasino_backend_public_static_js_main_5751c868_wi",
       "label": "Wi()",
       "_callable": true,
@@ -43032,18 +43140,6 @@
       "community_name": "main.5751c868.js",
       "file_type": "code",
       "norm_label": "wl()",
-      "source_file": "Games/roulettecasino/backend/public/static/js/main.5751c868.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_roulettecasino_backend_public_static_js_main_5751c868_wo",
-      "label": "wo()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 69,
-      "community_name": "main.5751c868.js",
-      "file_type": "code",
-      "norm_label": "wo()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.5751c868.js",
       "source_location": "L2"
     },
@@ -43156,6 +43252,30 @@
       "source_location": "L2"
     },
     {
+      "id": "games_roulettecasino_backend_public_static_js_main_5751c868_yt",
+      "label": "yt()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 69,
+      "community_name": "main.5751c868.js",
+      "file_type": "code",
+      "norm_label": "yt()",
+      "source_file": "Games/roulettecasino/backend/public/static/js/main.5751c868.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_roulettecasino_backend_public_static_js_main_5751c868_yu",
+      "label": "yu()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 69,
+      "community_name": "main.5751c868.js",
+      "file_type": "code",
+      "norm_label": "yu()",
+      "source_file": "Games/roulettecasino/backend/public/static/js/main.5751c868.js",
+      "source_location": "L2"
+    },
+    {
       "id": "games_roulettecasino_backend_public_static_js_main_5751c868_za",
       "label": "za()",
       "_callable": true,
@@ -43164,6 +43284,30 @@
       "community_name": "main.5751c868.js",
       "file_type": "code",
       "norm_label": "za()",
+      "source_file": "Games/roulettecasino/backend/public/static/js/main.5751c868.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_roulettecasino_backend_public_static_js_main_5751c868_zs",
+      "label": "zs()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 69,
+      "community_name": "main.5751c868.js",
+      "file_type": "code",
+      "norm_label": "zs()",
+      "source_file": "Games/roulettecasino/backend/public/static/js/main.5751c868.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_roulettecasino_backend_public_static_js_main_5751c868_zu",
+      "label": "zu()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 69,
+      "community_name": "main.5751c868.js",
+      "file_type": "code",
+      "norm_label": "zu()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.5751c868.js",
       "source_location": "L2"
     },
@@ -43200,6 +43344,18 @@
       "community_name": "z",
       "file_type": "code",
       "norm_label": "b()",
+      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_greedybaby_backend_public_static_js_main_05634587_createsocket",
+      "label": "createSocket()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 70,
+      "community_name": "z",
+      "file_type": "code",
+      "norm_label": "createsocket()",
       "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
       "source_location": "L2"
     },
@@ -43312,30 +43468,6 @@
       "source_location": "L2"
     },
     {
-      "id": "games_greedybaby_backend_public_static_js_main_05634587_gn_constructor",
-      "label": ".constructor()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 70,
-      "community_name": "z",
-      "file_type": "code",
-      "norm_label": ".constructor()",
-      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_greedybaby_backend_public_static_js_main_05634587_gn_geturi",
-      "label": ".getUri()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 70,
-      "community_name": "z",
-      "file_type": "code",
-      "norm_label": ".geturi()",
-      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
-      "source_location": "L2"
-    },
-    {
       "id": "games_greedybaby_backend_public_static_js_main_05634587_gn_request",
       "label": ".request()",
       "_callable": true,
@@ -43348,26 +43480,26 @@
       "source_location": "L2"
     },
     {
-      "id": "games_greedybaby_backend_public_static_js_main_05634587_jt",
-      "label": "jt()",
+      "id": "games_greedybaby_backend_public_static_js_main_05634587_on",
+      "label": "on()",
       "_callable": true,
       "_origin": "ast",
       "community": 70,
       "community_name": "z",
       "file_type": "code",
-      "norm_label": "jt()",
+      "norm_label": "on()",
       "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
       "source_location": "L2"
     },
     {
-      "id": "games_greedybaby_backend_public_static_js_main_05634587_oe_onopen",
-      "label": ".onOpen()",
+      "id": "games_greedybaby_backend_public_static_js_main_05634587_p",
+      "label": "P()",
       "_callable": true,
       "_origin": "ast",
       "community": 70,
       "community_name": "z",
       "file_type": "code",
-      "norm_label": ".onopen()",
+      "norm_label": "p()",
       "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
       "source_location": "L2"
     },
@@ -43380,6 +43512,18 @@
       "community_name": "z",
       "file_type": "code",
       "norm_label": "read()",
+      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_greedybaby_backend_public_static_js_main_05634587_request",
+      "label": "request()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 70,
+      "community_name": "z",
+      "file_type": "code",
+      "norm_label": "request()",
       "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
       "source_location": "L2"
     },
@@ -43420,42 +43564,6 @@
       "source_location": "L2"
     },
     {
-      "id": "games_greedybaby_backend_public_static_js_main_05634587_vn",
-      "label": "vn()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 70,
-      "community_name": "z",
-      "file_type": "code",
-      "norm_label": "vn()",
-      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_greedybaby_backend_public_static_js_main_05634587_vn_o",
-      "label": "o()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 70,
-      "community_name": "z",
-      "file_type": "code",
-      "norm_label": "o()",
-      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_greedybaby_backend_public_static_js_main_05634587_vn_r",
-      "label": "r()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 70,
-      "community_name": "z",
-      "file_type": "code",
-      "norm_label": "r()",
-      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
-      "source_location": "L2"
-    },
-    {
       "id": "games_greedybaby_backend_public_static_js_main_05634587_x",
       "label": "x()",
       "_callable": true,
@@ -43476,6 +43584,54 @@
       "community_name": "z",
       "file_type": "code",
       "norm_label": ".addeventlisteners()",
+      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_greedybaby_backend_public_static_js_main_05634587_y_doclose",
+      "label": ".doClose()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 70,
+      "community_name": "z",
+      "file_type": "code",
+      "norm_label": ".doclose()",
+      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_greedybaby_backend_public_static_js_main_05634587_y_doopen",
+      "label": ".doOpen()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 70,
+      "community_name": "z",
+      "file_type": "code",
+      "norm_label": ".doopen()",
+      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_greedybaby_backend_public_static_js_main_05634587_y_name",
+      "label": ".name()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 70,
+      "community_name": "z",
+      "file_type": "code",
+      "norm_label": ".name()",
+      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_greedybaby_backend_public_static_js_main_05634587_y_uri",
+      "label": ".uri()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 70,
+      "community_name": "z",
+      "file_type": "code",
+      "norm_label": ".uri()",
       "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
       "source_location": "L2"
     },
@@ -43648,6 +43804,18 @@
       "source_location": "L2"
     },
     {
+      "id": "games_roulettecasino_backend_public_static_js_main_5751c868_bt",
+      "label": "Bt()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 71,
+      "community_name": "$t",
+      "file_type": "code",
+      "norm_label": "bt()",
+      "source_file": "Games/roulettecasino/backend/public/static/js/main.5751c868.js",
+      "source_location": "L2"
+    },
+    {
       "id": "games_roulettecasino_backend_public_static_js_main_5751c868_check",
       "label": "check()",
       "_callable": true,
@@ -43800,6 +43968,18 @@
       "community_name": "$t",
       "file_type": "code",
       "norm_label": "poll()",
+      "source_file": "Games/roulettecasino/backend/public/static/js/main.5751c868.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_roulettecasino_backend_public_static_js_main_5751c868_qt",
+      "label": "Qt()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 71,
+      "community_name": "$t",
+      "file_type": "code",
+      "norm_label": "qt()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.5751c868.js",
       "source_location": "L2"
     },
@@ -44088,6 +44268,18 @@
       "community_name": "$t",
       "file_type": "code",
       "norm_label": "uri()",
+      "source_file": "Games/roulettecasino/backend/public/static/js/main.5751c868.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "games_roulettecasino_backend_public_static_js_main_5751c868_wo",
+      "label": "wo()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 71,
+      "community_name": "$t",
+      "file_type": "code",
+      "norm_label": "wo()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.5751c868.js",
       "source_location": "L2"
     },
@@ -46120,18 +46312,6 @@
       "source_location": "L2"
     },
     {
-      "id": "games_roulettecasino_backend_public_static_js_main_5751c868_bo",
-      "label": "bo()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 75,
-      "community_name": "Yn",
-      "file_type": "code",
-      "norm_label": "bo()",
-      "source_file": "Games/roulettecasino/backend/public/static/js/main.5751c868.js",
-      "source_location": "L2"
-    },
-    {
       "id": "games_roulettecasino_backend_public_static_js_main_5751c868_fn",
       "label": "fn()",
       "_callable": true,
@@ -46152,18 +46332,6 @@
       "community_name": "Yn",
       "file_type": "code",
       "norm_label": "gn()",
-      "source_file": "Games/roulettecasino/backend/public/static/js/main.5751c868.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_roulettecasino_backend_public_static_js_main_5751c868_he",
-      "label": "He()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 75,
-      "community_name": "Yn",
-      "file_type": "code",
-      "norm_label": "he()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.5751c868.js",
       "source_location": "L2"
     },
@@ -46392,30 +46560,6 @@
       "community_name": "Yn",
       "file_type": "code",
       "norm_label": ".unsubscribe()",
-      "source_file": "Games/roulettecasino/backend/public/static/js/main.5751c868.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_roulettecasino_backend_public_static_js_main_5751c868_ve",
-      "label": "Ve()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 75,
-      "community_name": "Yn",
-      "file_type": "code",
-      "norm_label": "ve()",
-      "source_file": "Games/roulettecasino/backend/public/static/js/main.5751c868.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_roulettecasino_backend_public_static_js_main_5751c868_we",
-      "label": "We()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 75,
-      "community_name": "Yn",
-      "file_type": "code",
-      "norm_label": "we()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.5751c868.js",
       "source_location": "L2"
     },
@@ -46704,30 +46848,6 @@
       "community_name": "Yn",
       "file_type": "code",
       "norm_label": ".timeout()",
-      "source_file": "Games/roulettecasino/backend/public/static/js/main.5751c868.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_roulettecasino_backend_public_static_js_main_5751c868_yt",
-      "label": "yt()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 75,
-      "community_name": "Yn",
-      "file_type": "code",
-      "norm_label": "yt()",
-      "source_file": "Games/roulettecasino/backend/public/static/js/main.5751c868.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_roulettecasino_backend_public_static_js_main_5751c868_zu",
-      "label": "zu()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 75,
-      "community_name": "Yn",
-      "file_type": "code",
-      "norm_label": "zu()",
       "source_file": "Games/roulettecasino/backend/public/static/js/main.5751c868.js",
       "source_location": "L2"
     },
@@ -48124,195 +48244,75 @@
       "source_location": "L44"
     },
     {
-      "id": "games_greedybaby_backend_public_static_js_main_05634587_730_al",
-      "label": "al()",
+      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_bo",
+      "label": "bo()",
       "_callable": true,
       "_origin": "ast",
       "community": 81,
-      "community_name": "qt",
+      "community_name": "He",
       "file_type": "code",
-      "norm_label": "al()",
-      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
+      "norm_label": "bo()",
+      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
       "source_location": "L2"
     },
     {
-      "id": "games_greedybaby_backend_public_static_js_main_05634587_730_bl",
-      "label": "bl()",
+      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_gt",
+      "label": "gt()",
       "_callable": true,
       "_origin": "ast",
       "community": 81,
-      "community_name": "qt",
+      "community_name": "He",
       "file_type": "code",
-      "norm_label": "bl()",
-      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
+      "norm_label": "gt()",
+      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
       "source_location": "L2"
     },
     {
-      "id": "games_greedybaby_backend_public_static_js_main_05634587_730_dt",
-      "label": "dt()",
+      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_he",
+      "label": "He()",
       "_callable": true,
       "_origin": "ast",
       "community": 81,
-      "community_name": "qt",
+      "community_name": "He",
       "file_type": "code",
-      "norm_label": "dt()",
-      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
+      "norm_label": "he()",
+      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
       "source_location": "L2"
     },
     {
-      "id": "games_greedybaby_backend_public_static_js_main_05634587_730_ga",
-      "label": "Ga()",
+      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_qe",
+      "label": "Qe()",
       "_callable": true,
       "_origin": "ast",
       "community": 81,
-      "community_name": "qt",
+      "community_name": "He",
       "file_type": "code",
-      "norm_label": "ga()",
-      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
+      "norm_label": "qe()",
+      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
       "source_location": "L2"
     },
     {
-      "id": "games_greedybaby_backend_public_static_js_main_05634587_730_it",
-      "label": "It()",
+      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_ro",
+      "label": "Ro()",
       "_callable": true,
       "_origin": "ast",
       "community": 81,
-      "community_name": "qt",
+      "community_name": "He",
       "file_type": "code",
-      "norm_label": "it()",
-      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
+      "norm_label": "ro()",
+      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
       "source_location": "L2"
     },
     {
-      "id": "games_greedybaby_backend_public_static_js_main_05634587_730_mt",
-      "label": "mt()",
+      "id": "games_ferrywheel_backend_public_static_js_main_7955cbf4_zu",
+      "label": "zu()",
       "_callable": true,
       "_origin": "ast",
       "community": 81,
-      "community_name": "qt",
+      "community_name": "He",
       "file_type": "code",
-      "norm_label": "mt()",
-      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_greedybaby_backend_public_static_js_main_05634587_730_qt",
-      "label": "qt()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 81,
-      "community_name": "qt",
-      "file_type": "code",
-      "norm_label": "qt()",
-      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_greedybaby_backend_public_static_js_main_05634587_730_qt_t",
-      "label": "t()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 81,
-      "community_name": "qt",
-      "file_type": "code",
-      "norm_label": "t()",
-      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_greedybaby_backend_public_static_js_main_05634587_730_t",
-      "label": "$t()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 81,
-      "community_name": "qt",
-      "file_type": "code",
-      "norm_label": "$t()",
-      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_greedybaby_backend_public_static_js_main_05634587_730_ut",
-      "label": "Ut()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 81,
-      "community_name": "qt",
-      "file_type": "code",
-      "norm_label": "ut()",
-      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_greedybaby_backend_public_static_js_main_05634587_730_wl",
-      "label": "wl()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 81,
-      "community_name": "qt",
-      "file_type": "code",
-      "norm_label": "wl()",
-      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_greedybaby_backend_public_static_js_main_05634587_730_wt",
-      "label": "wt()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 81,
-      "community_name": "qt",
-      "file_type": "code",
-      "norm_label": "wt()",
-      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_greedybaby_backend_public_static_js_main_05634587_730_yo",
-      "label": "yo()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 81,
-      "community_name": "qt",
-      "file_type": "code",
-      "norm_label": "yo()",
-      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_greedybaby_backend_public_static_js_main_05634587_dt",
-      "label": "Dt()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 81,
-      "community_name": "qt",
-      "file_type": "code",
-      "norm_label": "dt()",
-      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_greedybaby_backend_public_static_js_main_05634587_nt",
-      "label": "Nt()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 81,
-      "community_name": "qt",
-      "file_type": "code",
-      "norm_label": "nt()",
-      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "games_greedybaby_backend_public_static_js_main_05634587_zt",
-      "label": "zt()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 81,
-      "community_name": "qt",
-      "file_type": "code",
-      "norm_label": "zt()",
-      "source_file": "Games/greedybaby/backend/public/static/js/main.05634587.js",
+      "norm_label": "zu()",
+      "source_file": "Games/ferrywheel/backend/public/static/js/main.7955cbf4.js",
       "source_location": "L2"
     },
     {
@@ -55666,17 +55666,6 @@
       "source_location": "L5"
     },
     {
-      "id": "games_greedylion_frontend_package_dependencies_axios",
-      "label": "axios",
-      "_origin": "ast",
-      "community": 122,
-      "community_name": "dependencies",
-      "file_type": "code",
-      "norm_label": "axios",
-      "source_file": "Games/greedylion/frontend/package.json",
-      "source_location": "L9"
-    },
-    {
       "id": "games_greedylion_frontend_package_dependencies_bootstrap",
       "label": "bootstrap",
       "_origin": "ast",
@@ -55708,6 +55697,17 @@
       "norm_label": "react-dom",
       "source_file": "Games/greedylion/frontend/package.json",
       "source_location": "L13"
+    },
+    {
+      "id": "games_greedylion_frontend_package_dependencies_react_scripts",
+      "label": "react-scripts",
+      "_origin": "ast",
+      "community": 122,
+      "community_name": "dependencies",
+      "file_type": "code",
+      "norm_label": "react-scripts",
+      "source_file": "Games/greedylion/frontend/package.json",
+      "source_location": "L14"
     },
     {
       "id": "games_greedylion_frontend_package_dependencies_sass",
@@ -55754,17 +55754,6 @@
       "source_location": "L7"
     },
     {
-      "id": "games_greedylion_frontend_package_json_axios",
-      "label": "axios",
-      "_origin": "ast",
-      "community": 122,
-      "community_name": "dependencies",
-      "file_type": "concept",
-      "norm_label": "axios",
-      "source_file": "Games/greedylion/frontend/package.json",
-      "source_location": "L9"
-    },
-    {
       "id": "games_greedylion_frontend_package_json_bootstrap",
       "label": "bootstrap",
       "_origin": "ast",
@@ -55796,6 +55785,17 @@
       "norm_label": "react-dom",
       "source_file": "Games/greedylion/frontend/package.json",
       "source_location": "L13"
+    },
+    {
+      "id": "games_greedylion_frontend_package_json_react_scripts",
+      "label": "react-scripts",
+      "_origin": "ast",
+      "community": 122,
+      "community_name": "dependencies",
+      "file_type": "concept",
+      "norm_label": "react-scripts",
+      "source_file": "Games/greedylion/frontend/package.json",
+      "source_location": "L14"
     },
     {
       "id": "games_greedylion_frontend_package_json_sass",
@@ -56535,15 +56535,15 @@
       "source_location": "L6"
     },
     {
-      "id": "games_roulettecasino_frontend_package_dependencies_animejs",
-      "label": "animejs",
+      "id": "games_roulettecasino_frontend_package_dependencies_axios",
+      "label": "axios",
       "_origin": "ast",
       "community": 128,
       "community_name": "dependencies",
       "file_type": "code",
-      "norm_label": "animejs",
+      "norm_label": "axios",
       "source_file": "Games/roulettecasino/frontend/package.json",
-      "source_location": "L11"
+      "source_location": "L12"
     },
     {
       "id": "games_roulettecasino_frontend_package_dependencies_bootstrap",
@@ -56612,17 +56612,6 @@
       "source_location": "L9"
     },
     {
-      "id": "animejs",
-      "label": "animejs",
-      "_origin": "ast",
-      "community": 128,
-      "community_name": "dependencies",
-      "file_type": "concept",
-      "norm_label": "animejs",
-      "source_file": "Games/roulettecasino/frontend/package.json",
-      "source_location": "L11"
-    },
-    {
       "id": "bootstrap_icons",
       "label": "bootstrap-icons",
       "_origin": "ast",
@@ -56632,6 +56621,17 @@
       "norm_label": "bootstrap-icons",
       "source_file": "Games/roulettecasino/frontend/package.json",
       "source_location": "L14"
+    },
+    {
+      "id": "games_roulettecasino_frontend_package_json_axios",
+      "label": "axios",
+      "_origin": "ast",
+      "community": 128,
+      "community_name": "dependencies",
+      "file_type": "concept",
+      "norm_label": "axios",
+      "source_file": "Games/roulettecasino/frontend/package.json",
+      "source_location": "L12"
     },
     {
       "id": "games_roulettecasino_frontend_package_json_bootstrap",
@@ -57120,6 +57120,17 @@
       "source_location": "L5"
     },
     {
+      "id": "games_teenpatti_frontend_package_dependencies_axios",
+      "label": "axios",
+      "_origin": "ast",
+      "community": 130,
+      "community_name": "dependencies",
+      "file_type": "code",
+      "norm_label": "axios",
+      "source_file": "Games/teenpatti/frontend/package.json",
+      "source_location": "L14"
+    },
+    {
       "id": "games_teenpatti_frontend_package_dependencies_emotion_react",
       "label": "@emotion/react",
       "_origin": "ast",
@@ -57186,17 +57197,6 @@
       "source_location": "L11"
     },
     {
-      "id": "games_teenpatti_frontend_package_dependencies_testing_library_react",
-      "label": "@testing-library/react",
-      "_origin": "ast",
-      "community": 130,
-      "community_name": "dependencies",
-      "file_type": "code",
-      "norm_label": "@testing-library/react",
-      "source_file": "Games/teenpatti/frontend/package.json",
-      "source_location": "L12"
-    },
-    {
       "id": "emotion_react",
       "label": "@emotion/react",
       "_origin": "ast",
@@ -57217,6 +57217,17 @@
       "norm_label": "@emotion/styled",
       "source_file": "Games/teenpatti/frontend/package.json",
       "source_location": "L7"
+    },
+    {
+      "id": "games_teenpatti_frontend_package_json_axios",
+      "label": "axios",
+      "_origin": "ast",
+      "community": 130,
+      "community_name": "dependencies",
+      "file_type": "concept",
+      "norm_label": "axios",
+      "source_file": "Games/teenpatti/frontend/package.json",
+      "source_location": "L14"
     },
     {
       "id": "games_teenpatti_frontend_package_json_react",
@@ -57250,17 +57261,6 @@
       "norm_label": "@testing-library/jest-dom",
       "source_file": "Games/teenpatti/frontend/package.json",
       "source_location": "L11"
-    },
-    {
-      "id": "games_teenpatti_frontend_package_json_testing_library_react",
-      "label": "@testing-library/react",
-      "_origin": "ast",
-      "community": 130,
-      "community_name": "dependencies",
-      "file_type": "concept",
-      "norm_label": "@testing-library/react",
-      "source_file": "Games/teenpatti/frontend/package.json",
-      "source_location": "L12"
     },
     {
       "id": "react_router_dom",
@@ -65543,26 +65543,26 @@
       "source_location": "L21"
     },
     {
-      "id": "games_greedylion_frontend_package_dependencies_react_scripts",
-      "label": "react-scripts",
+      "id": "games_roulettecasino_frontend_package_dependencies_animejs",
+      "label": "animejs",
       "_origin": "ast",
       "community": 264,
-      "community_name": "react-scripts",
+      "community_name": "animejs",
       "file_type": "code",
-      "norm_label": "react-scripts",
-      "source_file": "Games/greedylion/frontend/package.json",
-      "source_location": "L14"
+      "norm_label": "animejs",
+      "source_file": "Games/roulettecasino/frontend/package.json",
+      "source_location": "L11"
     },
     {
-      "id": "games_greedylion_frontend_package_json_react_scripts",
-      "label": "react-scripts",
+      "id": "animejs",
+      "label": "animejs",
       "_origin": "ast",
       "community": 264,
-      "community_name": "react-scripts",
+      "community_name": "animejs",
       "file_type": "concept",
-      "norm_label": "react-scripts",
-      "source_file": "Games/greedylion/frontend/package.json",
-      "source_location": "L14"
+      "norm_label": "animejs",
+      "source_file": "Games/roulettecasino/frontend/package.json",
+      "source_location": "L11"
     },
     {
       "id": "games_greedybaby_frontend_package_dependencies_testing_library_jest_dom",
@@ -65686,26 +65686,26 @@
       "source_location": "L1"
     },
     {
-      "id": "games_teenpatti_frontend_package_dependencies_axios",
+      "id": "games_greedylion_frontend_package_dependencies_axios",
       "label": "axios",
       "_origin": "ast",
       "community": 270,
       "community_name": "axios",
       "file_type": "code",
       "norm_label": "axios",
-      "source_file": "Games/teenpatti/frontend/package.json",
-      "source_location": "L14"
+      "source_file": "Games/greedylion/frontend/package.json",
+      "source_location": "L9"
     },
     {
-      "id": "games_teenpatti_frontend_package_json_axios",
+      "id": "games_greedylion_frontend_package_json_axios",
       "label": "axios",
       "_origin": "ast",
       "community": 270,
       "community_name": "axios",
       "file_type": "concept",
       "norm_label": "axios",
-      "source_file": "Games/teenpatti/frontend/package.json",
-      "source_location": "L14"
+      "source_file": "Games/greedylion/frontend/package.json",
+      "source_location": "L9"
     },
     {
       "id": "games_teenpatti_frontend_readme",
@@ -65877,25 +65877,25 @@
       "source_file": "web-vitals"
     },
     {
-      "id": "games_roulettecasino_frontend_package_dependencies_axios",
-      "label": "axios",
+      "id": "games_teenpatti_frontend_package_dependencies_testing_library_react",
+      "label": "@testing-library/react",
       "_origin": "ast",
       "community": 283,
-      "community_name": "axios",
+      "community_name": "@testing-library/react",
       "file_type": "code",
-      "norm_label": "axios",
-      "source_file": "Games/roulettecasino/frontend/package.json",
+      "norm_label": "@testing-library/react",
+      "source_file": "Games/teenpatti/frontend/package.json",
       "source_location": "L12"
     },
     {
-      "id": "games_roulettecasino_frontend_package_json_axios",
-      "label": "axios",
+      "id": "games_teenpatti_frontend_package_json_testing_library_react",
+      "label": "@testing-library/react",
       "_origin": "ast",
       "community": 283,
-      "community_name": "axios",
+      "community_name": "@testing-library/react",
       "file_type": "concept",
-      "norm_label": "axios",
-      "source_file": "Games/roulettecasino/frontend/package.json",
+      "norm_label": "@testing-library/react",
+      "source_file": "Games/teenpatti/frontend/package.json",
       "source_location": "L12"
     },
     {
@@ -78559,7 +78559,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/moderatorController.js",
-      "source_location": "L540",
+      "source_location": "L608",
       "weight": 1.0
     },
     {
@@ -78571,7 +78571,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/moderatorController.js",
-      "source_location": "L595",
+      "source_location": "L663",
       "weight": 1.0
     },
     {
@@ -78607,7 +78607,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/moderatorController.js",
-      "source_location": "L661",
+      "source_location": "L729",
       "weight": 1.0
     },
     {
@@ -78643,7 +78643,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/moderatorController.js",
-      "source_location": "L405",
+      "source_location": "L473",
       "weight": 1.0
     },
     {
@@ -189597,17 +189597,6 @@
     },
     {
       "source": "backend_src_controllers_mobile_moderatorcontroller",
-      "target": "backend_src_controllers_mobile_moderatorcontroller_toggledeviceban",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/src/controllers/mobile/moderatorController.js",
-      "source_location": "L381",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_src_controllers_mobile_moderatorcontroller",
       "target": "backend_src_controllers_mobile_moderatorcontroller_resolvefullavatarurl",
       "relation": "contains",
       "_origin": "ast",
@@ -189619,13 +189608,24 @@
     },
     {
       "source": "backend_src_controllers_mobile_moderatorcontroller",
+      "target": "backend_src_controllers_mobile_moderatorcontroller_toggledeviceban",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/src/controllers/mobile/moderatorController.js",
+      "source_location": "L449",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_src_controllers_mobile_moderatorcontroller",
       "target": "backend_src_controllers_mobile_moderatorcontroller_getbanneddeviceslist",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/mobile/moderatorController.js",
-      "source_location": "L519",
+      "source_location": "L587",
       "weight": 1.0
     },
     {
@@ -189636,7 +189636,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/mobile/moderatorController.js",
-      "source_location": "L628",
+      "source_location": "L696",
       "weight": 1.0
     },
     {
@@ -265304,5 +265304,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "6d642ab600399e5f2bab35a1805aef36c8c1d36a"
+  "built_at_commit": "c54c93916a1a15e5586b9055b4b34be5495d0092"
 }

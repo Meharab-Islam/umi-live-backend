@@ -29,8 +29,14 @@ export const specialItemApi = {
   },
 
   getThumbnailSubscribers: async (params = {}) => {
-    const query = new URLSearchParams(params).toString();
-    return await request(`/admin/thumbnails/subscribers?${query}`);
+    const cleanParams = {};
+    Object.entries(params).forEach(([key, val]) => {
+      if (val !== undefined && val !== null && val !== '' && val !== 'undefined' && val !== 'null') {
+        cleanParams[key] = val;
+      }
+    });
+    const query = new URLSearchParams(cleanParams).toString();
+    return await request(`/admin/thumbnails/subscribers${query ? `?${query}` : ''}`);
   },
 
   grantThumbnail: async (data) => {
@@ -74,8 +80,14 @@ export const specialItemApi = {
   },
 
   getEntryEffectSubscribers: async (params = {}) => {
-    const query = new URLSearchParams(params).toString();
-    return await request(`/admin/entry-effects/subscribers?${query}`);
+    const cleanParams = {};
+    Object.entries(params).forEach(([key, val]) => {
+      if (val !== undefined && val !== null && val !== '' && val !== 'undefined' && val !== 'null') {
+        cleanParams[key] = val;
+      }
+    });
+    const query = new URLSearchParams(cleanParams).toString();
+    return await request(`/admin/entry-effects/subscribers${query ? `?${query}` : ''}`);
   },
 
   grantEntryEffect: async (data) => {
@@ -86,6 +98,12 @@ export const specialItemApi = {
   },
 
   revokeEntryEffect: async (id) => {
+    return await request(`/admin/entry-effects/subscribers/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
+  revokeEntryEffectSubscription: async (id) => {
     return await request(`/admin/entry-effects/subscribers/${id}`, {
       method: 'DELETE',
     });

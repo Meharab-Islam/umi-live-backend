@@ -72,7 +72,7 @@ export default function Thumbnails({ onToast, embedded = false }) {
       if (res.success) {
         onToast(`Successfully deleted ${res.count || selectedThumbIds.length} thumbnails.`, 'success');
         setSelectedThumbIds([]);
-        loadThumbnails();
+        fetchThumbnails();
       }
     } catch (err) {
       onToast(err.message || 'Failed to bulk delete thumbnails.', 'error');
@@ -100,11 +100,11 @@ export default function Thumbnails({ onToast, embedded = false }) {
     try {
       setBulkRevokingSubs(true);
       for (const subId of selectedSubIds) {
-        await specialItemApi.revokeThumbnailSubscription(subId).catch(() => {});
+        await specialItemApi.revokeThumbnail(subId).catch(() => {});
       }
       onToast(`Revoked ${selectedSubIds.length} thumbnail assignments.`, 'success');
       setSelectedSubIds([]);
-      loadSubscribers();
+      fetchSubscribers();
     } catch (err) {
       onToast(err.message || 'Failed to revoke subscriptions.', 'error');
     } finally {
@@ -368,6 +368,9 @@ export default function Thumbnails({ onToast, embedded = false }) {
         setAssignUser(null);
         setAssignThumbId('');
         setAssignCustomDays('');
+        setSubSearch('');
+        setSubPage(1);
+        setCurrentTab('assigned');
         fetchSubscribers();
         fetchThumbnails();
       }
@@ -506,7 +509,10 @@ export default function Thumbnails({ onToast, embedded = false }) {
 
         <button
           type="button"
-          onClick={() => setCurrentTab('assigned')}
+          onClick={() => {
+            setCurrentTab('assigned');
+            fetchSubscribers();
+          }}
           style={{
             padding: '0.6rem 1.25rem',
             borderRadius: '10px',
