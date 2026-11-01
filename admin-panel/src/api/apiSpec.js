@@ -8408,7 +8408,7 @@ export const API_SPEC = {
               "email": "nila@umi.live",
               "avatar_url": "/uploads/avatars/nila_pic.jpg",
               "profile_picture": "/uploads/avatars/nila_pic.jpg",
-              "profile_picture_url": "http://107.174.137.29:5050/uploads/avatars/nila_pic.jpg",
+              "profile_picture_url": "http://178.162.254.145:5050/uploads/avatars/nila_pic.jpg",
               "role": "host",
               "coins": 5395,
               "diamonds": 18500,
@@ -8417,7 +8417,7 @@ export const API_SPEC = {
               "created_at": "2026-10-10T08:00:00.000Z"
             },
             "profile_picture": "/uploads/avatars/nila_pic.jpg",
-            "profile_picture_url": "http://107.174.137.29:5050/uploads/avatars/nila_pic.jpg",
+            "profile_picture_url": "http://178.162.254.145:5050/uploads/avatars/nila_pic.jpg",
             "avatar_url": "/uploads/avatars/nila_pic.jpg",
             "deviceSummary": {
               "totalDevices": 2,
@@ -8852,7 +8852,7 @@ export const API_SPEC = {
             "success": true,
             "message": "Agency overview retrieved successfully.",
             "profile_picture": "/uploads/avatars/starlight_logo.png",
-            "profile_picture_url": "http://107.174.137.29:5050/uploads/avatars/starlight_logo.png",
+            "profile_picture_url": "http://178.162.254.145:5050/uploads/avatars/starlight_logo.png",
             "avatar_url": "/uploads/avatars/starlight_logo.png",
             "logo_url": "/uploads/avatars/starlight_logo.png",
             "data": {
@@ -8861,7 +8861,7 @@ export const API_SPEC = {
                 "agency_code": "AG-101",
                 "name": "Starlight Talent Agency",
                 "profile_picture": "/uploads/avatars/starlight_logo.png",
-                "profile_picture_url": "http://107.174.137.29:5050/uploads/avatars/starlight_logo.png",
+                "profile_picture_url": "http://178.162.254.145:5050/uploads/avatars/starlight_logo.png",
                 "logo_url": "/uploads/avatars/starlight_logo.png",
                 "commission_rate": 15,
                 "status": "active"
@@ -8871,7 +8871,7 @@ export const API_SPEC = {
                 "full_name": "System Admin",
                 "avatar_url": "/uploads/avatars/starlight_logo.png",
                 "profile_picture": "/uploads/avatars/starlight_logo.png",
-                "profile_picture_url": "http://107.174.137.29:5050/uploads/avatars/starlight_logo.png",
+                "profile_picture_url": "http://178.162.254.145:5050/uploads/avatars/starlight_logo.png",
                 "coins": 100000,
                 "diamonds": 50000
               },

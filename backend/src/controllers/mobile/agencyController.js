@@ -11,7 +11,7 @@ export function resolveFullAvatarUrl(req, avatarUrl) {
   if (clean.startsWith('http://') || clean.startsWith('https://')) {
     return clean;
   }
-  const host = req?.get ? (req.get('host') || '107.174.137.29:5050') : '107.174.137.29:5050';
+  const host = req?.get ? (req.get('host') || '178.162.254.145:5050') : '178.162.254.145:5050';
   const proto = req?.headers?.['x-forwarded-proto'] || req?.protocol || 'http';
   return `${proto}://${host}${clean.startsWith('/') ? '' : '/'}${clean}`;
 }

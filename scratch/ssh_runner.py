@@ -15,7 +15,7 @@ def run_ssh_command(remote_cmd, timeout=300):
             '-o', 'PreferredAuthentications=password',
             '-o', 'ConnectTimeout=10',
             '-o', 'ServerAliveInterval=5',
-            'root@107.174.137.29',
+            'root@178.162.254.145',
             remote_cmd
         ])
     else:
@@ -33,7 +33,7 @@ def run_ssh_command(remote_cmd, timeout=300):
                     output.append(chunk)
                     text = b''.join(output).decode('utf-8', errors='ignore')
                     if not sent_pass and 'password:' in text.lower():
-                        os.write(fd, b'entFSxPXazSN\n')
+                        os.write(fd, b'VqsAG6v44ybW9t6V\n')
                         sent_pass = True
                 except OSError:
                     break
