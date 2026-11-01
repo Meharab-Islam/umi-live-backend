@@ -1183,15 +1183,43 @@ export async function handleUserSeatDeparture(roomId, leavingUserId, io = null) 
       // -------------------------------------------------------------
       const targetRoomId = room.room_id || roomId;
 
-      // 1. Solid Guard: ONLY vacate the departing user's specific seat, do NOT touch or move other co-hosts
-      await query(
-        'UPDATE live_room_seats SET user_id = NULL, is_camera_on = 0, is_muted = 0 WHERE (room_id = ? OR room_id = ?) AND (seat_number = ? OR user_id = ?)',
-        [targetRoomId, String(room.id || ''), departingSeat.seat_number, leavingUserId]
-      );
+      // 1. Purge departing user from seat requests
       await query(
         'DELETE FROM live_room_seat_requests WHERE (room_id = ? OR room_id = ?) AND user_id = ?',
         [targetRoomId, String(room.id || ''), leavingUserId]
       );
+
+      // 2. Fetch remaining co-hosts (excluding leaving user and excluding host)
+      const otherCoHosts = seats.filter(
+        (s) => s.user_id && Number(s.user_id) !== Number(leavingUserId) && Number(s.user_id) !== Number(hostId)
+      );
+
+      // 3. Consecutively rearrange remaining co-hosts into Seat 2, Seat 3, Seat 4... (no empty gaps!)
+      let nextSeatNum = 2;
+      for (const coHost of otherCoHosts) {
+        if (nextSeatNum <= totalSeats) {
+          await query(
+            `INSERT INTO live_room_seats (room_id, seat_number, user_id, is_main_seat, is_camera_on, is_muted)
+             VALUES (?, ?, ?, 0, ?, ?)
+             ON DUPLICATE KEY UPDATE user_id = VALUES(user_id), is_main_seat = 0, is_camera_on = VALUES(is_camera_on), is_muted = VALUES(is_muted)`,
+            [targetRoomId, nextSeatNum, coHost.user_id, coHost.is_camera_on, coHost.is_muted]
+          );
+          nextSeatNum++;
+        }
+      }
+
+      // 4. Clear trailing empty guest seats up to totalSeats
+      for (let s = nextSeatNum; s <= totalSeats; s++) {
+        await query(
+          `INSERT INTO live_room_seats (room_id, seat_number, user_id, is_main_seat, is_camera_on, is_muted)
+           VALUES (?, ?, NULL, 0, 0, 0)
+           ON DUPLICATE KEY UPDATE user_id = NULL, is_main_seat = 0, is_camera_on = 0, is_muted = 0`,
+          [targetRoomId, s]
+        );
+      }
+
+      // 5. Remove any excess seats if seat_number > totalSeats
+      await query('DELETE FROM live_room_seats WHERE (room_id = ? OR room_id = ?) AND seat_number > ?', [targetRoomId, String(room.id || ''), totalSeats]);
 
       // Instant Redis Invalidation
       await Promise.allSettled([
