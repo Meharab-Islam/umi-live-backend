@@ -5,6 +5,31 @@ import { enqueueRoomGift } from '../../services/giftQueueService.js';
 import { getGlobalGiftBannerConfig } from '../../services/systemService.js';
 
 /**
+ * Normalizes relative upload paths into fully qualified HTTPS URLs
+ * so mobile apps and socket clients can render GIF images, SVGA, and sound immediately.
+ */
+export function resolveAbsoluteUrl(req, path) {
+  if (!path || typeof path !== 'string' || !path.trim()) return null;
+  const clean = path.trim();
+  if (clean.startsWith('http://') || clean.startsWith('https://')) {
+    if (clean.startsWith('http://bmpro.lolipoplive.top')) {
+      return clean.replace('http://', 'https://');
+    }
+    return clean;
+  }
+  // Pure emoji check (e.g. 🌹, 💖)
+  if (!clean.startsWith('/') && !clean.includes('.')) {
+    return clean;
+  }
+  const forwardedProto = req?.headers?.['x-forwarded-proto'];
+  const hostHeader = req?.get ? req.get('host') : (req?.headers?.host || 'bmpro.lolipoplive.top');
+  const isHttps = forwardedProto === 'https' || req?.protocol === 'https' || hostHeader.includes('lolipoplive.top');
+  const protocol = isHttps ? 'https' : (req?.protocol || 'http');
+  const cleanPath = clean.startsWith('/') ? clean : `/${clean}`;
+  return `${protocol}://${hostHeader}${cleanPath}`;
+}
+
+/**
  * Mobile Get Available Gifts Catalog
  * GET /api/mobile/gifts
  */
@@ -15,9 +40,30 @@ export async function getGifts(req, res) {
       return rows || [];
     });
 
+    const formattedGifts = (gifts || []).map((g) => {
+      const isGif = (g.animation_type || '').toLowerCase() === 'gif';
+      const rawIcon = g.icon_url || '';
+      const rawAnim = g.animation_url || '';
+      const rawSound = g.sound_url || '';
+
+      const isIconMedia = rawIcon.startsWith('/') || rawIcon.startsWith('http') || rawIcon.includes('.');
+      const effectiveIcon = isIconMedia ? rawIcon : (isGif && rawAnim ? rawAnim : rawIcon);
+
+      return {
+        ...g,
+        icon_url: resolveAbsoluteUrl(req, effectiveIcon),
+        animation_url: resolveAbsoluteUrl(req, rawAnim),
+        gif_url: isGif ? resolveAbsoluteUrl(req, rawAnim || rawIcon) : null,
+        sound_url: resolveAbsoluteUrl(req, rawSound),
+        raw_icon_url: g.icon_url,
+        raw_animation_url: g.animation_url,
+        raw_sound_url: g.sound_url,
+      };
+    });
+
     return res.json({
       success: true,
-      gifts,
+      gifts: formattedGifts,
     });
   } catch (err) {
     console.error('Mobile getGifts error:', err);
@@ -546,19 +592,7 @@ export async function sendGift(req, res) {
     const gifUrl = isGif ? animUrl : (animUrl.includes('.gif') ? animUrl : null);
     const soundUrl = gift.sound_url || null;
 
-    const protocol = req.protocol || 'http';
-    const hostHeader = req.get ? req.get('host') : (req.headers?.host || 'localhost:5050');
-    const baseUrl = `${protocol}://${hostHeader}`;
-
-    const toAbsoluteUrl = (path) => {
-      if (!path) return null;
-      if (typeof path !== 'string') return path;
-      if (path.startsWith('http://') || path.startsWith('https://')) return path;
-      if (path.startsWith('/uploads') || path.startsWith('uploads/')) {
-        return `${baseUrl}${path.startsWith('/') ? '' : '/'}${path}`;
-      }
-      return path;
-    };
+    const toAbsoluteUrl = (path) => resolveAbsoluteUrl(req, path);
 
     // 15. Build Receivers List for Socket Payload
     const receiversList = recipientCalculations.map((calc) => {
@@ -826,24 +860,11 @@ export async function getUserGiftContributions(req, res) {
 export async function getGlobalGiftBannerConfigMobile(req, res) {
   try {
     const config = await getGlobalGiftBannerConfig();
-    const protocol = req.protocol || 'http';
-    const hostHeader = req.get ? req.get('host') : (req.headers?.host || 'localhost:5050');
-    const baseUrl = `${protocol}://${hostHeader}`;
-    const toAbsoluteUrl = (path) => {
-      if (!path) return null;
-      if (typeof path !== 'string') return path;
-      if (path.startsWith('http://') || path.startsWith('https://')) return path;
-      if (path.startsWith('/uploads') || path.startsWith('uploads/')) {
-        return `${baseUrl}${path.startsWith('/') ? '' : '/'}${path}`;
-      }
-      return path;
-    };
-
     return res.json({
       success: true,
       config: {
         ...config,
-        image_url: toAbsoluteUrl(config.image_url),
+        image_url: resolveAbsoluteUrl(req, config.image_url),
       },
     });
   } catch (err) {

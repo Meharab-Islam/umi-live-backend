@@ -716,7 +716,23 @@ export async function getGiftsAdmin(req, res) {
       const rows = await query('SELECT * FROM gifts ORDER BY coin_cost ASC');
       return rows || [];
     });
-    return res.json({ success: true, gifts });
+
+    const formattedGifts = (gifts || []).map((g) => {
+      const isGif = (g.animation_type || '').toLowerCase() === 'gif';
+      const rawIcon = g.icon_url || '';
+      const rawAnim = g.animation_url || '';
+      const isIconMedia = rawIcon.startsWith('/') || rawIcon.startsWith('http') || rawIcon.includes('.');
+      const effectiveIcon = isIconMedia ? rawIcon : (isGif && rawAnim ? rawAnim : rawIcon);
+
+      return {
+        ...g,
+        icon_url: effectiveIcon,
+        animation_url: rawAnim,
+        sound_url: g.sound_url || null,
+      };
+    });
+
+    return res.json({ success: true, gifts: formattedGifts });
   } catch (err) {
     return res.status(500).json({ success: false, message: 'Failed to fetch gifts.' });
   }

@@ -39,16 +39,46 @@ import { useEconomy } from '../context/EconomyContext';
 
 const resolveMediaUrl = (url) => {
   if (!url) return '';
-  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('blob:') || url.startsWith('data:')) {
-    return url;
+  const clean = String(url).trim();
+  if (clean.startsWith('http://') || clean.startsWith('https://') || clean.startsWith('blob:') || clean.startsWith('data:')) {
+    // If production domain is accessed over HTTP, upgrade to HTTPS
+    if (clean.startsWith('http://bmpro.lolipoplive.top')) {
+      return clean.replace('http://', 'https://');
+    }
+    return clean;
   }
-  const host = typeof window !== 'undefined' ? `${window.location.protocol}//${window.location.hostname}:5050` : 'http://localhost:5050';
-  return `${host}${url.startsWith('/') ? url : '/' + url}`;
+  // When running in browser, relative path /uploads/... works directly on the same origin (proxied by Nginx/Vite)
+  if (typeof window !== 'undefined' && window.location) {
+    const { protocol, hostname, port } = window.location;
+    if (port === '5050') {
+      return `${protocol}//${hostname}:5050${clean.startsWith('/') ? clean : '/' + clean}`;
+    }
+    return clean.startsWith('/') ? clean : `/${clean}`;
+  }
+  return clean.startsWith('/') ? clean : `/${clean}`;
 };
 
 const isMediaUrl = (url) => {
   if (!url || typeof url !== 'string') return false;
-  return url.startsWith('http://') || url.startsWith('https://') || url.startsWith('/uploads/') || url.startsWith('blob:') || url.startsWith('data:');
+  const clean = url.trim().toLowerCase();
+  return (
+    clean.startsWith('http://') ||
+    clean.startsWith('https://') ||
+    clean.startsWith('/uploads/') ||
+    clean.startsWith('uploads/') ||
+    clean.startsWith('blob:') ||
+    clean.startsWith('data:') ||
+    clean.endsWith('.gif') ||
+    clean.endsWith('.png') ||
+    clean.endsWith('.jpg') ||
+    clean.endsWith('.jpeg') ||
+    clean.endsWith('.webp') ||
+    clean.endsWith('.svg') ||
+    clean.endsWith('.mp3') ||
+    clean.endsWith('.wav') ||
+    clean.endsWith('.aac') ||
+    clean.endsWith('.ogg')
+  );
 };
 
 export default function Gifts({ onToast }) {

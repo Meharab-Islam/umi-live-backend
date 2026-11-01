@@ -34,11 +34,21 @@ import UserDetailsModal from '../components/UserDetailsModal';
 
 const resolveMediaUrl = (url) => {
   if (!url) return '';
-  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('blob:') || url.startsWith('data:')) {
-    return url;
+  const clean = String(url).trim();
+  if (clean.startsWith('http://') || clean.startsWith('https://') || clean.startsWith('blob:') || clean.startsWith('data:')) {
+    if (clean.startsWith('http://bmpro.lolipoplive.top')) {
+      return clean.replace('http://', 'https://');
+    }
+    return clean;
   }
-  const host = typeof window !== 'undefined' ? `${window.location.protocol}//${window.location.hostname}:5050` : 'http://localhost:5050';
-  return `${host}${url.startsWith('/') ? url : '/' + url}`;
+  if (typeof window !== 'undefined' && window.location) {
+    const { protocol, hostname, port } = window.location;
+    if (port === '5050') {
+      return `${protocol}//${hostname}:5050${clean.startsWith('/') ? clean : '/' + clean}`;
+    }
+    return clean.startsWith('/') ? clean : `/${clean}`;
+  }
+  return clean.startsWith('/') ? clean : `/${clean}`;
 };
 
 const formatTimeAgo = (dateStr) => {
