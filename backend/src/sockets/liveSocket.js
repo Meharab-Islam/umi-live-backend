@@ -330,68 +330,7 @@ async function cleanupUserFromRoom(roomId, userId, io, userInfo = null, reason =
     );
     const isSeated = seatedRows.length > 0;
 
-    // Seated co-host network disconnection: Provide dynamic Reconnection Grace Period!
-    if (isSeated && reason === 'disconnect' && guestGraceMs > 0) {
-      // 1. Check if user has another active socket connection in this room
-      const userSockets = Array.from(io?.sockets?.sockets?.values() || []).filter(
-        (s) => (Number(s.userId) === Number(userId) || Number(s.currentUser?.id) === Number(userId)) &&
-          (s.currentRoom === canonicalRoomId || s.rooms?.has(canonicalRoomId))
-      );
-      if (userSockets.length > 0) {
-        console.log(`ℹ️ [Seated Guest Disconnect] User ${userId} has another active socket in room ${canonicalRoomId}. Skipping grace period.`);
-        return { isSeated: true, activeSocketRemains: true };
-      }
-
-      // 2. Start Reconnection Grace Period if not already active
-      const graceKey = `${canonicalRoomId}:${userId}`;
-      if (!seatGuestDisconnectGraceTimers.has(graceKey)) {
-        const seatNum = seatedRows[0].seat_number;
-        const graceSec = guestGraceSec;
-        console.log(`⏳ [Seated Guest Disconnect] User ${userId} on seat #${seatNum} network lost in room ${canonicalRoomId}. Starting ${graceSec}s grace period...`);
-
-        // Notify room audience that co-host is temporarily reconnecting
-        if (io) {
-          const reconnectNotice = {
-            roomId: canonicalRoomId,
-            numericRoomId,
-            userId,
-            seatNumber: seatNum,
-            status: 'reconnecting',
-            message: `User on seat #${seatNum} connection lost. Holding seat for ${graceSec}s...`,
-            gracePeriodSeconds: graceSec,
-            isReconnecting: true,
-            timestamp: new Date().toISOString(),
-          };
-          io.to(canonicalRoomId).emit('seat_user_reconnecting', reconnectNotice);
-          if (numericRoomId) io.to(String(numericRoomId)).emit('seat_user_reconnecting', reconnectNotice);
-        }
-
-        const timer = setTimeout(async () => {
-          try {
-            seatGuestDisconnectGraceTimers.delete(graceKey);
-            console.log(`🔴 [Seated Guest Grace Period Expired] User ${userId} failed to reconnect to seat #${seatNum} in room ${canonicalRoomId} within ${graceSec}s. Removing now...`);
-            await executeGuestSeatAndRoomCleanup(canonicalRoomId, numericRoomId, hostId, userId, io, userInfo, 'disconnect_timeout');
-          } catch (e) {
-            console.error('Error during seated guest grace period cleanup:', e.message);
-          }
-        }, guestGraceMs);
-
-        seatGuestDisconnectGraceTimers.set(graceKey, {
-          timer,
-          canonicalRoomId,
-          numericRoomId,
-          userId,
-          seatNumber: seatNum,
-          startedAt: Date.now(),
-        });
-
-        return { isSeated: true, waitingForReconnect: true, gracePeriodSeconds: graceSec };
-      } else {
-        return { isSeated: true, waitingForReconnect: true };
-      }
-    }
-
-    // Cancel any pending seat grace timer if departing explicitly
+    // Seated co-host departure or disconnect: Immediately vacate seat, rearrange remaining co-hosts, and broadcast updated seats
     cancelSeatGuestDisconnectGraceTimer(canonicalRoomId, userId);
 
     return await executeGuestSeatAndRoomCleanup(canonicalRoomId, numericRoomId, hostId, userId, io, userInfo, reason);

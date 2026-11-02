@@ -988,20 +988,23 @@ export async function handleUserSeatDeparture(roomId, leavingUserId, io = null) 
   if (!roomId || !leavingUserId) return null;
 
   try {
+    const isNum = /^\d+$/.test(String(roomId).trim());
     const rooms = await query(
-      'SELECT id, room_id, host_id, total_seats, live_type, status FROM live_rooms WHERE room_id = ?',
-      [roomId]
+      'SELECT id, room_id, host_id, total_seats, live_type, status FROM live_rooms WHERE room_id = ? OR id = ?',
+      [String(roomId), isNum ? Number(roomId) : -1]
     );
     if (rooms.length === 0) return null;
     const room = rooms[0];
+    const canonicalRoomId = room.room_id;
+    const numericRoomId = room.id;
     const hostId = room.host_id;
     const isVideo = (room.live_type || '').toLowerCase() === 'video';
     const totalSeats = isVideo ? 12 : (parseInt(room.total_seats, 10) || 7);
 
-    // Fetch all current seats for this room
+    // Fetch all current seats for this room (checking canonicalRoomId and numeric id)
     const seats = await query(
-      'SELECT * FROM live_room_seats WHERE room_id = ? ORDER BY seat_number ASC',
-      [roomId]
+      'SELECT * FROM live_room_seats WHERE (room_id = ? OR room_id = ?) ORDER BY seat_number ASC',
+      [canonicalRoomId, String(numericRoomId || '')]
     );
 
     const departingSeat = seats.find((s) => String(s.user_id) === String(leavingUserId));
@@ -1037,7 +1040,7 @@ export async function handleUserSeatDeparture(roomId, leavingUserId, io = null) 
         `INSERT INTO live_room_seats (room_id, seat_number, user_id, is_main_seat, is_camera_on, is_muted)
          VALUES (?, 1, ?, 1, ?, ?)
          ON DUPLICATE KEY UPDATE user_id = VALUES(user_id), is_main_seat = 1, is_camera_on = VALUES(is_camera_on), is_muted = VALUES(is_muted)`,
-        [roomId, hostId, hostCamera, hostMuted]
+        [canonicalRoomId, hostId, hostCamera, hostMuted]
       );
 
       // 2. Rearrange remaining co-hosts into Seat 2, Seat 3, etc.
@@ -1048,7 +1051,7 @@ export async function handleUserSeatDeparture(roomId, leavingUserId, io = null) 
             `INSERT INTO live_room_seats (room_id, seat_number, user_id, is_main_seat, is_camera_on, is_muted)
              VALUES (?, ?, ?, 0, ?, ?)
              ON DUPLICATE KEY UPDATE user_id = VALUES(user_id), is_main_seat = 0, is_camera_on = VALUES(is_camera_on), is_muted = VALUES(is_muted)`,
-            [roomId, nextSeatNum, coHost.user_id, coHost.is_camera_on, coHost.is_muted]
+            [canonicalRoomId, nextSeatNum, coHost.user_id, coHost.is_camera_on, coHost.is_muted]
           );
           nextSeatNum++;
         }
@@ -1060,17 +1063,21 @@ export async function handleUserSeatDeparture(roomId, leavingUserId, io = null) 
           `INSERT INTO live_room_seats (room_id, seat_number, user_id, is_main_seat, is_camera_on, is_muted)
            VALUES (?, ?, NULL, 0, 0, 0)
            ON DUPLICATE KEY UPDATE user_id = NULL, is_main_seat = 0, is_camera_on = 0, is_muted = 0`,
-          [roomId, s]
+          [canonicalRoomId, s]
         );
       }
 
       // Remove any excess seats if seat_number > totalSeats
-      await query('DELETE FROM live_room_seats WHERE room_id = ? AND seat_number > ?', [roomId, totalSeats]);
+      await query('DELETE FROM live_room_seats WHERE (room_id = ? OR room_id = ?) AND seat_number > ?', [canonicalRoomId, String(numericRoomId || ''), totalSeats]);
 
       // Instant Redis Invalidation
       await Promise.allSettled([
         cache.del(`mobile:room_details:${roomId}`),
+        cache.del(`mobile:room_details:${canonicalRoomId}`),
+        numericRoomId ? cache.del(`mobile:room_details:${numericRoomId}`) : null,
         cache.delByPattern(`mobile:room:users:${roomId}*`),
+        cache.delByPattern(`mobile:room:users:${canonicalRoomId}*`),
+        numericRoomId ? cache.delByPattern(`mobile:room:users:${numericRoomId}*`) : null,
         cache.del(`mobile:live:my_active:${hostId}`),
         cache.delByPattern('mobile:rooms:*'),
       ]);
