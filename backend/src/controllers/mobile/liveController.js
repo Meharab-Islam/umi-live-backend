@@ -616,9 +616,12 @@ export async function createRoom(req, res) {
       return res.status(400).json({ success: false, message: 'Stream title is required.' });
     }
 
-    // 0. Check if host has an active timed broadcast suspension
+    // 0. Verify host broadcast permission (SSOT)
     const [hostProfile] = await query(
-      'SELECT id, is_banned, broadcast_banned_until, broadcast_ban_reason FROM users WHERE id = ?',
+      `SELECT id, is_banned, broadcast_banned_until, broadcast_ban_reason,
+              (broadcast_banned_until IS NOT NULL AND broadcast_banned_until > NOW()) AS is_broadcast_banned,
+              TIMESTAMPDIFF(SECOND, NOW(), broadcast_banned_until) AS remaining_seconds
+       FROM users WHERE id = ?`,
       [hostId]
     );
 
@@ -627,12 +630,33 @@ export async function createRoom(req, res) {
         return res.status(403).json({ success: false, message: 'Your account has been suspended by administration.' });
       }
 
-      if (hostProfile.broadcast_banned_until && new Date(hostProfile.broadcast_banned_until) > new Date()) {
-        const expiresAt = new Date(hostProfile.broadcast_banned_until).toISOString();
+      const isBannedBySql = Boolean(hostProfile.is_broadcast_banned);
+      const remainingSec = Number(hostProfile.remaining_seconds || 0);
+      const isBannedByJs = hostProfile.broadcast_banned_until && new Date(hostProfile.broadcast_banned_until) > new Date();
+
+      if (isBannedBySql || remainingSec > 0 || isBannedByJs) {
+        const banSec = remainingSec > 0
+          ? remainingSec
+          : (hostProfile.broadcast_banned_until
+              ? Math.max(0, Math.round((new Date(hostProfile.broadcast_banned_until).getTime() - Date.now()) / 1000))
+              : 0);
+        const expiresAt = hostProfile.broadcast_banned_until
+          ? new Date(hostProfile.broadcast_banned_until).toISOString()
+          : null;
+
+        const formatRemaining = (sec) => {
+          if (sec < 60) return `${sec}s`;
+          if (sec < 3600) return `${Math.ceil(sec / 60)}m`;
+          const hrs = Math.floor(sec / 3600);
+          const mins = Math.ceil((sec % 3600) / 60);
+          return `${hrs}h ${mins}m`;
+        };
+
         return res.status(403).json({
           success: false,
-          message: `You are temporarily suspended from broadcasting live rooms until ${expiresAt}. Reason: ${hostProfile.broadcast_ban_reason || 'Agency broadcasting suspension.'}`,
+          message: `You are temporarily suspended from broadcasting live rooms until ${expiresAt || 'end of ban'} (${formatRemaining(banSec)} remaining). Reason: ${hostProfile.broadcast_ban_reason || 'Agency or moderator broadcasting suspension.'}`,
           broadcast_banned_until: expiresAt,
+          remaining_seconds: banSec,
           reason: hostProfile.broadcast_ban_reason,
         });
       }

@@ -313,38 +313,38 @@ export async function toggleUserBan(req, res) {
     const fullAccountBan = Boolean(req.body.fullAccountBan);
 
     // Compute ban duration for broadcast suspension
-    let untilDate = null;
+    let durationSeconds = 0;
     const { durationMinutes, durationHours, durationDays, bannedUntil, duration } = req.body || {};
 
     if (newBanStatus) {
       if (bannedUntil) {
-        untilDate = new Date(bannedUntil);
+        const untilDate = new Date(bannedUntil);
         if (isNaN(untilDate.getTime()) || untilDate <= new Date()) {
-          untilDate = new Date(Date.now() + 24 * 3600 * 1000);
+          durationSeconds = 24 * 3600;
+        } else {
+          durationSeconds = Math.max(60, Math.round((untilDate.getTime() - Date.now()) / 1000));
         }
-      } else if (durationMinutes && !isNaN(parseInt(durationMinutes, 10))) {
-        untilDate = new Date(Date.now() + parseInt(durationMinutes, 10) * 60 * 1000);
-      } else if (durationHours && !isNaN(parseInt(durationHours, 10))) {
-        untilDate = new Date(Date.now() + parseInt(durationHours, 10) * 3600 * 1000);
-      } else if (durationDays && !isNaN(parseInt(durationDays, 10))) {
-        untilDate = new Date(Date.now() + parseInt(durationDays, 10) * 86400 * 1000);
+      } else if (durationMinutes !== undefined && !isNaN(parseFloat(durationMinutes))) {
+        durationSeconds = Math.max(60, Math.round(parseFloat(durationMinutes) * 60));
+      } else if (durationHours !== undefined && !isNaN(parseFloat(durationHours))) {
+        durationSeconds = Math.max(60, Math.round(parseFloat(durationHours) * 3600));
+      } else if (durationDays !== undefined && !isNaN(parseFloat(durationDays))) {
+        durationSeconds = Math.max(60, Math.round(parseFloat(durationDays) * 86400));
       } else if (duration) {
         const durStr = String(duration).trim().toLowerCase();
-        if (durStr.includes('10 min')) untilDate = new Date(Date.now() + 10 * 60 * 1000);
-        else if (durStr.includes('30 min')) untilDate = new Date(Date.now() + 30 * 60 * 1000);
-        else if (durStr.includes('1 hour') || durStr.includes('1h')) untilDate = new Date(Date.now() + 3600 * 1000);
-        else if (durStr.includes('1 day') || durStr.includes('24h')) untilDate = new Date(Date.now() + 86400 * 1000);
-        else if (durStr.includes('3 day')) untilDate = new Date(Date.now() + 3 * 86400 * 1000);
-        else if (durStr.includes('7 day') || durStr.includes('week')) untilDate = new Date(Date.now() + 7 * 86400 * 1000);
-        else if (durStr.includes('30 day') || durStr.includes('month')) untilDate = new Date(Date.now() + 30 * 86400 * 1000);
-        else if (durStr.includes('permanent')) untilDate = new Date(Date.now() + 10 * 365 * 86400 * 1000);
-        else untilDate = new Date(Date.now() + 24 * 3600 * 1000);
+        if (durStr.includes('10 min')) durationSeconds = 10 * 60;
+        else if (durStr.includes('30 min')) durationSeconds = 30 * 60;
+        else if (durStr.includes('1 hour') || durStr.includes('1h')) durationSeconds = 3600;
+        else if (durStr.includes('1 day') || durStr.includes('24h')) durationSeconds = 86400;
+        else if (durStr.includes('3 day')) durationSeconds = 3 * 86400;
+        else if (durStr.includes('7 day') || durStr.includes('week')) durationSeconds = 7 * 86400;
+        else if (durStr.includes('30 day') || durStr.includes('month')) durationSeconds = 30 * 86400;
+        else if (durStr.includes('permanent')) durationSeconds = 10 * 365 * 86400;
+        else durationSeconds = 24 * 3600;
       } else {
-        untilDate = new Date(Date.now() + 24 * 3600 * 1000);
+        durationSeconds = 24 * 3600;
       }
     }
-
-    const formattedUntil = untilDate ? untilDate.toISOString().slice(0, 19).replace('T', ' ') : null;
 
     // 2. If user is currently live streaming and being banned, terminate stream immediately
     if (newBanStatus) {
@@ -359,6 +359,12 @@ export async function toggleUserBan(req, res) {
         );
         for (const room of liveRooms) {
           await cache.del(`room:${room.room_id}`);
+          if (req.io) {
+            req.io.to(`room:${room.room_id}`).emit('room_ended', {
+              roomId: room.room_id,
+              message: reason || 'Live stream ended due to moderator broadcast suspension.',
+            });
+          }
         }
         await cache.delByPattern('mobile:rooms:*');
       }
@@ -369,9 +375,12 @@ export async function toggleUserBan(req, res) {
     if (newBanStatus) {
       await query(
         `UPDATE users 
-         SET is_banned = ?, broadcast_banned_until = ?, broadcast_ban_reason = ?, broadcast_banned_at = CURRENT_TIMESTAMP 
+         SET is_banned = ?, 
+             broadcast_banned_until = DATE_ADD(NOW(), INTERVAL ? SECOND), 
+             broadcast_ban_reason = ?, 
+             broadcast_banned_at = NOW() 
          WHERE id = ?`,
-        [fullAccountBan ? 1 : 0, formattedUntil, reason, cleanUserId]
+        [fullAccountBan ? 1 : 0, durationSeconds, reason, cleanUserId]
       );
     } else {
       await query(

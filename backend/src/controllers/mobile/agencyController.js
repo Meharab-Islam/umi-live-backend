@@ -870,35 +870,36 @@ export async function banHostBroadcast(req, res) {
       return res.status(400).json({ success: false, message: 'Host does not belong to your agency.' });
     }
 
-    // 2. Compute ban expiration datetime
-    let untilDate = null;
+    // 2. Compute ban expiration datetime in seconds
     let durationSeconds = 0;
 
     if (bannedUntil) {
-      untilDate = new Date(bannedUntil);
+      const untilDate = new Date(bannedUntil);
       if (isNaN(untilDate.getTime()) || untilDate <= new Date()) {
         return res.status(400).json({ success: false, message: 'bannedUntil must be a valid future ISO datetime.' });
       }
-      durationSeconds = Math.round((untilDate.getTime() - Date.now()) / 1000);
-    } else if (durationMinutes && !isNaN(parseInt(durationMinutes, 10))) {
-      const min = parseInt(durationMinutes, 10);
-      untilDate = new Date(Date.now() + min * 60 * 1000);
-      durationSeconds = min * 60;
-    } else if (durationHours && !isNaN(parseInt(durationHours, 10))) {
-      const hrs = parseInt(durationHours, 10);
-      untilDate = new Date(Date.now() + hrs * 3600 * 1000);
-      durationSeconds = hrs * 3600;
-    } else if (durationDays && !isNaN(parseInt(durationDays, 10))) {
-      const days = parseInt(durationDays, 10);
-      untilDate = new Date(Date.now() + days * 86400 * 1000);
-      durationSeconds = days * 86400;
+      durationSeconds = Math.max(60, Math.round((untilDate.getTime() - Date.now()) / 1000));
+    } else if (durationMinutes !== undefined && !isNaN(parseFloat(durationMinutes))) {
+      durationSeconds = Math.max(60, Math.round(parseFloat(durationMinutes) * 60));
+    } else if (durationHours !== undefined && !isNaN(parseFloat(durationHours))) {
+      durationSeconds = Math.max(60, Math.round(parseFloat(durationHours) * 3600));
+    } else if (durationDays !== undefined && !isNaN(parseFloat(durationDays))) {
+      durationSeconds = Math.max(60, Math.round(parseFloat(durationDays) * 86400));
+    } else if (req.body && req.body.duration) {
+      const durStr = String(req.body.duration).trim().toLowerCase();
+      if (durStr.includes('10 min')) durationSeconds = 10 * 60;
+      else if (durStr.includes('30 min')) durationSeconds = 30 * 60;
+      else if (durStr.includes('1 hour') || durStr.includes('1h')) durationSeconds = 3600;
+      else if (durStr.includes('1 day') || durStr.includes('24h')) durationSeconds = 86400;
+      else if (durStr.includes('3 day')) durationSeconds = 3 * 86400;
+      else if (durStr.includes('7 day') || durStr.includes('week')) durationSeconds = 7 * 86400;
+      else if (durStr.includes('30 day') || durStr.includes('month')) durationSeconds = 30 * 86400;
+      else if (durStr.includes('permanent')) durationSeconds = 10 * 365 * 86400;
+      else durationSeconds = 24 * 3600;
     } else {
       // Default: 24 Hours
-      untilDate = new Date(Date.now() + 24 * 3600 * 1000);
       durationSeconds = 24 * 3600;
     }
-
-    const formattedUntil = untilDate.toISOString().slice(0, 19).replace('T', ' ');
 
     // 3. If host is currently live streaming, immediately terminate the active room
     const liveRooms = await query(
@@ -913,17 +914,36 @@ export async function banHostBroadcast(req, res) {
       );
       for (const room of liveRooms) {
         await cache.del(`room:${room.room_id}`);
+        if (req.io) {
+          req.io.to(`room:${room.room_id}`).emit('room_ended', {
+            roomId: room.room_id,
+            message: reason || 'Live stream ended due to agency broadcast suspension.',
+          });
+        }
       }
       await cache.delByPattern('mobile:rooms:*');
     }
 
-    // 4. MySQL SSOT: Update broadcast ban fields
+    // 4. MySQL SSOT: Update broadcast ban fields using MySQL DATE_ADD(NOW(), INTERVAL ? SECOND) to avoid timezone discrepancies
     await query(
       `UPDATE users 
-       SET broadcast_banned_until = ?, broadcast_ban_reason = ?, broadcast_banned_at = CURRENT_TIMESTAMP 
+       SET broadcast_banned_until = DATE_ADD(NOW(), INTERVAL ? SECOND), 
+           broadcast_ban_reason = ?, 
+           broadcast_banned_at = NOW() 
        WHERE id = ?`,
-      [formattedUntil, reason, hostId]
+      [durationSeconds, reason, hostId]
     );
+
+    // Retrieve exact recorded timestamps from MySQL engine
+    const [freshHost] = await query(
+      `SELECT broadcast_banned_at, broadcast_banned_until, 
+              TIMESTAMPDIFF(SECOND, NOW(), broadcast_banned_until) AS remaining_seconds 
+       FROM users WHERE id = ?`,
+      [hostId]
+    );
+
+    const actualRemainingSec = Math.max(0, parseInt(freshHost?.remaining_seconds || durationSeconds, 10));
+    const untilDateIso = freshHost?.broadcast_banned_until ? new Date(freshHost.broadcast_banned_until).toISOString() : new Date(Date.now() + durationSeconds * 1000).toISOString();
 
     // 5. Invalidate Redis Caches
     if (agency?.id) {
@@ -939,14 +959,14 @@ export async function banHostBroadcast(req, res) {
 
     return res.json({
       success: true,
-      message: `Host "${host.full_name}" has been broadcast suspended until ${formattedUntil}.`,
+      message: `Host "${host.full_name}" has been broadcast suspended until ${untilDateIso}.`,
       data: {
         host_id: hostId,
         host_name: host.full_name,
-        broadcast_banned_at: new Date().toISOString(),
-        broadcast_banned_until: untilDate.toISOString(),
-        duration_seconds: durationSeconds,
-        duration_formatted: formatDuration(durationSeconds),
+        broadcast_banned_at: freshHost?.broadcast_banned_at || new Date().toISOString(),
+        broadcast_banned_until: untilDateIso,
+        duration_seconds: actualRemainingSec,
+        duration_formatted: formatDuration(actualRemainingSec),
         reason,
         stream_terminated: liveRooms.length > 0,
       },
