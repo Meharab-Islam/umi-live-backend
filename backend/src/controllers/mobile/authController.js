@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import { query, getPool } from '../../config/db.js';
 import { signToken, verifyToken } from '../../config/jwt.js';
 import { cache } from '../../config/redis.js';
-import { getDefaultRegistrationCoins } from '../../services/systemService.js';
+import { getDefaultRegistrationCoins, getStarProgressionConfig, calculateUserStars } from '../../services/systemService.js';
 import {
   getClientIp,
   recordFailedLogin,
@@ -607,6 +607,20 @@ export async function getMe(req, res) {
     const followersCount = Number(userProfile.followers_count) || 0;
     const followingCount = Number(userProfile.following_count) || 0;
 
+    // Calculate star rating dynamically according to admin star progression configuration
+    const starConfig = await getStarProgressionConfig();
+    const metricVal = starConfig.metric_type === 'diamonds'
+      ? Number(userProfile.diamonds || 0)
+      : (starConfig.metric_type === 'wallet_coins' || starConfig.metric_type === 'coins'
+        ? Number(userProfile.coins || 0)
+        : Number(userProfile.total_coins_spent || 0));
+    const dynamicStar = starConfig.is_enabled ? calculateUserStars(metricVal, starConfig) : Number(userProfile.star || 0);
+
+    // Keep database in sync if drift detected
+    if (Math.abs(dynamicStar - Number(userProfile.star || 0)) > 0.001) {
+      query('UPDATE users SET star = ? WHERE id = ?', [dynamicStar, userId]).catch(() => {});
+    }
+
     // Format clean mobile profile payload
     const formattedUser = {
       id: userProfile.id,
@@ -656,7 +670,7 @@ export async function getMe(req, res) {
         name: userProfile.thumbnail_name,
         image_url: resolveAbsoluteUrl(req, userProfile.thumbnail_image),
       } : null,
-      star: userProfile.star || 0,
+      star: dynamicStar,
       coin: userProfile.coins || 0,
       // Diamond is conditionally returned / active based on economy mode
       diamonds: isDiamondMode ? (userProfile.diamonds || 0) : undefined,

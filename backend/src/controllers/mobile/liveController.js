@@ -8,6 +8,7 @@ import { checkStreamRewardStatus, claimAndAwardLiveReward } from '../../services
 import { notifyLiveStarted, handleLiveEndedNotifications } from '../../services/notificationService.js';
 import { checkUserSelfSeatAcceptPrivilege, checkUserInvisibleRoomEnterPrivilege } from '../../services/userPrivilegeService.js';
 import { getRoomMusicState, setRoomMusicState, clearRoomMusicState } from '../../services/roomMusicService.js';
+import { getStarProgressionConfig, calculateUserStars } from '../../services/systemService.js';
 
 /**
  * Format elapsed seconds into standard timer format:
@@ -139,6 +140,15 @@ export async function buildRoomResponse(roomId, currentUser = null) {
     seatMap[row.seat_number] = row;
   }
 
+  // Calculate dynamic host star progression
+  const starConfig = await getStarProgressionConfig();
+  const hostMetricVal = starConfig.metric_type === 'diamonds'
+    ? Number(room.host_diamonds || 0)
+    : (starConfig.metric_type === 'wallet_coins' || starConfig.metric_type === 'coins'
+      ? Number(room.host_coins || 0)
+      : Number(room.host_total_coins_spent || 0));
+  const dynamicHostStar = starConfig.is_enabled ? calculateUserStars(hostMetricVal, starConfig) : parseFloat(room.host_star || 0);
+
   // Ensure Seat 1 is occupied by the host only if seat 1 has no user and host is not seated in another seat
   const isHostSeatedElsewhere = Object.values(seatMap).some((s) => s.seat_number > 1 && String(s.user_id) === String(room.host_id));
   if ((!seatMap[1] || !seatMap[1].user_id) && !isHostSeatedElsewhere) {
@@ -155,8 +165,8 @@ export async function buildRoomResponse(roomId, currentUser = null) {
       user_diamond: room.host_diamonds,
       user_role: room.host_role,
       user_level: room.host_level,
-      user_star: parseFloat(room.host_star || 0),
-      user_stars: parseFloat(room.host_star || 0),
+      user_star: dynamicHostStar,
+      user_stars: dynamicHostStar,
       equipped_thumbnail: null,
       equipped_entry_preview: null,
       equipped_entry_svga: null,
@@ -227,8 +237,8 @@ export async function buildRoomResponse(roomId, currentUser = null) {
     host_name: room.host_name,
     host_avatar: room.host_avatar,
     host_level: room.host_level,
-    host_star: parseFloat(room.host_star || 0),
-    host_stars: parseFloat(room.host_star || 0),
+    host_star: dynamicHostStar,
+    host_stars: dynamicHostStar,
     host_coins: room.host_coins,
     host_diamonds: room.host_diamonds,
     title: room.title,
@@ -271,8 +281,8 @@ export async function buildRoomResponse(roomId, currentUser = null) {
       name: room.host_name,
       profile: room.host_avatar,
       level: room.host_level,
-      star: parseFloat(room.host_star || 0),
-      stars: parseFloat(room.host_star || 0),
+      star: dynamicHostStar,
+      stars: dynamicHostStar,
       coin: room.host_coins,
       package_image: room.host_package_image || null,
       package_color: room.host_package_color || null,

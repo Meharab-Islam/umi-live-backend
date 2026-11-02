@@ -38,7 +38,7 @@ export async function getStarProgressionConfig() {
       return {
         is_enabled: map['star_system_enabled'] !== 'false',
         coins_per_unit: Math.max(1, parseInt(map['star_coins_per_unit'] || '100000', 10)),
-        metric_type: map['star_metric_type'] || 'coins_spent',
+        metric_type: map['star_metric_type'] || 'wallet_coins',
         decimal_precision: Math.min(3, Math.max(0, parseInt(map['star_decimal_precision'] || '1', 10))),
         max_stars: parseFloat(map['star_max_stars'] || '100.0') || 100.0,
       };
@@ -47,7 +47,7 @@ export async function getStarProgressionConfig() {
     return {
       is_enabled: true,
       coins_per_unit: 100000,
-      metric_type: 'coins_spent',
+      metric_type: 'wallet_coins',
       decimal_precision: 1,
       max_stars: 100.0,
     };

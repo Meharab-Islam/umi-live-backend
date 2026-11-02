@@ -28,7 +28,12 @@ export async function recordCoinsSpentAndCheckLevelUp(userId, coinsSpent, io = n
 
     // 2.1 Calculate and update User Star Rating dynamically (SSOT)
     const starConfig = await getStarProgressionConfig();
-    const newStars = calculateUserStars(totalSpent, starConfig);
+    const metricVal = starConfig.metric_type === 'diamonds'
+      ? BigInt(user.diamonds || 0)
+      : (starConfig.metric_type === 'wallet_coins' || starConfig.metric_type === 'coins'
+        ? BigInt(user.coins || 0)
+        : BigInt(user.total_coins_spent || 0));
+    const newStars = calculateUserStars(metricVal, starConfig);
     await query('UPDATE users SET star = ? WHERE id = ?', [newStars, userId]);
 
     // 3. Fetch all active level configs (cached via Redis Cache-Aside, TTL: 300s)

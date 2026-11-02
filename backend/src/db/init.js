@@ -243,7 +243,7 @@ export async function initializeDatabase() {
     `);
 
     // Ensure key_value is LONGTEXT for rich documents and policies
-    await connection.query('ALTER TABLE system_settings MODIFY COLUMN key_value LONGTEXT NOT NULL;').catch(() => {});
+    await connection.query('ALTER TABLE system_settings MODIFY COLUMN key_value LONGTEXT NOT NULL;').catch(() => { });
 
     await connection.query(`
       CREATE TABLE IF NOT EXISTS account_deletion_requests (
@@ -1077,7 +1077,7 @@ export async function initializeDatabase() {
       ('screen_guard_watermark_enabled', 'true', 'Display anti-leak dynamic floating user ID & IP watermark on live screen'),
       ('star_system_enabled', 'true', 'Master switch to enable or disable the Star progression rating engine'),
       ('star_coins_per_unit', '100000', 'Amount of coins/diamonds required for 1 full star (e.g., 100000 = 1.0 star, 120000 = 1.2 star)'),
-      ('star_metric_type', 'coins_spent', 'Metric used to calculate star progression: coins_spent, diamonds, or wallet_coins'),
+      ('star_metric_type', 'wallet_coins', 'Metric used to calculate star progression: coins_spent, diamonds, or wallet_coins'),
       ('star_decimal_precision', '1', 'Number of decimal places displayed for star progression (e.g., 1 for 1.2, 2 for 1.25)'),
       ('star_max_stars', '100', 'Maximum star rating achievable'),
       ('global_gift_banner_enabled', 'true', 'Master switch to enable real-time global gift announcement banners across all screens'),
@@ -1112,7 +1112,7 @@ export async function initializeDatabase() {
     try {
       const { cache } = await import('../config/redis.js');
       await cache.del('config:livekit');
-    } catch (_) {}
+    } catch (_) { }
 
     // Seed Catalog Items if tables are empty (Safe, idempotent catalog initialization)
     // 1. Gifts
