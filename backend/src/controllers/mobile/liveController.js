@@ -1803,10 +1803,16 @@ export async function takeSeat(req, res) {
 
       // Free previous seat in DB
       await query(
-        'UPDATE live_room_seats SET user_id = NULL, is_camera_on = 0, is_muted = 0 WHERE room_id = ? AND seat_number = ?',
-        [roomId, oldSeatNumber]
+        'UPDATE live_room_seats SET user_id = NULL, is_camera_on = 0, is_muted = 0 WHERE (room_id = ? OR room_id = ?) AND seat_number = ?',
+        [roomId, String(room.id || ''), oldSeatNumber]
       );
     }
+
+    // Strict 1-Seat-Per-User Rule: Clean up any duplicate seat rows for this user in this room
+    await query(
+      'UPDATE live_room_seats SET user_id = NULL, is_camera_on = 0, is_muted = 0 WHERE (room_id = ? OR room_id = ?) AND user_id = ? AND seat_number != ?',
+      [roomId, String(room.id || ''), userId, num]
+    );
 
     // Assign seat (DB-First)
     await query(
@@ -2460,13 +2466,32 @@ export async function requestSeat(req, res) {
 
     if (hasAutoSeatPrivilege) {
       // VIP Privilege: Take seat automatically!
+      if (targetSeatNum) {
+        const occ = await query(
+          'SELECT user_id, is_locked FROM live_room_seats WHERE (room_id = ? OR room_id = ?) AND seat_number = ?',
+          [roomId, String(room.id || ''), targetSeatNum]
+        );
+        if (occ.length > 0 && (occ[0].user_id || occ[0].is_locked)) {
+          targetSeatNum = null; // Requested seat occupied or locked, fallback to first truly free seat
+        }
+      }
+
       if (!targetSeatNum) {
         const freeSeats = await query(
-          'SELECT seat_number FROM live_room_seats WHERE room_id = ? AND user_id IS NULL AND seat_number > 1 AND is_locked = 0 ORDER BY seat_number ASC LIMIT 1',
-          [roomId]
+          'SELECT seat_number FROM live_room_seats WHERE (room_id = ? OR room_id = ?) AND user_id IS NULL AND seat_number > 1 AND seat_number <= ? AND is_locked = 0 ORDER BY seat_number ASC LIMIT 1',
+          [roomId, String(room.id || ''), totalSeats]
         );
-        targetSeatNum = freeSeats.length > 0 ? freeSeats[0].seat_number : 2;
+        if (freeSeats.length === 0) {
+          return res.status(400).json({ success: false, message: 'All seats are currently occupied or locked.' });
+        }
+        targetSeatNum = freeSeats[0].seat_number;
       }
+
+      // Guarantee strict 1-seat-per-user: vacate any other seat userId might have in this room
+      await query(
+        'UPDATE live_room_seats SET user_id = NULL, is_camera_on = 0, is_muted = 0 WHERE (room_id = ? OR room_id = ?) AND user_id = ? AND seat_number != ?',
+        [roomId, String(room.id || ''), userId, targetSeatNum]
+      );
 
       await query(
         `INSERT INTO live_room_seats (room_id, seat_number, user_id, is_main_seat, is_camera_on, is_muted)
@@ -2806,12 +2831,12 @@ export async function approveSeatRequest(req, res) {
       assignSeatNum = freeSeats[0].seat_number;
     }
 
-    // Check if target seat is free; if already occupied or locked, auto-assign the next free seat
+    // Check if target seat is free; if already occupied by another user or locked, auto-assign the next free seat
     const targetSeat = await query(
       'SELECT user_id, is_locked FROM live_room_seats WHERE (room_id = ? OR room_id = ?) AND seat_number = ?',
       [canonicalRoomId, String(numericRoomId), assignSeatNum]
     );
-    if (targetSeat.length > 0 && (targetSeat[0].user_id || targetSeat[0].is_locked)) {
+    if (targetSeat.length > 0 && (targetSeat[0].is_locked || (targetSeat[0].user_id && Number(targetSeat[0].user_id) !== Number(targetUserId)))) {
       const fallbackFreeSeats = await query(
         'SELECT seat_number FROM live_room_seats WHERE (room_id = ? OR room_id = ?) AND user_id IS NULL AND seat_number > 1 AND seat_number <= ? AND is_locked = 0 ORDER BY seat_number ASC LIMIT 1',
         [canonicalRoomId, String(numericRoomId), totalSeats]
@@ -2821,6 +2846,12 @@ export async function approveSeatRequest(req, res) {
       }
       assignSeatNum = fallbackFreeSeats[0].seat_number;
     }
+
+    // Strict 1-Seat-Per-User Rule: Vacate any other seat targetUserId previously occupied in this room
+    await query(
+      'UPDATE live_room_seats SET user_id = NULL, is_camera_on = 0, is_muted = 0 WHERE (room_id = ? OR room_id = ?) AND user_id = ? AND seat_number != ?',
+      [canonicalRoomId, String(numericRoomId), targetUserId, assignSeatNum]
+    );
 
     // 1. Assign seat in live_room_seats (DB-First Single Source of Truth)
     await query(
