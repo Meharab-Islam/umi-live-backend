@@ -12,9 +12,9 @@ dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 dotenv.config();
 
-export const DEFAULT_LIVEKIT_URL = process.env.LIVEKIT_URL || 'wss://snlive-y3r75itj.livekit.cloud';
-export const DEFAULT_LIVEKIT_API_KEY = process.env.LIVEKIT_API_KEY || 'APInTHjZ4pwntq4';
-export const DEFAULT_LIVEKIT_API_SECRET = process.env.LIVEKIT_API_SECRET || 'euPgL1zVA1nD0GeorSxn9amK7PayQg0nnoliE4e9xWlB';
+export const DEFAULT_LIVEKIT_URL = process.env.LIVEKIT_URL || 'wss://sp-live-77aj0nb6.livekit.cloud';
+export const DEFAULT_LIVEKIT_API_KEY = process.env.LIVEKIT_API_KEY || 'API8RXeTebwtkfg';
+export const DEFAULT_LIVEKIT_API_SECRET = process.env.LIVEKIT_API_SECRET || 'G9lYenZnHxa5FUiXvkFBDa5n1a6WUq7hJecNA5OS8I0';
 
 export const LIVEKIT_URL = DEFAULT_LIVEKIT_URL;
 export const LIVEKIT_API_KEY = DEFAULT_LIVEKIT_API_KEY;

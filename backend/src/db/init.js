@@ -1053,9 +1053,9 @@ export async function initializeDatabase() {
       ('custom_thumbnail_upload_coin_cost', '500', 'Required coin balance deducted when a user uploads a custom room background thumbnail'),
       ('custom_thumbnail_validity_days', '30', 'Default validity duration in days for user-uploaded custom thumbnails'),
       ('custom_thumbnail_pricing_tiers', '[{\"days\": 7, \"coins\": 200}, {\"days\": 15, \"coins\": 350}, {\"days\": 30, \"coins\": 500}, {\"days\": 90, \"coins\": 1200}]', 'Dynamic pricing tiers (days vs coins) for user-uploaded custom room background thumbnails'),
-      ('livekit_url', 'wss://snlive-y3r75itj.livekit.cloud', 'LiveKit Cloud or Self-hosted WebSocket URL for WebRTC room media'),
-      ('livekit_api_key', 'APInTHjZ4pwntq4', 'LiveKit Project API Key for generating access tokens'),
-      ('livekit_api_secret', 'euPgL1zVA1nD0GeorSxn9amK7PayQg0nnoliE4e9xWlB', 'LiveKit Project API Secret for token signing'),
+      ('livekit_url', 'wss://sp-live-77aj0nb6.livekit.cloud', 'LiveKit Cloud or Self-hosted WebSocket URL for WebRTC room media'),
+      ('livekit_api_key', 'API8RXeTebwtkfg', 'LiveKit Project API Key for generating access tokens'),
+      ('livekit_api_secret', 'G9lYenZnHxa5FUiXvkFBDa5n1a6WUq7hJecNA5OS8I0', 'LiveKit Project API Secret for token signing'),
       ('call_audio_rate_per_minute', '20', 'Default coin cost per minute for 1-on-1 audio call in direct messages'),
       ('call_video_rate_per_minute', '50', 'Default coin cost per minute for 1-on-1 video call in direct messages'),
       ('call_video_live_rate_per_minute', '30', 'Coin cost per minute for Video Live seat interaction or private call'),
@@ -1092,6 +1092,27 @@ export async function initializeDatabase() {
       ('contact_support_email', 'support@umilive.com', 'Official public support email displayed on landing page and legal documents')
       ON DUPLICATE KEY UPDATE description = VALUES(description);
     `);
+
+    // Sync LiveKit settings with current credentials
+    const envLiveKitUrl = (process.env.LIVEKIT_URL || 'wss://sp-live-77aj0nb6.livekit.cloud').trim();
+    const envLiveKitKey = (process.env.LIVEKIT_API_KEY || 'API8RXeTebwtkfg').trim();
+    const envLiveKitSecret = (process.env.LIVEKIT_API_SECRET || 'G9lYenZnHxa5FUiXvkFBDa5n1a6WUq7hJecNA5OS8I0').trim();
+
+    await connection.query(`
+      UPDATE system_settings
+      SET key_value = CASE 
+        WHEN key_name = 'livekit_url' THEN ?
+        WHEN key_name = 'livekit_api_key' THEN ?
+        WHEN key_name = 'livekit_api_secret' THEN ?
+        ELSE key_value
+      END
+      WHERE key_name IN ('livekit_url', 'livekit_api_key', 'livekit_api_secret');
+    `, [envLiveKitUrl, envLiveKitKey, envLiveKitSecret]);
+
+    try {
+      const { cache } = await import('../config/redis.js');
+      await cache.del('config:livekit');
+    } catch (_) {}
 
     // Seed Catalog Items if tables are empty (Safe, idempotent catalog initialization)
     // 1. Gifts
