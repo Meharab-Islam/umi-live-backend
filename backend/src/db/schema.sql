@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS users (
   mobile_number VARCHAR(30) DEFAULT '',
   country VARCHAR(50) DEFAULT '',
   role ENUM('user', 'host', 'agency', 'moderator', 'reseller', 'admin', 'superadmin') DEFAULT 'user',
-  host_type ENUM('video', 'audio', 'none') DEFAULT 'video',
+  host_type ENUM('video', 'audio', 'none', 'general') DEFAULT 'none',
   agency_id INT NULL,
   agency_joined_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
   coins INT DEFAULT 100,

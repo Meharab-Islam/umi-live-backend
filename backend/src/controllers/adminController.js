@@ -1651,7 +1651,7 @@ export async function deleteAgency(req, res) {
       );
     }
 
-    // 4. Demote all hosts under this agency to normal users (role = 'user', host_type = 'general', agency_id = NULL)
+    // 4. Demote all hosts under this agency to normal users (role = 'user', host_type = 'none', agency_id = NULL)
     // IMPORTANT: Hosts' coins remain untouched in their wallet!
     if (hosts.length > 0) {
       const hostIds = hosts.map((h) => h.id);
@@ -1659,7 +1659,7 @@ export async function deleteAgency(req, res) {
 
       await connection.execute(
         `UPDATE users 
-         SET role = 'user', host_type = 'general', agency_id = NULL,
+         SET role = 'user', host_type = 'none', agency_id = NULL,
              broadcast_banned_until = NULL, broadcast_ban_reason = NULL, broadcast_banned_at = NULL 
          WHERE agency_id = ?`,
         [id]
@@ -1682,9 +1682,9 @@ export async function deleteAgency(req, res) {
       }
     }
 
-    // 5. Agency owner also becomes normal user (role = 'user')
+    // 5. Agency owner also becomes normal user (role = 'user') unless they are admin/superadmin
     await connection.execute(
-      "UPDATE users SET role = 'user', host_type = 'general', agency_id = NULL WHERE id = ?",
+      "UPDATE users SET role = IF(role IN ('admin', 'superadmin'), role, 'user'), host_type = 'none', agency_id = NULL WHERE id = ?",
       [agency.owner_id]
     );
 
@@ -1709,7 +1709,7 @@ export async function deleteAgency(req, res) {
     await invalidateUserCacheAndNotify(req.io, agency.owner_id, {
       role: 'user',
       agency_id: null,
-      host_type: 'general',
+      host_type: 'none',
     });
     await cache.del(`user:agency_application:${agency.owner_id}`);
     await cache.del(`host:agency_summary:${agency.owner_id}`);
@@ -1733,7 +1733,7 @@ export async function deleteAgency(req, res) {
       await invalidateUserCacheAndNotify(req.io, host.id, {
         role: 'user',
         agency_id: null,
-        host_type: 'general',
+        host_type: 'none',
       });
       await cache.del(`user:agency_application:${host.id}`);
       await cache.del(`host:agency_summary:${host.id}`);
@@ -2861,21 +2861,21 @@ export async function bulkDelete(req, res) {
             if (hosts.length > 0) {
               await query(
                 `UPDATE users 
-                 SET role = 'user', host_type = 'general', agency_id = NULL,
+                 SET role = 'user', host_type = 'none', agency_id = NULL,
                      broadcast_banned_until = NULL, broadcast_ban_reason = NULL, broadcast_banned_at = NULL 
                  WHERE agency_id = ?`,
                 [agId]
               );
               for (const h of hosts) {
-                await invalidateUserCacheAndNotify(req.io, h.id, { role: 'user', agency_id: null, host_type: 'general' });
+                await invalidateUserCacheAndNotify(req.io, h.id, { role: 'user', agency_id: null, host_type: 'none' });
                 await cache.del(`user:agency_application:${h.id}`);
                 await cache.del(`host:agency_summary:${h.id}`);
               }
             }
 
             // Demote owner to normal user
-            await query("UPDATE users SET role = 'user', host_type = 'general', agency_id = NULL WHERE id = ?", [ag.owner_id]);
-            await invalidateUserCacheAndNotify(req.io, ag.owner_id, { role: 'user', agency_id: null, host_type: 'general' });
+            await query("UPDATE users SET role = IF(role IN ('admin', 'superadmin'), role, 'user'), host_type = 'none', agency_id = NULL WHERE id = ?", [ag.owner_id]);
+            await invalidateUserCacheAndNotify(req.io, ag.owner_id, { role: 'user', agency_id: null, host_type: 'none' });
             await cache.del(`user:agency_application:${ag.owner_id}`);
             await cache.del(`host:agency_summary:${ag.owner_id}`);
           }
@@ -2941,7 +2941,7 @@ export async function bulkDelete(req, res) {
         const placeholders = cleanIds.map(() => '?').join(',');
         await query(`DELETE FROM agency_hosts WHERE user_id IN (${placeholders})`, cleanIds).catch(() => {});
         const result = await query(
-          `UPDATE users SET role = 'user', host_type = 'general', agency_id = NULL WHERE id IN (${placeholders}) AND role = 'host'`,
+          `UPDATE users SET role = 'user', host_type = 'none', agency_id = NULL WHERE id IN (${placeholders}) AND role = 'host'`,
           cleanIds
         );
         deletedCount = result.affectedRows || 0;

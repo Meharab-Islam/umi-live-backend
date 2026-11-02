@@ -1295,6 +1295,9 @@ export async function initializeDatabase() {
     try {
       await connection.query("ALTER TABLE withdrawals ADD COLUMN user_role VARCHAR(50) DEFAULT 'user' AFTER host_type;");
     } catch (e) { }
+    try {
+      await connection.query("ALTER TABLE users MODIFY COLUMN host_type ENUM('video', 'audio', 'none', 'general') DEFAULT 'none';");
+    } catch (e) { }
 
     // 16. Ensure user_fcm_tokens table and users.fcm_token column exist
     await connection.query(`
