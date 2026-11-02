@@ -4125,17 +4125,23 @@ export async function promoteToMainSeat(req, res) {
     }
 
     // SWAP: Target user -> Seat 1, Previous Seat 1 occupant -> targetSeatNum
+    const isVideoLive = (room.live_type || '').toLowerCase() === 'video';
+    const newMainCam = isVideoLive ? 1 : targetCamera;
+    const newMainMuted = isVideoLive ? 0 : targetMuted;
+    const newCoHostCam = isVideoLive ? 1 : currentMainCamera;
+    const newCoHostMuted = isVideoLive ? 0 : currentMainMuted;
+
     await query(
       `INSERT INTO live_room_seats (room_id, seat_number, user_id, is_main_seat, is_camera_on, is_muted)
        VALUES (?, 1, ?, 1, ?, ?)
        ON DUPLICATE KEY UPDATE user_id = VALUES(user_id), is_main_seat = 1, is_camera_on = VALUES(is_camera_on), is_muted = VALUES(is_muted)`,
-      [canonicalRoomId, targetUserId, targetCamera, targetMuted]
+      [canonicalRoomId, targetUserId, newMainCam, newMainMuted]
     );
     await query(
       `INSERT INTO live_room_seats (room_id, seat_number, user_id, is_main_seat, is_camera_on, is_muted)
        VALUES (?, ?, ?, 0, ?, ?)
        ON DUPLICATE KEY UPDATE user_id = VALUES(user_id), is_main_seat = 0, is_camera_on = VALUES(is_camera_on), is_muted = VALUES(is_muted)`,
-      [canonicalRoomId, targetSeatNum, currentMainUserId, currentMainCamera, currentMainMuted]
+      [canonicalRoomId, targetSeatNum, currentMainUserId, newCoHostCam, newCoHostMuted]
     );
     // Clean up any stray duplicate seats for target user or previous main user elsewhere in this room
     await query(
