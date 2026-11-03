@@ -4197,10 +4197,7 @@ export async function promoteToMainSeat(req, res) {
       const channels = new Set([canonicalRoomId, String(numericRoomId)].filter(Boolean));
       for (const ch of channels) {
         req.io.to(ch).emit('main_seat_swapped', spotlightPayload);
-        req.io.to(ch).emit('spotlight_updated', spotlightPayload);
-        req.io.to(ch).emit('spotlight_changed', spotlightPayload);
-        req.io.to(ch).emit('seat_updated', seatUpdatedPayload);
-        req.io.to(ch).emit('seats_updated', {
+        req.io.to(ch).emit('seats-sync', {
           roomId: canonicalRoomId,
           numericRoomId,
           seats: roomData.seats,
@@ -4208,12 +4205,6 @@ export async function promoteToMainSeat(req, res) {
           spotlight_seat_number: 1,
           spotlight_user_id: targetUserId,
           spotlight_user: roomData.spotlight_user || null,
-        });
-        req.io.to(ch).emit('seats-sync', {
-          roomId: canonicalRoomId,
-          numericRoomId,
-          seats: roomData.seats,
-          rawSeats: roomData.seats,
         });
       }
     }
