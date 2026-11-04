@@ -1073,7 +1073,7 @@ export async function compactRoomGuestSeats(canonicalRoomId, numericRoomId, tota
       cache.del(`mobile:room_details:${canonicalRoomId}`),
       numericRoomId ? cache.del(`mobile:room_details:${numericRoomId}`) : null,
       cache.delByPattern(`mobile:room:users:${canonicalRoomId}*`),
-      numericRoomId ? cache.delByPattern(`mobile:room:users:${numericRoomId}*`),
+      numericRoomId ? cache.delByPattern(`mobile:room:users:${numericRoomId}*`) : null,
     ]);
   } catch (err) {
     console.error('compactRoomGuestSeats error:', err.message);
