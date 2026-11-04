@@ -1061,11 +1061,20 @@ export function setupLiveSocket(io) {
         const seatIdx = parseInt(data.seatIndex ?? data.seat_index ?? data.seatNumber ?? data.seat_number, 10);
         const targetUserId = Number(data.userId || data.user_id || senderId);
 
-        // Find the seat
-        const seats = await query(
-          'SELECT * FROM live_room_seats WHERE (room_id = ? OR room_id = ?) AND (seat_number = ? OR user_id = ?)',
-          [canonicalRoomId, String(numericRoomId), seatIdx || -1, targetUserId]
-        );
+        // Find the seat strictly prioritizing user_id first, then falling back to seat_number
+        let seats = [];
+        if (targetUserId > 0) {
+          seats = await query(
+            'SELECT * FROM live_room_seats WHERE (room_id = ? OR room_id = ?) AND user_id = ?',
+            [canonicalRoomId, String(numericRoomId), targetUserId]
+          );
+        }
+        if (seats.length === 0 && seatIdx > 0) {
+          seats = await query(
+            'SELECT * FROM live_room_seats WHERE (room_id = ? OR room_id = ?) AND seat_number = ?',
+            [canonicalRoomId, String(numericRoomId), seatIdx]
+          );
+        }
         if (seats.length === 0) return;
         const seat = seats[0];
 

@@ -2178,11 +2178,11 @@ export async function muteSeat(req, res) {
     const canonicalRoomId = room.room_id;
     const numericRoomId = String(room.id || '');
 
-    // If seatNumber not given, resolve via userId
-    if ((!num || isNaN(num)) && rawUser) {
+    // Prioritize resolving via rawUser if user is seated in this room
+    if (rawUser && Number(rawUser) > 0) {
       const userSeats = await query(
         'SELECT seat_number FROM live_room_seats WHERE (room_id = ? OR room_id = ?) AND user_id = ?',
-        [canonicalRoomId, numericRoomId, rawUser]
+        [canonicalRoomId, numericRoomId, Number(rawUser)]
       );
       if (userSeats.length > 0) {
         num = userSeats[0].seat_number;
