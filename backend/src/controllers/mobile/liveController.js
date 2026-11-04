@@ -103,6 +103,11 @@ export async function buildRoomResponse(roomId, currentUser = null) {
     );
   }
 
+  // Auto-heal: In Video Live rooms, compact any guest seats so there are zero gaps
+  if (isVideo) {
+    await compactRoomGuestSeats(canonicalRoomId, room.id, totalSeats);
+  }
+
   // 4. Fetch Seats from live_room_seats
   let seatRows = await query(
     `SELECT s.id as seat_id, s.seat_number, s.is_main_seat, s.is_camera_on, s.is_muted, s.is_locked,
@@ -1006,6 +1011,76 @@ export async function joinRoom(req, res) {
 }
 
 /**
+ * Consecutively rearrange and compact all guest seats starting from Seat 2 without empty gaps.
+ * Guarantees that in Video Live rooms, co-hosts always occupy consecutive seats (Seat 2, Seat 3, Seat 4...).
+ */
+export async function compactRoomGuestSeats(canonicalRoomId, numericRoomId, totalSeats = 12) {
+  try {
+    const seats = await query(
+      'SELECT * FROM live_room_seats WHERE (room_id = ? OR room_id = ?) ORDER BY seat_number ASC',
+      [canonicalRoomId, String(numericRoomId || '')]
+    );
+
+    const [roomRow] = await query(
+      'SELECT host_id, live_type FROM live_rooms WHERE (room_id = ? OR id = ?) LIMIT 1',
+      [canonicalRoomId, numericRoomId ? Number(numericRoomId) : -1]
+    );
+    const hostId = roomRow ? Number(roomRow.host_id) : 0;
+
+    // Remaining co-hosts: all occupied seats except host
+    const coHosts = [];
+    const seenUids = new Set();
+    for (const s of seats) {
+      if (s.seat_number > 1 && s.user_id && Number(s.user_id) !== hostId) {
+        const uid = Number(s.user_id);
+        if (!seenUids.has(uid)) {
+          seenUids.add(uid);
+          coHosts.push(s);
+        }
+      }
+    }
+
+    coHosts.sort((a, b) => a.seat_number - b.seat_number);
+
+    let nextSeatNum = 2;
+    for (const coHost of coHosts) {
+      if (nextSeatNum <= totalSeats) {
+        await query(
+          `INSERT INTO live_room_seats (room_id, seat_number, user_id, is_main_seat, is_camera_on, is_muted)
+           VALUES (?, ?, ?, 0, ?, ?)
+           ON DUPLICATE KEY UPDATE user_id = VALUES(user_id), is_main_seat = 0, is_camera_on = VALUES(is_camera_on), is_muted = VALUES(is_muted)`,
+          [canonicalRoomId, nextSeatNum, coHost.user_id, coHost.is_camera_on ?? 1, coHost.is_muted ?? 0]
+        );
+        nextSeatNum++;
+      }
+    }
+
+    for (let s = nextSeatNum; s <= totalSeats; s++) {
+      await query(
+        `INSERT INTO live_room_seats (room_id, seat_number, user_id, is_main_seat, is_camera_on, is_muted)
+         VALUES (?, ?, NULL, 0, 0, 0)
+         ON DUPLICATE KEY UPDATE user_id = NULL, is_main_seat = 0, is_camera_on = 0, is_muted = 0`,
+        [canonicalRoomId, s]
+      );
+    }
+
+    await query('DELETE FROM live_room_seats WHERE (room_id = ? OR room_id = ?) AND seat_number > ?', [canonicalRoomId, String(numericRoomId || ''), totalSeats]);
+    if (numericRoomId && String(numericRoomId) !== String(canonicalRoomId)) {
+      await query('DELETE FROM live_room_seats WHERE room_id = ?', [String(numericRoomId)]);
+    }
+
+    await Promise.allSettled([
+      cache.del(`mobile:room_details:${canonicalRoomId}`),
+      numericRoomId ? cache.del(`mobile:room_details:${numericRoomId}`) : null,
+      cache.delByPattern(`mobile:room:users:${canonicalRoomId}*`),
+      numericRoomId ? cache.delByPattern(`mobile:room:users:${numericRoomId}*`),
+    ]);
+  } catch (err) {
+    console.error('compactRoomGuestSeats error:', err.message);
+  }
+}
+
+/**
  * Handle seat departure and automatic seat rearrangement:
  * - If a non-host user occupied the Main Seat (Seat 1) and departs/vacates:
  *     1. The room's host (room.host_id) is immediately restored to Seat 1 (Main Seat).
@@ -1862,6 +1937,15 @@ export async function takeSeat(req, res) {
        ON DUPLICATE KEY UPDATE user_id = VALUES(user_id), is_camera_on = VALUES(is_camera_on), is_muted = VALUES(is_muted)`,
       [roomId, num, userId, cameraState, muteState]
     );
+
+    if (isVideo) {
+      await compactRoomGuestSeats(roomId, room.id, totalSeats);
+      const finalSeat = await query(
+        'SELECT seat_number FROM live_room_seats WHERE (room_id = ? OR room_id = ?) AND user_id = ?',
+        [roomId, String(room.id || ''), userId]
+      );
+      if (finalSeat.length > 0) num = finalSeat[0].seat_number;
+    }
 
     // Instant Redis Invalidation
     await Promise.allSettled([
@@ -2861,7 +2945,7 @@ export async function approveSeatRequest(req, res) {
     }
 
     let assignSeatNum = parseInt(seat_number || seatNumber || requestRow.seat_number, 10);
-    if (!assignSeatNum || assignSeatNum < 2 || assignSeatNum > totalSeats) {
+    if (isVideoLive || !assignSeatNum || assignSeatNum < 2 || assignSeatNum > totalSeats) {
       const freeSeats = await query(
         'SELECT seat_number FROM live_room_seats WHERE (room_id = ? OR room_id = ?) AND user_id IS NULL AND seat_number > 1 AND seat_number <= ? AND is_locked = 0 ORDER BY seat_number ASC LIMIT 1',
         [canonicalRoomId, String(numericRoomId), totalSeats]
@@ -2901,6 +2985,16 @@ export async function approveSeatRequest(req, res) {
        ON DUPLICATE KEY UPDATE user_id = VALUES(user_id), is_camera_on = 1, is_muted = 0`,
       [canonicalRoomId, assignSeatNum, targetUserId]
     );
+
+    // Video Live: Consecutively compact co-hosts without empty gaps
+    if (isVideoLive) {
+      await compactRoomGuestSeats(canonicalRoomId, numericRoomId, totalSeats);
+      const finalSeat = await query(
+        'SELECT seat_number FROM live_room_seats WHERE (room_id = ? OR room_id = ?) AND user_id = ?',
+        [canonicalRoomId, String(numericRoomId), targetUserId]
+      );
+      if (finalSeat.length > 0) assignSeatNum = finalSeat[0].seat_number;
+    }
 
     // 2. Remove accepted request from waiting list table in database
     if (requestRow.id) {
@@ -4150,6 +4244,10 @@ export async function promoteToMainSeat(req, res) {
          AND ((user_id = ? AND seat_number != 1) OR (user_id = ? AND seat_number != ?))`,
       [canonicalRoomId, String(numericRoomId), targetUserId, currentMainUserId, targetSeatNum]
     );
+
+    if (isVideoLive) {
+      await compactRoomGuestSeats(canonicalRoomId, numericRoomId, room.total_seats || 12);
+    }
 
     // Instant Redis Invalidation
     await Promise.allSettled([

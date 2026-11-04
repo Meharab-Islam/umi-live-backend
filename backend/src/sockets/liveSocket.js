@@ -645,8 +645,9 @@ export function setupLiveSocket(io) {
     });
 
     // Join a live streaming room
-    const handleJoinRoom = async ({ roomId, room_id, user }) => {
-      roomId = roomId || room_id;
+    const handleJoinRoom = async (data = {}) => {
+      let roomId = data?.roomId || data?.room_id;
+      const user = data?.user;
 
       try {
         if (!roomId) return;
