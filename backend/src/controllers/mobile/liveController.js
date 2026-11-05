@@ -1027,13 +1027,16 @@ export async function compactRoomGuestSeats(canonicalRoomId, numericRoomId, tota
     );
     const hostId = roomRow ? Number(roomRow.host_id) : 0;
 
-    // Remaining co-hosts: all occupied seats except host
+    const seat1 = seats.find(s => s.seat_number === 1);
+    const mainOccupantId = seat1 && seat1.user_id ? Number(seat1.user_id) : 0;
+
+    // Remaining co-hosts: all occupied seats > 1 (excluding whoever is on seat 1, keeping host if host is in seat > 1)
     const coHosts = [];
     const seenUids = new Set();
     for (const s of seats) {
-      if (s.seat_number > 1 && s.user_id && Number(s.user_id) !== hostId) {
+      if (s.seat_number > 1 && s.user_id) {
         const uid = Number(s.user_id);
-        if (!seenUids.has(uid)) {
+        if (uid !== mainOccupantId && !seenUids.has(uid)) {
           seenUids.add(uid);
           coHosts.push(s);
         }
