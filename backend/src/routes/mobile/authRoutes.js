@@ -2,6 +2,7 @@ import express from 'express';
 import {
   register,
   login,
+  logout,
   googleLogin,
   getMe,
   updateProfile,
@@ -30,6 +31,7 @@ router.get('/verify-token', verifySession); // Token validity check — no auth 
 
 // Authenticated Mobile Auth Endpoints
 router.get('/me', requireAuth, getMe);
+router.post('/logout', requireAuth, logout);
 router.put('/profile', requireAuth, optionalAvatarUpload, updateProfile);
 
 // FCM Device Token Registration for Push Notifications

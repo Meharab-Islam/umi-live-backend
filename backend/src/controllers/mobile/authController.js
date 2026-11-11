@@ -13,6 +13,37 @@ import {
 } from '../../middlewares/securityMiddleware.js';
 import { getUserSpecialPrivileges } from '../../services/userPrivilegeService.js';
 import { resolveAbsoluteUrl } from './giftController.js';
+import { getLiveIO } from '../../sockets/liveSocket.js';
+
+/**
+ * Enforce Single Device Concurrent Session Invalidation
+ * 1. Broadcasts auth:force_logout socket event to user's personal channel
+ * 2. Saves the active session token in Redis
+ */
+export async function enforceSingleDeviceSession(userId, newToken, deviceId = null) {
+  try {
+    if (!userId || !newToken) return;
+
+    // 1. Notify any active sockets on previously logged-in devices
+    const io = getLiveIO();
+    if (io) {
+      const payload = {
+        success: false,
+        code: 'SESSION_TERMINATED',
+        message: 'Your account was logged in from another device.',
+        device_id: deviceId,
+        logged_in_at: new Date().toISOString(),
+      };
+      io.to(`user_${userId}`).emit('auth:force_logout', payload);
+      io.to(`user_${userId}`).emit('account:force_logout', payload);
+    }
+
+    // 2. Persist active token in Redis (30 days validity)
+    await cache.set(`user:session:${userId}`, newToken, 86400 * 30);
+  } catch (err) {
+    console.error(`[enforceSingleDeviceSession] Error for user ${userId}:`, err.message);
+  }
+}
 
 /**
  * Mobile User Registration
@@ -94,6 +125,7 @@ export async function register(req, res) {
     await cache.delByPattern('admin:dashboard*');
 
     const token = signToken({ id: newUserId, role: finalRole });
+    await enforceSingleDeviceSession(newUserId, token);
 
     return res.status(201).json({
       success: true,
@@ -202,6 +234,7 @@ export async function login(req, res) {
     }
 
     const token = signToken({ id: user.id, role: user.role });
+    await enforceSingleDeviceSession(user.id, token, cleanDeviceId);
 
     delete user.password_hash;
 
@@ -472,6 +505,7 @@ export async function googleLogin(req, res) {
 
     // 5. Sign fresh JWT Access Token
     const token = signToken({ id: user.id, role: user.role });
+    await enforceSingleDeviceSession(user.id, token, finalDeviceId);
 
     delete user.password_hash;
 
@@ -902,6 +936,19 @@ export async function verifySession(req, res) {
       });
     }
 
+    // Check if session has been invalidated by a newer login on another device
+    const activeSessionToken = await cache.get(`user:session:${decoded.id}`);
+    if (activeSessionToken && activeSessionToken !== token) {
+      return res.status(200).json({
+        valid: false,
+        expired: false,
+        terminated: true,
+        code: 'SESSION_TERMINATED',
+        message: 'Your account was logged in from another device.',
+        user_id: user.id,
+      });
+    }
+
     const issuedAt = decoded.iat ? new Date(decoded.iat * 1000).toISOString() : null;
     const expiresAt = decoded.exp ? new Date(decoded.exp * 1000).toISOString() : null;
 
@@ -1063,6 +1110,8 @@ export async function verifyOtp(req, res) {
     await cache.set(`user:${userObj.id}`, userObj, 300);
 
     const token = signToken({ id: userObj.id, role: userObj.role });
+    const otpDeviceId = req.body.device_id || req.body.deviceId || req.body.device_unique_id || null;
+    await enforceSingleDeviceSession(userObj.id, token, otpDeviceId);
 
     return res.status(200).json({
       success: true,
@@ -1220,3 +1269,24 @@ export async function removeFcmToken(req, res) {
     return res.status(500).json({ success: false, message: 'Failed to remove FCM token.', error: err.message });
   }
 }
+
+/**
+ * Mobile User Explicit Logout
+ * POST /api/mobile/auth/logout
+ */
+export async function logout(req, res) {
+  try {
+    const userId = req.user?.id;
+    if (userId) {
+      await cache.del(`user:session:${userId}`);
+    }
+    return res.status(200).json({
+      success: true,
+      message: 'Logged out successfully.',
+    });
+  } catch (err) {
+    console.error('Logout error:', err);
+    return res.status(500).json({ success: false, message: 'Logout failed.', error: err.message });
+  }
+}
+

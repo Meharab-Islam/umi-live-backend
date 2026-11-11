@@ -16,6 +16,17 @@ export async function requireAuth(req, res, next) {
       return res.status(401).json({ success: false, message: 'Invalid or expired token.' });
     }
 
+    // Single Device Session Check:
+    // If a different active token exists in Redis, this device session is terminated
+    const activeToken = await cache.get(`user:session:${decoded.id}`);
+    if (activeToken && activeToken !== token) {
+      return res.status(401).json({
+        success: false,
+        code: 'SESSION_TERMINATED',
+        message: 'Your account has been logged in on another device. Please log in again.'
+      });
+    }
+
     // Fetch user from Redis cache first; fall back to DB on miss
     const user = await cache.getOrSet(`user:${decoded.id}`, 60, async () => {
       const users = await query('SELECT id, email, full_name, avatar_url, role, host_type, agency_id, coins, diamonds, level, is_banned FROM users WHERE id = ?', [decoded.id]);
