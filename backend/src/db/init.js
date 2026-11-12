@@ -1094,9 +1094,9 @@ export async function initializeDatabase() {
     `);
 
     // Sync LiveKit settings with current credentials
-    const envLiveKitUrl = (process.env.LIVEKIT_URL || 'wss://sp-live-77aj0nb6.livekit.cloud').trim();
-    const envLiveKitKey = (process.env.LIVEKIT_API_KEY || 'API8RXeTebwtkfg').trim();
-    const envLiveKitSecret = (process.env.LIVEKIT_API_SECRET || 'G9lYenZnHxa5FUiXvkFBDa5n1a6WUq7hJecNA5OS8I0').trim();
+    const envLiveKitUrl = (process.env.LIVEKIT_URL || 'wss://bmprolivekit.lolipoplive.top').trim();
+    const envLiveKitKey = (process.env.LIVEKIT_API_KEY || '8ae64a1e9c7eeff9f2a72e83').trim();
+    const envLiveKitSecret = (process.env.LIVEKIT_API_SECRET || '928c6dfc596f00c1a95caee1f3452345fd95119d1a154c75').trim();
 
     await connection.query(`
       UPDATE system_settings
