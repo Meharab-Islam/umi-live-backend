@@ -43,8 +43,12 @@ async function getEquippedEntryEffect(userId) {
 // does not turn into 2 DB queries per message.
 async function getChatProfile(userId) {
   if (!userId) return {};
-  return (await cache.getOrSet(`live:chat_profile:${userId}`, LIVE_SCALE.profileCacheTtl, async () => {
-    const out = { package: null, agency: null };
+  return (await cache.getOrSet(`live:chat_profile:v2:${userId}`, LIVE_SCALE.profileCacheTtl, async () => {
+    const out = { user: null, package: null, agency: null };
+    try {
+      const uRows = await query('SELECT id, full_name, avatar_url, level, role FROM users WHERE id = ? LIMIT 1', [userId]);
+      if (uRows.length > 0) out.user = uRows[0];
+    } catch (_) {}
     try {
       const pkgRows = await query(
         `SELECT pc.name as package_category_name,
@@ -665,7 +669,8 @@ export function setupLiveSocket(io) {
     let currentRoom = null;
     let currentUser = null;
 
-    // Automatic authentication via handshake token or userId
+    // Identity comes ONLY from a verified JWT. A bare userId in the handshake/query is never
+    // trusted (it would let anyone join another user's private channel or act as them).
     const rawHandshakeToken =
       socket.handshake?.auth?.token ||
       socket.handshake?.headers?.authorization ||
@@ -674,26 +679,20 @@ export function setupLiveSocket(io) {
       const cleanToken = String(rawHandshakeToken).replace(/^Bearer\s+/i, '');
       const decoded = verifyToken(cleanToken);
       if (decoded && decoded.id) {
-        socket.userId = decoded.id;
-        socket.chatUserId = decoded.id;
+        socket.userId = Number(decoded.id);
+        socket.chatUserId = Number(decoded.id);
+        socket.user = { id: Number(decoded.id), role: decoded.role || 'user' };
         socket.join(`user_${decoded.id}`);
         socket.join(`user:${decoded.id}`);
       }
     }
-    const rawUserId = socket.handshake?.auth?.userId || socket.handshake?.query?.userId;
-    if (rawUserId && !socket.userId) {
-      socket.userId = Number(rawUserId);
-      socket.chatUserId = Number(rawUserId);
-      socket.join(`user_${socket.userId}`);
-      socket.join(`user:${socket.userId}`);
-    }
 
     // Explicit listener to join private user channel if requested
-    socket.on('join_user_channel', (payload) => {
-      const targetId = payload?.userId || payload?.user_id || socket.userId;
-      if (targetId) {
-        socket.join(`user_${targetId}`);
-        socket.join(`user:${targetId}`);
+    socket.on('join_user_channel', () => {
+      // Only ever the caller's own verified channel; a client-supplied userId is ignored.
+      if (socket.userId) {
+        socket.join(`user_${socket.userId}`);
+        socket.join(`user:${socket.userId}`);
       }
     });
 
@@ -717,9 +716,9 @@ export function setupLiveSocket(io) {
 
         // Verify Room Lock & Password Protection before allowing socket to join room
         if (room && room.is_locked && room.room_password) {
-          const uId = currentUser?.id || user?.id || socket.userId;
+          const uId = socket.userId;
           const isHost = (uId && Number(uId) === Number(room.host_id)) || (socket.userId && Number(socket.userId) === Number(room.host_id));
-          const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'superadmin' || socket.user?.role === 'admin' || socket.user?.role === 'superadmin';
+          const isAdmin = socket.user?.role === 'admin' || socket.user?.role === 'superadmin';
           let canEnter = isHost || isAdmin;
 
           if (!canEnter && uId) {
@@ -754,7 +753,27 @@ export function setupLiveSocket(io) {
         }
 
         currentRoom = canonicalRoomId;
-        currentUser = user || { full_name: `Guest_${socket.id.substring(0, 4)}`, avatar_url: '' };
+        // Never trust the client-supplied user.id / role: bind to the verified socket identity.
+        // Display fields (name, avatar, level, package) come from the server profile.
+        {
+          if (socket.userId) {
+            const prof = await getChatProfile(socket.userId);
+            const dbU = prof.user || {};
+            const pkg = prof.package || {};
+            currentUser = {
+              id: socket.userId,
+              role: socket.user?.role || dbU.role || 'user',
+              full_name: dbU.full_name || `User ${socket.userId}`,
+              avatar_url: dbU.avatar_url ?? '',
+              level: dbU.level || 1,
+              package_category_name: pkg.package_category_name || '',
+              package_image: pkg.package_image || '',
+              package_color: pkg.package_color || '',
+            };
+          } else {
+            currentUser = { full_name: `Guest_${socket.id.substring(0, 4)}`, avatar_url: '' };
+          }
+        }
         socket.currentRoom = canonicalRoomId;
         socket.currentUser = currentUser;
 
@@ -1305,8 +1324,8 @@ export function setupLiveSocket(io) {
           roomViewers.get(canonicalRoomId).delete(socket.id);
         }
 
-        const leaveUserId = data?.userId || data?.user_id || currentUser?.id || socket.userId;
-        const leaveUserInfo = data?.user || (data?.userName ? data : null) || currentUser;
+        const leaveUserId = socket.userId || currentUser?.id;
+        const leaveUserInfo = currentUser;
 
         if (leaveUserId) {
           cancelSeatGuestDisconnectGraceTimer(canonicalRoomId, leaveUserId);
@@ -1330,83 +1349,81 @@ export function setupLiveSocket(io) {
       const msg = data?.message || data?.text;
       if (!targetRoom || !msg) return;
 
+      // Identity is the verified JWT only; nothing about the sender is taken from the payload.
+      const senderUserId = socket.userId;
+      if (!senderUserId) {
+        socket.emit('room_auth_required', { message: 'Please sign in to comment.' });
+        return;
+      }
+      // Must actually be inside the room (prevents posting into rooms you did not join).
+      if (!socket.rooms.has(String(targetRoom))) return;
+
       // Per-socket rate limit: drops spam before it costs any DB / fan-out work.
       if (!allowChatMessage(socket)) {
         socket.emit('room_chat_rate_limited', { roomId: targetRoom, message: 'You are sending messages too fast.' });
         return;
       }
 
-      const u = data?.user || currentUser || { full_name: "Guest" };
-      const senderUserId = data?.userId || data?.user_id || u?.id;
-
-      let packageCategoryName = data?.packageCategoryName || data?.package_category_name || u?.package_category_name;
-      let packageImage = data?.packageImage || data?.package_image || u?.package_image;
-      let packageColor = data?.packageColor || data?.package_color || data?.color || u?.package_color || u?.packageColor || u?.color;
-
-      // Missing package / agency info is looked up once per user and cached (not per message).
-      let chatProfile = null;
-      if (senderUserId && (!packageImage || !packageColor)) {
-        chatProfile = await getChatProfile(senderUserId);
-        if (chatProfile.package) {
-          packageCategoryName = packageCategoryName || chatProfile.package.package_category_name;
-          packageImage = packageImage || chatProfile.package.package_image;
-          packageColor = packageColor || chatProfile.package.package_color;
-        }
-      }
-
-      let agencyId = data?.agencyId || data?.agency_id || u?.agency_id;
-      let agencyName = data?.agencyName || data?.agency_name || u?.agency_name;
-
-      if (senderUserId && agencyName === undefined) {
-        chatProfile = chatProfile || (await getChatProfile(senderUserId));
-        if (chatProfile.agency) {
-          agencyId = chatProfile.agency.agency_id;
-          agencyName = chatProfile.agency.agency_name;
-        } else {
-          agencyName = null;
-        }
-      }
+      const prof = await getChatProfile(senderUserId);
+      const dbU = prof.user || {};
+      const pkg = prof.package || {};
+      const userName = dbU.full_name || currentUser?.full_name || `User ${senderUserId}`;
+      const userAvatar = dbU.avatar_url ?? currentUser?.avatar_url ?? '';
+      const userLevel = dbU.level || 1;
+      const packageCategoryName = pkg.package_category_name || '';
+      const packageImage = pkg.package_image || '';
+      const packageColor = pkg.package_color || '';
+      const agencyId = prof.agency?.agency_id || null;
+      const agencyName = prof.agency?.agency_name || '';
+      const isPlatformAdmin = dbU.role === 'admin' || dbU.role === 'superadmin';
+      const vipTier = isPlatformAdmin ? 'admin' : (packageCategoryName ? 'vip' : 'normal');
+      const text = String(msg).trim().substring(0, 300);
+      if (!text) return;
 
       const payload = {
-        id: data?.id || `msg-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+        id: `msg-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
         roomId: targetRoom,
         room_id: targetRoom,
         user: {
-          ...u,
-          package_category_name: packageCategoryName || '',
-          package_image: packageImage || '',
-          package_color: packageColor || '',
-          agency_id: agencyId || null,
-          agency_name: agencyName || '',
+          id: senderUserId,
+          full_name: userName,
+          name: userName,
+          avatar_url: userAvatar,
+          level: userLevel,
+          package_category_name: packageCategoryName,
+          package_image: packageImage,
+          package_color: packageColor,
+          agency_id: agencyId,
+          agency_name: agencyName,
         },
         userId: senderUserId,
         user_id: senderUserId,
-        userName: data?.userName || data?.user_name || u?.full_name || u?.name,
-        user_name: data?.userName || data?.user_name || u?.full_name || u?.name,
-        userAvatar: data?.userAvatar || data?.user_avatar || u?.avatar_url || u?.profile_picture,
-        user_avatar: data?.userAvatar || data?.user_avatar || u?.avatar_url || u?.profile_picture,
-        userLevel: u?.level || data?.userLevel || data?.user_level || data?.level || 1,
-        user_level: u?.level || data?.userLevel || data?.user_level || data?.level || 1,
-        level: u?.level || data?.userLevel || data?.user_level || data?.level || 1,
-        agencyId: agencyId || null,
-        agency_id: agencyId || null,
-        agencyName: agencyName || '',
-        agency_name: agencyName || '',
+        userName,
+        user_name: userName,
+        userAvatar,
+        user_avatar: userAvatar,
+        userLevel,
+        user_level: userLevel,
+        level: userLevel,
+        agencyId,
+        agency_id: agencyId,
+        agencyName,
+        agency_name: agencyName,
         isAgencyHost: Boolean(agencyId && agencyName),
         is_agency_host: Boolean(agencyId && agencyName),
-        packageCategoryName: packageCategoryName || '',
-        package_category_name: packageCategoryName || '',
-        packageName: packageCategoryName || '',
-        package_name: packageCategoryName || '',
-        packageImage: packageImage || '',
-        package_image: packageImage || '',
-        packageColor: packageColor || '',
-        package_color: packageColor || '',
-        color: packageColor || '',
-        vipTier: data?.vipTier || data?.vip_tier || u?.vip_tier || "normal",
-        vip_tier: data?.vipTier || data?.vip_tier || u?.vip_tier || "normal",
-        message: String(msg).trim().substring(0, 300),
-        text: String(msg).trim().substring(0, 300),
+        packageCategoryName,
+        package_category_name: packageCategoryName,
+        packageName: packageCategoryName,
+        package_name: packageCategoryName,
+        packageImage,
+        package_image: packageImage,
+        packageColor,
+        package_color: packageColor,
+        color: packageColor,
+        vipTier,
+        vip_tier: vipTier,
+        message: text,
+        text,
         timestamp: new Date().toISOString(),
       };
 
@@ -1421,13 +1438,15 @@ export function setupLiveSocket(io) {
     const handleRoomReaction = (data) => {
       const targetRoom = data?.roomId || data?.room_id || currentRoom;
       if (!targetRoom) return;
+      // Verified identity only, and only from inside the room.
+      if (!socket.userId || !socket.rooms.has(String(targetRoom))) return;
 
-      const u = data?.user || currentUser || { full_name: "Guest" };
+      const u = currentUser || { full_name: "Guest" };
       const reactionPayload = {
         roomId: targetRoom,
         room_id: targetRoom,
-        userId: data?.userId || data?.user_id || u?.id,
-        user_id: data?.userId || data?.user_id || u?.id,
+        userId: socket.userId,
+        user_id: socket.userId,
         userName: data?.userName || data?.user_name || u?.full_name || u?.name,
         user_name: data?.userName || data?.user_name || u?.full_name || u?.name,
         userAvatar: data?.userAvatar || data?.user_avatar || u?.avatar_url || u?.profile_picture,
@@ -1455,53 +1474,29 @@ export function setupLiveSocket(io) {
     socket.on("reaction", handleRoomReaction);
     socket.on("like", handleRoomReaction);
 
-    // Live Gift broadcast with real-time room & user coin updates
-    const handleGiftSentSocket = (giftEvent) => {
-      if (!giftEvent) return;
-      const targetRoomId = giftEvent.roomId || giftEvent.room_id;
-      if (!targetRoomId) return;
-
-      const payload = {
-        ...giftEvent,
-        timestamp: giftEvent.timestamp || new Date().toISOString(),
-      };
-
-      // Broadcast full gift explosion event via Room Gift Queue (Paced & Anti-Duplicate)
-      const roomKey = String(targetRoomId).trim();
-      const senderId = giftEvent.sender_id || giftEvent.senderId || giftEvent.sender?.id;
-      const receiverId = giftEvent.receiver_id || giftEvent.receiverId || giftEvent.receiver?.id;
-      const senderCoin = giftEvent.sender_updated_coin ?? giftEvent.senderUpdatedCoin ?? giftEvent.sender?.updated_coin;
-      const receiverCoin = giftEvent.receiver_updated_coin ?? giftEvent.receiverUpdatedCoin ?? giftEvent.receiver?.updated_coin;
-
-      const receiversList = Array.isArray(giftEvent.receivers) && giftEvent.receivers.length > 0
-        ? giftEvent.receivers
-        : (receiverId ? [{ id: receiverId, updated_coin: receiverCoin }] : []);
-
-      enqueueRoomGift({
-        io,
-        roomTargets: [roomKey],
-        socketPayload: payload,
-        senderId,
-        senderUpdatedCoins: senderCoin,
-        receiversList,
-      });
-    };
-
-    socket.on('gift-sent', handleGiftSentSocket);
-    socket.on('gift_sent', handleGiftSentSocket);
-    socket.on('send-gift', handleGiftSentSocket);
-    socket.on('send_gift', handleGiftSentSocket);
+    // NOTE: gift broadcasts are server-originated only (giftController -> enqueueRoomGift after the
+    // coin transaction). Client-emitted 'gift-sent' / 'send-gift' events used to be relayed to the
+    // whole room, which let any client forge gift animations and coin balance updates.
 
     // Admin/Host/Moderator ends the stream
-    const handleCloseStreamSocket = async ({ roomId, reason, closedBy }) => {
+    const handleCloseStreamSocket = async ({ roomId, reason, closedBy } = {}) => {
       if (!roomId) return;
       try {
+        if (!socket.userId) return;
         const isNum = /^\d+$/.test(String(roomId).trim());
         const rooms = await query(
           'SELECT id, room_id, host_id FROM live_rooms WHERE room_id = ? OR id = ?',
           [String(roomId), isNum ? Number(roomId) : -1]
         );
         const room = rooms.length > 0 ? rooms[0] : null;
+        // Only the room's host or a platform admin/moderator (verified JWT role) may end a stream.
+        const role = socket.user?.role;
+        const canClose = (room && Number(room.host_id) === Number(socket.userId)) ||
+          role === 'admin' || role === 'superadmin' || role === 'moderator';
+        if (!canClose) {
+          socket.emit('error', { message: 'You are not allowed to end this stream.' });
+          return;
+        }
         const canonicalRoomId = room ? room.room_id : String(roomId);
         const numericRoomId = room ? room.id : null;
 
@@ -1540,7 +1535,7 @@ export function setupLiveSocket(io) {
         const closePayload = {
           roomId: canonicalRoomId,
           numericRoomId,
-          closedBy: closedBy || socket.userId,
+          closedBy: socket.userId,
           message: 'Stream has been closed.',
           reason: reason || 'Stream closed by host/moderator',
           timestamp: new Date().toISOString(),
@@ -1568,16 +1563,19 @@ export function setupLiveSocket(io) {
     // 1-ON-1 REAL-TIME CHAT EVENTS
     // -------------------------------------------------------------------
     // Join user room for incoming messages & conversation updates
-    socket.on('chat:join', ({ userId, token }) => {
-      let uid = userId;
-      if (!uid && token) {
+    socket.on('chat:join', ({ token } = {}) => {
+      // Identity = verified handshake JWT (or a valid token sent here). A client-supplied userId is ignored.
+      if (!socket.userId && token) {
         const decoded = verifyToken(String(token).replace(/^Bearer\s+/i, ''));
-        if (decoded?.id) uid = decoded.id;
+        if (decoded?.id) {
+          socket.userId = Number(decoded.id);
+          socket.chatUserId = Number(decoded.id);
+          socket.user = { id: Number(decoded.id), role: decoded.role || 'user' };
+        }
       }
-      if (uid) {
-        socket.join(`user_${uid}`);
-        socket.chatUserId = uid;
-        socket.userId = uid;
+      if (socket.userId) {
+        socket.join(`user_${socket.userId}`);
+        socket.join(`user:${socket.userId}`);
       }
     });
 
@@ -1598,20 +1596,17 @@ export function setupLiveSocket(io) {
     // Real-time Send Message directly over Socket.IO
     socket.on('chat:send_message', async (data, ackCallback) => {
       try {
-        let senderId = socket.userId || socket.chatUserId || data?.sender_id || data?.senderId;
+        // Sender is the verified socket identity; sender_id in the payload is never trusted.
+        let senderId = socket.userId || socket.chatUserId;
         if (!senderId && data?.token) {
           const decoded = verifyToken(String(data.token).replace(/^Bearer\s+/i, ''));
           if (decoded?.id) {
-            senderId = decoded.id;
-            socket.userId = decoded.id;
-            socket.chatUserId = decoded.id;
-            socket.join(`user_${decoded.id}`);
+            senderId = Number(decoded.id);
+            socket.userId = senderId;
+            socket.chatUserId = senderId;
+            socket.user = { id: senderId, role: decoded.role || 'user' };
+            socket.join(`user_${senderId}`);
           }
-        }
-        if (senderId && !socket.userId) {
-          socket.userId = Number(senderId);
-          socket.chatUserId = Number(senderId);
-          socket.join(`user_${senderId}`);
         }
 
         const receiverId = data?.receiver_id || data?.receiverId;
@@ -1978,7 +1973,7 @@ export function setupLiveSocket(io) {
       try {
         const conversationId = data?.conversationId || data?.conversation_id;
         const senderId = data?.senderId || data?.sender_id;
-        let userId = socket.userId || socket.chatUserId || data?.userId || data?.user_id;
+        let userId = socket.userId || socket.chatUserId;
         if (!userId && data?.token) {
           const decoded = verifyToken(String(data.token).replace(/^Bearer\s+/i, ''));
           if (decoded?.id) userId = decoded.id;
@@ -2020,7 +2015,7 @@ export function setupLiveSocket(io) {
     // Real-time Chat Background Update (Shared for both participants)
     socket.on('chat:update_background', async (data, ackCallback) => {
       try {
-        const userId = socket.userId || socket.chatUserId || data?.userId;
+        const userId = socket.userId || socket.chatUserId;
         const conversationId = data?.conversation_id || data?.conversationId;
         const backgroundImage = data?.background_image || data?.backgroundImage || null;
         const backgroundColor = data?.background_color || data?.backgroundColor || null;
@@ -2070,7 +2065,7 @@ export function setupLiveSocket(io) {
     // Real-time Clear Chat Messages for Caller
     socket.on('chat:clear_chat', async (data, ackCallback) => {
       try {
-        const userId = socket.userId || socket.chatUserId || data?.userId;
+        const userId = socket.userId || socket.chatUserId;
         const conversationId = data?.conversation_id || data?.conversationId;
 
         if (!userId || !conversationId) {

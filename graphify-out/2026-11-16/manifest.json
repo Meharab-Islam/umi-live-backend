@@ -192,9 +192,9 @@
     "semantic_hash": ""
   },
   "backend/src/sockets/liveSocket.js": {
-    "mtime": 1794783651.7448654,
-    "seen": 1794784671.206321,
-    "ast_hash": "62943834402f0c241f7d86809b5090f8",
+    "mtime": 1794808575.5630708,
+    "seen": 1794808687.549599,
+    "ast_hash": "ef798292ebf5787325bb926b14e88413",
     "semantic_hash": ""
   },
   "admin-panel/src/pages/Agencies.jsx": {
@@ -558,9 +558,9 @@
     "semantic_hash": ""
   },
   "backend/src/controllers/mobile/liveController.js": {
-    "mtime": 1794783980.8848288,
-    "seen": 1794784671.2050612,
-    "ast_hash": "e7fdbaac466dafbf76aa895eff96eaaa",
+    "mtime": 1794808594.9145842,
+    "seen": 1794808687.5482712,
+    "ast_hash": "c01195a02314dcd385b017be15b364cd",
     "semantic_hash": ""
   },
   "backend/src/controllers/mobile/packageController.js": {
@@ -642,9 +642,9 @@
     "semantic_hash": ""
   },
   "backend/src/controllers/mobile/entryEffectController.js": {
-    "mtime": 1793557380.111283,
-    "seen": 1793557681.7278972,
-    "ast_hash": "e6c6d52b8c328f92c55d0f7716063e6a",
+    "mtime": 1794808575.6169295,
+    "seen": 1794808687.548156,
+    "ast_hash": "0a9fa1b04a1a3aa6b239580068122969",
     "semantic_hash": ""
   },
   "backend/src/controllers/mobile/thumbnailController.js": {
@@ -1563,6 +1563,12 @@
     "mtime": 1794784454.5581293,
     "seen": 1794784671.206089,
     "ast_hash": "5ad51a2b5be21d8185e37f855f0188b9",
+    "semantic_hash": ""
+  },
+  "backend/src/services/liveScaleGuard.js": {
+    "mtime": 1794808542.1286201,
+    "seen": 1794808687.549514,
+    "ast_hash": "25e8fdd7a4f2cdb5c47f55de4605dfb4",
     "semantic_hash": ""
   }
 }
