@@ -21,6 +21,7 @@ import notificationRoutes from './notificationRoutes.js';
 import themeRoutes from './themeRoutes.js';
 import callRoutes from './callRoutes.js';
 import levelRoutes from './levelRoutes.js';
+import gameRoutes from './gameRoutes.js';
 
 const router = express.Router();
 
@@ -46,6 +47,7 @@ const router = express.Router();
  * - /api/mobile/host          -> hostRoutes (agency summary, monthly breakdown, stream logs, overview)
  * - /api/mobile/agency        -> agencyRoutes (top agencies, overview, hosts, broadcast ban/unban, join requests)
  * - /api/mobile/notifications -> notificationRoutes (FCM specs, token registration, multi-device routing)
+ * - /api/mobile/games         -> gameRoutes (AGX third-party games: list, launch WebView session)
  */
 router.get('/maintenance', getMaintenanceStatus);
 router.use('/config', configRoutes);
@@ -72,6 +74,7 @@ router.use('/themes', themeRoutes);
 router.use('/call', callRoutes);
 router.use('/calls', callRoutes);
 router.use('/levels', levelRoutes);
+router.use('/games', gameRoutes);
 
 export default router;
 

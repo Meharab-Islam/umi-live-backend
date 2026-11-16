@@ -166,6 +166,12 @@ import {
 } from '../controllers/adminThemeController.js';
 import { upload, optionalFeedMediaUpload } from '../middleware/upload.js';
 import { requireAuth, requireAdmin } from '../middlewares/authMiddleware.js';
+import {
+  getAgxGamesConfig,
+  updateAgxGamesConfig,
+  testAgxConnection,
+  getAgxSettlements,
+} from '../controllers/agxGameAdminController.js';
 
 const router = express.Router();
 
@@ -293,6 +299,12 @@ router.put('/profile', updateAdminProfile);
 // Platform System Settings
 router.get('/settings', getSettings);
 router.put('/settings/:key', updateSetting);
+
+// AGX Third-Party Games (Partner API credentials, enabled games, round results)
+router.get('/agx-games/config', getAgxGamesConfig);
+router.put('/agx-games/config', updateAgxGamesConfig);
+router.post('/agx-games/test', testAgxConnection);
+router.get('/agx-games/settlements', getAgxSettlements);
 
 // VIP & Privilege Packages Management
 router.get('/package-categories', getPackageCategories);

@@ -22,6 +22,7 @@ import Banners from './pages/Banners';
 import AccountMerge from './pages/AccountMerge';
 import ReservedAccounts from './pages/ReservedAccounts';
 import ApiDocs from './pages/ApiDocs';
+import AgxGames from './pages/AgxGames';
 import TopContributors from './pages/TopContributors';
 import Posts from './pages/Posts';
 import Reports from './pages/Reports';
@@ -70,6 +71,7 @@ const VALID_TABS = [
   'app-economy',
   'call-config',
   'livekit-config',
+  'agx-games',
   'screen-guard',
   'star-system',
   'wallpaper-pricing',
@@ -338,6 +340,7 @@ export default function App() {
     'app-economy': 'Economy Configuration',
     'call-config': '1-to-1 Calls & Rates',
     'livekit-config': 'LiveKit & WebRTC',
+    'agx-games': 'AGX Games',
     'screen-guard': 'Screen Guard & Privacy',
     'star-system': 'Star Progression System',
     'wallpaper-pricing': 'Wallpaper Duration Pricing',
@@ -522,6 +525,10 @@ export default function App() {
 
           {activeTab === 'livekit-config' && (
             <Settings onToast={addToast} targetSection="streaming" />
+          )}
+
+          {activeTab === 'agx-games' && (
+            <AgxGames onToast={addToast} />
           )}
 
           {activeTab === 'screen-guard' && (

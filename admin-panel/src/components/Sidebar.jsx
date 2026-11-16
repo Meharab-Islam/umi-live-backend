@@ -38,6 +38,7 @@ import {
   FileText,
   MessageSquare,
   BookmarkCheck,
+  Gamepad2,
 } from 'lucide-react';
 
 import packageApi from '../api/packageApi';
@@ -142,6 +143,7 @@ export default function Sidebar({
           { id: 'app-economy', label: 'Economy Config', icon: Coins },
           { id: 'call-config', label: '1-to-1 Calls', icon: PhoneCall },
           { id: 'livekit-config', label: 'LiveKit WebRTC', icon: Server },
+          { id: 'agx-games', label: 'AGX Games', icon: Gamepad2 },
           { id: 'screen-guard', label: 'Screen Guard', icon: Camera },
           { id: 'star-system', label: 'Star System', icon: Star },
           { id: 'wallpaper-pricing', label: 'Wallpaper Pricing', icon: ImageIcon },

@@ -1,7 +1,7 @@
 # Graph Report - umi_backend  (2026-11-16)
 
 ## Corpus Check
-- 219 files · ~1,197,860 words
+- 219 files · ~1,199,121 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `02edba2a`
+- Built from commit: `2bb6fe4c`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -354,8 +354,8 @@ Cohesion: 0.14
 Nodes (24): checkRoomActionPrivilege(), createPackage(), createPackageCategory(), deletePackage(), deletePackageCategory(), enrichCategoryWithUserSubscription(), enrichPackageWithUserSubscription(), formatCategoryPrivileges() (+16 more)
 
 ### Community 82 - "react"
-Cohesion: 0.10
-Nodes (22): accountMergeApi, API_BASE, getApiBase(), legalApi, liveApi, GoogleMeetLiveStage(), MarkdownRenderer(), parseMarkdownToHtml() (+14 more)
+Cohesion: 0.11
+Nodes (21): API_BASE, getApiBase(), dashboardApi, legalApi, liveApi, GoogleMeetLiveStage(), MarkdownRenderer(), parseMarkdownToHtml() (+13 more)
 
 ### Community 109 - "mobile/index.js"
 Cohesion: 0.05
@@ -370,8 +370,8 @@ Cohesion: 0.48
 Nodes (5): chatApi, ChatModeration(), formatFullDate(), formatTimeAgo(), resolveMediaUrl()
 
 ### Community 171 - "client.js"
-Cohesion: 0.14
-Nodes (19): del(), get(), getCurrentUser(), patch(), post(), put(), request(), wrapResponse() (+11 more)
+Cohesion: 0.13
+Nodes (20): accountMergeApi, del(), get(), getCurrentUser(), patch(), post(), put(), request() (+12 more)
 
 ### Community 214 - "App.jsx"
 Cohesion: 0.14

@@ -1,4 +1,5 @@
 import path from 'path';
+import { AGX_SETTINGS_KEY, invalidateAgxCaches } from '../services/agxGameService.js';
 import bcrypt from 'bcryptjs';
 import { query, getPool } from '../config/db.js';
 import { cache } from '../config/redis.js';
@@ -1427,6 +1428,7 @@ export async function updateSetting(req, res) {
     await cache.delByPattern('admin:dashboard*');
     await cache.delByPattern('mobile:user:profile*');
     await cache.del('system:maintenance:status');
+    if (key === AGX_SETTINGS_KEY) await invalidateAgxCaches();
 
     // Broadcast real-time branding changes
     if (req.io && (key.includes('platform_') || key.includes('app_name') || key.includes('logo'))) {

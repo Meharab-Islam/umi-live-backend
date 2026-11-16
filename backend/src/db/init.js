@@ -963,6 +963,25 @@ export async function initializeDatabase() {
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     `);
 
+    // AGX third-party games: one row per applied round settlement (idempotency key = settlement_id)
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS agx_settlements (
+        settlement_id VARCHAR(140) PRIMARY KEY,
+        user_id INT NOT NULL,
+        game_id VARCHAR(32) NOT NULL,
+        round_no BIGINT NOT NULL DEFAULT 0,
+        round_id VARCHAR(64) NOT NULL DEFAULT '',
+        result VARCHAR(32) NOT NULL DEFAULT '',
+        total_bet BIGINT NOT NULL DEFAULT 0,
+        total_won BIGINT NOT NULL DEFAULT 0,
+        net_profit BIGINT NOT NULL,
+        end_balance BIGINT NOT NULL DEFAULT 0,
+        applied_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        INDEX idx_agx_user (user_id, applied_at),
+        INDEX idx_agx_game (game_id, applied_at)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    `);
+
     // Schema Migrations - Ensure newly added columns exist on existing tables (compatible with MySQL 5.7, 8.0, 8.4 & MariaDB)
     const safeAddColumn = async (table, column, colDef) => {
       try {

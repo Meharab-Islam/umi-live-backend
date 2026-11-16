@@ -18,6 +18,11 @@ export const API_SPEC = {
   ],
   "categories": [
     {
+      "id": "games",
+      "name": "🎮 AGX Games (WebView)",
+      "description": "Third-party AGX live betting games (Teen Patti, Fruit Wheel, Food Feast, Roulette, Jackpot). List enabled games, then launch one to get a WebView URL. Round results are settled into the user's real coin balance by the server-to-server AGX webhook; the app also receives the socket event `wallet_balance_updated` ({coins, source:'game'})."
+    },
+    {
       "id": "reserved-accounts",
       "name": "💎 Reserved Accounts & VIP IDs",
       "description": "Exclusive VIP and prestigious account ID pool management, atomic ID assignment to existing users without data loss, release, and reservation guards."
@@ -145,6 +150,232 @@ export const API_SPEC = {
     }
   ],
   "endpoints": [
+    {
+      "id": "games-list",
+      "category": "games",
+      "method": "GET",
+      "path": "/api/mobile/games",
+      "summary": "List AGX games enabled for the app",
+      "description": "Returns games switched on in Admin → AGX Games that are also added in the AGX Game Center. `show_in_live_room` / `show_on_home` tell the app where to show the Games button. Cached 60 s.",
+      "requiresAuth": true,
+      "requestHeaders": [
+        {
+          "name": "Authorization",
+          "type": "string",
+          "required": true,
+          "example": "Bearer eyJhbGciOiJIUzI1Ni..."
+        }
+      ],
+      "parameters": [],
+      "requestBody": null,
+      "responses": [
+        {
+          "status": 200,
+          "description": "Game list.",
+          "example": {
+            "success": true,
+            "enabled": true,
+            "show_in_live_room": true,
+            "show_on_home": true,
+            "games": [
+              {
+                "game_id": "food",
+                "name": "Food Feast",
+                "icon": "🍖",
+                "icon_url": "",
+                "sort": 3
+              },
+              {
+                "game_id": "teenpatti",
+                "name": "Royal Teen Patti",
+                "icon": "🃏",
+                "icon_url": "",
+                "sort": 1
+              }
+            ]
+          }
+        },
+        {
+          "status": 401,
+          "description": "Missing or invalid token.",
+          "example": {
+            "success": false,
+            "message": "Authentication required. No token provided."
+          }
+        }
+      ],
+      "codeSnippets": {
+        "curl": "curl -H \"Authorization: Bearer <token>\" https://<host>/api/mobile/games",
+        "flutter": "final res = await ApiService().get(ApiConfig.games);\nfinal data = jsonDecode(res.body);"
+      }
+    },
+    {
+      "id": "games-launch",
+      "category": "games",
+      "method": "POST",
+      "path": "/api/mobile/games/launch",
+      "summary": "Launch an AGX game (get WebView URL)",
+      "description": "Creates an AGX game session using the user's current coin balance (read live from MySQL) and returns `launch_url`. Open it in a WebView with JavaScript + DOM storage enabled. Valid 2 hours; request a fresh one every time the player opens a game. Bets happen inside the AGX game wallet; each round's net_profit is applied to the real balance by the webhook.",
+      "requiresAuth": true,
+      "requestHeaders": [
+        {
+          "name": "Authorization",
+          "type": "string",
+          "required": true,
+          "example": "Bearer eyJhbGciOiJIUzI1Ni..."
+        },
+        {
+          "name": "Content-Type",
+          "type": "string",
+          "required": true,
+          "example": "application/json"
+        }
+      ],
+      "parameters": [],
+      "requestBody": {
+        "type": "object",
+        "required": true,
+        "properties": {
+          "game_id": {
+            "type": "string",
+            "description": "One of teenpatti, fruit_wheel, food, roulette, jackpot (must be enabled)"
+          }
+        },
+        "example": {
+          "game_id": "food"
+        }
+      },
+      "responses": [
+        {
+          "status": 200,
+          "description": "Session created.",
+          "example": {
+            "success": true,
+            "game_id": "food",
+            "launch_url": "http://<agx host>/games/food/?token=eyJhbGciOi...",
+            "expires_in": 7200,
+            "coins": 50000
+          }
+        },
+        {
+          "status": 400,
+          "description": "Unknown or missing game_id.",
+          "example": {
+            "success": false,
+            "message": "game_id is required."
+          }
+        },
+        {
+          "status": 403,
+          "description": "Game disabled, coins locked, or game not added in the AGX Game Center.",
+          "example": {
+            "success": false,
+            "message": "This game is not available."
+          }
+        },
+        {
+          "status": 503,
+          "description": "Games switched off or AGX not configured.",
+          "example": {
+            "success": false,
+            "message": "Games are currently unavailable."
+          }
+        },
+        {
+          "status": 502,
+          "description": "AGX server error/unreachable.",
+          "example": {
+            "success": false,
+            "message": "AGX game server unreachable: fetch failed"
+          }
+        }
+      ],
+      "codeSnippets": {
+        "curl": "curl -X POST https://<host>/api/mobile/games/launch \\\n  -H \"Authorization: Bearer <token>\" -H \"Content-Type: application/json\" \\\n  -d '{\"game_id\":\"food\"}'",
+        "flutter": "final res = await ApiService().post(ApiConfig.gamesLaunch, body: {'game_id': 'food'});\nfinal url = jsonDecode(res.body)['launch_url'];"
+      }
+    },
+    {
+      "id": "games-agx-webhook",
+      "category": "games",
+      "method": "POST",
+      "path": "/api/webhooks/agx",
+      "summary": "AGX round settlement webhook (server-to-server)",
+      "description": "Called by AGX after every round — not by the mobile app. Verifies `X-Webhook-Signature` (HMAC-SHA256 of the raw body with the webhook secret) and `X-Webhook-Timestamp` (±AGX_WEBHOOK_MAX_SKEW_SECONDS), then adds each settlement's net_profit to users.coins exactly once per settlement_id (table agx_settlements) and logs a `game_win` / `game_loss` transaction. `webhook.test` events are verified but not applied.",
+      "requiresAuth": false,
+      "requestHeaders": [
+        {
+          "name": "X-Webhook-Signature",
+          "type": "string",
+          "required": true,
+          "example": "sha256=5d41402a..."
+        },
+        {
+          "name": "X-Webhook-Timestamp",
+          "type": "string",
+          "required": true,
+          "example": "1794769945"
+        }
+      ],
+      "parameters": [],
+      "requestBody": {
+        "type": "object",
+        "required": true,
+        "properties": {
+          "event": {
+            "type": "string",
+            "description": "game.round_settled or webhook.test"
+          },
+          "settlements": {
+            "type": "array",
+            "description": "[{settlement_id, user_id, total_bet, total_won, net_profit, end_balance}]"
+          }
+        },
+        "example": {
+          "event": "game.round_settled",
+          "game_id": "food",
+          "round": 1018,
+          "round_id": "food:1018",
+          "result": 3,
+          "settlements": [
+            {
+              "settlement_id": "food:1018:1001",
+              "user_id": "1001",
+              "total_bet": 2000,
+              "total_won": 45000,
+              "net_profit": 43000,
+              "end_balance": 93000
+            }
+          ],
+          "timestamp": 1794769945
+        }
+      },
+      "responses": [
+        {
+          "status": 200,
+          "description": "Applied (duplicates are ignored).",
+          "example": {
+            "success": true,
+            "applied": 1,
+            "duplicates": 0,
+            "skipped": 0
+          }
+        },
+        {
+          "status": 401,
+          "description": "Bad signature or stale timestamp.",
+          "example": "bad signature"
+        },
+        {
+          "status": 500,
+          "description": "DB failure — AGX retries.",
+          "example": {
+            "success": false,
+            "message": "Processing failed, please retry."
+          }
+        }
+      ]
+    },
     {
       "id": "live-reward-status",
 

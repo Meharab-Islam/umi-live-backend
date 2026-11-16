@@ -42,6 +42,7 @@ import publicRoutes from './routes/publicRoutes.js';
 import { getMaintenanceStatus } from './controllers/mobile/configController.js';
 import { getPublicBanners } from './controllers/bannerController.js';
 import { sqlInjectionGuard } from './middlewares/securityMiddleware.js';
+import { createAgxWebhookHandler } from './controllers/agxWebhookController.js';
 
 
 const uploadsDir = path.join(__dirname, '../uploads');
@@ -105,6 +106,10 @@ app.use(cors());
 app.use(compression({ threshold: 1024 }));
 app.use(httpMetricsMiddleware);
 
+// ── AGX games round-settlement webhook (server-to-server). Registered before the rate limiters and the
+// JSON parser: the HMAC signature covers the exact raw body, and AGX sends one POST per round. ──
+app.post('/api/webhooks/agx', express.raw({ type: '*/*', limit: '2mb' }), createAgxWebhookHandler(io));
+
 // ── Rate limiting (Redis, cluster-wide; fail-open). Cheap checks first, before body parsing. ──
 app.use('/api', limiters.globalIp);
 app.use('/api', limiters.upload);
@@ -113,6 +118,7 @@ app.use(['/api/mobile', '/api/v1'], limiters.mobileIdentity);
 const MONEY_PATHS = [
   '/api/mobile/gifts', '/api/v1/gifts', '/api/gifts', '/api/mobile/wallet', '/api/v1/wallet', '/api/wallet',
   '/api/mobile/packages', '/api/v1/packages', '/api/mobile/vip', '/api/packages',
+  '/api/mobile/games', '/api/v1/games',
 ];
 app.use(MONEY_PATHS, limiters.money);
 app.use(['/api/mobile/live', '/api/v1/live', '/api/live'], limiters.liveAction);

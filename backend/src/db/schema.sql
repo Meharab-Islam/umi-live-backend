@@ -690,3 +690,20 @@ CREATE TABLE IF NOT EXISTS live_duration_reward_history (
   UNIQUE KEY uniq_room_user_reward (room_id, user_id),
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- AGX third-party games: one row per applied round settlement (idempotency key = settlement_id)
+CREATE TABLE IF NOT EXISTS agx_settlements (
+  settlement_id VARCHAR(140) PRIMARY KEY,
+  user_id INT NOT NULL,
+  game_id VARCHAR(32) NOT NULL,
+  round_no BIGINT NOT NULL DEFAULT 0,
+  round_id VARCHAR(64) NOT NULL DEFAULT '',
+  result VARCHAR(32) NOT NULL DEFAULT '',
+  total_bet BIGINT NOT NULL DEFAULT 0,
+  total_won BIGINT NOT NULL DEFAULT 0,
+  net_profit BIGINT NOT NULL,
+  end_balance BIGINT NOT NULL DEFAULT 0,
+  applied_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_agx_user (user_id, applied_at),
+  INDEX idx_agx_game (game_id, applied_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

@@ -12,9 +12,9 @@
     "semantic_hash": ""
   },
   "admin-panel/src/App.jsx": {
-    "mtime": 1794808220.626695,
-    "seen": 1794808336.35775,
-    "ast_hash": "6cbb57143d7beedb23e97c7095fec1b5",
+    "mtime": 1794834481.018302,
+    "seen": 1794834950.218845,
+    "ast_hash": "53ae7d6d0dd7d4a28ea094b2623ff611",
     "semantic_hash": ""
   },
   "admin-panel/src/api.js": {
@@ -30,9 +30,9 @@
     "semantic_hash": ""
   },
   "admin-panel/src/components/Sidebar.jsx": {
-    "mtime": 1794808220.626979,
-    "seen": 1794808336.358586,
-    "ast_hash": "3611fbb5d4649cbb4926f7db3185e028",
+    "mtime": 1794834481.0186594,
+    "seen": 1794834950.219657,
+    "ast_hash": "003703c01be09d4615b8cad65ad89a0f",
     "semantic_hash": ""
   },
   "admin-panel/src/components/StatCard.jsx": {
@@ -114,9 +114,9 @@
     "semantic_hash": ""
   },
   "backend/src/controllers/adminController.js": {
-    "mtime": 1794823693.219321,
-    "seen": 1794823842.4393668,
-    "ast_hash": "273b9b38221bb9eb60d779f80c02f846",
+    "mtime": 1794834286.4340484,
+    "seen": 1794834950.2207758,
+    "ast_hash": "41be8b7d0b6e45a4fba4084fc1a61f9c",
     "semantic_hash": ""
   },
   "backend/src/controllers/authController.js": {
@@ -144,9 +144,9 @@
     "semantic_hash": ""
   },
   "backend/src/db/init.js": {
-    "mtime": 1794823684.695969,
-    "seen": 1794823842.4400399,
-    "ast_hash": "c4cbd1bc58967a357137b5ce871eb942",
+    "mtime": 1794834257.3802493,
+    "seen": 1794834950.221479,
+    "ast_hash": "b4dad555f80423243caef07422ed536a",
     "semantic_hash": ""
   },
   "backend/src/middlewares/authMiddleware.js": {
@@ -156,9 +156,9 @@
     "semantic_hash": ""
   },
   "backend/src/routes/adminRoutes.js": {
-    "mtime": 1794808173.5821862,
-    "seen": 1794808336.360409,
-    "ast_hash": "a8c9efe6ce7dae7e4ca128385dc76f63",
+    "mtime": 1794834286.4332516,
+    "seen": 1794834950.2215638,
+    "ast_hash": "473bd81777176af9fbe427117a96efba",
     "semantic_hash": ""
   },
   "backend/src/routes/authRoutes.js": {
@@ -186,9 +186,9 @@
     "semantic_hash": ""
   },
   "backend/src/server.js": {
-    "mtime": 1794810533.9257004,
-    "seen": 1794810883.458605,
-    "ast_hash": "b76e28480f9b91697ceeeeb5874caeaf",
+    "mtime": 1794834248.942948,
+    "seen": 1794834950.222186,
+    "ast_hash": "54ccd3f5ce3a0c887a96d5cd174bd52e",
     "semantic_hash": ""
   },
   "backend/src/sockets/liveSocket.js": {
@@ -528,9 +528,9 @@
     "semantic_hash": ""
   },
   "admin-panel/src/api/apiSpec.js": {
-    "mtime": 1794823781.2076993,
-    "seen": 1794823842.4375591,
-    "ast_hash": "0bbce758eb41a277db9b349ba7c9bde3",
+    "mtime": 1794834515.6548474,
+    "seen": 1794834950.218934,
+    "ast_hash": "728c72bead3ff4e5d2d6964ddf6c9610",
     "semantic_hash": ""
   },
   "admin-panel/src/pages/ApiDocs.jsx": {
@@ -540,9 +540,9 @@
     "semantic_hash": ""
   },
   "backend/src/routes/docsRoutes.js": {
-    "mtime": 1794823781.2086241,
-    "seen": 1794823842.4401731,
-    "ast_hash": "e7f38995ee1cc9caeebf094e5ea6c1f8",
+    "mtime": 1794834515.653662,
+    "seen": 1794834950.2215848,
+    "ast_hash": "412674ab81ebab069c0adde718ee6c88",
     "semantic_hash": ""
   },
   "backend/src/controllers/mobile/authController.js": {
@@ -588,9 +588,9 @@
     "semantic_hash": ""
   },
   "backend/src/routes/mobile/index.js": {
-    "mtime": 1794808173.5817573,
-    "seen": 1794808336.360715,
-    "ast_hash": "7d88d09e15201e1f05c3251125d5508b",
+    "mtime": 1794834248.9432158,
+    "seen": 1794834950.22184,
+    "ast_hash": "4288e7b46863182e85fb3e966b8ac571",
     "semantic_hash": ""
   },
   "backend/src/routes/mobile/liveRoutes.js": {
@@ -1629,6 +1629,48 @@
     "mtime": 1794814460.6162248,
     "seen": 1794815143.956867,
     "ast_hash": "652526db268c6b1d0eaeaad964db5300",
+    "semantic_hash": ""
+  },
+  "admin-panel/src/api/agxGamesApi.js": {
+    "mtime": 1794834473.5887744,
+    "seen": 1794834950.218934,
+    "ast_hash": "9785f6d1dfa5ddf49f607888f018e752",
+    "semantic_hash": ""
+  },
+  "admin-panel/src/pages/AgxGames.jsx": {
+    "mtime": 1794834473.6107354,
+    "seen": 1794834950.219892,
+    "ast_hash": "4e8acba28a354b2be44cfa166d429b12",
+    "semantic_hash": ""
+  },
+  "backend/src/controllers/agxGameAdminController.js": {
+    "mtime": 1794834275.8089018,
+    "seen": 1794834950.220798,
+    "ast_hash": "0c6fa93980e9df13e54bc9e3e04edc7f",
+    "semantic_hash": ""
+  },
+  "backend/src/controllers/agxWebhookController.js": {
+    "mtime": 1794834232.578321,
+    "seen": 1794834950.220799,
+    "ast_hash": "b8aa180ae5f11695cef7f1d452857f4e",
+    "semantic_hash": ""
+  },
+  "backend/src/controllers/mobile/gameController.js": {
+    "mtime": 1794834232.5474477,
+    "seen": 1794834950.2210612,
+    "ast_hash": "5b92f722db3dcc8903fec6f5f4d23bf1",
+    "semantic_hash": ""
+  },
+  "backend/src/routes/mobile/gameRoutes.js": {
+    "mtime": 1794834232.5618765,
+    "seen": 1794834950.2217972,
+    "ast_hash": "7ad6de2208a139d36ef6ace2eb6499b7",
+    "semantic_hash": ""
+  },
+  "backend/src/services/agxGameService.js": {
+    "mtime": 1794834903.8289232,
+    "seen": 1794834950.222187,
+    "ast_hash": "987401f346707ac9fc87573ce901b2ca",
     "semantic_hash": ""
   }
 }
