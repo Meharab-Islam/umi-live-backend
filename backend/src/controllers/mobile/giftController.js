@@ -2,6 +2,7 @@ import { query, getPool } from '../../config/db.js';
 import { cache } from '../../config/redis.js';
 import { recordCoinsSpentAndCheckLevelUp } from '../../services/levelService.js';
 import { enqueueRoomGift } from '../../services/giftQueueService.js';
+import { nextBalanceTs, emitUserBalance } from '../../services/balanceEvents.js';
 import { getGlobalGiftBannerConfig } from '../../services/systemService.js';
 
 /**
@@ -491,6 +492,10 @@ export async function sendGift(req, res) {
       await connection.execute('UPDATE live_rooms SET total_diamonds = total_diamonds + ? WHERE room_id = ?', [diamondInc, activeRoom.room_id]);
     }
 
+    // One version for every copy of this balance change (socket channels, gift event, HTTP response).
+    // Taken while the balance rows are still locked, so any later change to them gets a newer version.
+    const balanceTs = nextBalanceTs();
+
     // Commit Transaction to MySQL (SSOT)
     await connection.commit();
 
@@ -580,12 +585,22 @@ export async function sendGift(req, res) {
             cache.set(`user:balance:${agencyOwnerId}`, { coins: ownerCoins, diamonds: ownerDiamonds }, 30)
           );
           if (req.io) {
+            emitUserBalance(req.io, {
+              userId: agencyOwnerId,
+              coins: ownerCoins,
+              diamonds: ownerDiamonds,
+              delta: agData.coins,
+              source: 'agency_commission',
+              ts: balanceTs,
+            });
+            // Legacy event name kept for older app builds.
             req.io.to(`user_${agencyOwnerId}`).emit('user:balance_updated', {
               userId: agencyOwnerId,
               coins: ownerCoins,
               diamonds: ownerDiamonds,
               earned_commission: agData.coins,
               source: 'agency_commission',
+              balance_ts: balanceTs,
             });
           }
         }
@@ -685,6 +700,7 @@ export async function sendGift(req, res) {
       room_id: recordedRoomId,
       roomId: recordedRoomId,
       commission: primaryReceiver.commission,
+      balance_ts: balanceTs,
       timestamp: new Date().toISOString(),
     };
 
@@ -698,6 +714,20 @@ export async function sendGift(req, res) {
           recordedRoomId ? String(recordedRoomId) : null,
         ].filter(Boolean)
       );
+
+      // Balances go out immediately (not through the paced animation queue): the sender, every
+      // receiver (after commission) and everyone in the room see the new coins in real time.
+      const balanceRooms = [...roomTargets];
+      emitUserBalance(req.io, {
+        userId: senderId, coins: senderUpdatedCoins, diamonds: senderUpdatedDiamonds,
+        delta: -totalCoinCostAll, source: 'gift_sent', ts: balanceTs, roomChannels: balanceRooms,
+      });
+      for (const r of receiversList) {
+        emitUserBalance(req.io, {
+          userId: r.id, coins: r.updated_coin, delta: r.received_coins,
+          source: 'gift_received', ts: balanceTs, roomChannels: balanceRooms,
+        });
+      }
 
       enqueueRoomGift({
         io: req.io,

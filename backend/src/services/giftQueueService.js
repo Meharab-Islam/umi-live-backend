@@ -139,52 +139,18 @@ function emitGiftItem(item) {
     io.to(rm).emit('chat_message', giftCommentPayload);
     io.to(rm).emit('room_message', giftCommentPayload);
 
-    // 2. Real-time in-room balance updates for all participants (host, seats, audience)
-    if (senderId && senderUpdatedCoins !== undefined) {
-      io.to(rm).emit('user_balance_updated', {
-        userId: Number(senderId),
-        user_id: Number(senderId),
-        coins: senderUpdatedCoins,
-        updated_coin: senderUpdatedCoins,
-      });
-    }
-    if (Array.isArray(receiversList)) {
-      for (const r of receiversList) {
-        if (r && r.id && r.updated_coin !== undefined) {
-          io.to(rm).emit('user_balance_updated', {
-            userId: Number(r.id),
-            user_id: Number(r.id),
-            coins: r.updated_coin,
-            updated_coin: r.updated_coin,
-            received_coins: r.received_coins || 0,
-            role: r.role,
-          });
-          io.to(rm).emit('room_user_coins_updated', {
-            userId: Number(r.id),
-            user_id: Number(r.id),
-            coins: r.updated_coin,
-            updated_coin: r.updated_coin,
-            earnedCoins: r.received_coins || 0,
-          });
-        }
-      }
-    }
+    // 2. Balance updates are emitted immediately by sendGift (services/balanceEvents.js), with a
+    //    version (balance_ts), instead of here after the paced animation delay.
   }
 
   // User direct socket channels
   if (senderId) {
-    if (senderUpdatedCoins !== undefined) {
-      io.to(`user_${senderId}`).emit('wallet_balance_updated', { coins: senderUpdatedCoins });
-    }
     io.to(`user_${senderId}`).emit('gift_sent', socketPayload);
   }
 
   if (Array.isArray(receiversList)) {
     for (const r of receiversList) {
       if (r && r.id) {
-        if (r.updated_coin !== undefined) {
-          io.to(`user_${r.id}`).emit('wallet_balance_updated', { coins: r.updated_coin });
-        }
         io.to(`user_${r.id}`).emit('gift_received', socketPayload);
       }
     }

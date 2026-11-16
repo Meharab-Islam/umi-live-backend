@@ -118,7 +118,8 @@ app.use(['/api/mobile', '/api/v1'], limiters.mobileIdentity);
 const MONEY_PATHS = [
   '/api/mobile/gifts', '/api/v1/gifts', '/api/gifts', '/api/mobile/wallet', '/api/v1/wallet', '/api/wallet',
   '/api/mobile/packages', '/api/v1/packages', '/api/mobile/vip', '/api/packages',
-  '/api/mobile/games', '/api/v1/games',
+  // Only the launch moves money context; the games list is a plain read.
+  '/api/mobile/games/launch', '/api/v1/games/launch',
 ];
 app.use(MONEY_PATHS, limiters.money);
 app.use(['/api/mobile/live', '/api/v1/live', '/api/live'], limiters.liveAction);

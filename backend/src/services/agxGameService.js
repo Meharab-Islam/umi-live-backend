@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import { query, getPool } from '../config/db.js';
 import { cache } from '../config/redis.js';
+import { nextBalanceTs, emitUserBalance, getUserLiveRoomChannels } from './balanceEvents.js';
 
 /**
  * AGX third-party games integration (Partner API + round settlement webhook).
@@ -44,6 +45,8 @@ function envDefaults() {
     webhook_secret: process.env.AGX_WEBHOOK_SECRET || '',
     show_in_live_room: true,
     show_on_home: true,
+    win_banner_enabled: envBool(process.env.AGX_WIN_BANNER_ENABLED, true),
+    win_banner_min_coins: parseInt(process.env.AGX_WIN_BANNER_MIN_COINS || '10000', 10),
     games: {},
   };
 }
@@ -54,6 +57,8 @@ function normalizeConfig(raw = {}) {
   cfg.enabled = Boolean(cfg.enabled);
   cfg.show_in_live_room = cfg.show_in_live_room !== false;
   cfg.show_on_home = cfg.show_on_home !== false;
+  cfg.win_banner_enabled = cfg.win_banner_enabled !== false;
+  cfg.win_banner_min_coins = Math.max(0, parseInt(cfg.win_banner_min_coins, 10) || 0);
   cfg.base_url = String(cfg.base_url || '').trim().replace(/\/+$/, '');
   cfg.api_key = String(cfg.api_key || '').trim();
   cfg.webhook_secret = String(cfg.webhook_secret || '').trim();
@@ -118,6 +123,8 @@ export async function saveAgxConfig(input = {}) {
     webhook_secret: input.webhook_secret ? input.webhook_secret : current.webhook_secret,
     show_in_live_room: input.show_in_live_room ?? current.show_in_live_room,
     show_on_home: input.show_on_home ?? current.show_on_home,
+    win_banner_enabled: input.win_banner_enabled ?? current.win_banner_enabled,
+    win_banner_min_coins: input.win_banner_min_coins ?? current.win_banner_min_coins,
     games: { ...current.games, ...(input.games || {}) },
   });
 
@@ -372,8 +379,10 @@ async function applySettlement(event, s) {
     const [[row]] = await connection.query('SELECT coins FROM users WHERE id = ?', [userId]);
     coins = row ? row.coins : null;
 
+    // Version taken while the user row is still locked: any later change to it gets a newer one.
+    const ts = nextBalanceTs();
     await connection.commit();
-    return { applied: true, userId, coins };
+    return { applied: true, userId, coins, ts };
   } catch (err) {
     await connection.rollback().catch(() => {});
     throw err;
@@ -382,12 +391,16 @@ async function applySettlement(event, s) {
   }
 }
 
-/** Apply every settlement of a `game.round_settled` event, then refresh caches and notify players. */
-export async function processRoundSettled(event, io) {
+/**
+ * Apply every settlement of a `game.round_settled` event, then refresh caches, push the new balance
+ * to the player and to every live room they are in, and announce big wins app-wide.
+ * @param {object} [opts.toAbsoluteUrl] maps stored avatar paths to absolute URLs
+ */
+export async function processRoundSettled(event, io, { toAbsoluteUrl = (u) => u } = {}) {
   const settlements = Array.isArray(event.settlements) ? event.settlements : [];
   const results = [];
   for (const s of settlements) {
-    results.push(await applySettlement(event, s));
+    results.push({ ...(await applySettlement(event, s)), settlement: s });
   }
 
   const touched = results.filter((r) => r.applied && r.userId);
@@ -399,19 +412,66 @@ export async function processRoundSettled(event, io) {
   ])).catch(() => {});
   if (touched.length) cache.delByPattern('admin:agx:*').catch(() => {});
 
-  if (io) {
-    touched.forEach((r) => {
-      if (r.coins !== null && r.coins !== undefined) {
-        io.to(`user_${r.userId}`).emit('wallet_balance_updated', { coins: r.coins, source: 'game' });
-      }
-    });
-  }
+  // Notify after the DB work, without holding the webhook response (AGX allows 8 s per attempt and
+  // looking up each player's rooms goes through the socket adapter).
+  if (io && touched.length) broadcastSettlements(io, event, touched, toAbsoluteUrl).catch((e) => {
+    console.warn('[AGX] settlement broadcast failed:', e.message);
+  });
 
   return {
     applied: touched.length,
     duplicates: results.filter((r) => r.duplicate).length,
     skipped: results.filter((r) => r.skipped).length,
   };
+}
+
+async function broadcastSettlements(io, event, touched, toAbsoluteUrl) {
+  {
+    const cfg = await getAgxConfig().catch(() => null);
+    const game = AGX_GAME_CATALOG.find((g) => g.game_id === event.game_id);
+    const gameName = (cfg && cfg.games[event.game_id]?.name) || game?.name || event.game_id;
+    const gameIcon = (cfg && cfg.games[event.game_id]?.icon_url) || game?.icon || '🎮';
+
+    for (const r of touched) {
+      if (r.coins === null || r.coins === undefined) continue;
+      const net = parseInt(r.settlement.net_profit, 10) || 0;
+      const roomChannels = await getUserLiveRoomChannels(io, r.userId);
+      emitUserBalance(io, {
+        userId: r.userId,
+        coins: r.coins,
+        delta: net,
+        source: 'game',
+        ts: r.ts,
+        roomChannels,
+      });
+
+      const won = parseInt(r.settlement.total_won, 10) || 0;
+      if (cfg && cfg.win_banner_enabled && net > 0 && won >= cfg.win_banner_min_coins) {
+        try {
+          const [u] = await query('SELECT id, full_name, avatar_url, level FROM users WHERE id = ?', [r.userId]);
+          io.emit('global_game_win_banner', {
+            id: `game_win_${r.settlement.settlement_id}`,
+            type: 'game_win',
+            user: {
+              id: r.userId,
+              name: (u && u.full_name) || r.settlement.username || `User #${r.userId}`,
+              avatar_url: (u && toAbsoluteUrl(u.avatar_url)) || '',
+              level: (u && u.level) || 1,
+            },
+            game: { id: event.game_id, name: gameName, icon: gameIcon },
+            coins: won,
+            total_won: won,
+            net_profit: net,
+            room_id: roomChannels[0] || '',
+            duration_seconds: 4,
+            timestamp: new Date().toISOString(),
+          });
+        } catch (e) {
+          console.warn('[AGX] win banner emit failed:', e.message);
+        }
+      }
+    }
+  }
 }
 
 export { WEBHOOK_MAX_SKEW_SECONDS };

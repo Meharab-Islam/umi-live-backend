@@ -296,6 +296,35 @@ export async function executeRoomTermination(canonicalRoomId, numericRoomId, hos
   }
 }
 
+// ── Viewer reconnect grace ─────────────────────────────────────────────────────────────────
+// A phone switching Wi-Fi/mobile data drops its socket and reconnects a moment later. Treating that
+// first `disconnect` as a real departure produced "ghost" user-left broadcasts (and a fresh join right
+// after). Non-host disconnects now wait briefly and are dropped if the user is back in the room.
+const VIEWER_DISCONNECT_GRACE_MS = Math.max(0, parseInt(process.env.LIVE_VIEWER_DISCONNECT_GRACE_MS || '6000', 10));
+const viewerDisconnectTimers = new Map();
+const viewerTimerKey = (roomId, userId) => `${roomId}::${userId}`;
+
+export function cancelViewerDisconnectCleanup(roomId, userId) {
+  if (!roomId || !userId) return;
+  const key = viewerTimerKey(roomId, userId);
+  const t = viewerDisconnectTimers.get(key);
+  if (t) {
+    clearTimeout(t);
+    viewerDisconnectTimers.delete(key);
+  }
+}
+
+/** Does the user still have a socket (on any process) subscribed to one of these room channels? */
+async function isUserPresentInRoom(io, userId, roomChannels) {
+  if (!io || !userId) return false;
+  try {
+    const sockets = await io.in(`user_${userId}`).fetchSockets();
+    return sockets.some((s) => roomChannels.some((ch) => ch && s.rooms && s.rooms.has(String(ch))));
+  } catch (_) {
+    return false;
+  }
+}
+
 /**
  * Helper to completely clean up a user's presence from a room
  * (seats, waiting list, admin list, viewers list, Redis caches)
@@ -433,6 +462,30 @@ async function cleanupUserFromRoom(roomId, userId, io, userInfo = null, reason =
     // Seated co-host departure or disconnect: Immediately vacate seat, rearrange remaining co-hosts, and broadcast updated seats
     cancelSeatGuestDisconnectGraceTimer(canonicalRoomId, userId);
 
+    if (reason === 'disconnect') {
+      const roomChannels = [canonicalRoomId, numericRoomId ? String(numericRoomId) : null];
+      // Already reconnected (new socket joined before the old one timed out): nothing left the room.
+      if (await isUserPresentInRoom(io, userId, roomChannels)) {
+        return { isHost: false, stillConnected: true };
+      }
+      if (VIEWER_DISCONNECT_GRACE_MS > 0) {
+        const key = viewerTimerKey(canonicalRoomId, userId);
+        cancelViewerDisconnectCleanup(canonicalRoomId, userId);
+        const timer = setTimeout(async () => {
+          viewerDisconnectTimers.delete(key);
+          try {
+            if (await isUserPresentInRoom(io, userId, roomChannels)) return;
+            await executeGuestSeatAndRoomCleanup(canonicalRoomId, numericRoomId, hostId, userId, io, userInfo, 'disconnect');
+          } catch (e) {
+            console.error('Viewer disconnect grace cleanup error:', e.message);
+          }
+        }, VIEWER_DISCONNECT_GRACE_MS);
+        if (typeof timer.unref === 'function') timer.unref();
+        viewerDisconnectTimers.set(key, timer);
+        return { isHost: false, waitingForReconnect: true, gracePeriodMs: VIEWER_DISCONNECT_GRACE_MS };
+      }
+    }
+
     return await executeGuestSeatAndRoomCleanup(canonicalRoomId, numericRoomId, hostId, userId, io, userInfo, reason);
   } catch (err) {
     console.error(`cleanupUserFromRoom error (${roomId}, ${userId}):`, err.message);
@@ -445,18 +498,22 @@ async function cleanupUserFromRoom(roomId, userId, io, userInfo = null, reason =
 async function executeGuestSeatAndRoomCleanup(canonicalRoomId, numericRoomId, hostId, userId, io, userInfo = null, reason = 'left') {
   try {
     cancelSeatGuestDisconnectGraceTimer(canonicalRoomId, userId);
+    cancelViewerDisconnectCleanup(canonicalRoomId, userId);
+    const roomChans = [...new Set([canonicalRoomId, numericRoomId ? String(numericRoomId) : null].filter(Boolean))];
 
-    // 1. Handle seat departure
-    await handleUserSeatDeparture(canonicalRoomId, userId, io);
+    // 1. Handle seat departure (returns null when the user held no seat)
+    const seatResult = await handleUserSeatDeparture(canonicalRoomId, userId, io);
+    const wasSeated = Boolean(seatResult);
 
     // 2. Remove from waiting list (seat requests)
-    await query(
+    const delReqRes = await query(
       'DELETE FROM live_room_seat_requests WHERE (room_id = ? OR room_id = ?) AND user_id = ?',
       [canonicalRoomId, String(numericRoomId || ''), userId]
     );
 
-    // Broadcast seat_request_cancelled immediately so waiting lists on all devices clear the user
-    if (io) {
+    // Broadcast seat_request_cancelled only when a pending request was really removed.
+    // io.to([...channels]) delivers once per socket even if it is in several channel aliases.
+    if (io && delReqRes && delReqRes.affectedRows > 0) {
       const cancelPayload = {
         roomId: canonicalRoomId,
         numericRoomId,
@@ -464,11 +521,8 @@ async function executeGuestSeatAndRoomCleanup(canonicalRoomId, numericRoomId, ho
         user_id: Number(userId),
         reason: 'user_left_room',
       };
-      const channels = new Set([canonicalRoomId, String(numericRoomId)].filter(Boolean));
-      for (const ch of channels) {
-        io.to(ch).emit('seat_request_cancelled', cancelPayload);
-        io.to(ch).emit('seat-request-cancelled', cancelPayload);
-      }
+      io.to(roomChans).emit('seat_request_cancelled', cancelPayload);
+      io.to(roomChans).emit('seat-request-cancelled', cancelPayload);
     }
 
     // 3. Remove from room admins if not host
@@ -477,17 +531,25 @@ async function executeGuestSeatAndRoomCleanup(canonicalRoomId, numericRoomId, ho
       [canonicalRoomId, String(numericRoomId || ''), userId]
     );
     if (delAdminRes && delAdminRes.affectedRows > 0 && io) {
-      const channels = new Set([canonicalRoomId, String(numericRoomId)].filter(Boolean));
-      for (const ch of channels) {
-        io.to(ch).emit('room_admin_removed', { roomId: canonicalRoomId, userId });
-      }
+      io.to(roomChans).emit('room_admin_removed', { roomId: canonicalRoomId, userId });
     }
 
     // 4. Remove from live_room_viewers
-    await query(
+    const delViewerRes = await query(
       'DELETE FROM live_room_viewers WHERE (room_id = ? OR room_id = ?) AND user_id = ?',
       [canonicalRoomId, String(numericRoomId || ''), userId]
     );
+
+    // Idempotent leave: the REST leave, the socket leave-room and a disconnect can all fire for the same
+    // departure, and a disconnect can fire for a user who never entered. Only the call that actually
+    // removed the user from the room announces it; the rest are silent no-ops (no ghost "left").
+    const wasViewer = Boolean(delViewerRes && delViewerRes.affectedRows > 0);
+    const somethingChanged = wasSeated || wasViewer
+      || (delReqRes && delReqRes.affectedRows > 0) || (delAdminRes && delAdminRes.affectedRows > 0);
+    if (!somethingChanged) {
+      clearOnce(`join_ann:${canonicalRoomId}_${userId}`);
+      return { isHost: false, alreadyLeft: true };
+    }
 
     // 5. Update real viewer count in live_rooms (excluding host).
     // Coalesced: one COUNT(*)+UPDATE per room per window instead of one per leave.
@@ -595,7 +657,8 @@ async function executeGuestSeatAndRoomCleanup(canonicalRoomId, numericRoomId, ho
 
       const chans = [canonicalRoomId, numericRoomId ? String(numericRoomId) : null].filter(Boolean);
       // Big rooms: cap departure announcements per second; io.to([..]) sends once per socket.
-      if (!isBigRoom(currentViewerCount) || takeBudget(`left:${canonicalRoomId}`, LIVE_SCALE.joinAnnouncePerSec)) {
+      if ((wasViewer || wasSeated)
+        && (!isBigRoom(currentViewerCount) || takeBudget(`left:${canonicalRoomId}`, LIVE_SCALE.joinAnnouncePerSec))) {
         io.to(chans).emit('user-left', leavePayload);
         io.to(chans).emit('user_left', leavePayload);
         io.to(chans).emit('viewer_left', leavePayload);
@@ -805,6 +868,8 @@ export function setupLiveSocket(io) {
         }
         socket.currentRoom = canonicalRoomId;
         socket.currentUser = currentUser;
+        // Reconnected within the grace window: the pending "disconnect" cleanup must not fire.
+        if (socket.userId) cancelViewerDisconnectCleanup(canonicalRoomId, socket.userId);
 
         // If socket is already in this canonical room, skip re-broadcasting
         if (socket.rooms && socket.rooms.has(canonicalRoomId)) {

@@ -104,6 +104,8 @@ export default function AgxGames({ onToast }) {
         webhook_secret: secret.trim() || undefined,
         show_in_live_room: cfg.show_in_live_room,
         show_on_home: cfg.show_on_home,
+        win_banner_enabled: cfg.win_banner_enabled,
+        win_banner_min_coins: cfg.win_banner_min_coins,
         games: cfg.games,
       });
       setCfg(res.config);
@@ -209,6 +211,22 @@ export default function AgxGames({ onToast }) {
         <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap', marginTop: 16 }}>
           <Toggle checked={cfg.show_in_live_room} onChange={(v) => setCfg({ ...cfg, show_in_live_room: v })} label="Show Games button in live rooms" />
           <Toggle checked={cfg.show_on_home} onChange={(v) => setCfg({ ...cfg, show_on_home: v })} label="Show Games button on Home" />
+        </div>
+
+        <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'center', marginTop: 14 }}>
+          <Toggle checked={cfg.win_banner_enabled} onChange={(v) => setCfg({ ...cfg, win_banner_enabled: v })} label="Global banner for big game wins" />
+          <label style={{ color: 'var(--text-dim)', fontSize: 13, display: 'flex', alignItems: 'center', gap: 8 }}>
+            Show when a player wins at least
+            <input
+              className="input-field"
+              type="number"
+              min={0}
+              style={{ width: 130 }}
+              value={cfg.win_banner_min_coins ?? 10000}
+              onChange={(e) => setCfg({ ...cfg, win_banner_min_coins: Number(e.target.value) })}
+            />
+            coins in one round
+          </label>
         </div>
 
         <div style={{ display: 'flex', gap: 10, marginTop: 18, flexWrap: 'wrap' }}>

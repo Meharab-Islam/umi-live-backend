@@ -4,6 +4,7 @@ import {
   isTimestampFresh,
   processRoundSettled,
 } from '../services/agxGameService.js';
+import { resolveAbsoluteUrl } from './mobile/giftController.js';
 
 /**
  * POST /api/webhooks/agx
@@ -43,7 +44,7 @@ export function createAgxWebhookHandler(io) {
         return res.status(200).json({ success: true, ignored: event.event || 'unknown' });
       }
 
-      const summary = await processRoundSettled(event, io);
+      const summary = await processRoundSettled(event, io, { toAbsoluteUrl: (u) => resolveAbsoluteUrl(req, u) });
       if (summary.applied || summary.skipped) {
         console.log(`[AGX] ${event.round_id}: applied ${summary.applied}, duplicates ${summary.duplicates}, skipped ${summary.skipped}`);
       }

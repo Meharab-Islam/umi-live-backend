@@ -99,6 +99,7 @@ services:
       ROOM_LOCK_TTL_MS: ${ROOM_LOCK_TTL_MS:-8000}
       ROOM_LOCK_WAIT_MS: ${ROOM_LOCK_WAIT_MS:-5000}
       ROOM_LOCK_MAX_HOLD_MS: ${ROOM_LOCK_MAX_HOLD_MS:-30000}
+      LIVE_VIEWER_DISCONNECT_GRACE_MS: ${LIVE_VIEWER_DISCONNECT_GRACE_MS:-6000}
     depends_on:
       mysql:
         condition: service_healthy

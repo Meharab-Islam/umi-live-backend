@@ -3,7 +3,7 @@ import { cache } from '../../config/redis.js';
 import { query, queryRead } from '../../config/db.js';
 import { generateLiveKitToken, LIVEKIT_URL, setParticipantPublishPermission, syncRoomPublishPermissions } from '../../config/livekit.js';
 import { sendLiveRoomStartedPushNotification } from '../../config/firebase.js';
-import { cancelHostDisconnectGraceTimer, hostDisconnectGraceTimers, clearRoomMemoryState } from '../../sockets/liveSocket.js';
+import { cancelHostDisconnectGraceTimer, hostDisconnectGraceTimers, clearRoomMemoryState, cancelViewerDisconnectCleanup } from '../../sockets/liveSocket.js';
 import { checkStreamRewardStatus, claimAndAwardLiveReward } from '../../services/liveRewardService.js';
 import { notifyLiveStarted, handleLiveEndedNotifications } from '../../services/notificationService.js';
 import { checkUserSelfSeatAcceptPrivilege, checkUserInvisibleRoomEnterPrivilege } from '../../services/userPrivilegeService.js';
@@ -1575,15 +1575,19 @@ export async function leaveRoom(req, res) {
       return endRoom(req, res);
     }
 
-    // 2. Seat Stage: Handle seat departure
-    await handleUserSeatDeparture(canonicalRoomId, userId, req.io);
+    cancelViewerDisconnectCleanup(canonicalRoomId, userId);
+    const roomChans = [...new Set([canonicalRoomId, numericRoomId ? String(numericRoomId) : null, String(roomId)].filter(Boolean))];
+
+    // 2. Seat Stage: Handle seat departure (null when the user held no seat)
+    const wasSeated = Boolean(await handleUserSeatDeparture(canonicalRoomId, userId, req.io));
 
     // 3. Waiting List (Seat Requests): If user has pending seat request, remove it
-    await query(
+    const delReqRes = await query(
       'DELETE FROM live_room_seat_requests WHERE (room_id = ? OR room_id = ?) AND user_id = ?',
       [canonicalRoomId, String(numericRoomId || ''), userId]
     );
-    if (req.io) {
+    // Only announce a cancellation that really happened; one delivery per socket across channel aliases.
+    if (req.io && delReqRes && delReqRes.affectedRows > 0) {
       const cancelPayload = {
         roomId: canonicalRoomId,
         numericRoomId,
@@ -1591,11 +1595,8 @@ export async function leaveRoom(req, res) {
         user_id: Number(userId),
         reason: 'user_left_room',
       };
-      const channels = new Set([canonicalRoomId, String(numericRoomId), String(roomId)].filter(Boolean));
-      for (const ch of channels) {
-        req.io.to(ch).emit('seat_request_cancelled', cancelPayload);
-        req.io.to(ch).emit('seat-request-cancelled', cancelPayload);
-      }
+      req.io.to(roomChans).emit('seat_request_cancelled', cancelPayload);
+      req.io.to(roomChans).emit('seat-request-cancelled', cancelPayload);
     }
 
     // 4. Admin List: If user is room admin (and not the host/owner), remove from admin list
@@ -1610,19 +1611,19 @@ export async function leaveRoom(req, res) {
           [canonicalRoomId, String(numericRoomId || ''), userId]
         );
         if (req.io) {
-          req.io.to(canonicalRoomId).emit('room_admin_removed', { roomId: canonicalRoomId, userId });
-          if (numericRoomId && String(numericRoomId) !== canonicalRoomId) {
-            req.io.to(String(numericRoomId)).emit('room_admin_removed', { roomId: canonicalRoomId, userId });
-          }
+          req.io.to(roomChans).emit('room_admin_removed', { roomId: canonicalRoomId, userId });
         }
       }
     }
 
     // 5. Viewers List: Remove user from live_room_viewers
-    await query(
+    const delViewerRes = await query(
       'DELETE FROM live_room_viewers WHERE (room_id = ? OR room_id = ?) AND user_id = ?',
       [canonicalRoomId, String(numericRoomId || ''), userId]
     );
+    // Idempotent: if the socket leave-room / disconnect already removed this user (or they never
+    // entered), do not broadcast a second "left" for them.
+    const wasPresent = wasSeated || Boolean(delViewerRes && delViewerRes.affectedRows > 0);
 
     // Update real viewer count in live_rooms (excluding host) - coalesced per room per window.
     const hostId = room ? room.host_id : 0;
@@ -1685,12 +1686,15 @@ export async function leaveRoom(req, res) {
 
       const chans = [...new Set([canonicalRoomId, numericRoomId ? String(numericRoomId) : null, String(roomId)].filter(Boolean))];
       // Big rooms: cap departure announcements per second; io.to([..]) sends once per socket.
-      if (!isBigRoom(currentViewerCount) || takeBudget(`left:${canonicalRoomId}`, LIVE_SCALE.joinAnnouncePerSec)) {
+      if (wasPresent
+        && (!isBigRoom(currentViewerCount) || takeBudget(`left:${canonicalRoomId}`, LIVE_SCALE.joinAnnouncePerSec))) {
         req.io.to(chans).emit('user-left', leavePayload);
         req.io.to(chans).emit('user_left', leavePayload);
         req.io.to(chans).emit('viewer_left', leavePayload);
       }
-      emitRoomViewerCount(req.io, canonicalRoomId, numericRoomId, currentViewerCount, { toHomeFeed: false });
+      if (wasPresent) {
+        emitRoomViewerCount(req.io, canonicalRoomId, numericRoomId, currentViewerCount, { toHomeFeed: false });
+      }
 
       // Evict this user's socket connections from the live room socket channel
       const userRoom = `user_${userId}`;
