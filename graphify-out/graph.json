@@ -100,7 +100,7 @@
       "file_type": "code",
       "norm_label": "addmoderator()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1956"
+      "source_location": "L1970"
     },
     {
       "id": "backend_src_controllers_admincontroller_adjustbalance",
@@ -112,7 +112,7 @@
       "file_type": "code",
       "norm_label": "adjustbalance()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L397"
+      "source_location": "L411"
     },
     {
       "id": "backend_src_controllers_admincontroller_assignreseller",
@@ -124,7 +124,7 @@
       "file_type": "code",
       "norm_label": "assignreseller()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L3799"
+      "source_location": "L3813"
     },
     {
       "id": "backend_src_controllers_admincontroller_assignusertoagency",
@@ -136,7 +136,7 @@
       "file_type": "code",
       "norm_label": "assignusertoagency()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1840"
+      "source_location": "L1854"
     },
     {
       "id": "backend_src_controllers_admincontroller_clearallusers",
@@ -148,7 +148,7 @@
       "file_type": "code",
       "norm_label": "clearallusers()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L6987"
+      "source_location": "L7001"
     },
     {
       "id": "backend_src_controllers_admincontroller_createadminpost",
@@ -160,7 +160,7 @@
       "file_type": "code",
       "norm_label": "createadminpost()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L2513"
+      "source_location": "L2527"
     },
     {
       "id": "backend_src_controllers_admincontroller_createagency",
@@ -172,7 +172,7 @@
       "file_type": "code",
       "norm_label": "createagency()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1505"
+      "source_location": "L1519"
     },
     {
       "id": "backend_src_controllers_admincontroller_deleteagency",
@@ -184,7 +184,7 @@
       "file_type": "code",
       "norm_label": "deleteagency()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1605"
+      "source_location": "L1619"
     },
     {
       "id": "backend_src_controllers_admincontroller_deletemoderator",
@@ -196,7 +196,7 @@
       "file_type": "code",
       "norm_label": "deletemoderator()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L2093"
+      "source_location": "L2107"
     },
     {
       "id": "backend_src_controllers_admincontroller_deletereseller",
@@ -208,7 +208,7 @@
       "file_type": "code",
       "norm_label": "deletereseller()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L3869"
+      "source_location": "L3883"
     },
     {
       "id": "backend_src_controllers_admincontroller_invalidateusercacheandnotify",
@@ -220,7 +220,7 @@
       "file_type": "code",
       "norm_label": "invalidateusercacheandnotify()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L287"
+      "source_location": "L293"
     },
     {
       "id": "backend_src_controllers_admincontroller_processhostrequest",
@@ -232,7 +232,7 @@
       "file_type": "code",
       "norm_label": "processhostrequest()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L3383"
+      "source_location": "L3397"
     },
     {
       "id": "backend_src_controllers_admincontroller_processwithdrawal",
@@ -244,7 +244,7 @@
       "file_type": "code",
       "norm_label": "processwithdrawal()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1311"
+      "source_location": "L1325"
     },
     {
       "id": "backend_src_controllers_admincontroller_rechargecoins",
@@ -256,7 +256,7 @@
       "file_type": "code",
       "norm_label": "rechargecoins()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L475"
+      "source_location": "L489"
     },
     {
       "id": "backend_src_controllers_admincontroller_recordresellersale",
@@ -268,7 +268,7 @@
       "file_type": "code",
       "norm_label": "recordresellersale()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L4008"
+      "source_location": "L4022"
     },
     {
       "id": "backend_src_controllers_admincontroller_removeuserfromagency",
@@ -280,7 +280,7 @@
       "file_type": "code",
       "norm_label": "removeuserfromagency()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1889"
+      "source_location": "L1903"
     },
     {
       "id": "backend_src_controllers_admincontroller_updatehostdetails",
@@ -292,7 +292,7 @@
       "file_type": "code",
       "norm_label": "updatehostdetails()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L3150"
+      "source_location": "L3164"
     },
     {
       "id": "backend_src_controllers_admincontroller_updateuser",
@@ -304,7 +304,7 @@
       "file_type": "code",
       "norm_label": "updateuser()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L325"
+      "source_location": "L331"
     },
     {
       "id": "backend_src_config_db_query",
@@ -328,7 +328,7 @@
       "file_type": "code",
       "norm_label": "approvedeletionrequest()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L6299"
+      "source_location": "L6313"
     },
     {
       "id": "backend_src_controllers_admincontroller_bulkdeletereports",
@@ -340,7 +340,7 @@
       "file_type": "code",
       "norm_label": "bulkdeletereports()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5265"
+      "source_location": "L5279"
     },
     {
       "id": "backend_src_controllers_admincontroller_cleargifthistoryadmin",
@@ -352,7 +352,7 @@
       "file_type": "code",
       "norm_label": "cleargifthistoryadmin()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L984"
+      "source_location": "L998"
     },
     {
       "id": "backend_src_controllers_admincontroller_clearresellersales",
@@ -364,7 +364,7 @@
       "file_type": "code",
       "norm_label": "clearresellersales()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L4115"
+      "source_location": "L4129"
     },
     {
       "id": "backend_src_controllers_admincontroller_createcoinpackageadmin",
@@ -376,7 +376,7 @@
       "file_type": "code",
       "norm_label": "createcoinpackageadmin()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L4181"
+      "source_location": "L4195"
     },
     {
       "id": "backend_src_controllers_admincontroller_creategift",
@@ -388,7 +388,7 @@
       "file_type": "code",
       "norm_label": "creategift()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L742"
+      "source_location": "L756"
     },
     {
       "id": "backend_src_controllers_admincontroller_createhostrequest",
@@ -400,7 +400,7 @@
       "file_type": "code",
       "norm_label": "createhostrequest()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L3329"
+      "source_location": "L3343"
     },
     {
       "id": "backend_src_controllers_admincontroller_createlevelconfig",
@@ -412,7 +412,7 @@
       "file_type": "code",
       "norm_label": "createlevelconfig()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5478"
+      "source_location": "L5492"
     },
     {
       "id": "backend_src_controllers_admincontroller_deleteadminreport",
@@ -424,7 +424,7 @@
       "file_type": "code",
       "norm_label": "deleteadminreport()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5241"
+      "source_location": "L5255"
     },
     {
       "id": "backend_src_controllers_admincontroller_deletecoinpackageadmin",
@@ -436,7 +436,7 @@
       "file_type": "code",
       "norm_label": "deletecoinpackageadmin()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L4276"
+      "source_location": "L4290"
     },
     {
       "id": "backend_src_controllers_admincontroller_deletedeletionrequestrecord",
@@ -448,7 +448,7 @@
       "file_type": "code",
       "norm_label": "deletedeletionrequestrecord()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L6457"
+      "source_location": "L6471"
     },
     {
       "id": "backend_src_controllers_admincontroller_deletegift",
@@ -460,7 +460,7 @@
       "file_type": "code",
       "norm_label": "deletegift()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L859"
+      "source_location": "L873"
     },
     {
       "id": "backend_src_controllers_admincontroller_deletelevelconfig",
@@ -472,7 +472,7 @@
       "file_type": "code",
       "norm_label": "deletelevelconfig()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5626"
+      "source_location": "L5640"
     },
     {
       "id": "backend_src_controllers_admincontroller_deleteresellersale",
@@ -484,7 +484,7 @@
       "file_type": "code",
       "norm_label": "deleteresellersale()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L4086"
+      "source_location": "L4100"
     },
     {
       "id": "backend_src_controllers_admincontroller_deleteuser",
@@ -496,7 +496,7 @@
       "file_type": "code",
       "norm_label": "deleteuser()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L2664"
+      "source_location": "L2678"
     },
     {
       "id": "backend_src_controllers_admincontroller_getadmincalllogs",
@@ -508,7 +508,7 @@
       "file_type": "code",
       "norm_label": "getadmincalllogs()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5365"
+      "source_location": "L5379"
     },
     {
       "id": "backend_src_controllers_admincontroller_getadminchatusers",
@@ -520,7 +520,7 @@
       "file_type": "code",
       "norm_label": "getadminchatusers()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L6481"
+      "source_location": "L6495"
     },
     {
       "id": "backend_src_controllers_admincontroller_getadminconversationmessages",
@@ -532,7 +532,7 @@
       "file_type": "code",
       "norm_label": "getadminconversationmessages()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L6704"
+      "source_location": "L6718"
     },
     {
       "id": "backend_src_controllers_admincontroller_getadminconversations",
@@ -544,7 +544,7 @@
       "file_type": "code",
       "norm_label": "getadminconversations()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L6560"
+      "source_location": "L6574"
     },
     {
       "id": "backend_src_controllers_admincontroller_getadmindeletionrequests",
@@ -556,7 +556,7 @@
       "file_type": "code",
       "norm_label": "getadmindeletionrequests()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L6193"
+      "source_location": "L6207"
     },
     {
       "id": "backend_src_controllers_admincontroller_getadminposts",
@@ -568,7 +568,7 @@
       "file_type": "code",
       "norm_label": "getadminposts()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L2321"
+      "source_location": "L2335"
     },
     {
       "id": "backend_src_controllers_admincontroller_getadminprivacypolicy",
@@ -580,7 +580,7 @@
       "file_type": "code",
       "norm_label": "getadminprivacypolicy()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L6109"
+      "source_location": "L6123"
     },
     {
       "id": "backend_src_controllers_admincontroller_getadminprofile",
@@ -592,7 +592,7 @@
       "file_type": "code",
       "norm_label": "getadminprofile()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5991"
+      "source_location": "L6005"
     },
     {
       "id": "backend_src_controllers_admincontroller_getadminreports",
@@ -604,7 +604,7 @@
       "file_type": "code",
       "norm_label": "getadminreports()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L4774"
+      "source_location": "L4788"
     },
     {
       "id": "backend_src_controllers_admincontroller_getagencies",
@@ -616,7 +616,7 @@
       "file_type": "code",
       "norm_label": "getagencies()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1451"
+      "source_location": "L1465"
     },
     {
       "id": "backend_src_controllers_admincontroller_getagencyhosts",
@@ -628,7 +628,7 @@
       "file_type": "code",
       "norm_label": "getagencyhosts()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1775"
+      "source_location": "L1789"
     },
     {
       "id": "backend_src_controllers_admincontroller_getchattesterconversation",
@@ -640,7 +640,7 @@
       "file_type": "code",
       "norm_label": "getchattesterconversation()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L4704"
+      "source_location": "L4718"
     },
     {
       "id": "backend_src_controllers_admincontroller_getchattesterusers",
@@ -652,7 +652,7 @@
       "file_type": "code",
       "norm_label": "getchattesterusers()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L4662"
+      "source_location": "L4676"
     },
     {
       "id": "backend_src_controllers_admincontroller_getcoinpackagesadmin",
@@ -664,7 +664,7 @@
       "file_type": "code",
       "norm_label": "getcoinpackagesadmin()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L4150"
+      "source_location": "L4164"
     },
     {
       "id": "backend_src_controllers_admincontroller_getconversationmessages",
@@ -676,7 +676,7 @@
       "file_type": "code",
       "norm_label": "getconversationmessages()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L2271"
+      "source_location": "L2285"
     },
     {
       "id": "backend_src_controllers_admincontroller_getdashboardstats",
@@ -700,7 +700,7 @@
       "file_type": "code",
       "norm_label": "getgiftsadmin()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L714"
+      "source_location": "L728"
     },
     {
       "id": "backend_src_controllers_admincontroller_getglobalgiftbannerconfigadmin",
@@ -712,7 +712,7 @@
       "file_type": "code",
       "norm_label": "getglobalgiftbannerconfigadmin()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1032"
+      "source_location": "L1046"
     },
     {
       "id": "backend_src_controllers_admincontroller_gethostrequests",
@@ -724,7 +724,7 @@
       "file_type": "code",
       "norm_label": "gethostrequests()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L3200"
+      "source_location": "L3214"
     },
     {
       "id": "backend_src_controllers_admincontroller_gethosts",
@@ -736,7 +736,7 @@
       "file_type": "code",
       "norm_label": "gethosts()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L3030"
+      "source_location": "L3044"
     },
     {
       "id": "backend_src_controllers_admincontroller_gethostwithdrawalratios",
@@ -748,7 +748,7 @@
       "file_type": "code",
       "norm_label": "gethostwithdrawalratios()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L3514"
+      "source_location": "L3528"
     },
     {
       "id": "backend_src_controllers_admincontroller_getlevelconfigs",
@@ -760,7 +760,7 @@
       "file_type": "code",
       "norm_label": "getlevelconfigs()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5432"
+      "source_location": "L5446"
     },
     {
       "id": "backend_src_controllers_admincontroller_getlevelrewardhistory",
@@ -772,7 +772,7 @@
       "file_type": "code",
       "norm_label": "getlevelrewardhistory()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5649"
+      "source_location": "L5663"
     },
     {
       "id": "backend_src_controllers_admincontroller_getlevelrewardoptions",
@@ -784,7 +784,7 @@
       "file_type": "code",
       "norm_label": "getlevelrewardoptions()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5456"
+      "source_location": "L5470"
     },
     {
       "id": "backend_src_controllers_admincontroller_getmoderators",
@@ -796,7 +796,7 @@
       "file_type": "code",
       "norm_label": "getmoderators()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1914"
+      "source_location": "L1928"
     },
     {
       "id": "backend_src_controllers_admincontroller_getoffenderreports",
@@ -808,7 +808,7 @@
       "file_type": "code",
       "norm_label": "getoffenderreports()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L4970"
+      "source_location": "L4984"
     },
     {
       "id": "backend_src_controllers_admincontroller_getrechargehistory",
@@ -820,7 +820,7 @@
       "file_type": "code",
       "norm_label": "getrechargehistory()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L548"
+      "source_location": "L562"
     },
     {
       "id": "backend_src_controllers_admincontroller_getrechargepresetsadmin",
@@ -832,7 +832,7 @@
       "file_type": "code",
       "norm_label": "getrechargepresetsadmin()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L4341"
+      "source_location": "L4355"
     },
     {
       "id": "backend_src_controllers_admincontroller_getresellers",
@@ -844,7 +844,7 @@
       "file_type": "code",
       "norm_label": "getresellers()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L3692"
+      "source_location": "L3706"
     },
     {
       "id": "backend_src_controllers_admincontroller_getresellersales",
@@ -856,7 +856,7 @@
       "file_type": "code",
       "norm_label": "getresellersales()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L3895"
+      "source_location": "L3909"
     },
     {
       "id": "backend_src_controllers_admincontroller_getsettings",
@@ -868,7 +868,7 @@
       "file_type": "code",
       "norm_label": "getsettings()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1382"
+      "source_location": "L1396"
     },
     {
       "id": "backend_src_controllers_admincontroller_getstarsettings",
@@ -880,7 +880,7 @@
       "file_type": "code",
       "norm_label": "getstarsettings()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5868"
+      "source_location": "L5882"
     },
     {
       "id": "backend_src_controllers_admincontroller_getstreams",
@@ -892,7 +892,7 @@
       "file_type": "code",
       "norm_label": "getstreams()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L649"
+      "source_location": "L663"
     },
     {
       "id": "backend_src_controllers_admincontroller_gettopcontributorsadmin",
@@ -904,7 +904,7 @@
       "file_type": "code",
       "norm_label": "gettopcontributorsadmin()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L882"
+      "source_location": "L896"
     },
     {
       "id": "backend_src_controllers_admincontroller_getuserdetails",
@@ -916,7 +916,7 @@
       "file_type": "code",
       "norm_label": "getuserdetails()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L2133"
+      "source_location": "L2147"
     },
     {
       "id": "backend_src_controllers_admincontroller_getusers",
@@ -940,7 +940,7 @@
       "file_type": "code",
       "norm_label": "getwithdrawalconfigadmin()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L4400"
+      "source_location": "L4414"
     },
     {
       "id": "backend_src_controllers_admincontroller_getwithdrawals",
@@ -952,7 +952,7 @@
       "file_type": "code",
       "norm_label": "getwithdrawals()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1173"
+      "source_location": "L1187"
     },
     {
       "id": "backend_src_controllers_admincontroller_recalculatealluserstars",
@@ -964,7 +964,7 @@
       "file_type": "code",
       "norm_label": "recalculatealluserstars()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5959"
+      "source_location": "L5973"
     },
     {
       "id": "backend_src_controllers_admincontroller_rejectdeletionrequest",
@@ -976,7 +976,7 @@
       "file_type": "code",
       "norm_label": "rejectdeletionrequest()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L6388"
+      "source_location": "L6402"
     },
     {
       "id": "backend_src_controllers_admincontroller_resetallusersbalances",
@@ -988,7 +988,7 @@
       "file_type": "code",
       "norm_label": "resetallusersbalances()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5822"
+      "source_location": "L5836"
     },
     {
       "id": "backend_src_controllers_admincontroller_resetalluserscoins",
@@ -1000,7 +1000,7 @@
       "file_type": "code",
       "norm_label": "resetalluserscoins()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5739"
+      "source_location": "L5753"
     },
     {
       "id": "backend_src_controllers_admincontroller_resetallusersdiamonds",
@@ -1012,7 +1012,7 @@
       "file_type": "code",
       "norm_label": "resetallusersdiamonds()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5781"
+      "source_location": "L5795"
     },
     {
       "id": "backend_src_controllers_admincontroller_seeddefaultlevels",
@@ -1024,7 +1024,7 @@
       "file_type": "code",
       "norm_label": "seeddefaultlevels()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5689"
+      "source_location": "L5703"
     },
     {
       "id": "backend_src_controllers_admincontroller_sendtestglobalgiftbanneradmin",
@@ -1036,7 +1036,7 @@
       "file_type": "code",
       "norm_label": "sendtestglobalgiftbanneradmin()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1119"
+      "source_location": "L1133"
     },
     {
       "id": "backend_src_controllers_admincontroller_terminatestream",
@@ -1048,7 +1048,7 @@
       "file_type": "code",
       "norm_label": "terminatestream()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L687"
+      "source_location": "L701"
     },
     {
       "id": "backend_src_controllers_admincontroller_togglecoinpackageadmin",
@@ -1060,7 +1060,7 @@
       "file_type": "code",
       "norm_label": "togglecoinpackageadmin()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L4308"
+      "source_location": "L4322"
     },
     {
       "id": "backend_src_controllers_admincontroller_updateadminprivacypolicy",
@@ -1072,7 +1072,7 @@
       "file_type": "code",
       "norm_label": "updateadminprivacypolicy()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L6148"
+      "source_location": "L6162"
     },
     {
       "id": "backend_src_controllers_admincontroller_updateadminprofile",
@@ -1084,7 +1084,7 @@
       "file_type": "code",
       "norm_label": "updateadminprofile()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L6018"
+      "source_location": "L6032"
     },
     {
       "id": "backend_src_controllers_admincontroller_updateadminreportstatus",
@@ -1096,7 +1096,7 @@
       "file_type": "code",
       "norm_label": "updateadminreportstatus()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5050"
+      "source_location": "L5064"
     },
     {
       "id": "backend_src_controllers_admincontroller_updateagency",
@@ -1108,7 +1108,7 @@
       "file_type": "code",
       "norm_label": "updateagency()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1571"
+      "source_location": "L1585"
     },
     {
       "id": "backend_src_controllers_admincontroller_updatecoinpackageadmin",
@@ -1120,7 +1120,7 @@
       "file_type": "code",
       "norm_label": "updatecoinpackageadmin()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L4228"
+      "source_location": "L4242"
     },
     {
       "id": "backend_src_controllers_admincontroller_updategift",
@@ -1132,7 +1132,7 @@
       "file_type": "code",
       "norm_label": "updategift()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L809"
+      "source_location": "L823"
     },
     {
       "id": "backend_src_controllers_admincontroller_updateglobalgiftbannerconfigadmin",
@@ -1144,7 +1144,7 @@
       "file_type": "code",
       "norm_label": "updateglobalgiftbannerconfigadmin()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1042"
+      "source_location": "L1056"
     },
     {
       "id": "backend_src_controllers_admincontroller_updatehostwithdrawalratios",
@@ -1156,7 +1156,7 @@
       "file_type": "code",
       "norm_label": "updatehostwithdrawalratios()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L3589"
+      "source_location": "L3603"
     },
     {
       "id": "backend_src_controllers_admincontroller_updatelevelconfig",
@@ -1168,7 +1168,7 @@
       "file_type": "code",
       "norm_label": "updatelevelconfig()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5552"
+      "source_location": "L5566"
     },
     {
       "id": "backend_src_controllers_admincontroller_updatemoderator",
@@ -1180,7 +1180,7 @@
       "file_type": "code",
       "norm_label": "updatemoderator()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L2052"
+      "source_location": "L2066"
     },
     {
       "id": "backend_src_controllers_admincontroller_updaterechargepresetsadmin",
@@ -1192,7 +1192,7 @@
       "file_type": "code",
       "norm_label": "updaterechargepresetsadmin()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L4361"
+      "source_location": "L4375"
     },
     {
       "id": "backend_src_controllers_admincontroller_updatesetting",
@@ -1204,7 +1204,7 @@
       "file_type": "code",
       "norm_label": "updatesetting()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1394"
+      "source_location": "L1408"
     },
     {
       "id": "backend_src_controllers_admincontroller_updatestarsettings",
@@ -1216,7 +1216,7 @@
       "file_type": "code",
       "norm_label": "updatestarsettings()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5909"
+      "source_location": "L5923"
     },
     {
       "id": "backend_src_controllers_admincontroller_updatewithdrawalconfigadmin",
@@ -1228,7 +1228,7 @@
       "file_type": "code",
       "norm_label": "updatewithdrawalconfigadmin()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L4488"
+      "source_location": "L4502"
     },
     {
       "id": "backend_src_controllers_bannercontroller_createbanner",
@@ -1576,7 +1576,7 @@
       "file_type": "code",
       "norm_label": "cleartransactions()",
       "source_file": "backend/src/controllers/mobile/resellerController.js",
-      "source_location": "L656"
+      "source_location": "L666"
     },
     {
       "id": "backend_src_controllers_mobile_resellercontroller_deletetransaction",
@@ -1588,7 +1588,7 @@
       "file_type": "code",
       "norm_label": "deletetransaction()",
       "source_file": "backend/src/controllers/mobile/resellerController.js",
-      "source_location": "L599"
+      "source_location": "L609"
     },
     {
       "id": "backend_src_controllers_mobile_resellercontroller_getresellerbalance",
@@ -1612,7 +1612,7 @@
       "file_type": "code",
       "norm_label": "getresellertransactions()",
       "source_file": "backend/src/controllers/mobile/resellerController.js",
-      "source_location": "L469"
+      "source_location": "L479"
     },
     {
       "id": "backend_src_controllers_mobile_resellercontroller_getuserdetails",
@@ -3427,6 +3427,18 @@
       "source_location": "L54"
     },
     {
+      "id": "admin_panel_src_pages_accountmerge_accountmerge",
+      "label": "AccountMerge()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 171,
+      "community_name": "client.js",
+      "file_type": "code",
+      "norm_label": "accountmerge()",
+      "source_file": "admin-panel/src/pages/AccountMerge.jsx",
+      "source_location": "L26"
+    },
+    {
       "id": "admin_panel_src_pages_realtimechattester_realtimechattester",
       "label": "RealtimeChatTester()",
       "_callable": true,
@@ -5164,7 +5176,7 @@
       "file_type": "code",
       "norm_label": "bulkdelete()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L2705"
+      "source_location": "L2719"
     },
     {
       "id": "backend_src_controllers_admincontroller_deleteadminchatmessage",
@@ -5176,7 +5188,7 @@
       "file_type": "code",
       "norm_label": "deleteadminchatmessage()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L6834"
+      "source_location": "L6848"
     },
     {
       "id": "backend_src_controllers_admincontroller_deleteadminconversation",
@@ -5188,7 +5200,7 @@
       "file_type": "code",
       "norm_label": "deleteadminconversation()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L6908"
+      "source_location": "L6922"
     },
     {
       "id": "backend_src_controllers_admincontroller_deleteuserpost",
@@ -5200,7 +5212,7 @@
       "file_type": "code",
       "norm_label": "deleteuserpost()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L2621"
+      "source_location": "L2635"
     },
     {
       "id": "backend_src_services_filestorageservice_deletefilefromstorage",
@@ -5908,7 +5920,7 @@
       "file_type": "code",
       "norm_label": "userdetailsmodal()",
       "source_file": "admin-panel/src/components/UserDetailsModal.jsx",
-      "source_location": "L64"
+      "source_location": "L65"
     },
     {
       "id": "admin_panel_src_context_economycontext_useeconomy",
@@ -6028,7 +6040,7 @@
       "file_type": "code",
       "norm_label": "users()",
       "source_file": "admin-panel/src/pages/Users.jsx",
-      "source_location": "L33"
+      "source_location": "L34"
     },
     {
       "id": "admin_panel_src_pages_withdrawals_withdrawals",
@@ -7156,7 +7168,7 @@
       "file_type": "code",
       "norm_label": "getliverewardhistoryadmin()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5329"
+      "source_location": "L5343"
     },
     {
       "id": "backend_src_controllers_admincontroller_getliverewardsettingsadmin",
@@ -7168,7 +7180,7 @@
       "file_type": "code",
       "norm_label": "getliverewardsettingsadmin()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5297"
+      "source_location": "L5311"
     },
     {
       "id": "backend_src_controllers_admincontroller_getliverewardstatsadmin",
@@ -7180,7 +7192,7 @@
       "file_type": "code",
       "norm_label": "getliverewardstatsadmin()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5351"
+      "source_location": "L5365"
     },
     {
       "id": "backend_src_controllers_admincontroller_updateliverewardsettingsadmin",
@@ -7192,7 +7204,7 @@
       "file_type": "code",
       "norm_label": "updateliverewardsettingsadmin()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5311"
+      "source_location": "L5325"
     },
     {
       "id": "backend_src_services_liverewardservice_getlivedurationrewardhistory",
@@ -7348,7 +7360,7 @@
       "file_type": "code",
       "norm_label": "getglobalgiftbannerconfigmobile()",
       "source_file": "backend/src/controllers/mobile/giftController.js",
-      "source_location": "L860"
+      "source_location": "L874"
     },
     {
       "id": "backend_src_controllers_mobile_giftcontroller_getusergiftcontributions",
@@ -7360,7 +7372,7 @@
       "file_type": "code",
       "norm_label": "getusergiftcontributions()",
       "source_file": "backend/src/controllers/mobile/giftController.js",
-      "source_location": "L764"
+      "source_location": "L778"
     },
     {
       "id": "backend_src_controllers_mobile_giftcontroller_resolveabsoluteurl",
@@ -8140,7 +8152,7 @@
       "file_type": "code",
       "norm_label": "takeadminreportaction()",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5102"
+      "source_location": "L5116"
     },
     {
       "id": "backend_src_controllers_mobile_moderatorcontroller_toggledeviceban",
@@ -8611,18 +8623,6 @@
       "source_location": "L8"
     },
     {
-      "id": "admin_panel_src_pages_accountmerge_accountmerge",
-      "label": "AccountMerge()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 82,
-      "community_name": "react",
-      "file_type": "code",
-      "norm_label": "accountmerge()",
-      "source_file": "admin-panel/src/pages/AccountMerge.jsx",
-      "source_location": "L26"
-    },
-    {
       "id": "admin_panel_src_pages_dashboard_dashboard",
       "label": "Dashboard()",
       "_callable": true,
@@ -8715,7 +8715,7 @@
       "source_location": "L1"
     },
     {
-      "id": "backend_src_controllers_admincontroller_rationale_1656",
+      "id": "backend_src_controllers_admincontroller_rationale_1670",
       "label": "IMPORTANT: Hosts' coins remain untouched in their wallet!",
       "_origin": "ast",
       "community": 1,
@@ -8723,7 +8723,7 @@
       "file_type": "rationale",
       "norm_label": "important: hosts' coins remain untouched in their wallet!",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1656"
+      "source_location": "L1670"
     },
     {
       "id": "backend_src_controllers_livecontroller",
@@ -10088,6 +10088,28 @@
       "source_location": "L1"
     },
     {
+      "id": "admin_panel_src_api_accountmergeapi",
+      "label": "accountMergeApi.js",
+      "_origin": "ast",
+      "community": 171,
+      "community_name": "client.js",
+      "file_type": "code",
+      "norm_label": "accountmergeapi.js",
+      "source_file": "admin-panel/src/api/accountMergeApi.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "admin_panel_src_api_accountmergeapi_accountmergeapi",
+      "label": "accountMergeApi",
+      "_origin": "ast",
+      "community": 171,
+      "community_name": "client.js",
+      "file_type": "code",
+      "norm_label": "accountmergeapi",
+      "source_file": "admin-panel/src/api/accountMergeApi.js",
+      "source_location": "L3"
+    },
+    {
       "id": "admin_panel_src_api_client",
       "label": "client.js",
       "_origin": "ast",
@@ -10118,28 +10140,6 @@
       "file_type": "code",
       "norm_label": "coinpackageapi",
       "source_file": "admin-panel/src/api/coinPackageApi.js",
-      "source_location": "L3"
-    },
-    {
-      "id": "admin_panel_src_api_dashboardapi",
-      "label": "dashboardApi.js",
-      "_origin": "ast",
-      "community": 171,
-      "community_name": "client.js",
-      "file_type": "code",
-      "norm_label": "dashboardapi.js",
-      "source_file": "admin-panel/src/api/dashboardApi.js",
-      "source_location": "L1"
-    },
-    {
-      "id": "admin_panel_src_api_dashboardapi_dashboardapi",
-      "label": "dashboardApi",
-      "_origin": "ast",
-      "community": 171,
-      "community_name": "client.js",
-      "file_type": "code",
-      "norm_label": "dashboardapi",
-      "source_file": "admin-panel/src/api/dashboardApi.js",
       "source_location": "L3"
     },
     {
@@ -10316,6 +10316,17 @@
       "file_type": "code",
       "norm_label": "withdrawalapi.js",
       "source_file": "admin-panel/src/api/withdrawalApi.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "admin_panel_src_pages_accountmerge",
+      "label": "AccountMerge.jsx",
+      "_origin": "ast",
+      "community": 171,
+      "community_name": "client.js",
+      "file_type": "code",
+      "norm_label": "accountmerge.jsx",
+      "source_file": "admin-panel/src/pages/AccountMerge.jsx",
       "source_location": "L1"
     },
     {
@@ -12791,7 +12802,7 @@
       "file_type": "code",
       "norm_label": "moderator_power_labels",
       "source_file": "admin-panel/src/components/UserDetailsModal.jsx",
-      "source_location": "L51"
+      "source_location": "L52"
     },
     {
       "id": "admin_panel_src_pages_agencies",
@@ -14814,28 +14825,6 @@
       "source_location": "L1"
     },
     {
-      "id": "admin_panel_src_api_accountmergeapi",
-      "label": "accountMergeApi.js",
-      "_origin": "ast",
-      "community": 82,
-      "community_name": "react",
-      "file_type": "code",
-      "norm_label": "accountmergeapi.js",
-      "source_file": "admin-panel/src/api/accountMergeApi.js",
-      "source_location": "L1"
-    },
-    {
-      "id": "admin_panel_src_api_accountmergeapi_accountmergeapi",
-      "label": "accountMergeApi",
-      "_origin": "ast",
-      "community": 82,
-      "community_name": "react",
-      "file_type": "code",
-      "norm_label": "accountmergeapi",
-      "source_file": "admin-panel/src/api/accountMergeApi.js",
-      "source_location": "L3"
-    },
-    {
       "id": "admin_panel_src_api_client_api_base",
       "label": "API_BASE",
       "_origin": "ast",
@@ -14845,6 +14834,28 @@
       "norm_label": "api_base",
       "source_file": "admin-panel/src/api/client.js",
       "source_location": "L14"
+    },
+    {
+      "id": "admin_panel_src_api_dashboardapi",
+      "label": "dashboardApi.js",
+      "_origin": "ast",
+      "community": 82,
+      "community_name": "react",
+      "file_type": "code",
+      "norm_label": "dashboardapi.js",
+      "source_file": "admin-panel/src/api/dashboardApi.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "admin_panel_src_api_dashboardapi_dashboardapi",
+      "label": "dashboardApi",
+      "_origin": "ast",
+      "community": 82,
+      "community_name": "react",
+      "file_type": "code",
+      "norm_label": "dashboardapi",
+      "source_file": "admin-panel/src/api/dashboardApi.js",
+      "source_location": "L3"
     },
     {
       "id": "admin_panel_src_api_legalapi",
@@ -15009,17 +15020,6 @@
       "file_type": "code",
       "norm_label": "main.jsx",
       "source_file": "admin-panel/src/main.jsx",
-      "source_location": "L1"
-    },
-    {
-      "id": "admin_panel_src_pages_accountmerge",
-      "label": "AccountMerge.jsx",
-      "_origin": "ast",
-      "community": 82,
-      "community_name": "react",
-      "file_type": "code",
-      "norm_label": "accountmerge.jsx",
-      "source_file": "admin-panel/src/pages/AccountMerge.jsx",
       "source_location": "L1"
     },
     {
@@ -15739,7 +15739,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "admin-panel/src/components/UserDetailsModal.jsx",
-      "source_location": "L73",
+      "source_location": "L74",
       "weight": 1.0
     },
     {
@@ -16279,7 +16279,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "admin-panel/src/pages/Users.jsx",
-      "source_location": "L34",
+      "source_location": "L35",
       "weight": 1.0
     },
     {
@@ -16903,7 +16903,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1957",
+      "source_location": "L1971",
       "weight": 1.0
     },
     {
@@ -16915,7 +16915,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L2036",
+      "source_location": "L2050",
       "weight": 1.0
     },
     {
@@ -16927,7 +16927,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L398",
+      "source_location": "L412",
       "weight": 1.0
     },
     {
@@ -16939,7 +16939,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L6305",
+      "source_location": "L6319",
       "weight": 1.0
     },
     {
@@ -16951,7 +16951,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L3800",
+      "source_location": "L3814",
       "weight": 1.0
     },
     {
@@ -16963,7 +16963,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L3848",
+      "source_location": "L3862",
       "weight": 1.0
     },
     {
@@ -16975,7 +16975,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1841",
+      "source_location": "L1855",
       "weight": 1.0
     },
     {
@@ -16987,7 +16987,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1875",
+      "source_location": "L1889",
       "weight": 1.0
     },
     {
@@ -16999,7 +16999,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L2727",
+      "source_location": "L2741",
       "weight": 1.0
     },
     {
@@ -17011,7 +17011,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L2871",
+      "source_location": "L2885",
       "weight": 1.0
     },
     {
@@ -17023,7 +17023,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L2996",
+      "source_location": "L3010",
       "weight": 1.0
     },
     {
@@ -17035,7 +17035,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5278",
+      "source_location": "L5292",
       "weight": 1.0
     },
     {
@@ -17047,7 +17047,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L6993",
+      "source_location": "L7007",
       "weight": 1.0
     },
     {
@@ -17059,7 +17059,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L7005",
+      "source_location": "L7019",
       "weight": 1.0
     },
     {
@@ -17071,7 +17071,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1008",
+      "source_location": "L1022",
       "weight": 1.0
     },
     {
@@ -17083,7 +17083,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L4127",
+      "source_location": "L4141",
       "weight": 1.0
     },
     {
@@ -17095,7 +17095,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L2566",
+      "source_location": "L2580",
       "weight": 1.0
     },
     {
@@ -17107,7 +17107,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1506",
+      "source_location": "L1520",
       "weight": 1.0
     },
     {
@@ -17119,7 +17119,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1548",
+      "source_location": "L1562",
       "weight": 1.0
     },
     {
@@ -17131,7 +17131,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L4203",
+      "source_location": "L4217",
       "weight": 1.0
     },
     {
@@ -17143,7 +17143,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L778",
+      "source_location": "L792",
       "weight": 1.0
     },
     {
@@ -17155,7 +17155,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L3337",
+      "source_location": "L3351",
       "weight": 1.0
     },
     {
@@ -17167,7 +17167,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L3358",
+      "source_location": "L3372",
       "weight": 1.0
     },
     {
@@ -17179,7 +17179,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5507",
+      "source_location": "L5521",
       "weight": 1.0
     },
     {
@@ -17191,7 +17191,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L6842",
+      "source_location": "L6856",
       "weight": 1.0
     },
     {
@@ -17203,7 +17203,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L6862",
+      "source_location": "L6876",
       "weight": 1.0
     },
     {
@@ -17215,7 +17215,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L6916",
+      "source_location": "L6930",
       "weight": 1.0
     },
     {
@@ -17227,7 +17227,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L6952",
+      "source_location": "L6966",
       "weight": 1.0
     },
     {
@@ -17239,7 +17239,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5248",
+      "source_location": "L5262",
       "weight": 1.0
     },
     {
@@ -17251,7 +17251,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1606",
+      "source_location": "L1620",
       "weight": 1.0
     },
     {
@@ -17263,7 +17263,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1710",
+      "source_location": "L1724",
       "weight": 1.0
     },
     {
@@ -17275,7 +17275,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L4284",
+      "source_location": "L4298",
       "weight": 1.0
     },
     {
@@ -17287,7 +17287,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L6460",
+      "source_location": "L6474",
       "weight": 1.0
     },
     {
@@ -17299,7 +17299,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L862",
+      "source_location": "L876",
       "weight": 1.0
     },
     {
@@ -17311,7 +17311,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5629",
+      "source_location": "L5643",
       "weight": 1.0
     },
     {
@@ -17323,7 +17323,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L2094",
+      "source_location": "L2108",
       "weight": 1.0
     },
     {
@@ -17335,7 +17335,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L2118",
+      "source_location": "L2132",
       "weight": 1.0
     },
     {
@@ -17347,7 +17347,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L3873",
+      "source_location": "L3887",
       "weight": 1.0
     },
     {
@@ -17359,7 +17359,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L3883",
+      "source_location": "L3897",
       "weight": 1.0
     },
     {
@@ -17371,7 +17371,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L4094",
+      "source_location": "L4108",
       "weight": 1.0
     },
     {
@@ -17383,7 +17383,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L2667",
+      "source_location": "L2681",
       "weight": 1.0
     },
     {
@@ -17395,7 +17395,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L2626",
+      "source_location": "L2640",
       "weight": 1.0
     },
     {
@@ -17407,7 +17407,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L2648",
+      "source_location": "L2662",
       "weight": 1.0
     },
     {
@@ -17419,7 +17419,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5390",
+      "source_location": "L5404",
       "weight": 1.0
     },
     {
@@ -17431,7 +17431,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L6503",
+      "source_location": "L6517",
       "weight": 1.0
     },
     {
@@ -17443,7 +17443,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L6712",
+      "source_location": "L6726",
       "weight": 1.0
     },
     {
@@ -17455,7 +17455,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L6596",
+      "source_location": "L6610",
       "weight": 1.0
     },
     {
@@ -17467,7 +17467,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L6231",
+      "source_location": "L6245",
       "weight": 1.0
     },
     {
@@ -17479,7 +17479,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L2358",
+      "source_location": "L2372",
       "weight": 1.0
     },
     {
@@ -17491,7 +17491,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L6111",
+      "source_location": "L6125",
       "weight": 1.0
     },
     {
@@ -17503,7 +17503,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5998",
+      "source_location": "L6012",
       "weight": 1.0
     },
     {
@@ -17515,7 +17515,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L4789",
+      "source_location": "L4803",
       "weight": 1.0
     },
     {
@@ -17527,7 +17527,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1454",
+      "source_location": "L1468",
       "weight": 1.0
     },
     {
@@ -17539,7 +17539,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1778",
+      "source_location": "L1792",
       "weight": 1.0
     },
     {
@@ -17551,7 +17551,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L4712",
+      "source_location": "L4726",
       "weight": 1.0
     },
     {
@@ -17563,7 +17563,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L4684",
+      "source_location": "L4698",
       "weight": 1.0
     },
     {
@@ -17575,7 +17575,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L4688",
+      "source_location": "L4702",
       "weight": 1.0
     },
     {
@@ -17587,7 +17587,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L4154",
+      "source_location": "L4168",
       "weight": 1.0
     },
     {
@@ -17599,7 +17599,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L2280",
+      "source_location": "L2294",
       "weight": 1.0
     },
     {
@@ -17623,7 +17623,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L717",
+      "source_location": "L731",
       "weight": 1.0
     },
     {
@@ -17635,7 +17635,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1034",
+      "source_location": "L1048",
       "weight": 1.0
     },
     {
@@ -17647,7 +17647,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L3254",
+      "source_location": "L3268",
       "weight": 1.0
     },
     {
@@ -17659,7 +17659,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L3070",
+      "source_location": "L3084",
       "weight": 1.0
     },
     {
@@ -17671,7 +17671,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L3517",
+      "source_location": "L3531",
       "weight": 1.0
     },
     {
@@ -17683,7 +17683,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5435",
+      "source_location": "L5449",
       "weight": 1.0
     },
     {
@@ -17695,7 +17695,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5655",
+      "source_location": "L5669",
       "weight": 1.0
     },
     {
@@ -17707,7 +17707,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5460",
+      "source_location": "L5474",
       "weight": 1.0
     },
     {
@@ -17719,7 +17719,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5332",
+      "source_location": "L5346",
       "weight": 1.0
     },
     {
@@ -17731,7 +17731,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5299",
+      "source_location": "L5313",
       "weight": 1.0
     },
     {
@@ -17743,7 +17743,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5353",
+      "source_location": "L5367",
       "weight": 1.0
     },
     {
@@ -17755,7 +17755,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1917",
+      "source_location": "L1931",
       "weight": 1.0
     },
     {
@@ -17767,7 +17767,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L4979",
+      "source_location": "L4993",
       "weight": 1.0
     },
     {
@@ -17779,7 +17779,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L587",
+      "source_location": "L601",
       "weight": 1.0
     },
     {
@@ -17791,7 +17791,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L4343",
+      "source_location": "L4357",
       "weight": 1.0
     },
     {
@@ -17803,7 +17803,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L3718",
+      "source_location": "L3732",
       "weight": 1.0
     },
     {
@@ -17815,7 +17815,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L3934",
+      "source_location": "L3948",
       "weight": 1.0
     },
     {
@@ -17827,7 +17827,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1385",
+      "source_location": "L1399",
       "weight": 1.0
     },
     {
@@ -17839,7 +17839,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5870",
+      "source_location": "L5884",
       "weight": 1.0
     },
     {
@@ -17851,7 +17851,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5873",
+      "source_location": "L5887",
       "weight": 1.0
     },
     {
@@ -17863,7 +17863,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L661",
+      "source_location": "L675",
       "weight": 1.0
     },
     {
@@ -17875,7 +17875,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L897",
+      "source_location": "L911",
       "weight": 1.0
     },
     {
@@ -17887,7 +17887,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L2142",
+      "source_location": "L2156",
       "weight": 1.0
     },
     {
@@ -17899,7 +17899,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L232",
+      "source_location": "L237",
       "weight": 1.0
     },
     {
@@ -17911,7 +17911,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L4406",
+      "source_location": "L4420",
       "weight": 1.0
     },
     {
@@ -17923,7 +17923,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1177",
+      "source_location": "L1191",
       "weight": 1.0
     },
     {
@@ -17935,7 +17935,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L3384",
+      "source_location": "L3398",
       "weight": 1.0
     },
     {
@@ -17947,7 +17947,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L3468",
+      "source_location": "L3482",
       "weight": 1.0
     },
     {
@@ -17959,7 +17959,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L3480",
+      "source_location": "L3494",
       "weight": 1.0
     },
     {
@@ -17971,7 +17971,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1312",
+      "source_location": "L1326",
       "weight": 1.0
     },
     {
@@ -17983,7 +17983,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5961",
+      "source_location": "L5975",
       "weight": 1.0
     },
     {
@@ -17995,7 +17995,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5968",
+      "source_location": "L5982",
       "weight": 1.0
     },
     {
@@ -18007,7 +18007,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L476",
+      "source_location": "L490",
       "weight": 1.0
     },
     {
@@ -18019,7 +18019,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L4009",
+      "source_location": "L4023",
       "weight": 1.0
     },
     {
@@ -18031,7 +18031,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L6393",
+      "source_location": "L6407",
       "weight": 1.0
     },
     {
@@ -18043,7 +18043,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1892",
+      "source_location": "L1906",
       "weight": 1.0
     },
     {
@@ -18055,7 +18055,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1895",
+      "source_location": "L1909",
       "weight": 1.0
     },
     {
@@ -18067,7 +18067,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5827",
+      "source_location": "L5841",
       "weight": 1.0
     },
     {
@@ -18079,7 +18079,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5744",
+      "source_location": "L5758",
       "weight": 1.0
     },
     {
@@ -18091,7 +18091,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5786",
+      "source_location": "L5800",
       "weight": 1.0
     },
     {
@@ -18103,7 +18103,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5691",
+      "source_location": "L5705",
       "weight": 1.0
     },
     {
@@ -18115,7 +18115,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1121",
+      "source_location": "L1135",
       "weight": 1.0
     },
     {
@@ -18127,7 +18127,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5111",
+      "source_location": "L5125",
       "weight": 1.0
     },
     {
@@ -18139,7 +18139,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5140",
+      "source_location": "L5154",
       "weight": 1.0
     },
     {
@@ -18151,7 +18151,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5142",
+      "source_location": "L5156",
       "weight": 1.0
     },
     {
@@ -18163,7 +18163,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L692",
+      "source_location": "L706",
       "weight": 1.0
     },
     {
@@ -18175,7 +18175,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L4316",
+      "source_location": "L4330",
       "weight": 1.0
     },
     {
@@ -18187,7 +18187,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L6169",
+      "source_location": "L6183",
       "weight": 1.0
     },
     {
@@ -18199,7 +18199,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L6027",
+      "source_location": "L6041",
       "weight": 1.0
     },
     {
@@ -18211,7 +18211,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5067",
+      "source_location": "L5081",
       "weight": 1.0
     },
     {
@@ -18223,7 +18223,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1592",
+      "source_location": "L1606",
       "weight": 1.0
     },
     {
@@ -18235,7 +18235,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L4236",
+      "source_location": "L4250",
       "weight": 1.0
     },
     {
@@ -18247,7 +18247,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L846",
+      "source_location": "L860",
       "weight": 1.0
     },
     {
@@ -18259,7 +18259,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1049",
+      "source_location": "L1063",
       "weight": 1.0
     },
     {
@@ -18271,7 +18271,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1101",
+      "source_location": "L1115",
       "weight": 1.0
     },
     {
@@ -18283,7 +18283,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L3176",
+      "source_location": "L3190",
       "weight": 1.0
     },
     {
@@ -18295,7 +18295,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L3179",
+      "source_location": "L3193",
       "weight": 1.0
     },
     {
@@ -18307,7 +18307,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L3609",
+      "source_location": "L3623",
       "weight": 1.0
     },
     {
@@ -18319,7 +18319,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L3676",
+      "source_location": "L3690",
       "weight": 1.0
     },
     {
@@ -18331,7 +18331,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5571",
+      "source_location": "L5585",
       "weight": 1.0
     },
     {
@@ -18343,7 +18343,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5313",
+      "source_location": "L5327",
       "weight": 1.0
     },
     {
@@ -18355,7 +18355,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L2057",
+      "source_location": "L2071",
       "weight": 1.0
     },
     {
@@ -18367,7 +18367,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L4372",
+      "source_location": "L4386",
       "weight": 1.0
     },
     {
@@ -18379,7 +18379,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1400",
+      "source_location": "L1414",
       "weight": 1.0
     },
     {
@@ -18391,7 +18391,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1408",
+      "source_location": "L1422",
       "weight": 1.0
     },
     {
@@ -18403,7 +18403,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5925",
+      "source_location": "L5939",
       "weight": 1.0
     },
     {
@@ -18415,7 +18415,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L376",
+      "source_location": "L389",
       "weight": 1.0
     },
     {
@@ -18427,7 +18427,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L379",
+      "source_location": "L392",
       "weight": 1.0
     },
     {
@@ -18439,7 +18439,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L4507",
+      "source_location": "L4521",
       "weight": 1.0
     },
     {
@@ -18451,7 +18451,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L4647",
+      "source_location": "L4661",
       "weight": 1.0
     },
     {
@@ -21235,7 +21235,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/giftController.js",
-      "source_location": "L862",
+      "source_location": "L876",
       "weight": 1.0
     },
     {
@@ -21247,7 +21247,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/giftController.js",
-      "source_location": "L867",
+      "source_location": "L881",
       "weight": 1.0
     },
     {
@@ -21259,7 +21259,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/giftController.js",
-      "source_location": "L780",
+      "source_location": "L794",
       "weight": 1.0
     },
     {
@@ -21271,7 +21271,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/giftController.js",
-      "source_location": "L533",
+      "source_location": "L547",
       "weight": 1.0
     },
     {
@@ -21283,7 +21283,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/giftController.js",
-      "source_location": "L595",
+      "source_location": "L609",
       "weight": 1.0
     },
     {
@@ -21295,7 +21295,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/giftController.js",
-      "source_location": "L688",
+      "source_location": "L702",
       "weight": 1.0
     },
     {
@@ -21307,7 +21307,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/giftController.js",
-      "source_location": "L698",
+      "source_location": "L712",
       "weight": 1.0
     },
     {
@@ -23239,7 +23239,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/resellerController.js",
-      "source_location": "L658",
+      "source_location": "L668",
       "weight": 1.0
     },
     {
@@ -23251,7 +23251,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/resellerController.js",
-      "source_location": "L675",
+      "source_location": "L685",
       "weight": 1.0
     },
     {
@@ -23263,7 +23263,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/resellerController.js",
-      "source_location": "L608",
+      "source_location": "L618",
       "weight": 1.0
     },
     {
@@ -23275,7 +23275,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/resellerController.js",
-      "source_location": "L614",
+      "source_location": "L624",
       "weight": 1.0
     },
     {
@@ -23311,7 +23311,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/resellerController.js",
-      "source_location": "L471",
+      "source_location": "L481",
       "weight": 1.0
     },
     {
@@ -23323,7 +23323,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/src/controllers/mobile/resellerController.js",
-      "source_location": "L511",
+      "source_location": "L521",
       "weight": 1.0
     },
     {
@@ -29228,7 +29228,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "admin-panel/src/components/UserDetailsModal.jsx",
-      "source_location": "L46",
+      "source_location": "L47",
       "weight": 1.0
     },
     {
@@ -29240,7 +29240,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "admin-panel/src/components/UserDetailsModal.jsx",
-      "source_location": "L47",
+      "source_location": "L48",
       "weight": 1.0
     },
     {
@@ -29252,7 +29252,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "admin-panel/src/components/UserDetailsModal.jsx",
-      "source_location": "L48",
+      "source_location": "L49",
       "weight": 1.0
     },
     {
@@ -29264,7 +29264,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "admin-panel/src/components/UserDetailsModal.jsx",
-      "source_location": "L49",
+      "source_location": "L50",
       "weight": 1.0
     },
     {
@@ -31256,7 +31256,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "admin-panel/src/pages/Users.jsx",
-      "source_location": "L25",
+      "source_location": "L26",
       "weight": 1.0
     },
     {
@@ -31268,7 +31268,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "admin-panel/src/pages/Users.jsx",
-      "source_location": "L26",
+      "source_location": "L27",
       "weight": 1.0
     },
     {
@@ -31280,7 +31280,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "admin-panel/src/pages/Users.jsx",
-      "source_location": "L27",
+      "source_location": "L28",
       "weight": 1.0
     },
     {
@@ -31292,7 +31292,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "admin-panel/src/pages/Users.jsx",
-      "source_location": "L28",
+      "source_location": "L29",
       "weight": 1.0
     },
     {
@@ -31304,7 +31304,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "admin-panel/src/pages/Users.jsx",
-      "source_location": "L29",
+      "source_location": "L30",
       "weight": 1.0
     },
     {
@@ -31316,7 +31316,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "admin-panel/src/pages/Users.jsx",
-      "source_location": "L30",
+      "source_location": "L31",
       "weight": 1.0
     },
     {
@@ -31328,7 +31328,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "admin-panel/src/pages/Users.jsx",
-      "source_location": "L31",
+      "source_location": "L32",
       "weight": 1.0
     },
     {
@@ -36632,7 +36632,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "admin-panel/src/components/UserDetailsModal.jsx",
-      "source_location": "L46",
+      "source_location": "L47",
       "weight": 1.0
     },
     {
@@ -36644,7 +36644,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "admin-panel/src/components/UserDetailsModal.jsx",
-      "source_location": "L47",
+      "source_location": "L48",
       "weight": 1.0
     },
     {
@@ -36656,7 +36656,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "admin-panel/src/components/UserDetailsModal.jsx",
-      "source_location": "L48",
+      "source_location": "L49",
       "weight": 1.0
     },
     {
@@ -36668,7 +36668,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "admin-panel/src/components/UserDetailsModal.jsx",
-      "source_location": "L49",
+      "source_location": "L50",
       "weight": 1.0
     },
     {
@@ -38984,7 +38984,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "admin-panel/src/pages/Users.jsx",
-      "source_location": "L25",
+      "source_location": "L26",
       "weight": 1.0
     },
     {
@@ -38996,7 +38996,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "admin-panel/src/pages/Users.jsx",
-      "source_location": "L26",
+      "source_location": "L27",
       "weight": 1.0
     },
     {
@@ -39008,7 +39008,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "admin-panel/src/pages/Users.jsx",
-      "source_location": "L27",
+      "source_location": "L28",
       "weight": 1.0
     },
     {
@@ -39020,7 +39020,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "admin-panel/src/pages/Users.jsx",
-      "source_location": "L28",
+      "source_location": "L29",
       "weight": 1.0
     },
     {
@@ -39032,7 +39032,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "admin-panel/src/pages/Users.jsx",
-      "source_location": "L29",
+      "source_location": "L30",
       "weight": 1.0
     },
     {
@@ -39044,7 +39044,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "admin-panel/src/pages/Users.jsx",
-      "source_location": "L30",
+      "source_location": "L31",
       "weight": 1.0
     },
     {
@@ -39056,7 +39056,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "admin-panel/src/pages/Users.jsx",
-      "source_location": "L31",
+      "source_location": "L32",
       "weight": 1.0
     },
     {
@@ -43762,7 +43762,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "admin-panel/src/components/UserDetailsModal.jsx",
-      "source_location": "L51",
+      "source_location": "L52",
       "weight": 1.0
     },
     {
@@ -43773,7 +43773,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "admin-panel/src/components/UserDetailsModal.jsx",
-      "source_location": "L64",
+      "source_location": "L65",
       "weight": 1.0
     },
     {
@@ -44378,7 +44378,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "admin-panel/src/pages/Users.jsx",
-      "source_location": "L33",
+      "source_location": "L34",
       "weight": 1.0
     },
     {
@@ -45808,7 +45808,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1032",
+      "source_location": "L1046",
       "weight": 1.0
     },
     {
@@ -45819,7 +45819,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1042",
+      "source_location": "L1056",
       "weight": 1.0
     },
     {
@@ -45830,7 +45830,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1119",
+      "source_location": "L1133",
       "weight": 1.0
     },
     {
@@ -45841,7 +45841,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1173",
+      "source_location": "L1187",
       "weight": 1.0
     },
     {
@@ -45852,7 +45852,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1311",
+      "source_location": "L1325",
       "weight": 1.0
     },
     {
@@ -45863,7 +45863,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1382",
+      "source_location": "L1396",
       "weight": 1.0
     },
     {
@@ -45874,7 +45874,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1394",
+      "source_location": "L1408",
       "weight": 1.0
     },
     {
@@ -45885,7 +45885,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1451",
+      "source_location": "L1465",
       "weight": 1.0
     },
     {
@@ -45896,7 +45896,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1505",
+      "source_location": "L1519",
       "weight": 1.0
     },
     {
@@ -45907,7 +45907,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1571",
+      "source_location": "L1585",
       "weight": 1.0
     },
     {
@@ -45918,7 +45918,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1605",
+      "source_location": "L1619",
       "weight": 1.0
     },
     {
@@ -45929,7 +45929,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1775",
+      "source_location": "L1789",
       "weight": 1.0
     },
     {
@@ -45940,7 +45940,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1840",
+      "source_location": "L1854",
       "weight": 1.0
     },
     {
@@ -45956,17 +45956,6 @@
     },
     {
       "source": "backend_src_controllers_admincontroller",
-      "target": "backend_src_controllers_admincontroller_removeuserfromagency",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1889",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_src_controllers_admincontroller",
       "target": "backend_src_controllers_admincontroller_getdashboardstats",
       "relation": "contains",
       "_origin": "ast",
@@ -45978,13 +45967,24 @@
     },
     {
       "source": "backend_src_controllers_admincontroller",
+      "target": "backend_src_controllers_admincontroller_removeuserfromagency",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/src/controllers/adminController.js",
+      "source_location": "L1903",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_src_controllers_admincontroller",
       "target": "backend_src_controllers_admincontroller_getmoderators",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1914",
+      "source_location": "L1928",
       "weight": 1.0
     },
     {
@@ -45995,7 +45995,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1956",
+      "source_location": "L1970",
       "weight": 1.0
     },
     {
@@ -46006,7 +46006,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L2052",
+      "source_location": "L2066",
       "weight": 1.0
     },
     {
@@ -46017,7 +46017,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L2093",
+      "source_location": "L2107",
       "weight": 1.0
     },
     {
@@ -46028,7 +46028,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L2133",
+      "source_location": "L2147",
       "weight": 1.0
     },
     {
@@ -46039,7 +46039,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L2271",
+      "source_location": "L2285",
       "weight": 1.0
     },
     {
@@ -46050,7 +46050,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L2321",
+      "source_location": "L2335",
       "weight": 1.0
     },
     {
@@ -46061,7 +46061,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L2513",
+      "source_location": "L2527",
       "weight": 1.0
     },
     {
@@ -46072,7 +46072,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L2621",
+      "source_location": "L2635",
       "weight": 1.0
     },
     {
@@ -46083,7 +46083,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L2664",
+      "source_location": "L2678",
       "weight": 1.0
     },
     {
@@ -46094,7 +46094,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L2705",
+      "source_location": "L2719",
       "weight": 1.0
     },
     {
@@ -46105,7 +46105,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L287",
+      "source_location": "L293",
       "weight": 1.0
     },
     {
@@ -46116,7 +46116,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L3030",
+      "source_location": "L3044",
       "weight": 1.0
     },
     {
@@ -46127,7 +46127,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L3150",
+      "source_location": "L3164",
       "weight": 1.0
     },
     {
@@ -46138,7 +46138,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L3200",
+      "source_location": "L3214",
       "weight": 1.0
     },
     {
@@ -46149,7 +46149,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L325",
+      "source_location": "L331",
       "weight": 1.0
     },
     {
@@ -46160,7 +46160,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L3329",
+      "source_location": "L3343",
       "weight": 1.0
     },
     {
@@ -46171,7 +46171,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L3383",
+      "source_location": "L3397",
       "weight": 1.0
     },
     {
@@ -46182,7 +46182,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L3514",
+      "source_location": "L3528",
       "weight": 1.0
     },
     {
@@ -46193,7 +46193,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L3589",
+      "source_location": "L3603",
       "weight": 1.0
     },
     {
@@ -46204,7 +46204,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L3692",
+      "source_location": "L3706",
       "weight": 1.0
     },
     {
@@ -46215,7 +46215,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L3799",
+      "source_location": "L3813",
       "weight": 1.0
     },
     {
@@ -46226,7 +46226,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L3869",
+      "source_location": "L3883",
       "weight": 1.0
     },
     {
@@ -46237,18 +46237,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L3895",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_src_controllers_admincontroller",
-      "target": "backend_src_controllers_admincontroller_adjustbalance",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L397",
+      "source_location": "L3909",
       "weight": 1.0
     },
     {
@@ -46259,7 +46248,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L4008",
+      "source_location": "L4022",
       "weight": 1.0
     },
     {
@@ -46270,7 +46259,18 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L4086",
+      "source_location": "L4100",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_src_controllers_admincontroller",
+      "target": "backend_src_controllers_admincontroller_adjustbalance",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/src/controllers/adminController.js",
+      "source_location": "L411",
       "weight": 1.0
     },
     {
@@ -46281,7 +46281,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L4115",
+      "source_location": "L4129",
       "weight": 1.0
     },
     {
@@ -46292,7 +46292,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L4150",
+      "source_location": "L4164",
       "weight": 1.0
     },
     {
@@ -46303,7 +46303,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L4181",
+      "source_location": "L4195",
       "weight": 1.0
     },
     {
@@ -46314,7 +46314,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L4228",
+      "source_location": "L4242",
       "weight": 1.0
     },
     {
@@ -46325,7 +46325,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L4276",
+      "source_location": "L4290",
       "weight": 1.0
     },
     {
@@ -46336,7 +46336,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L4308",
+      "source_location": "L4322",
       "weight": 1.0
     },
     {
@@ -46347,7 +46347,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L4341",
+      "source_location": "L4355",
       "weight": 1.0
     },
     {
@@ -46358,7 +46358,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L4361",
+      "source_location": "L4375",
       "weight": 1.0
     },
     {
@@ -46369,7 +46369,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L4400",
+      "source_location": "L4414",
       "weight": 1.0
     },
     {
@@ -46380,7 +46380,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L4488",
+      "source_location": "L4502",
       "weight": 1.0
     },
     {
@@ -46391,7 +46391,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L4662",
+      "source_location": "L4676",
       "weight": 1.0
     },
     {
@@ -46402,18 +46402,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L4704",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_src_controllers_admincontroller",
-      "target": "backend_src_controllers_admincontroller_rechargecoins",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L475",
+      "source_location": "L4718",
       "weight": 1.0
     },
     {
@@ -46424,7 +46413,18 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L4774",
+      "source_location": "L4788",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_src_controllers_admincontroller",
+      "target": "backend_src_controllers_admincontroller_rechargecoins",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/src/controllers/adminController.js",
+      "source_location": "L489",
       "weight": 1.0
     },
     {
@@ -46435,7 +46435,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L4970",
+      "source_location": "L4984",
       "weight": 1.0
     },
     {
@@ -46446,7 +46446,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5050",
+      "source_location": "L5064",
       "weight": 1.0
     },
     {
@@ -46457,7 +46457,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5102",
+      "source_location": "L5116",
       "weight": 1.0
     },
     {
@@ -46468,7 +46468,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5241",
+      "source_location": "L5255",
       "weight": 1.0
     },
     {
@@ -46479,7 +46479,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5265",
+      "source_location": "L5279",
       "weight": 1.0
     },
     {
@@ -46490,7 +46490,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5297",
+      "source_location": "L5311",
       "weight": 1.0
     },
     {
@@ -46501,7 +46501,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5311",
+      "source_location": "L5325",
       "weight": 1.0
     },
     {
@@ -46512,7 +46512,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5329",
+      "source_location": "L5343",
       "weight": 1.0
     },
     {
@@ -46523,7 +46523,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5351",
+      "source_location": "L5365",
       "weight": 1.0
     },
     {
@@ -46534,7 +46534,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5365",
+      "source_location": "L5379",
       "weight": 1.0
     },
     {
@@ -46545,7 +46545,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5432",
+      "source_location": "L5446",
       "weight": 1.0
     },
     {
@@ -46556,7 +46556,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5456",
+      "source_location": "L5470",
       "weight": 1.0
     },
     {
@@ -46567,18 +46567,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5478",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_src_controllers_admincontroller",
-      "target": "backend_src_controllers_admincontroller_getrechargehistory",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L548",
+      "source_location": "L5492",
       "weight": 1.0
     },
     {
@@ -46589,7 +46578,18 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5552",
+      "source_location": "L5566",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_src_controllers_admincontroller",
+      "target": "backend_src_controllers_admincontroller_getrechargehistory",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/src/controllers/adminController.js",
+      "source_location": "L562",
       "weight": 1.0
     },
     {
@@ -46600,7 +46600,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5626",
+      "source_location": "L5640",
       "weight": 1.0
     },
     {
@@ -46611,7 +46611,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5649",
+      "source_location": "L5663",
       "weight": 1.0
     },
     {
@@ -46622,7 +46622,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5689",
+      "source_location": "L5703",
       "weight": 1.0
     },
     {
@@ -46633,7 +46633,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5739",
+      "source_location": "L5753",
       "weight": 1.0
     },
     {
@@ -46644,7 +46644,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5781",
+      "source_location": "L5795",
       "weight": 1.0
     },
     {
@@ -46655,7 +46655,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5822",
+      "source_location": "L5836",
       "weight": 1.0
     },
     {
@@ -46666,7 +46666,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5868",
+      "source_location": "L5882",
       "weight": 1.0
     },
     {
@@ -46677,7 +46677,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5909",
+      "source_location": "L5923",
       "weight": 1.0
     },
     {
@@ -46688,7 +46688,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5959",
+      "source_location": "L5973",
       "weight": 1.0
     },
     {
@@ -46699,7 +46699,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L5991",
+      "source_location": "L6005",
       "weight": 1.0
     },
     {
@@ -46710,7 +46710,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L6018",
+      "source_location": "L6032",
       "weight": 1.0
     },
     {
@@ -46721,7 +46721,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L6109",
+      "source_location": "L6123",
       "weight": 1.0
     },
     {
@@ -46732,7 +46732,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L6148",
+      "source_location": "L6162",
       "weight": 1.0
     },
     {
@@ -46743,7 +46743,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L6193",
+      "source_location": "L6207",
       "weight": 1.0
     },
     {
@@ -46754,7 +46754,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L6299",
+      "source_location": "L6313",
       "weight": 1.0
     },
     {
@@ -46765,7 +46765,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L6388",
+      "source_location": "L6402",
       "weight": 1.0
     },
     {
@@ -46776,7 +46776,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L6457",
+      "source_location": "L6471",
       "weight": 1.0
     },
     {
@@ -46787,18 +46787,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L6481",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_src_controllers_admincontroller",
-      "target": "backend_src_controllers_admincontroller_getstreams",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L649",
+      "source_location": "L6495",
       "weight": 1.0
     },
     {
@@ -46809,7 +46798,18 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L6560",
+      "source_location": "L6574",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_src_controllers_admincontroller",
+      "target": "backend_src_controllers_admincontroller_getstreams",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/src/controllers/adminController.js",
+      "source_location": "L663",
       "weight": 1.0
     },
     {
@@ -46820,7 +46820,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L6704",
+      "source_location": "L6718",
       "weight": 1.0
     },
     {
@@ -46831,18 +46831,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L6834",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_src_controllers_admincontroller",
-      "target": "backend_src_controllers_admincontroller_terminatestream",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L687",
+      "source_location": "L6848",
       "weight": 1.0
     },
     {
@@ -46853,7 +46842,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L6908",
+      "source_location": "L6922",
       "weight": 1.0
     },
     {
@@ -46864,7 +46853,18 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L6987",
+      "source_location": "L7001",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_src_controllers_admincontroller",
+      "target": "backend_src_controllers_admincontroller_terminatestream",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/src/controllers/adminController.js",
+      "source_location": "L701",
       "weight": 1.0
     },
     {
@@ -46875,7 +46875,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L714",
+      "source_location": "L728",
       "weight": 1.0
     },
     {
@@ -46886,7 +46886,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L742",
+      "source_location": "L756",
       "weight": 1.0
     },
     {
@@ -46897,7 +46897,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L809",
+      "source_location": "L823",
       "weight": 1.0
     },
     {
@@ -46908,7 +46908,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L859",
+      "source_location": "L873",
       "weight": 1.0
     },
     {
@@ -46919,7 +46919,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L882",
+      "source_location": "L896",
       "weight": 1.0
     },
     {
@@ -46930,7 +46930,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L984",
+      "source_location": "L998",
       "weight": 1.0
     },
     {
@@ -48107,7 +48107,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/mobile/giftController.js",
-      "source_location": "L764",
+      "source_location": "L778",
       "weight": 1.0
     },
     {
@@ -48118,7 +48118,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/mobile/giftController.js",
-      "source_location": "L860",
+      "source_location": "L874",
       "weight": 1.0
     },
     {
@@ -49119,7 +49119,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/mobile/resellerController.js",
-      "source_location": "L469",
+      "source_location": "L479",
       "weight": 1.0
     },
     {
@@ -49130,7 +49130,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/mobile/resellerController.js",
-      "source_location": "L599",
+      "source_location": "L609",
       "weight": 1.0
     },
     {
@@ -49141,7 +49141,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/mobile/resellerController.js",
-      "source_location": "L656",
+      "source_location": "L666",
       "weight": 1.0
     },
     {
@@ -54212,14 +54212,14 @@
       "weight": 1.0
     },
     {
-      "source": "backend_src_controllers_admincontroller_rationale_1656",
+      "source": "backend_src_controllers_admincontroller_rationale_1670",
       "target": "backend_src_controllers_admincontroller",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/src/controllers/adminController.js",
-      "source_location": "L1656",
+      "source_location": "L1670",
       "weight": 1.0
     },
     {
@@ -59826,5 +59826,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "02edba2a2f6856ccc37a3f365644845b85fbea40"
+  "built_at_commit": "2bb6fe4c6f289bb95fd4378d9acc559b69b295f1"
 }
