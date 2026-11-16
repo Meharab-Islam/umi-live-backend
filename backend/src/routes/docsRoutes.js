@@ -3559,6 +3559,15 @@ export const API_SPEC = {
       },
       "responses": [
         {
+          "status": 403,
+          "description": "Sender's coins are locked by admin (is_coin_locked = 1). Locked users can still RECEIVE gifts and coins, but cannot send any.",
+          "example": {
+            "success": false,
+            "code": "COIN_LOCKED",
+            "message": "Your coins are locked by admin. You cannot send coins or gifts right now."
+          }
+        },
+        {
           "status": 200,
           "description": "Gift sent successfully and balances synchronized.",
           "example": {
@@ -7317,6 +7326,15 @@ export const API_SPEC = {
       },
       "responses": [
         {
+          "status": 403,
+          "description": "Reseller's coins are locked by admin (is_coin_locked = 1): transfers are blocked. A locked customer can still receive coins.",
+          "example": {
+            "success": false,
+            "code": "COIN_LOCKED",
+            "message": "Your coins are locked by admin. You cannot transfer coins right now."
+          }
+        },
+        {
           "status": 201,
           "description": "Coin recharge completed successfully.",
           "example": {
@@ -10889,6 +10907,70 @@ export const API_SPEC = {
       "codeSnippets": {
         "curl": "curl -X GET \"https://yourdomain.com/api/admin/reports?status=pending\" \\\n  -H \"Authorization: Bearer <TOKEN>\"",
         "flutter": "import 'package:http/http.dart' as http;\nimport 'dart:convert';\n\nFuture<Map<String, dynamic>> fetchAdminReports(String token, {String status = 'all'}) async {\n  final res = await http.get(\n    Uri.parse('https://yourdomain.com/api/admin/reports?status=$status'),\n    headers: {'Authorization': 'Bearer $token'},\n  );\n  return jsonDecode(res.body);\n}"
+      }
+    },
+    {
+      "id": "admin-user-coin-lock",
+      "category": "user-profile",
+      "method": "PATCH",
+      "path": "/api/admin/users/:id",
+      "summary": "[Admin] Lock / Unlock User Coin Sending (is_coin_locked)",
+      "description": "Sets the admin coin lock on a user. A coin-locked user can still RECEIVE coins and gifts from anyone, but cannot SEND coins to anyone: POST /api/mobile/gifts/send and POST /api/mobile/reseller/recharge (/transfer) return 403 with code 'COIN_LOCKED'. Purchases of the user's own items are not affected. DB is updated first, then Redis user/admin caches are invalidated and 'user_profile_updated' is emitted to the user's socket channel. The same endpoint also accepts the other profile fields (role, is_banned, full_name, ...).",
+      "requiresAuth": true,
+      "requestHeaders": [
+        {
+          "name": "Authorization",
+          "value": "Bearer <ADMIN_TOKEN>",
+          "required": true
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json",
+          "required": true
+        }
+      ],
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "type": "integer",
+          "required": true,
+          "description": "Target user ID."
+        }
+      ],
+      "requestBody": {
+        "type": "application/json",
+        "fields": [
+          {
+            "name": "is_coin_locked",
+            "type": "boolean",
+            "required": true,
+            "description": "true = lock coin sending, false = unlock."
+          }
+        ],
+        "example": {
+          "is_coin_locked": true
+        }
+      },
+      "responses": [
+        {
+          "status": 200,
+          "description": "Coin lock updated.",
+          "example": {
+            "success": true,
+            "message": "User updated successfully.",
+            "user": {
+              "id": 12,
+              "full_name": "Sabbir Hossain",
+              "is_banned": 0,
+              "is_coin_locked": 1,
+              "coins": 5400
+            }
+          }
+        }
+      ],
+      "codeSnippets": {
+        "curl": "curl -X PATCH \"https://yourdomain.com/api/admin/users/12\" \\\n  -H \"Authorization: Bearer <ADMIN_TOKEN>\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"is_coin_locked\": true}'"
       }
     },
     {

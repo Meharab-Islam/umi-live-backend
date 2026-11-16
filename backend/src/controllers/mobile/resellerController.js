@@ -320,7 +320,7 @@ export async function rechargeUser(req, res) {
 
     // 1. Verify reseller exists & has sufficient balance (FOR UPDATE to prevent race conditions)
     const [resellerRows] = await connection.execute(
-      'SELECT id, full_name, email, role, coins, is_banned FROM users WHERE id = ? FOR UPDATE',
+      'SELECT id, full_name, email, role, coins, is_banned, is_coin_locked FROM users WHERE id = ? FOR UPDATE',
       [resellerId]
     );
 
@@ -331,6 +331,16 @@ export async function rechargeUser(req, res) {
     const reseller = resellerRows[0];
     if (reseller.is_banned) {
       return res.status(403).json({ success: false, message: 'Your reseller account has been suspended.' });
+    }
+
+    // Admin coin lock: a locked account cannot send coins to anyone.
+    // (A locked *customer* can still receive coins — only the sender is checked.)
+    if (Number(reseller.is_coin_locked) === 1) {
+      return res.status(403).json({
+        success: false,
+        code: 'COIN_LOCKED',
+        message: 'Your coins are locked by admin. You cannot transfer coins right now.',
+      });
     }
 
     if (reseller.coins < coinsToTransfer) {

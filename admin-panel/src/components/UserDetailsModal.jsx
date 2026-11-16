@@ -35,6 +35,7 @@ import {
   Upload,
   Camera,
   Lock,
+  Unlock,
   Eye,
   EyeOff,
   ArrowLeft,
@@ -296,6 +297,26 @@ export default function UserDetailsModal({
     }
   };
 
+  // Toggle Coin Lock (locked user can receive coins but cannot send any)
+  const handleToggleCoinLock = async () => {
+    const willLock = !Number(user.is_coin_locked);
+    if (!window.confirm(
+      willLock
+        ? `Lock coins for User #${user.id}? They will still receive coins, but cannot send coins or gifts to anyone.`
+        : `Unlock coins for User #${user.id}? They will be able to send coins and gifts again.`
+    )) return;
+    try {
+      const res = await userApi.updateUser(user.id, { is_coin_locked: willLock });
+      if (res.success) {
+        onToast(`User #${user.id} coins are now ${willLock ? 'LOCKED' : 'UNLOCKED'}!`, willLock ? 'warning' : 'success');
+        fetchUserDetails();
+        if (onUserUpdated) onUserUpdated();
+      }
+    } catch (err) {
+      onToast(err.message, 'error');
+    }
+  };
+
   // Update Host Type (Audio Host <-> Video Host)
   const handleUpdateHostType = async (newType) => {
     if (!newType || newType === user.host_type) return;
@@ -442,6 +463,10 @@ export default function UserDetailsModal({
             ) : (
               <span className="badge badge-success">Active</span>
             )}
+
+            {Number(user?.is_coin_locked) === 1 && (
+              <span className="badge badge-warning" title="Can receive coins but cannot send">🔒 Coin Locked</span>
+            )}
           </div>
 
           <button
@@ -546,6 +571,16 @@ export default function UserDetailsModal({
                 >
                   <Edit size={14} />
                   <span>{isEditingProfile ? 'Close Edit' : 'Edit Profile'}</span>
+                </button>
+
+                <button
+                  className={`btn ${Number(user.is_coin_locked) === 1 ? 'btn-success' : 'btn-secondary'} btn-sm`}
+                  onClick={handleToggleCoinLock}
+                  style={{ alignSelf: 'center', gap: '6px' }}
+                  title="Locked users can receive coins but cannot send coins or gifts"
+                >
+                  {Number(user.is_coin_locked) === 1 ? <Unlock size={15} /> : <Lock size={15} />}
+                  <span>{Number(user.is_coin_locked) === 1 ? 'Unlock Coins' : 'Lock Coins'}</span>
                 </button>
 
                 <button

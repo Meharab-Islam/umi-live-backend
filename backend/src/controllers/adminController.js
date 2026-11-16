@@ -187,8 +187,8 @@ export async function getDashboardStats(req, res) {
 
 export async function getUsers(req, res) {
   try {
-    const { search, userId, role, is_banned, page = 1, limit = 20 } = req.query;
-    const cacheKey = `admin:users:${search || ''}:${userId || ''}:${role || ''}:${is_banned || ''}:${page}:${limit}`;
+    const { search, userId, role, is_banned, is_coin_locked, page = 1, limit = 20 } = req.query;
+    const cacheKey = `admin:users:${search || ''}:${userId || ''}:${role || ''}:${is_banned || ''}:${is_coin_locked || ''}:${page}:${limit}`;
 
     const data = await cache.getOrSet(cacheKey, 30, async () => {
       const offset = (parseInt(page, 10) - 1) * parseInt(limit, 10);
@@ -227,13 +227,18 @@ export async function getUsers(req, res) {
         params.push(is_banned === 'true' || is_banned === '1' ? 1 : 0);
       }
 
+      if (is_coin_locked !== undefined && is_coin_locked !== 'all' && is_coin_locked !== '') {
+        conditions.push('u.is_coin_locked = ?');
+        params.push(is_coin_locked === 'true' || is_coin_locked === '1' ? 1 : 0);
+      }
+
       const whereSql = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
 
       const users = await query(
         `SELECT u.id, u.email, u.full_name, u.avatar_url, u.bio, u.role, u.host_type, u.agency_id,
                 a.name as agency_name, a.agency_code,
                 u.coins, u.diamonds, u.level, u.star, u.total_coins_spent, u.vip_package, u.is_banned,
-                u.previous_ids, u.created_at, u.updated_at
+                u.is_coin_locked, u.previous_ids, u.created_at, u.updated_at
          FROM users u
          LEFT JOIN agencies a ON u.agency_id = a.id
          ${whereSql}
@@ -253,7 +258,8 @@ export async function getUsers(req, res) {
           SUM(CASE WHEN role = 'reseller' THEN 1 ELSE 0 END) as total_resellers,
           SUM(CASE WHEN role = 'user' THEN 1 ELSE 0 END) as total_regular,
           SUM(CASE WHEN role = 'admin' THEN 1 ELSE 0 END) as total_admins,
-          SUM(CASE WHEN is_banned = TRUE THEN 1 ELSE 0 END) as total_banned
+          SUM(CASE WHEN is_banned = TRUE THEN 1 ELSE 0 END) as total_banned,
+          SUM(CASE WHEN is_coin_locked = 1 THEN 1 ELSE 0 END) as total_coin_locked
         FROM users
         WHERE role != 'superadmin'
       `);
@@ -325,7 +331,7 @@ export async function invalidateUserCacheAndNotify(io, userId, extraData = {}) {
 export async function updateUser(req, res) {
   try {
     const { id } = req.params;
-    const { role, is_banned, full_name, bio, agency_id, host_type, level, vip_package, avatar_url } = req.body;
+    const { role, is_banned, is_coin_locked, full_name, bio, agency_id, host_type, level, vip_package, avatar_url } = req.body;
 
     const updates = [];
     const params = [];
@@ -341,6 +347,13 @@ export async function updateUser(req, res) {
     if (is_banned !== undefined) {
       updates.push('is_banned = ?');
       params.push(Boolean(is_banned));
+    }
+    const coinLockValue = is_coin_locked === undefined
+      ? undefined
+      : (is_coin_locked === true || is_coin_locked === 1 || is_coin_locked === '1' || is_coin_locked === 'true' ? 1 : 0);
+    if (coinLockValue !== undefined) {
+      updates.push('is_coin_locked = ?');
+      params.push(coinLockValue);
     }
     if (full_name !== undefined) {
       updates.push('full_name = ?');
@@ -381,9 +394,10 @@ export async function updateUser(req, res) {
       host_type,
       agency_id,
       is_banned: Boolean(is_banned),
+      ...(coinLockValue !== undefined ? { is_coin_locked: Boolean(coinLockValue) } : {}),
     });
 
-    const updated = await query('SELECT id, full_name, email, avatar_url, bio, role, host_type, agency_id, is_banned, coins, diamonds, level, vip_package FROM users WHERE id = ?', [id]);
+    const updated = await query('SELECT id, full_name, email, avatar_url, bio, role, host_type, agency_id, is_banned, is_coin_locked, coins, diamonds, level, vip_package FROM users WHERE id = ?', [id]);
     return res.json({
       success: true,
       message: 'User updated successfully.',
@@ -2142,7 +2156,7 @@ export async function getUserDetails(req, res) {
       const [user] = await query(
         `SELECT u.id, u.email, u.full_name, u.avatar_url, u.bio, u.role, u.host_type,
                 u.agency_id, a.name as agency_name, a.agency_code,
-                u.coins, u.diamonds, u.level, u.vip_package, u.is_banned,
+                u.coins, u.diamonds, u.level, u.vip_package, u.is_banned, u.is_coin_locked,
                 u.previous_ids, u.created_at, u.updated_at
          FROM users u
          LEFT JOIN agencies a ON u.agency_id = a.id

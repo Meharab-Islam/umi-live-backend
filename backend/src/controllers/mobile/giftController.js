@@ -111,6 +111,19 @@ export async function sendGift(req, res) {
       return res.status(400).json({ success: false, message: 'giftId is required.' });
     }
 
+    // Admin coin lock: a locked user may still RECEIVE gifts, but cannot send any.
+    const [senderLockRows] = await connection.execute(
+      'SELECT is_coin_locked FROM users WHERE id = ? LIMIT 1',
+      [senderId]
+    );
+    if (senderLockRows.length > 0 && Number(senderLockRows[0].is_coin_locked) === 1) {
+      return res.status(403).json({
+        success: false,
+        code: 'COIN_LOCKED',
+        message: 'Your coins are locked by admin. You cannot send coins or gifts right now.',
+      });
+    }
+
     const giftCount = Math.max(1, parseInt(count || quantity, 10) || 1);
     const targetRoomId = roomId || room_id || null;
 
@@ -392,7 +405,8 @@ export async function sendGift(req, res) {
 
     // Deduct total coins from sender wallet with atomic balance guard (anti-race condition / anti-double spending)
     const [deductResult] = await connection.execute(
-      'UPDATE users SET coins = coins - ? WHERE id = ? AND coins >= ?',
+      // is_coin_locked = 0 guard: a lock applied mid-request still blocks the send.
+      'UPDATE users SET coins = coins - ? WHERE id = ? AND coins >= ? AND is_coin_locked = 0',
       [totalCoinCostAll, senderId, totalCoinCostAll]
     );
 

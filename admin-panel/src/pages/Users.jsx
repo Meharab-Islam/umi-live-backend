@@ -19,6 +19,7 @@ import {
   Eye,
   EyeOff,
   Lock,
+  Unlock,
   MoreVertical,
   Trash2,
 } from 'lucide-react';
@@ -166,6 +167,25 @@ export default function Users({ onToast }) {
       const res = await userApi.updateUser(user.id, { is_banned: newStatus });
       if (res.success) {
         onToast(`User ID #${user.id} is now ${newStatus ? 'BANNED' : 'ACTIVE'}.`, 'success');
+        fetchUsers();
+      }
+    } catch (err) {
+      onToast(err.message, 'error');
+    }
+  };
+
+  // Coin lock: locked users can still receive coins/gifts but cannot send any.
+  const handleToggleCoinLock = async (user) => {
+    const willLock = !Number(user.is_coin_locked);
+    if (!window.confirm(
+      willLock
+        ? `Lock coins for User #${user.id}? They will still receive coins, but cannot send coins or gifts to anyone.`
+        : `Unlock coins for User #${user.id}? They will be able to send coins and gifts again.`
+    )) return;
+    try {
+      const res = await userApi.updateUser(user.id, { is_coin_locked: willLock });
+      if (res.success) {
+        onToast(`User ID #${user.id} coins are now ${willLock ? 'LOCKED' : 'UNLOCKED'}.`, willLock ? 'warning' : 'success');
         fetchUsers();
       }
     } catch (err) {
@@ -639,11 +659,16 @@ export default function Users({ onToast }) {
 
                       {/* Status */}
                       <td>
-                        {u.is_banned ? (
-                          <span className="badge badge-danger">Banned</span>
-                        ) : (
-                          <span className="badge badge-success">Active</span>
-                        )}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-start' }}>
+                          {u.is_banned ? (
+                            <span className="badge badge-danger">Banned</span>
+                          ) : (
+                            <span className="badge badge-success">Active</span>
+                          )}
+                          {Number(u.is_coin_locked) === 1 && (
+                            <span className="badge badge-warning" title="Can receive coins but cannot send">🔒 Coin Locked</span>
+                          )}
+                        </div>
                       </td>
 
                       {/* Actions with 3-Dot Dropdown */}
@@ -702,6 +727,19 @@ export default function Users({ onToast }) {
                               >
                                 <Coins size={15} color="#f59e0b" />
                                 <span>Deduct Balance</span>
+                              </button>
+
+                              {/* 3. Lock / Unlock Coin Sending */}
+                              <button
+                                className="dropdown-item-btn"
+                                onClick={() => {
+                                  setOpenDropdownId(null);
+                                  handleToggleCoinLock(u);
+                                }}
+                                style={{ color: Number(u.is_coin_locked) === 1 ? '#10b981' : '#f59e0b' }}
+                              >
+                                {Number(u.is_coin_locked) === 1 ? <Unlock size={15} color="#10b981" /> : <Lock size={15} color="#f59e0b" />}
+                                <span>{Number(u.is_coin_locked) === 1 ? 'Unlock Coins' : 'Lock Coins'}</span>
                               </button>
 
                               {/* 4. Ban / Unban Account */}
