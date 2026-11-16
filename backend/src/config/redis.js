@@ -532,4 +532,46 @@ export const cache = {
   },
 };
 
+/**
+ * Raw shared ioredis client (null if Redis could not be initialised).
+ * Commands fail fast when disconnected (enableOfflineQueue: false) - callers must handle errors.
+ */
+export function getRedisClient() {
+  return redisClient;
+}
+
+export function isRedisReady() {
+  return isRedisConnected;
+}
+
+/**
+ * Dedicated connection (e.g. Socket.IO adapter pub/sub, which needs its own connections).
+ * Unlike the cache client this keeps an offline queue so a brief Redis blip does not drop cluster messages.
+ */
+export function createRedisConnection(name = 'aux') {
+  const opts = {
+    host: REDIS_HOST,
+    port: REDIS_PORT,
+    db: REDIS_DB,
+    connectTimeout: REDIS_CONNECT_TIMEOUT,
+    maxRetriesPerRequest: null,
+    enableReadyCheck: true,
+    keepAlive: 10000,
+    retryStrategy(times) {
+      return Math.min(times * 200 + Math.random() * 200, 5000);
+    },
+  };
+  if (REDIS_PASSWORD && REDIS_PASSWORD.trim() !== '') opts.password = REDIS_PASSWORD.trim();
+  const client = new Redis(opts);
+  let lastWarn = 0;
+  client.on('error', (err) => {
+    const now = Date.now();
+    if (now - lastWarn > 60000) {
+      lastWarn = now;
+      console.warn(`⚠️ [Redis:${name}] ${err.message}`);
+    }
+  });
+  return client;
+}
+
 export default cache;

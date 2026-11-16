@@ -59,7 +59,16 @@ export async function testConnection() {
   }
 }
 
+export async function closePool() {
+  if (pool) {
+    const p = pool;
+    pool = undefined;
+    await p.end();
+  }
+}
+
 export default {
+  closePool,
   getPool,
   query,
   testConnection,

@@ -1,3 +1,4 @@
+import '../config/env.js';
 import { query } from '../config/db.js';
 
 /**
@@ -190,6 +191,59 @@ export function allowChatMessage(socket) {
   if (b.tokens < 1) return false;
   b.tokens -= 1;
   return true;
+}
+
+// ── Per-socket packet limiter (socket.use middleware) ────────────────────────
+// perSec/burst per event name. Anything not listed shares the DEFAULT bucket.
+const EVENT_LIMITS = {
+  'join-room': { perSec: 1, burst: 4 },
+  'join_room': { perSec: 1, burst: 4 },
+  'leave-room': { perSec: 2, burst: 6 },
+  'leave_room': { perSec: 2, burst: 6 },
+  'send-reaction': { perSec: 8, burst: 16 },
+  'new-reaction': { perSec: 8, burst: 16 },
+  'reaction': { perSec: 8, burst: 16 },
+  'like': { perSec: 8, burst: 16 },
+  'music-action': { perSec: 3, burst: 8 },
+  'music_action': { perSec: 3, burst: 8 },
+  'youtube-music-action': { perSec: 3, burst: 8 },
+  'seat_media_updated': { perSec: 5, burst: 10 },
+  'seat-media-updated': { perSec: 5, burst: 10 },
+  'seat_media_update': { perSec: 5, burst: 10 },
+  'seats_rearranged': { perSec: 2, burst: 4 },
+  'seats-rearranged': { perSec: 2, burst: 4 },
+  'update-room-settings': { perSec: 2, burst: 4 },
+  'chat:typing': { perSec: 4, burst: 8 },
+  'chat:send_message': { perSec: 3, burst: 8 },
+};
+const DEFAULT_EVENT_LIMIT = {
+  perSec: int(process.env.LIVE_SOCKET_DEFAULT_EVENTS_PER_SEC, 40),
+  burst: int(process.env.LIVE_SOCKET_DEFAULT_EVENT_BURST, 80),
+};
+
+export function socketPacketLimiter(socket, metrics) {
+  const buckets = new Map();
+  return function packetGuard(packet, next) {
+    const event = packet && packet[0];
+    if (typeof event !== 'string') return next();
+    const lim = EVENT_LIMITS[event] || DEFAULT_EVENT_LIMIT;
+    const key = EVENT_LIMITS[event] ? event : '*';
+    const now = Date.now();
+    let b = buckets.get(key);
+    if (!b) {
+      b = { tokens: lim.burst, ts: now };
+      buckets.set(key, b);
+    }
+    b.tokens = Math.min(lim.burst, b.tokens + ((now - b.ts) / 1000) * lim.perSec);
+    b.ts = now;
+    if (b.tokens < 1) {
+      if (metrics) metrics.socketDropped.inc({ event: EVENT_LIMITS[event] ? event : 'other' });
+      return; // silently drop: no handler runs, no error flood back to a misbehaving client
+    }
+    b.tokens -= 1;
+    if (metrics) metrics.socketEventsIn.inc({ event: EVENT_LIMITS[event] ? event : 'other' });
+    return next();
+  };
 }
 
 // ── Housekeeping so per-room maps don't grow forever ─────────────────────────

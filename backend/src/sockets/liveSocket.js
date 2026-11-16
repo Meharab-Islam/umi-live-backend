@@ -16,7 +16,19 @@ import {
   syncRoomViewerCount,
   emitRoomViewerCount,
   allowChatMessage,
+  socketPacketLimiter,
 } from '../services/liveScaleGuard.js';
+import { metrics } from '../services/metrics.js';
+import {
+  runIfLeader,
+  setOnce,
+  clearOnce,
+  markHostGrace,
+  clearHostGrace,
+  hasHostGrace,
+  isUserOnline,
+  roomHasSockets,
+} from '../services/clusterGuard.js';
 
 // Equipped entry-effect lookup (3-table JOIN) cached per user; most users have none,
 // so we cache a "none" sentinel too. Invalidated by entryEffectController equip/unequip.
@@ -80,7 +92,6 @@ async function getChatProfile(userId) {
 
 // Store connected viewers: roomId -> Set of socket IDs (Module-level scope)
 const roomViewers = new Map();
-const roomUserJoinAnnounced = new Map();
 const roomLastViewerCount = new Map();
 
 // Track pending host disconnect grace period timers: canonicalRoomId -> { timer, hostId, numericRoomId, startedAt }
@@ -128,6 +139,8 @@ export async function getLiveGracePeriods() {
 export function cancelHostDisconnectGraceTimer(roomId) {
   if (!roomId) return;
   const key = String(roomId).trim();
+  // Cluster-visible marker is cleared even if the timer lives on another process.
+  clearHostGrace(key);
   const entry = hostDisconnectGraceTimers.get(key);
   if (entry) {
     if (entry.timer) clearTimeout(entry.timer);
@@ -164,14 +177,12 @@ export function clearRoomMemoryState(canonicalRoomId, numericRoomId) {
   if (canonicalRoomId) {
     cancelHostDisconnectGraceTimer(canonicalRoomId);
     roomViewers.delete(canonicalRoomId);
-    roomUserJoinAnnounced.delete(canonicalRoomId);
     roomLastViewerCount.delete(canonicalRoomId);
   }
   if (numericRoomId) {
     const numStr = String(numericRoomId);
     cancelHostDisconnectGraceTimer(numStr);
     roomViewers.delete(numStr);
-    roomUserJoinAnnounced.delete(numStr);
     roomLastViewerCount.delete(numStr);
   }
   for (const [k, sEntry] of seatGuestDisconnectGraceTimers.entries()) {
@@ -330,7 +341,12 @@ async function cleanupUserFromRoom(roomId, userId, io, userInfo = null, reason =
           return { isHost: true, waitingForReconnect: true };
         }
 
+        if ((await hasHostGrace(canonicalRoomId)) === true) {
+          return { isHost: true, waitingForReconnect: true };
+        }
+
         const graceSec = hostGraceSec;
+        markHostGrace(canonicalRoomId, graceSec);
         console.log(`⏳ [Host Network Disconnected] Host ${hostId} network lost in room ${canonicalRoomId}. Starting ${graceSec}s reconnection grace period...`);
 
         // Notify room audience that host is temporarily reconnecting
@@ -360,6 +376,17 @@ async function cleanupUserFromRoom(roomId, userId, io, userInfo = null, reason =
           try {
             hostDisconnectGraceTimers.delete(canonicalRoomId);
             if (numericRoomId) hostDisconnectGraceTimers.delete(String(numericRoomId));
+
+            // Multi-process safety: the host may have reconnected to a DIFFERENT process, whose
+            // cancel could not clear this timer. If the cluster marker is gone or the host has a
+            // live socket anywhere, do not terminate.
+            const markerGone = (await hasHostGrace(canonicalRoomId)) === false;
+            if (markerGone || (await isUserOnline(io, hostId))) {
+              console.log(`🟢 [Host Grace Expired] Host ${hostId} already back for room ${canonicalRoomId}; not terminating.`);
+              await clearHostGrace(canonicalRoomId);
+              return;
+            }
+            clearHostGrace(canonicalRoomId);
 
             console.log(`🔴 [Host Grace Period Expired] Host ${hostId} failed to reconnect to room ${canonicalRoomId} within ${graceSec}s. Terminating room now...`);
             await executeRoomTermination(canonicalRoomId, numericRoomId, hostId, io, 'host_disconnected_timeout');
@@ -572,7 +599,7 @@ async function executeGuestSeatAndRoomCleanup(canonicalRoomId, numericRoomId, ho
       emitRoomViewerCount(io, canonicalRoomId, numericRoomId, currentViewerCount);
     }
 
-    roomUserJoinAnnounced.delete(`${canonicalRoomId}_${userId}`);
+    clearOnce(`join_ann:${canonicalRoomId}_${userId}`);
     return { isHost: false, viewerCount: currentViewerCount };
   } catch (err) {
     console.error(`executeGuestSeatAndRoomCleanup error (${canonicalRoomId}, ${userId}):`, err.message);
@@ -597,42 +624,35 @@ export async function sweepOrphanedLiveRooms(io) {
 
     if (!activeRooms || activeRooms.length === 0) return;
 
-    // Collect all online user IDs from active Socket.IO connections
-    const onlineUserIds = new Set();
-    const sockets = io.sockets?.sockets?.values() || [];
-    for (const s of sockets) {
-      if (s.userId) onlineUserIds.add(Number(s.userId));
-      if (s.currentUser?.id) onlineUserIds.add(Number(s.currentUser.id));
-    }
+    // Presence is checked cluster-wide (io.in(...).fetchSockets() goes through the Redis adapter),
+    // in small concurrent batches so thousands of rooms do not flood Redis.
+    const BATCH = 25;
+    for (let i = 0; i < activeRooms.length; i += BATCH) {
+      await Promise.all(activeRooms.slice(i, i + BATCH).map(async (room) => {
+        const canonicalRoomId = room.room_id;
+        const numericRoomId = room.id;
+        const hostId = Number(room.host_id);
 
-    for (const room of activeRooms) {
-      const canonicalRoomId = room.room_id;
-      const numericRoomId = room.id;
-      const hostId = Number(room.host_id);
+        // A grace period is running (this process or any other) - it owns the decision.
+        if (
+          hostDisconnectGraceTimers.has(canonicalRoomId) ||
+          (numericRoomId && hostDisconnectGraceTimers.has(String(numericRoomId))) ||
+          (await hasHostGrace(canonicalRoomId)) === true
+        ) {
+          return;
+        }
 
-      // If a grace period timer is actively running, let the grace period manage it
-      if (
-        hostDisconnectGraceTimers.has(canonicalRoomId) ||
-        (numericRoomId && hostDisconnectGraceTimers.has(String(numericRoomId)))
-      ) {
-        continue;
-      }
+        // Host online on any process => room alive.
+        if (await isUserOnline(io, hostId)) return;
 
-      // If the room has active viewers or sockets connected in room channel, room is alive!
-      const roomSockets = io.sockets?.adapter?.rooms?.get(canonicalRoomId);
-      const numRoomSockets = numericRoomId ? io.sockets?.adapter?.rooms?.get(String(numericRoomId)) : null;
-      if ((roomSockets && roomSockets.size > 0) || (numRoomSockets && numRoomSockets.size > 0)) {
-        continue;
-      }
+        // Anyone connected in the room channel => room alive.
+        if (await roomHasSockets(io, canonicalRoomId)) return;
+        if (numericRoomId && (await roomHasSockets(io, String(numericRoomId)))) return;
 
-      // If the host is currently online with an active socket, room is alive
-      if (onlineUserIds.has(hostId)) {
-        continue;
-      }
-
-      // Host has vanished, phone crashed, or app died without reconnection -> Terminate orphan ghost room!
-      console.warn(`🧹 [Ghost Room Sweeper] Room ${canonicalRoomId} (ID: ${numericRoomId}) host ${hostId} is offline with no active grace timer. Terminating ghost room...`);
-      await executeRoomTermination(canonicalRoomId, numericRoomId, hostId, io, 'host_disconnected_timeout');
+        // Host has vanished, phone crashed, or app died without reconnection -> Terminate orphan ghost room!
+        console.warn(`🧹 [Ghost Room Sweeper] Room ${canonicalRoomId} (ID: ${numericRoomId}) host ${hostId} is offline with no active grace timer. Terminating ghost room...`);
+        await executeRoomTermination(canonicalRoomId, numericRoomId, hostId, io, 'host_disconnected_timeout');
+      }));
     }
 
     // Clean up any orphan seats, viewers, seat requests, or room admins belonging to ended rooms
@@ -655,19 +675,23 @@ export function getLiveIO() {
 export function setupLiveSocket(io) {
   liveIOInstance = io;
   // Run ghost room sweeper every 30 seconds to clean up any abandoned/crashed rooms
+  // Only ONE process in the cluster sweeps at a time (Redis lease); a dead leader is replaced in <45s.
   const sweeperInterval = setInterval(() => {
-    sweepOrphanedLiveRooms(io).catch(() => { });
+    runIfLeader('ghost_room_sweeper', 40000, () => sweepOrphanedLiveRooms(io)).catch(() => { });
   }, 30000);
   if (sweeperInterval.unref) sweeperInterval.unref();
 
   // Run initial sweep 5 seconds after startup
   setTimeout(() => {
-    sweepOrphanedLiveRooms(io).catch(() => { });
+    runIfLeader('ghost_room_sweeper', 40000, () => sweepOrphanedLiveRooms(io)).catch(() => { });
   }, 5000);
 
   io.on('connection', (socket) => {
     let currentRoom = null;
     let currentUser = null;
+
+    // Per-socket packet guard: drops event floods before any handler (DB / fan-out) runs.
+    socket.use(socketPacketLimiter(socket, metrics));
 
     // Identity comes ONLY from a verified JWT. A bare userId in the handshake/query is never
     // trusted (it would let anyone join another user's private channel or act as them).
@@ -831,13 +855,17 @@ export function setupLiveSocket(io) {
           roomViewers.get(canonicalRoomId).delete(socket.id);
 
           // Host Reconnect Handler: If a grace timer is active for this room, cancel it immediately!
-          if (hostDisconnectGraceTimers.has(canonicalRoomId) || (numericRoomId && hostDisconnectGraceTimers.has(String(numericRoomId)))) {
+          // The grace TIMER may live on another process (host dropped there), so also consult the
+          // cluster-wide marker; clearing it makes that process's timer a no-op when it fires.
+          const graceActiveSomewhere = (await hasHostGrace(canonicalRoomId)) === true;
+          if (graceActiveSomewhere || hostDisconnectGraceTimers.has(canonicalRoomId) || (numericRoomId && hostDisconnectGraceTimers.has(String(numericRoomId)))) {
             const entry = hostDisconnectGraceTimers.get(canonicalRoomId) || (numericRoomId ? hostDisconnectGraceTimers.get(String(numericRoomId)) : null);
             if (entry?.timer) {
               clearTimeout(entry.timer);
             }
             hostDisconnectGraceTimers.delete(canonicalRoomId);
             if (numericRoomId) hostDisconnectGraceTimers.delete(String(numericRoomId));
+            await clearHostGrace(canonicalRoomId);
 
             console.log(`🟢 [Host Reconnected] Host ${currentUser.id} successfully reconnected to room ${canonicalRoomId}! Disconnect timer cancelled.`);
 
@@ -948,11 +976,9 @@ export function setupLiveSocket(io) {
 
         // Emit user joined welcome notice ONLY if not host, not invisible stealth, and not announced within 20s
         const userKey = `${canonicalRoomId}_${currentUser.id}`;
-        const lastAnnounced = roomUserJoinAnnounced.get(userKey);
-        const now = Date.now();
-        const shouldAnnounceJoin = !isHost && !isStealth && currentUser?.id && (!lastAnnounced || (now - lastAnnounced > 20000));
+        // Cluster-wide "announce at most once per 20s per user per room" (atomic Redis SET NX EX).
+        const shouldAnnounceJoin = !isHost && !isStealth && currentUser?.id && (await setOnce(`join_ann:${userKey}`, 20));
         if (shouldAnnounceJoin) {
-          roomUserJoinAnnounced.set(userKey, now);
           // Big rooms: cap "X joined" broadcasts per second (each one fans out to every viewer).
           const bigRoom = isBigRoom(activeCount);
           const announceJoin = !bigRoom || takeBudget(`join:${canonicalRoomId}`, LIVE_SCALE.joinAnnouncePerSec);

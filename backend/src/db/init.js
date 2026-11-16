@@ -1054,8 +1054,8 @@ export async function initializeDatabase() {
       ('custom_thumbnail_validity_days', '30', 'Default validity duration in days for user-uploaded custom thumbnails'),
       ('custom_thumbnail_pricing_tiers', '[{\"days\": 7, \"coins\": 200}, {\"days\": 15, \"coins\": 350}, {\"days\": 30, \"coins\": 500}, {\"days\": 90, \"coins\": 1200}]', 'Dynamic pricing tiers (days vs coins) for user-uploaded custom room background thumbnails'),
       ('livekit_url', 'wss://bmprolivekit.lolipoplive.top', 'LiveKit Cloud or Self-hosted WebSocket URL for WebRTC room media'),
-      ('livekit_api_key', '8ae64a1e9c7eeff9f2a72e83', 'LiveKit Project API Key for generating access tokens'),
-      ('livekit_api_secret', '928c6dfc596f00c1a95caee1f3452345fd95119d1a154c75', 'LiveKit Project API Secret for token signing'),
+      ('livekit_api_key', '', 'LiveKit Project API Key for generating access tokens'),
+      ('livekit_api_secret', '', 'LiveKit Project API Secret for token signing'),
       ('call_audio_rate_per_minute', '20', 'Default coin cost per minute for 1-on-1 audio call in direct messages'),
       ('call_video_rate_per_minute', '50', 'Default coin cost per minute for 1-on-1 video call in direct messages'),
       ('call_video_live_rate_per_minute', '30', 'Coin cost per minute for Video Live seat interaction or private call'),
@@ -1094,20 +1094,16 @@ export async function initializeDatabase() {
     `);
 
     // Sync LiveKit settings with current credentials
-    const envLiveKitUrl = (process.env.LIVEKIT_URL || 'wss://bmprolivekit.lolipoplive.top').trim();
-    const envLiveKitKey = (process.env.LIVEKIT_API_KEY || '8ae64a1e9c7eeff9f2a72e83').trim();
-    const envLiveKitSecret = (process.env.LIVEKIT_API_SECRET || '928c6dfc596f00c1a95caee1f3452345fd95119d1a154c75').trim();
-
-    await connection.query(`
-      UPDATE system_settings
-      SET key_value = CASE 
-        WHEN key_name = 'livekit_url' THEN ?
-        WHEN key_name = 'livekit_api_key' THEN ?
-        WHEN key_name = 'livekit_api_secret' THEN ?
-        ELSE key_value
-      END
-      WHERE key_name IN ('livekit_url', 'livekit_api_key', 'livekit_api_secret');
-    `, [envLiveKitUrl, envLiveKitKey, envLiveKitSecret]);
+    // Credentials come ONLY from .env (never hardcoded). Empty/unset env values never overwrite the DB.
+    const envLiveKit = {
+      livekit_url: (process.env.LIVEKIT_URL || 'wss://bmprolivekit.lolipoplive.top').trim(),
+      livekit_api_key: (process.env.LIVEKIT_API_KEY || '').trim(),
+      livekit_api_secret: (process.env.LIVEKIT_API_SECRET || '').trim(),
+    };
+    for (const [keyName, keyValue] of Object.entries(envLiveKit)) {
+      if (!keyValue) continue;
+      await connection.query('UPDATE system_settings SET key_value = ? WHERE key_name = ?', [keyValue, keyName]);
+    }
 
     try {
       const { cache } = await import('../config/redis.js');

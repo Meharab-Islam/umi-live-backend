@@ -19,7 +19,12 @@ dotenv.config();
 
 import { testConnection } from './config/db.js';
 import { initializeDatabase } from './db/init.js';
-import { cache } from './config/redis.js';
+import { cache, createRedisConnection } from './config/redis.js';
+import { createAdapter } from '@socket.io/redis-adapter';
+import { limiters } from './services/rateLimiter.js';
+import { metrics, httpMetricsMiddleware } from './services/metrics.js';
+import { withStartupLock, NODE_ID } from './services/clusterGuard.js';
+import { closePool } from './config/db.js';
 import { setupLiveSocket } from './sockets/liveSocket.js';
 
 
@@ -44,6 +49,15 @@ const publicDir = path.join(__dirname, '../public');
 const app = express();
 const server = http.createServer(app);
 
+// Behind nginx / a cloud LB the real client IP is in X-Forwarded-For. Rate limits and logs key on
+// req.ip, so Express must be told how many proxy hops to trust (never trust the whole header).
+// Examples: TRUST_PROXY=1 (one LB hop) or TRUST_PROXY="loopback, 10.0.0.0/8".
+const trustProxyEnv = process.env.TRUST_PROXY;
+app.set('trust proxy', trustProxyEnv === undefined || trustProxyEnv === ''
+  ? 'loopback, linklocal, uniquelocal'
+  : (/^\d+$/.test(trustProxyEnv) ? parseInt(trustProxyEnv, 10) : trustProxyEnv));
+app.disable('x-powered-by');
+
 const PORT = parseInt(process.env.PORT || process.env.BACKEND_PORT || '5050', 10);
 const CLIENT_URL = process.env.CLIENT_URL || '*';
 const PROJECT_NAME = process.env.PROJECT_NAME || 'umi';
@@ -65,11 +79,43 @@ const io = new Server(server, {
   maxHttpBufferSize: SOCKET_MAX_BUFFER_SIZE,
 });
 
+// ── Horizontal scaling: share rooms/broadcasts between every process & machine via Redis ──
+// Required when running more than one process (PM2 cluster / several containers).
+// Off by default so a single-process dev setup needs no extra Redis connections.
+let adapterPub = null;
+let adapterSub = null;
+if (String(process.env.SOCKET_REDIS_ADAPTER || 'false').toLowerCase() === 'true') {
+  adapterPub = createRedisConnection('socketio-pub');
+  adapterSub = adapterPub.duplicate();
+  adapterSub.on('error', () => {});
+  io.adapter(createAdapter(adapterPub, adapterSub, {
+    key: `${PROJECT_NAME}:socket.io`,
+    requestsTimeout: parseInt(process.env.SOCKET_ADAPTER_REQUEST_TIMEOUT_MS || '3000', 10),
+  }));
+  console.log(`🔗 [Socket.IO] Redis adapter enabled (node ${NODE_ID})`);
+}
+
 setupLiveSocket(io);
+
+let shuttingDown = false;
 
 // Middlewares
 app.use(cors());
 app.use(compression({ threshold: 1024 }));
+app.use(httpMetricsMiddleware);
+
+// ── Rate limiting (Redis, cluster-wide; fail-open). Cheap checks first, before body parsing. ──
+app.use('/api', limiters.globalIp);
+app.use('/api', limiters.upload);
+app.use(['/api/auth', '/api/mobile/auth', '/api/v1/auth'], limiters.auth);
+app.use(['/api/mobile', '/api/v1'], limiters.mobileIdentity);
+app.use(
+  ['/api/mobile/gifts', '/api/v1/gifts', '/api/gifts', '/api/mobile/wallet', '/api/v1/wallet', '/api/wallet',
+    '/api/mobile/packages', '/api/mobile/vip', '/api/packages'],
+  limiters.money
+);
+app.use(['/api/mobile/live', '/api/v1/live', '/api/live'], limiters.liveAction);
+
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(sqlInjectionGuard);
@@ -267,6 +313,32 @@ app.get(['/room', '/room/:roomId'], (req, res) => {
 </html>`);
 });
 
+// Liveness/readiness for load balancers & orchestrators. Readiness fails while draining so no new
+// traffic is routed to a process that is shutting down. Redis is deliberately NOT required (fail-open).
+let readyCache = { t: 0, ok: false };
+app.get(['/api/ready', '/ready'], async (req, res) => {
+  if (shuttingDown) return res.status(503).json({ ready: false, reason: 'shutting_down' });
+  // Cache the DB probe for 2s so aggressive LB health checks cannot eat pool connections.
+  if (Date.now() - readyCache.t > 2000) {
+    readyCache = { t: Date.now(), ok: await testConnection().catch(() => false) };
+  }
+  return res.status(readyCache.ok ? 200 : 503).json({ ready: readyCache.ok, node: NODE_ID });
+});
+
+// Prometheus scrape endpoint. Set METRICS_TOKEN to require "Authorization: Bearer <token>";
+// without it, only private/loopback peers (the real TCP peer, never X-Forwarded-For) may scrape.
+const PRIVATE_PEER = /^(::1|127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|::ffff:(127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)|fc|fd)/i;
+app.get('/metrics', async (req, res) => {
+  const token = process.env.METRICS_TOKEN;
+  if (token) {
+    if (req.headers.authorization !== `Bearer ${token}`) return res.status(401).end();
+  } else if (!PRIVATE_PEER.test(req.socket.remoteAddress || '')) {
+    return res.status(403).end();
+  }
+  res.set('Content-Type', metrics.register.contentType);
+  return res.end(await metrics.register.metrics());
+});
+
 // Health check endpoint (including DB & Redis live diagnostics)
 app.get('/api/health', async (req, res) => {
   const dbOk = await testConnection();
@@ -320,11 +392,12 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Retry database connection until available
+// Retry database connection until available.
+// Schema/seed work runs on ONE process (Redis startup lock); the others wait for it instead of racing.
 async function waitForDatabase(retries = 15, delayMs = 3000) {
   for (let i = 1; i <= retries; i++) {
     console.log(`[DB Check] Attempt ${i}/${retries} connecting to MySQL...`);
-    const isReady = await initializeDatabase();
+    const isReady = await withStartupLock('db_init', () => initializeDatabase());
     if (isReady) {
       console.log('✅ [Database Ready] Tables and initial seeds verified.');
       return true;
@@ -345,7 +418,52 @@ async function startServer() {
     console.log(`📡 WebSocket Engine ready with Socket.IO`);
     console.log(`🛡️ Admin API: http://localhost:${PORT}/api/admin`);
     console.log(`===============================================`);
+    // PM2 `wait_ready`: tell the process manager this worker is accepting connections.
+    if (typeof process.send === 'function') process.send('ready');
   });
 }
+
+// ── Gauges + graceful shutdown ──────────────────────────────────────────────
+const gaugeTimer = setInterval(() => {
+  try {
+    metrics.socketConnections.set(io.engine?.clientsCount || 0);
+    metrics.socketRooms.set(io.of('/').adapter?.rooms?.size || 0);
+  } catch (_) { /* ignore */ }
+}, 5000);
+if (gaugeTimer.unref) gaugeTimer.unref();
+
+async function gracefulShutdown(signal) {
+  if (shuttingDown) return;
+  shuttingDown = true;
+  const drainMs = parseInt(process.env.SHUTDOWN_DRAIN_MS || '5000', 10);
+  const forceMs = parseInt(process.env.SHUTDOWN_FORCE_MS || '20000', 10);
+  console.log(`🛑 [${signal}] Draining: readiness=503, waiting ${drainMs}ms for the load balancer to stop routing...`);
+  const force = setTimeout(() => {
+    console.error('⏱️ Graceful shutdown timed out, forcing exit.');
+    process.exit(1);
+  }, forceMs);
+  if (force.unref) force.unref();
+
+  await new Promise((r) => setTimeout(r, drainMs));
+  try {
+    // Tell clients to reconnect (to another process); their backoff + jitter spreads the herd.
+    io.emit('server_restarting', { reconnect_in_ms: 1000 + Math.floor(Math.random() * 4000) });
+    await new Promise((resolve) => io.close(() => resolve()));
+  } catch (_) { /* ignore */ }
+  try { server.close(); } catch (_) { /* ignore */ }
+  for (const c of [adapterPub, adapterSub]) {
+    try { c && c.disconnect(); } catch (_) { /* ignore */ }
+  }
+  try { await closePool(); } catch (_) { /* ignore */ }
+  console.log('✅ Shutdown complete.');
+  process.exit(0);
+}
+
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+// A stray rejected promise must not take a process holding thousands of sockets down.
+process.on('unhandledRejection', (reason) => {
+  console.error('[unhandledRejection]', reason instanceof Error ? reason.stack || reason.message : reason);
+});
 
 startServer();
