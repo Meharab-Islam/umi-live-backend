@@ -96,15 +96,15 @@
     "semantic_hash": ""
   },
   "backend/package.json": {
-    "mtime": 1793095128.702029,
-    "seen": 1793095420.728286,
-    "ast_hash": "d65665690722c60fa2dbf6c7e373b3a9",
+    "mtime": 1794809898.7956471,
+    "seen": 1794810291.9424489,
+    "ast_hash": "7b8b953e980b2e96e2b2fc596ec26db6",
     "semantic_hash": ""
   },
   "backend/src/config/db.js": {
-    "mtime": 1792739429.6649086,
-    "seen": 1792739652.654752,
-    "ast_hash": "12bde7e8971b474133bfe5c2cb626b26",
+    "mtime": 1794810579.911805,
+    "seen": 1794810883.456963,
+    "ast_hash": "4fea6e820f32a716a901a0446bbbcafd",
     "semantic_hash": ""
   },
   "backend/src/config/jwt.js": {
@@ -144,9 +144,9 @@
     "semantic_hash": ""
   },
   "backend/src/db/init.js": {
-    "mtime": 1794808173.5829763,
-    "seen": 1794808336.3603451,
-    "ast_hash": "f4bab8a638bb16e169032c685d9db5e8",
+    "mtime": 1794810413.1756113,
+    "seen": 1794810883.457814,
+    "ast_hash": "bf8b95f0eb0c287ca5208465f6f2b01a",
     "semantic_hash": ""
   },
   "backend/src/middlewares/authMiddleware.js": {
@@ -186,15 +186,15 @@
     "semantic_hash": ""
   },
   "backend/src/server.js": {
-    "mtime": 1794808173.5811727,
-    "seen": 1794808336.361069,
-    "ast_hash": "f8d5aaccc2e4940bc8f388b4a3b90017",
+    "mtime": 1794810533.9257004,
+    "seen": 1794810883.458605,
+    "ast_hash": "b76e28480f9b91697ceeeeb5874caeaf",
     "semantic_hash": ""
   },
   "backend/src/sockets/liveSocket.js": {
-    "mtime": 1794808888.4152775,
-    "seen": 1794808967.129806,
-    "ast_hash": "a75a6dcee48c1ef79e242a9b900299ef",
+    "mtime": 1794810515.654477,
+    "seen": 1794810883.4588218,
+    "ast_hash": "4a400823d51e9ebbc296c43b84b5c263",
     "semantic_hash": ""
   },
   "admin-panel/src/pages/Agencies.jsx": {
@@ -222,9 +222,9 @@
     "semantic_hash": ""
   },
   "docker-compose.yml": {
-    "mtime": 1794808186.6505723,
-    "seen": 1794808336.361835,
-    "ast_hash": "fa1f7f51e209f7f815e6a4fa860f8a69",
+    "mtime": 1794810594.5608041,
+    "seen": 1794810883.45947,
+    "ast_hash": "f8e9dc9abf068abb1b3d9af3e5856a11",
     "semantic_hash": ""
   },
   "admin-panel/public/favicon.svg": {
@@ -498,9 +498,9 @@
     "semantic_hash": ""
   },
   "backend/src/config/redis.js": {
-    "mtime": 1793254324.302034,
-    "seen": 1793254600.701378,
-    "ast_hash": "21fa6e72236451052473fc678dd9a068",
+    "mtime": 1794809653.833247,
+    "seen": 1794810291.942497,
+    "ast_hash": "8732ad360ab0e4dd2b279a1477e235f9",
     "semantic_hash": ""
   },
   ".agents/rules/redis-caching-policy.md": {
@@ -558,9 +558,9 @@
     "semantic_hash": ""
   },
   "backend/src/controllers/mobile/liveController.js": {
-    "mtime": 1794808594.9145842,
-    "seen": 1794808687.5482712,
-    "ast_hash": "c01195a02314dcd385b017be15b364cd",
+    "mtime": 1794810579.913454,
+    "seen": 1794810883.457495,
+    "ast_hash": "e292ae9b6571e32e6622957a18997f54",
     "semantic_hash": ""
   },
   "backend/src/controllers/mobile/packageController.js": {
@@ -1080,9 +1080,9 @@
     "semantic_hash": ""
   },
   "backend/src/config/livekit.js": {
-    "mtime": 1794783958.345966,
-    "seen": 1794784671.204633,
-    "ast_hash": "aebce5967d3bc695a9126ed2e3ec88ec",
+    "mtime": 1794809835.643196,
+    "seen": 1794810291.942496,
+    "ast_hash": "91896353151160f4d3d60ceaf5c04b0e",
     "semantic_hash": ""
   },
   "admin-panel/src/components/GoogleMeetLiveStage.jsx": {
@@ -1566,9 +1566,63 @@
     "semantic_hash": ""
   },
   "backend/src/services/liveScaleGuard.js": {
-    "mtime": 1794808542.1286201,
-    "seen": 1794808687.549514,
-    "ast_hash": "25e8fdd7a4f2cdb5c47f55de4605dfb4",
+    "mtime": 1794810457.3976798,
+    "seen": 1794810883.458716,
+    "ast_hash": "b59f14a4c57baeb99b85a89e05f47316",
+    "semantic_hash": ""
+  },
+  "backend/ecosystem.config.cjs": {
+    "mtime": 1794809810.9479284,
+    "seen": 1794810291.9424472,
+    "ast_hash": "811f361d8e5435c2ba2170deb485db0c",
+    "semantic_hash": ""
+  },
+  "backend/loadtest/socket-load.mjs": {
+    "mtime": 1794809898.73224,
+    "seen": 1794810291.9424481,
+    "ast_hash": "765894d73df2f29aedd2eec750d1c6ff",
+    "semantic_hash": ""
+  },
+  "backend/src/config/env.js": {
+    "mtime": 1794810158.34969,
+    "seen": 1794810291.9424498,
+    "ast_hash": "4c9a12a90b5d466f9b0da87cdb164cb0",
+    "semantic_hash": ""
+  },
+  "backend/src/services/clusterGuard.js": {
+    "mtime": 1794810579.9121706,
+    "seen": 1794810883.458606,
+    "ast_hash": "7ee9f6c3229d0c7a5da27d3dad7f6f35",
+    "semantic_hash": ""
+  },
+  "backend/src/services/metrics.js": {
+    "mtime": 1794810431.9141319,
+    "seen": 1794810883.458716,
+    "ast_hash": "8b4e87d047dd62dcf8d54bcf2255833b",
+    "semantic_hash": ""
+  },
+  "backend/src/services/rateLimiter.js": {
+    "mtime": 1794810158.34991,
+    "seen": 1794810291.944173,
+    "ast_hash": "50a1b9a8959356b8845a3bacc40fd446",
+    "semantic_hash": ""
+  },
+  "backend/src/middlewares/idempotency.js": {
+    "mtime": 1794810526.980059,
+    "seen": 1794810883.457859,
+    "ast_hash": "5eeefdb6c86f8015bb145e03e48f7011",
+    "semantic_hash": ""
+  },
+  "backend/src/services/liveFlags.js": {
+    "mtime": 1794810413.2130535,
+    "seen": 1794810883.458693,
+    "ast_hash": "38717ee902c62b8c4b36afd1e4509f55",
+    "semantic_hash": ""
+  },
+  "backend/src/services/roomFanout.js": {
+    "mtime": 1794810457.3978417,
+    "seen": 1794810883.4587579,
+    "ast_hash": "ae88a6cd37c9e27986a64ceb3dc864e2",
     "semantic_hash": ""
   }
 }
