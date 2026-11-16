@@ -36,6 +36,9 @@ export const LIVE_SCALE = {
   profileCacheTtl: int(process.env.LIVE_PROFILE_CACHE_TTL, 30),
 };
 
+/** Late-bound hooks (set by roomFanout.js) so this module need not import it (import cycle). */
+export const hooks = { onRoomSize: null };
+
 // ── Leading + trailing throttle that always delivers the LATEST value ────────
 const latestState = new Map();
 
@@ -135,6 +138,7 @@ export async function syncRoomViewerCount(opts) {
     s.last = now;
     const c = await recountViewers(opts);
     s.count = c;
+    if (hooks.onRoomSize) hooks.onRoomSize(opts.canonicalRoomId, c);
     return c;
   }
 
@@ -145,6 +149,7 @@ export async function syncRoomViewerCount(opts) {
       try {
         const c = await recountViewers(opts);
         s.count = c;
+        if (hooks.onRoomSize) hooks.onRoomSize(opts.canonicalRoomId, c);
         if (typeof opts.onTrailing === 'function') opts.onTrailing(c);
       } catch (err) {
         console.warn('[liveScaleGuard] trailing viewer recount failed:', err.message);
@@ -167,6 +172,7 @@ export async function syncRoomViewerCount(opts) {
  */
 export function emitRoomViewerCount(io, canonicalRoomId, numericRoomId, count, { toRoom = true, toHomeFeed = true } = {}) {
   if (!io) return;
+  if (hooks.onRoomSize) hooks.onRoomSize(canonicalRoomId, count);
   const chans = [canonicalRoomId, numericRoomId ? String(numericRoomId) : null].filter(Boolean);
   if (toRoom) {
     throttledLatest(`vc:${canonicalRoomId}`, LIVE_SCALE.viewerEmitWindowMs, count, (c) => {

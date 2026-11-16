@@ -49,6 +49,7 @@ import { getLiveKitConfigEndpoint } from '../../controllers/mobile/configControl
 import { requireAuth, optionalAuth } from '../../middlewares/authMiddleware.js';
 import { optionalRoomMediaUpload } from '../../middleware/upload.js';
 import { query } from '../../config/db.js';
+import { roomLockMiddleware } from '../../services/roomLock.js';
 
 const router = express.Router();
 
@@ -74,6 +75,20 @@ router.param('roomId', async (req, res, next, rawId) => {
     next();
   }
 });
+
+// Seat-race guard: every state-changing request for a room (take/leave/switch/approve/kick/promote/
+// lock/mute/seat-count/end ...) runs one at a time per room, cluster-wide (see services/roomLock.js).
+// GETs are not affected. Needs req.canonicalRoomId, which router.param('roomId') above sets.
+router.use(
+  [
+    '/rooms/:roomId/seats',
+    '/rooms/:roomId/kick',
+    '/rooms/:roomId/leave',
+    '/rooms/:roomId/end',
+    '/rooms/:roomId/close',
+  ],
+  roomLockMiddleware
+);
 
 // Global User Live Streaming Daily Breakdown & Earnings History (All authenticated users: normal, host, agency, moderator, reseller)
 router.get('/history', requireAuth, getUserLiveHistory);

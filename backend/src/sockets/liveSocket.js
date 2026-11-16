@@ -19,6 +19,9 @@ import {
   socketPacketLimiter,
 } from '../services/liveScaleGuard.js';
 import { metrics } from '../services/metrics.js';
+import { publishComment, publishReaction, forgetRoom, setRoomSize } from '../services/roomFanout.js';
+import { getLiveFlags } from '../services/liveFlags.js';
+import { withRoomLock } from '../services/roomLock.js';
 import {
   runIfLeader,
   setOnce,
@@ -176,6 +179,7 @@ export function cancelSeatGuestDisconnectGraceTimer(roomId, userId) {
 export function clearRoomMemoryState(canonicalRoomId, numericRoomId) {
   if (canonicalRoomId) {
     cancelHostDisconnectGraceTimer(canonicalRoomId);
+    forgetRoom(canonicalRoomId);
     roomViewers.delete(canonicalRoomId);
     roomLastViewerCount.delete(canonicalRoomId);
   }
@@ -766,6 +770,7 @@ export function setupLiveSocket(io) {
         // Leave any prior room ONLY if switching to a different room
         if (currentRoom && currentRoom !== canonicalRoomId) {
           socket.leave(currentRoom);
+          socket.leave(`v2:${currentRoom}`);
           if (roomViewers.has(currentRoom)) {
             roomViewers.get(currentRoom).delete(socket.id);
             const count = roomViewers.get(currentRoom).size;
@@ -810,6 +815,12 @@ export function setupLiveSocket(io) {
         if (numericRoomId) {
           socket.join(String(numericRoomId));
         }
+        // Protocol v2 clients (join-room {proto: 2}) get batched `room_frame` ticks in big rooms.
+        // Everyone else keeps the individual (sampled) events. See services/roomFanout.js.
+        if (Number(data?.proto) >= 2) {
+          socket.join(`v2:${canonicalRoomId}`);
+          socket.protoV2 = true;
+        }
 
         // Invisible / Stealth room entry check (for moderators / admins with silent_room_entry permission)
         let isStealth = false;
@@ -823,6 +834,7 @@ export function setupLiveSocket(io) {
 
         // Host is never counted as a viewer, and neither is an invisible moderator in stealth mode
         const isHost = room && (Number(currentUser.id) === Number(room.host_id) || Number(socket.userId) === Number(room.host_id));
+        socket.isRoomHost = Boolean(isHost);
 
         if (!roomViewers.has(canonicalRoomId)) {
           roomViewers.set(canonicalRoomId, new Set());
@@ -892,6 +904,7 @@ export function setupLiveSocket(io) {
           ? await query('SELECT viewer_count, is_comment_disabled, is_reaction_disabled FROM live_rooms WHERE id = ?', [numericRoomId])
           : await query('SELECT viewer_count, is_comment_disabled, is_reaction_disabled FROM live_rooms WHERE room_id = ?', [canonicalRoomId]);
         const activeCount = dbCountRow ? Math.max(0, dbCountRow.viewer_count) : roomViewers.get(canonicalRoomId).size;
+        setRoomSize(canonicalRoomId, activeCount); // lets every process classify this room as small/big
 
         // Emit updated viewer count to room ONLY if changed and user is NOT invisible
         const lastCount = roomLastViewerCount.get(canonicalRoomId);
@@ -977,7 +990,8 @@ export function setupLiveSocket(io) {
         // Emit user joined welcome notice ONLY if not host, not invisible stealth, and not announced within 20s
         const userKey = `${canonicalRoomId}_${currentUser.id}`;
         // Cluster-wide "announce at most once per 20s per user per room" (atomic Redis SET NX EX).
-        const shouldAnnounceJoin = !isHost && !isStealth && currentUser?.id && (await setOnce(`join_ann:${userKey}`, 20));
+        const liveFlags = await getLiveFlags();
+        const shouldAnnounceJoin = !liveFlags.disableJoinAnnounce && !isHost && !isStealth && currentUser?.id && (await setOnce(`join_ann:${userKey}`, 20));
         if (shouldAnnounceJoin) {
           // Big rooms: cap "X joined" broadcasts per second (each one fans out to every viewer).
           const bigRoom = isBigRoom(activeCount);
@@ -1011,7 +1025,7 @@ export function setupLiveSocket(io) {
 
           // Broadcast Entry Effect (Mount, Car, Dragon, Pegasus) if user has an active equipped effect
           try {
-            const eff = await getEquippedEntryEffect(currentUser.id);
+            const eff = liveFlags.disableEntryEffect ? null : await getEquippedEntryEffect(currentUser.id);
             // Big rooms: effects are budgeted separately so VIP entrances still play without a storm.
             if (eff && (!bigRoom || takeBudget(`effect:${canonicalRoomId}`, LIVE_SCALE.entryEffectPerSec))) {
               const effectPayload = {
@@ -1155,6 +1169,10 @@ export function setupLiveSocket(io) {
         const seatIdx = parseInt(data.seatIndex ?? data.seat_index ?? data.seatNumber ?? data.seat_number, 10);
         const targetUserId = Number(data.userId || data.user_id || senderId);
 
+        // Read-modify-write of the seat row happens under the room's seat lock, so a concurrent
+        // swap / leave / compact cannot move the user between our SELECT and our UPDATE (the old
+        // code then wrote this mute/camera state onto whichever user now sat at that seat number).
+        const locked = await withRoomLock(canonicalRoomId, async () => {
         // Find the seat strictly prioritizing user_id first, then falling back to seat_number
         let seats = [];
         if (targetUserId > 0) {
@@ -1169,7 +1187,7 @@ export function setupLiveSocket(io) {
             [canonicalRoomId, String(numericRoomId), seatIdx]
           );
         }
-        if (seats.length === 0) return;
+        if (seats.length === 0) return null;
         const seat = seats[0];
 
         // Permission: Host, Admin, Room Moderator, or Seat Occupant
@@ -1181,7 +1199,7 @@ export function setupLiveSocket(io) {
           );
           if (admins.length > 0) isAuthorized = true;
         }
-        if (!isAuthorized) return;
+        if (!isAuthorized) return null;
 
         let isMuted = seat.is_muted;
         if (data.isMuted !== undefined) isMuted = data.isMuted ? 1 : 0;
@@ -1193,11 +1211,17 @@ export function setupLiveSocket(io) {
         else if (data.isVideoMuted !== undefined) isCameraOn = data.isVideoMuted ? 0 : 1;
         else if (data.is_video_muted !== undefined) isCameraOn = data.is_video_muted ? 0 : 1;
 
-        // Persist to MySQL database (Single Source of Truth)
-        await query(
-          'UPDATE live_room_seats SET is_muted = ?, is_camera_on = ? WHERE (room_id = ? OR room_id = ?) AND seat_number = ?',
-          [isMuted, isCameraOn, canonicalRoomId, String(numericRoomId), seat.seat_number]
+        // Persist to MySQL database (Single Source of Truth). Guarded by the occupant too, so even
+        // without the lock this can never write to a seat that now belongs to someone else.
+        const upd = await query(
+          'UPDATE live_room_seats SET is_muted = ?, is_camera_on = ? WHERE (room_id = ? OR room_id = ?) AND seat_number = ? AND user_id <=> ?',
+          [isMuted, isCameraOn, canonicalRoomId, String(numericRoomId), seat.seat_number, seat.user_id ?? null]
         );
+        if (upd && upd.affectedRows === 0) return null;
+        return { seat, isMuted, isCameraOn };
+        }, { onBusy: 'run' });
+        if (!locked) return;
+        const { seat, isMuted, isCameraOn } = locked;
 
         // Invalidate Redis
         await cache.del(`mobile:room_details:${canonicalRoomId}`);
@@ -1343,6 +1367,7 @@ export function setupLiveSocket(io) {
         const numericRoomId = room ? room.id : null;
 
         socket.leave(canonicalRoomId);
+        socket.leave(`v2:${canonicalRoomId}`);
         socket.leave(String(targetRoom));
         if (numericRoomId) socket.leave(String(numericRoomId));
 
@@ -1453,7 +1478,10 @@ export function setupLiveSocket(io) {
         timestamp: new Date().toISOString(),
       };
 
-      io.to(targetRoom).emit("comment", payload);
+      // Canonical room key for fan-out decisions (sockets join both canonical and numeric aliases).
+      const fanRoom = socket.currentRoom && socket.rooms.has(String(socket.currentRoom)) ? socket.currentRoom : targetRoom;
+      const priority = Boolean(socket.isRoomHost || isPlatformAdmin || packageCategoryName);
+      await publishComment(io, String(fanRoom), payload, { priority });
     };
 
     socket.on("send-chat", handleRoomChat);
@@ -1492,7 +1520,8 @@ export function setupLiveSocket(io) {
         timestamp: new Date().toISOString(),
       };
 
-      io.to(targetRoom).emit("new-reaction", reactionPayload);
+      const fanRoom = socket.currentRoom && socket.rooms.has(String(socket.currentRoom)) ? socket.currentRoom : targetRoom;
+      publishReaction(io, String(fanRoom), reactionPayload, String(reactionPayload.emoji)).catch(() => {});
     };
 
     socket.on("send-reaction", handleRoomReaction);

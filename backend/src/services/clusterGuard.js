@@ -155,3 +155,22 @@ export async function withStartupLock(name, fn, { lockTtlMs = 120000, maxWaitMs 
     return fn();
   }
 }
+
+/** Room ids whose host is inside a disconnect grace period on ANY process (cluster-wide SCAN, small key set). */
+export async function listHostGraceRooms() {
+  const c = redis();
+  if (!c) return [];
+  try {
+    const prefix = formatKey('host_grace:');
+    const out = [];
+    let cursor = '0';
+    do {
+      const [next, keys] = await c.scan(cursor, 'MATCH', `${prefix}*`, 'COUNT', 200);
+      cursor = next;
+      for (const k of keys) out.push(k.slice(prefix.length));
+    } while (cursor !== '0');
+    return out;
+  } catch (_) {
+    return [];
+  }
+}

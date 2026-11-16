@@ -22,6 +22,7 @@ import { initializeDatabase } from './db/init.js';
 import { cache, createRedisConnection } from './config/redis.js';
 import { createAdapter } from '@socket.io/redis-adapter';
 import { limiters } from './services/rateLimiter.js';
+import { idempotency } from './middlewares/idempotency.js';
 import { metrics, httpMetricsMiddleware } from './services/metrics.js';
 import { withStartupLock, NODE_ID } from './services/clusterGuard.js';
 import { closePool } from './config/db.js';
@@ -109,16 +110,18 @@ app.use('/api', limiters.globalIp);
 app.use('/api', limiters.upload);
 app.use(['/api/auth', '/api/mobile/auth', '/api/v1/auth'], limiters.auth);
 app.use(['/api/mobile', '/api/v1'], limiters.mobileIdentity);
-app.use(
-  ['/api/mobile/gifts', '/api/v1/gifts', '/api/gifts', '/api/mobile/wallet', '/api/v1/wallet', '/api/wallet',
-    '/api/mobile/packages', '/api/mobile/vip', '/api/packages'],
-  limiters.money
-);
+const MONEY_PATHS = [
+  '/api/mobile/gifts', '/api/v1/gifts', '/api/gifts', '/api/mobile/wallet', '/api/v1/wallet', '/api/wallet',
+  '/api/mobile/packages', '/api/v1/packages', '/api/mobile/vip', '/api/packages',
+];
+app.use(MONEY_PATHS, limiters.money);
 app.use(['/api/mobile/live', '/api/v1/live', '/api/live'], limiters.liveAction);
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(sqlInjectionGuard);
+// Safe retries for money-moving POSTs when the client sends `Idempotency-Key` (needs body, so after json parsing).
+app.use(MONEY_PATHS, idempotency);
 app.use(morgan('dev'));
 
 // Serve uploaded files statically with cross-category fallback

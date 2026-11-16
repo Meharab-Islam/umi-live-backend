@@ -25,6 +25,25 @@ const dbConfig = {
 };
 
 let pool;
+let readPool;
+
+// Optional read replica: set DB_READ_HOST (and optionally DB_READ_PORT/USER/PASSWORD/CONNECTION_LIMIT).
+// Unset = reads go to the primary, so nothing changes until a replica exists.
+const readEnabled = Boolean(process.env.DB_READ_HOST);
+function getReadPool() {
+  if (!readEnabled) return getPool();
+  if (!readPool) {
+    readPool = mysql.createPool({
+      ...dbConfig,
+      host: process.env.DB_READ_HOST,
+      port: parseInt(process.env.DB_READ_PORT || String(dbConfig.port), 10),
+      user: process.env.DB_READ_USER || dbConfig.user,
+      password: process.env.DB_READ_PASSWORD || dbConfig.password,
+      connectionLimit: parseInt(process.env.DB_READ_CONNECTION_LIMIT || String(dbConfig.connectionLimit), 10),
+    });
+  }
+  return readPool;
+}
 
 export function getPool() {
   if (!pool) {
@@ -47,6 +66,23 @@ export async function query(sql, params) {
   return rows;
 }
 
+/**
+ * Read-only query that may be served by a replica (replication lag: usually < 1s).
+ * Use ONLY for data where slightly stale is fine (feeds, lists, leaderboards) - never for
+ * read-your-own-write flows, wallet balances, or anything feeding a decision that mutates data.
+ * Falls back to the primary if the replica errors.
+ */
+export async function queryRead(sql, params) {
+  if (!readEnabled) return query(sql, params);
+  try {
+    const [rows] = await getReadPool().execute(sql, params);
+    return rows;
+  } catch (err) {
+    console.warn(`[DB] read replica failed (${err.code || err.message}); falling back to primary.`);
+    return query(sql, params);
+  }
+}
+
 export async function testConnection() {
   try {
     const connection = await getPool().getConnection();
@@ -65,9 +101,15 @@ export async function closePool() {
     pool = undefined;
     await p.end();
   }
+  if (readPool) {
+    const rp = readPool;
+    readPool = undefined;
+    await rp.end();
+  }
 }
 
 export default {
+  queryRead,
   closePool,
   getPool,
   query,

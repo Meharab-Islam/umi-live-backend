@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { cache } from '../../config/redis.js';
-import { query } from '../../config/db.js';
+import { query, queryRead } from '../../config/db.js';
 import { generateLiveKitToken, LIVEKIT_URL, setParticipantPublishPermission, syncRoomPublishPermissions } from '../../config/livekit.js';
 import { sendLiveRoomStartedPushNotification } from '../../config/firebase.js';
 import { cancelHostDisconnectGraceTimer, hostDisconnectGraceTimers, clearRoomMemoryState } from '../../sockets/liveSocket.js';
@@ -9,6 +9,8 @@ import { notifyLiveStarted, handleLiveEndedNotifications } from '../../services/
 import { checkUserSelfSeatAcceptPrivilege, checkUserInvisibleRoomEnterPrivilege } from '../../services/userPrivilegeService.js';
 import { getRoomMusicState, setRoomMusicState, clearRoomMusicState } from '../../services/roomMusicService.js';
 import { getStarProgressionConfig, calculateUserStars } from '../../services/systemService.js';
+import { listHostGraceRooms } from '../../services/clusterGuard.js';
+import { withRoomLock } from '../../services/roomLock.js';
 import { LIVE_SCALE, isBigRoom, takeBudget, throttledRun, syncRoomViewerCount, emitRoomViewerCount } from '../../services/liveScaleGuard.js';
 
 /**
@@ -361,8 +363,10 @@ export async function getRooms(req, res) {
       whereClauses.push("u.role != 'superadmin'");
 
       // Exclude rooms currently in disconnected/reconnecting grace period
-      if (hostDisconnectGraceTimers && hostDisconnectGraceTimers.size > 0) {
-        const disIds = Array.from(hostDisconnectGraceTimers.keys());
+      const clusterGrace = await listHostGraceRooms();
+      const graceIds = new Set([...(hostDisconnectGraceTimers ? hostDisconnectGraceTimers.keys() : []), ...clusterGrace]);
+      if (graceIds.size > 0) {
+        const disIds = Array.from(graceIds);
         const pl = disIds.map(() => '?').join(', ');
         whereClauses.push(`r.room_id NOT IN (${pl})`);
         params.push(...disIds);
@@ -387,7 +391,7 @@ export async function getRooms(req, res) {
       const whereSql = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
 
       // 1. Identify Top 2 rooms across the entire platform with highest viewer count
-      const top2ViewerRows = await query(
+      const top2ViewerRows = await queryRead(
         `SELECT r.id 
          FROM live_rooms r 
          JOIN users u ON r.host_id = u.id 
@@ -420,7 +424,7 @@ export async function getRooms(req, res) {
         queryParams = [...params, parseInt(limit, 10), offset];
       }
 
-      const rooms = await query(
+      const rooms = await queryRead(
         `SELECT r.id, r.room_id, r.host_id, r.title, r.category, r.live_type, r.total_seats,
                 r.background_image, r.status,
                 r.viewer_count, r.total_diamonds, r.is_comment_disabled, r.is_reaction_disabled, r.is_locked, r.started_at,
@@ -448,7 +452,7 @@ export async function getRooms(req, res) {
         queryParams
       );
 
-      const [countResult] = await query(
+      const [countResult] = await queryRead(
         `SELECT COUNT(*) as total FROM live_rooms r JOIN users u ON r.host_id = u.id ${whereSql}`,
         params
       );
@@ -1018,6 +1022,15 @@ export async function joinRoom(req, res) {
  * Guarantees that in Video Live rooms, co-hosts always occupy consecutive seats (Seat 2, Seat 3, Seat 4...).
  */
 export async function compactRoomGuestSeats(canonicalRoomId, numericRoomId, totalSeats = 12) {
+  // Read-all-then-rewrite-all: must never interleave with another seat change in the same room.
+  return withRoomLock(
+    String(canonicalRoomId),
+    () => compactRoomGuestSeatsUnlocked(canonicalRoomId, numericRoomId, totalSeats),
+    { onBusy: 'run' }
+  );
+}
+
+async function compactRoomGuestSeatsUnlocked(canonicalRoomId, numericRoomId, totalSeats = 12) {
   try {
     const seats = await query(
       'SELECT * FROM live_room_seats WHERE (room_id = ? OR room_id = ?) ORDER BY seat_number ASC',
@@ -1100,6 +1113,23 @@ export async function compactRoomGuestSeats(canonicalRoomId, numericRoomId, tota
  *     3. Sockets broadcast the updated seats.
  */
 export async function handleUserSeatDeparture(roomId, leavingUserId, io = null) {
+  if (!roomId || !leavingUserId) return null;
+  // Lock key is always the canonical room_id (numeric ids are resolved), so REST (numeric or
+  // canonical), socket disconnect cleanup and every other process all contend on the same lock.
+  let lockKey = String(roomId).trim();
+  if (/^\d+$/.test(lockKey)) {
+    try {
+      const canon = await cache.getOrSet(`room_canon:${lockKey}`, 3600, async () => {
+        const [r] = await query('SELECT room_id FROM live_rooms WHERE id = ? LIMIT 1', [Number(lockKey)]);
+        return r ? r.room_id : null;
+      });
+      if (canon) lockKey = canon;
+    } catch (_) { /* fall back to the raw id */ }
+  }
+  return withRoomLock(lockKey, () => handleUserSeatDepartureUnlocked(roomId, leavingUserId, io), { onBusy: 'run' });
+}
+
+async function handleUserSeatDepartureUnlocked(roomId, leavingUserId, io = null) {
   if (!roomId || !leavingUserId) return null;
 
   try {

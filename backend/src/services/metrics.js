@@ -40,6 +40,27 @@ export const metrics = {
     labelNames: ['event'],
     registers: [register],
   }),
+  roomFrames: new client.Counter({
+    name: 'room_frames_total',
+    help: 'room_frame batches emitted (big-room fan-out)',
+    registers: [register],
+  }),
+  chatSampledOut: new client.Counter({
+    name: 'chat_sampled_out_total',
+    help: 'Audience comments dropped by big-room sampling',
+    registers: [register],
+  }),
+  roomLockWait: new client.Histogram({
+    name: 'room_lock_wait_seconds',
+    help: 'Time spent waiting for the per-room seat lock',
+    buckets: [0.001, 0.005, 0.02, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5],
+    registers: [register],
+  }),
+  roomLockTimeouts: new client.Counter({
+    name: 'room_lock_timeouts_total',
+    help: 'Requests that could not get the per-room seat lock in time (answered 503 room_busy)',
+    registers: [register],
+  }),
   socketConnections: new client.Gauge({
     name: 'socket_connections',
     help: 'Currently connected Socket.IO clients on this process',
