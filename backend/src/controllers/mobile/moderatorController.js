@@ -1,5 +1,6 @@
 import { query } from '../../config/db.js';
 import { cache } from '../../config/redis.js';
+import { setDeviceBanState, getUserDeviceIds } from '../../services/deviceService.js';
 
 export function resolveFullAvatarUrl(req, avatarUrl) {
   if (!avatarUrl || typeof avatarUrl !== 'string' || !avatarUrl.trim()) {
@@ -394,23 +395,10 @@ export async function toggleUserBan(req, res) {
     let devicesUpdatedCount = 0;
     // 3. If banAllDevices is requested, update all registered devices for this user
     if (banAllDevices) {
-      const devRes = await query(
-        `UPDATE user_devices 
-         SET is_banned = ?, ban_reason = ?, banned_by = ?, banned_at = ${newBanStatus ? 'NOW()' : 'NULL'} 
-         WHERE user_id = ?`,
-        [newBanStatus ? 1 : 0, reason, req.user?.id || null, cleanUserId]
-      );
-      devicesUpdatedCount = devRes?.affectedRows || 0;
-
-      // Fetch all device IDs to invalidate their Redis keys
-      const userDevs = await query('SELECT device_id FROM user_devices WHERE user_id = ?', [cleanUserId]);
-      for (const d of userDevs) {
-        if (newBanStatus) {
-          await cache.set(`device:banned:${d.device_id}`, true, 86400 * 30);
-        } else {
-          await cache.del(`device:banned:${d.device_id}`);
-        }
-      }
+      // Ban/unban the hardware itself (every row sharing these device_ids), MySQL first then Redis
+      const userDeviceIds = await getUserDeviceIds(cleanUserId);
+      devicesUpdatedCount = userDeviceIds.length;
+      await setDeviceBanState(userDeviceIds, newBanStatus, { reason, bannedBy: req.user?.id || null });
     }
 
     // 4. Instant Redis Cache Invalidation
@@ -525,36 +513,9 @@ export async function toggleDeviceBan(req, res) {
 
     const reason = req.body.reason ? String(req.body.reason).trim() : (newBanStatus ? `Device banned by moderator for user ${targetUser.full_name}` : null);
 
-    // 3. MySQL Update First (SSOT)
-    // Update this user's specific device record
-    await query(
-      `UPDATE user_devices 
-       SET is_banned = ?, ban_reason = ?, banned_by = ?, banned_at = ${newBanStatus ? 'NOW()' : 'NULL'} 
-       WHERE id = ? AND user_id = ?`,
-      [newBanStatus ? 1 : 0, reason, req.user?.id || null, recordId, cleanUserId]
-    );
-
-    // Also update any other duplicate session records for this exact same hardware device_id of this user
-    await query(
-      `UPDATE user_devices 
-       SET is_banned = ?, ban_reason = ?, banned_by = ?, banned_at = ${newBanStatus ? 'NOW()' : 'NULL'} 
-       WHERE user_id = ? AND device_id = ?`,
-      [newBanStatus ? 1 : 0, reason, req.user?.id || null, cleanUserId, targetHardwareId]
-    );
-
-    // 4. Instant Redis Cache Synchronization
-    if (newBanStatus) {
-      await cache.set(`device:banned:${targetHardwareId}`, true, 86400 * 30); // 30-day cache
-    } else {
-      // If unbanning, check if any other user's record with this hardware ID is still banned
-      const otherBanned = await query(
-        'SELECT id FROM user_devices WHERE device_id = ? AND is_banned = 1 LIMIT 1',
-        [targetHardwareId]
-      );
-      if (!otherBanned || otherBanned.length === 0) {
-        await cache.del(`device:banned:${targetHardwareId}`);
-      }
-    }
+    // 3. MySQL first (SSOT), then Redis — applied to the HARDWARE device_id, so the ban holds
+    //    for every account that ever used this device (and the unban lifts it for all of them).
+    await setDeviceBanState(targetHardwareId, newBanStatus, { reason, bannedBy: req.user?.id || null });
 
     // Invalidate user details and moderator caches
     await Promise.all([

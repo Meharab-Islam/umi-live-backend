@@ -14,6 +14,13 @@ import {
 import { getUserSpecialPrivileges } from '../../services/userPrivilegeService.js';
 import { resolveAbsoluteUrl } from './giftController.js';
 import { getLiveIO } from '../../sockets/liveSocket.js';
+import {
+  extractDeviceId,
+  isDeviceBanned,
+  deviceBannedResponse,
+  registerUserDevice,
+  deviceInfoFromRequest,
+} from '../../services/deviceService.js';
 
 /**
  * Enforce Single Device Concurrent Session Invalidation
@@ -55,6 +62,12 @@ export async function register(req, res) {
 
     if (!email || !password) {
       return res.status(400).json({ success: false, message: 'Email and password are required.' });
+    }
+
+    // A banned device can neither log in nor create a fresh account
+    const registerDeviceId = extractDeviceId(req);
+    if (registerDeviceId && (await isDeviceBanned(registerDeviceId))) {
+      return deviceBannedResponse(res);
     }
 
     const trimmedEmail = String(email).trim().toLowerCase();
@@ -125,7 +138,10 @@ export async function register(req, res) {
     await cache.delByPattern('admin:dashboard*');
 
     const token = signToken({ id: newUserId, role: finalRole });
-    await enforceSingleDeviceSession(newUserId, token);
+    if (registerDeviceId) {
+      await registerUserDevice(newUserId, registerDeviceId, deviceInfoFromRequest(req));
+    }
+    await enforceSingleDeviceSession(newUserId, token, registerDeviceId || null);
 
     return res.status(201).json({
       success: true,
@@ -159,6 +175,11 @@ export async function login(req, res) {
 
     const cleanDeviceId = String(deviceId).trim();
     const cleanDeviceName = String(deviceName).trim();
+
+    // Hardware Device Ban Verification — blocks every account on a banned device
+    if (await isDeviceBanned(cleanDeviceId)) {
+      return deviceBannedResponse(res);
+    }
 
     const cleanId = String(loginTarget).trim().replace(/^#/, '');
     const clientIp = getClientIp(req);
@@ -199,39 +220,8 @@ export async function login(req, res) {
     // Success! Reset failed login attempt counters for this account and IP
     await recordSuccessfulLogin(clientIp, cleanId);
 
-    // Hardware Device Ban Verification
-    const isDeviceBanned = await cache.getOrSet(`device:banned:${cleanDeviceId}`, 300, async () => {
-      const devRows = await query('SELECT is_banned FROM user_devices WHERE device_id = ? AND is_banned = TRUE LIMIT 1', [cleanDeviceId]);
-      return devRows && devRows.length > 0;
-    });
-
-    if (isDeviceBanned) {
-      return res.status(403).json({ success: false, message: 'This device has been banned from accessing the platform. Please contact support.' });
-    }
-
-    // Upsert device details for this user in MySQL (SSOT)
-    const osType = req.body.osType || req.body.os_type || req.headers['x-os-type'] || 'Mobile';
-    const osVersion = req.body.osVersion || req.body.os_version || req.headers['x-os-version'] || '';
-    const appVersion = req.body.appVersion || req.body.app_version || req.headers['x-app-version'] || '1.0.0';
-    const ip = req.ip || req.headers['x-forwarded-for'] || req.socket.remoteAddress || '';
-    const ua = req.headers['user-agent'] || '';
-
-    try {
-      await query(`
-        INSERT INTO user_devices (user_id, device_id, device_model, os_type, os_version, app_version, ip_address, user_agent, last_login_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())
-        ON DUPLICATE KEY UPDATE 
-          device_model = VALUES(device_model),
-          os_type = VALUES(os_type),
-          os_version = VALUES(os_version),
-          app_version = VALUES(app_version),
-          ip_address = VALUES(ip_address),
-          user_agent = VALUES(user_agent),
-          last_login_at = NOW()
-      `, [user.id, cleanDeviceId, cleanDeviceName, osType, osVersion, appVersion, String(ip).slice(0, 45), String(ua).slice(0, 255)]);
-    } catch (devErr) {
-      console.error('Device registration error:', devErr);
-    }
+    // Save this device under the account that just logged in (SSOT: MySQL)
+    await registerUserDevice(user.id, cleanDeviceId, deviceInfoFromRequest(req, cleanDeviceName));
 
     const token = signToken({ id: user.id, role: user.role });
     await enforceSingleDeviceSession(user.id, token, cleanDeviceId);
@@ -397,16 +387,8 @@ export async function googleLogin(req, res) {
     }
 
     // 2. Hardware Device Ban Verification
-    const isDeviceBanned = await cache.getOrSet(`device:banned:${finalDeviceId}`, 300, async () => {
-      const devRows = await query('SELECT is_banned FROM user_devices WHERE device_id = ? AND is_banned = TRUE LIMIT 1', [finalDeviceId]);
-      return devRows && devRows.length > 0;
-    });
-
-    if (isDeviceBanned) {
-      return res.status(403).json({
-        success: false,
-        message: 'This device has been banned from accessing the platform. Please contact support.',
-      });
+    if (await isDeviceBanned(finalDeviceId)) {
+      return deviceBannedResponse(res);
     }
 
     // 3. Database-First Query (Check if user exists by google_id or email)
@@ -479,29 +461,8 @@ export async function googleLogin(req, res) {
       await cache.delByPattern('admin:dashboard*');
     }
 
-    // 4. Register or Update Device in user_devices
-    const finalOsType = os_type || osType || req.headers['x-os-type'] || 'Mobile';
-    const finalOsVersion = os_version || osVersion || req.headers['x-os-version'] || '';
-    const finalAppVersion = app_version || appVersion || req.headers['x-app-version'] || '1.0.0';
-    const ip = req.ip || req.headers['x-forwarded-for'] || req.socket.remoteAddress || '';
-    const ua = req.headers['user-agent'] || '';
-
-    try {
-      await query(`
-        INSERT INTO user_devices (user_id, device_id, device_model, os_type, os_version, app_version, ip_address, user_agent, last_login_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())
-        ON DUPLICATE KEY UPDATE 
-          device_model = VALUES(device_model),
-          os_type = VALUES(os_type),
-          os_version = VALUES(os_version),
-          app_version = VALUES(app_version),
-          ip_address = VALUES(ip_address),
-          user_agent = VALUES(user_agent),
-          last_login_at = NOW()
-      `, [user.id, finalDeviceId, finalDeviceName, finalOsType, finalOsVersion, finalAppVersion, String(ip).slice(0, 45), String(ua).slice(0, 255)]);
-    } catch (devErr) {
-      console.error('Device registration error during Google login:', devErr);
-    }
+    // 4. Save this device under the account that just logged in
+    await registerUserDevice(user.id, finalDeviceId, deviceInfoFromRequest(req, finalDeviceName));
 
     // 5. Sign fresh JWT Access Token
     const token = signToken({ id: user.id, role: user.role });
@@ -1026,6 +987,12 @@ export async function verifyOtp(req, res) {
     const cleanTarget = String(target).trim().toLowerCase();
     const cleanOtp = String(otp).trim();
 
+    // A banned device can neither log in nor auto-register through OTP
+    const otpDeviceId = extractDeviceId(req);
+    if (otpDeviceId && (await isDeviceBanned(otpDeviceId))) {
+      return deviceBannedResponse(res);
+    }
+
     // 1. Check in-memory store
     const memEntry = memoryOtpStore.get(cleanTarget);
     const isMemValid = memEntry && (Date.now() - memEntry.createdAt < 300000) && memEntry.otp === cleanOtp;
@@ -1110,8 +1077,10 @@ export async function verifyOtp(req, res) {
     await cache.set(`user:${userObj.id}`, userObj, 300);
 
     const token = signToken({ id: userObj.id, role: userObj.role });
-    const otpDeviceId = req.body.device_id || req.body.deviceId || req.body.device_unique_id || null;
-    await enforceSingleDeviceSession(userObj.id, token, otpDeviceId);
+    if (otpDeviceId) {
+      await registerUserDevice(userObj.id, otpDeviceId, deviceInfoFromRequest(req));
+    }
+    await enforceSingleDeviceSession(userObj.id, token, otpDeviceId || null);
 
     return res.status(200).json({
       success: true,

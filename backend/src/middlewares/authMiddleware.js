@@ -1,6 +1,7 @@
 import { verifyToken } from '../config/jwt.js';
 import { query } from '../config/db.js';
 import { cache } from '../config/redis.js';
+import { isDeviceBanned, deviceBannedResponse, normalizeDeviceId } from '../services/deviceService.js';
 
 export async function requireAuth(req, res, next) {
   try {
@@ -41,16 +42,10 @@ export async function requireAuth(req, res, next) {
       return res.status(403).json({ success: false, message: 'Your account has been suspended by administration.' });
     }
 
-    // Check device ban if device header is present
-    const deviceId = req.headers['x-device-id'];
-    if (deviceId) {
-      const isDeviceBanned = await cache.getOrSet(`device:banned:${deviceId}`, 300, async () => {
-        const devRows = await query('SELECT is_banned FROM user_devices WHERE device_id = ? AND is_banned = TRUE LIMIT 1', [deviceId]);
-        return devRows && devRows.length > 0;
-      });
-      if (isDeviceBanned) {
-        return res.status(403).json({ success: false, message: 'This device has been banned from accessing the platform. Please contact support.' });
-      }
+    // Device ban: cuts off already-issued tokens the moment a device is banned
+    const deviceId = normalizeDeviceId(req.headers['x-device-id']);
+    if (deviceId && (await isDeviceBanned(deviceId))) {
+      return deviceBannedResponse(res);
     }
 
     req.user = user;

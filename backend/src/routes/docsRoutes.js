@@ -2777,6 +2777,12 @@ export const API_SPEC = {
             "type": "string",
             "required": false,
             "description": "Account role (default: \"user\", or \"host\")."
+          },
+          {
+            "name": "device_unique_id",
+            "type": "string",
+            "required": false,
+            "description": "Stable per-device ID (Android: ANDROID_ID, iOS: Keychain UUID). May also be sent as the x-device-id header. If this device is banned the request fails with 403 and code DEVICE_BANNED; otherwise the device is saved under the new account."
           }
         ],
         "example": {

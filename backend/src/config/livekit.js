@@ -1,4 +1,4 @@
-import { AccessToken } from 'livekit-server-sdk';
+import { AccessToken, RoomServiceClient } from 'livekit-server-sdk';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -73,6 +73,91 @@ export async function getLiveKitConfig() {
   });
 }
 
+
+/**
+ * When true (default) audience members get subscribe-only LiveKit tokens and
+ * publish permission follows seat ownership. Set
+ * LIVEKIT_ENFORCE_PUBLISH_PERMISSION=false to restore the old "everyone may
+ * publish" behaviour (instant rollback, no redeploy of the app needed).
+ */
+export const ENFORCE_PUBLISH_PERMISSION =
+  String(process.env.LIVEKIT_ENFORCE_PUBLISH_PERMISSION ?? 'true').toLowerCase() !== 'false';
+
+const LIVEKIT_ADMIN_TIMEOUT_MS = 3000;
+
+function withTimeout(promise, ms) {
+  let timer;
+  const timeout = new Promise((_, reject) => {
+    timer = setTimeout(() => reject(new Error(`LiveKit admin call timed out after ${ms}ms`)), ms);
+  });
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
+}
+
+async function getRoomServiceClient() {
+  const { url, apiKey, apiSecret } = await getLiveKitConfig();
+  const httpUrl = String(url).replace(/^wss:/i, 'https:').replace(/^ws:/i, 'http:');
+  return new RoomServiceClient(httpUrl, apiKey, apiSecret);
+}
+
+function buildPermission(canPublish) {
+  // updateParticipant REPLACES the whole permission object, so every flag
+  // must be sent explicitly (unset booleans default to false).
+  return {
+    canSubscribe: true,
+    canPublish: Boolean(canPublish),
+    canPublishData: true,
+  };
+}
+
+/**
+ * Grant / revoke publish permission for a user already connected to the
+ * LiveKit room. Best effort: never throws. If the user is not connected yet
+ * (or LiveKit is unreachable) the next token they fetch already carries the
+ * right permission because getLiveKitToken checks the seat table.
+ */
+export async function setParticipantPublishPermission(roomId, userId, canPublish) {
+  if (!ENFORCE_PUBLISH_PERMISSION || !roomId || !userId) return false;
+  try {
+    const client = await getRoomServiceClient();
+    await withTimeout(
+      client.updateParticipant(String(roomId), String(userId), undefined, buildPermission(canPublish)),
+      LIVEKIT_ADMIN_TIMEOUT_MS
+    );
+    return true;
+  } catch (err) {
+    // Participant not in the LiveKit room yet is expected and harmless.
+    console.warn(`[LiveKit] setParticipantPublishPermission(${roomId}, ${userId}, ${canPublish}) failed: ${err.message}`);
+    return false;
+  }
+}
+
+/**
+ * Reconcile publish permission of every connected participant with the seat
+ * table (host + seated users may publish, everyone else is audience).
+ */
+export async function syncRoomPublishPermissions(roomId, { hostId = null, seatedUserIds = [] } = {}) {
+  if (!ENFORCE_PUBLISH_PERMISSION || !roomId) return;
+  try {
+    const client = await getRoomServiceClient();
+    const participants = await withTimeout(client.listParticipants(String(roomId)), LIVEKIT_ADMIN_TIMEOUT_MS);
+    const allowed = new Set(seatedUserIds.map(String));
+    if (hostId) allowed.add(String(hostId));
+    await Promise.allSettled(
+      participants.map((p) => {
+        const shouldPublish = allowed.has(String(p.identity));
+        const currentlyCan = Boolean(p.permission?.canPublish);
+        if (shouldPublish === currentlyCan) return null;
+        return withTimeout(
+          client.updateParticipant(String(roomId), p.identity, undefined, buildPermission(shouldPublish)),
+          LIVEKIT_ADMIN_TIMEOUT_MS
+        );
+      })
+    );
+  } catch (err) {
+    console.warn(`[LiveKit] syncRoomPublishPermissions(${roomId}) failed: ${err.message}`);
+  }
+}
+
 /**
  * Generate a LiveKit AccessToken for WebRTC Audio/Video Streaming
  * @param {Object} options
@@ -104,7 +189,12 @@ export async function generateLiveKitToken({
     metadata: metadata ? JSON.stringify(metadata) : undefined,
   });
 
-  const shouldPublish = Boolean(isHost || canPublish);
+  // Only the host and seated participants may publish. Audience tokens are
+  // subscribe-only; publish permission is granted / revoked at runtime via
+  // setParticipantPublishPermission() when a seat is taken or vacated.
+  const shouldPublish = ENFORCE_PUBLISH_PERMISSION
+    ? Boolean(isHost || canPublish)
+    : true;
 
   at.addGrant({
     roomJoin: true,
@@ -133,4 +223,7 @@ export default {
   LIVEKIT_API_SECRET,
   getLiveKitConfig,
   generateLiveKitToken,
+  setParticipantPublishPermission,
+  syncRoomPublishPermissions,
+  ENFORCE_PUBLISH_PERMISSION,
 };

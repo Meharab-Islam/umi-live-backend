@@ -1,0 +1,361 @@
+{
+  "communities": {
+    "0": [
+      "admin_panel_src_api",
+      "admin_panel_src_api_api",
+      "admin_panel_src_api_api_base",
+      "admin_panel_src_api_getcurrentuser",
+      "admin_panel_src_api_gettoken",
+      "admin_panel_src_api_request",
+      "admin_panel_src_api_setcurrentuser",
+      "admin_panel_src_api_settoken",
+      "admin_panel_src_app",
+      "admin_panel_src_app_app",
+      "admin_panel_src_components_header",
+      "admin_panel_src_components_header_header",
+      "admin_panel_src_components_sidebar",
+      "admin_panel_src_components_sidebar_sidebar",
+      "admin_panel_src_components_statcard",
+      "admin_panel_src_components_statcard_statcard",
+      "admin_panel_src_main",
+      "admin_panel_src_pages_agencies",
+      "admin_panel_src_pages_agencies_agencies",
+      "admin_panel_src_pages_dashboard",
+      "admin_panel_src_pages_dashboard_dashboard",
+      "admin_panel_src_pages_gifts",
+      "admin_panel_src_pages_gifts_gifts",
+      "admin_panel_src_pages_livestreams",
+      "admin_panel_src_pages_livestreams_livestreams",
+      "admin_panel_src_pages_login",
+      "admin_panel_src_pages_login_login",
+      "admin_panel_src_pages_settings",
+      "admin_panel_src_pages_settings_settings",
+      "admin_panel_src_pages_users",
+      "admin_panel_src_pages_users_users",
+      "admin_panel_src_pages_withdrawals",
+      "admin_panel_src_pages_withdrawals_withdrawals",
+      "ref_react"
+    ],
+    "1": [
+      "backend_src_config_db_getpool",
+      "backend_src_config_db_query",
+      "backend_src_controllers_admincontroller",
+      "backend_src_controllers_admincontroller_adjustbalance",
+      "backend_src_controllers_admincontroller_assignusertoagency",
+      "backend_src_controllers_admincontroller_createagency",
+      "backend_src_controllers_admincontroller_creategift",
+      "backend_src_controllers_admincontroller_deletegift",
+      "backend_src_controllers_admincontroller_getagencies",
+      "backend_src_controllers_admincontroller_getagencyhosts",
+      "backend_src_controllers_admincontroller_getdashboardstats",
+      "backend_src_controllers_admincontroller_getgiftsadmin",
+      "backend_src_controllers_admincontroller_getsettings",
+      "backend_src_controllers_admincontroller_getstreams",
+      "backend_src_controllers_admincontroller_getusers",
+      "backend_src_controllers_admincontroller_getwithdrawals",
+      "backend_src_controllers_admincontroller_processwithdrawal",
+      "backend_src_controllers_admincontroller_removeuserfromagency",
+      "backend_src_controllers_admincontroller_terminatestream",
+      "backend_src_controllers_admincontroller_updateagency",
+      "backend_src_controllers_admincontroller_updategift",
+      "backend_src_controllers_admincontroller_updatesetting",
+      "backend_src_controllers_admincontroller_updateuser",
+      "backend_src_routes_adminroutes",
+      "backend_src_routes_adminroutes_router"
+    ],
+    "2": [
+      "backend_src_config_jwt",
+      "backend_src_config_jwt_signtoken",
+      "backend_src_config_jwt_verifytoken",
+      "backend_src_controllers_authcontroller",
+      "backend_src_controllers_authcontroller_getme",
+      "backend_src_controllers_authcontroller_login",
+      "backend_src_controllers_authcontroller_register",
+      "backend_src_controllers_livecontroller",
+      "backend_src_controllers_livecontroller_createroom",
+      "backend_src_controllers_livecontroller_endroom",
+      "backend_src_controllers_livecontroller_getroomdetails",
+      "backend_src_controllers_livecontroller_getrooms",
+      "backend_src_middlewares_authmiddleware",
+      "backend_src_middlewares_authmiddleware_optionalauth",
+      "backend_src_middlewares_authmiddleware_requireadmin",
+      "backend_src_middlewares_authmiddleware_requireauth",
+      "backend_src_routes_authroutes",
+      "backend_src_routes_authroutes_router",
+      "backend_src_routes_liveroutes",
+      "backend_src_routes_liveroutes_router"
+    ],
+    "3": [
+      "admin_panel_package",
+      "admin_panel_package_dependencies",
+      "admin_panel_package_dependencies_lucide_react",
+      "admin_panel_package_dependencies_react",
+      "admin_panel_package_dependencies_react_dom",
+      "admin_panel_package_dependencies_socket_io_client",
+      "admin_panel_package_name",
+      "admin_panel_package_private",
+      "admin_panel_package_scripts",
+      "admin_panel_package_scripts_build",
+      "admin_panel_package_scripts_dev",
+      "admin_panel_package_scripts_lint",
+      "admin_panel_package_scripts_preview",
+      "admin_panel_package_type",
+      "admin_panel_package_version",
+      "lucide_react",
+      "react",
+      "react_dom",
+      "socket_io_client"
+    ],
+    "4": [
+      "backend_package_dependencies",
+      "backend_package_dependencies_bcryptjs",
+      "backend_package_dependencies_cors",
+      "backend_package_dependencies_dotenv",
+      "backend_package_dependencies_express",
+      "backend_package_dependencies_jsonwebtoken",
+      "backend_package_dependencies_morgan",
+      "backend_package_dependencies_mysql2",
+      "backend_package_dependencies_socket_io",
+      "backend_package_dependencies_uuid",
+      "bcryptjs",
+      "cors",
+      "dotenv",
+      "express",
+      "jsonwebtoken",
+      "morgan",
+      "mysql2",
+      "socket_io",
+      "uuid"
+    ],
+    "5": [
+      "backend_src_config_db",
+      "backend_src_config_db_dbconfig",
+      "backend_src_config_db_testconnection",
+      "backend_src_controllers_giftcontroller",
+      "backend_src_controllers_giftcontroller_getgifts",
+      "backend_src_controllers_giftcontroller_sendgift",
+      "backend_src_db_init",
+      "backend_src_db_init_initializedatabase",
+      "backend_src_routes_giftroutes",
+      "backend_src_routes_giftroutes_router",
+      "backend_src_server",
+      "backend_src_server_app",
+      "backend_src_server_io",
+      "backend_src_server_server",
+      "backend_src_server_startserver",
+      "backend_src_server_waitfordatabase",
+      "backend_src_sockets_livesocket",
+      "backend_src_sockets_livesocket_setuplivesocket"
+    ],
+    "6": [
+      "backend_package",
+      "backend_package_description",
+      "backend_package_devdependencies",
+      "backend_package_devdependencies_nodemon",
+      "backend_package_main",
+      "backend_package_name",
+      "backend_package_scripts",
+      "backend_package_scripts_dev",
+      "backend_package_scripts_seed",
+      "backend_package_scripts_start",
+      "backend_package_type",
+      "backend_package_version",
+      "nodemon"
+    ],
+    "7": [
+      "admin_panel_package_devdependencies",
+      "admin_panel_package_devdependencies_oxlint",
+      "admin_panel_package_devdependencies_types_react",
+      "admin_panel_package_devdependencies_types_react_dom",
+      "admin_panel_package_devdependencies_vite",
+      "admin_panel_package_devdependencies_vitejs_plugin_react",
+      "oxlint",
+      "types_react",
+      "types_react_dom",
+      "vite",
+      "vitejs_plugin_react"
+    ],
+    "8": [
+      "admin_panel_oxlintrc",
+      "admin_panel_oxlintrc_plugins",
+      "admin_panel_oxlintrc_rules",
+      "admin_panel_oxlintrc_rules_react_only_export_components",
+      "admin_panel_oxlintrc_rules_react_rules_of_hooks",
+      "admin_panel_oxlintrc_schema",
+      "ref_oxc",
+      "ref_warn"
+    ],
+    "9": [
+      "backend_src_controllers_walletcontroller",
+      "backend_src_controllers_walletcontroller_getbalances",
+      "backend_src_controllers_walletcontroller_getpackages",
+      "backend_src_controllers_walletcontroller_gettransactions",
+      "backend_src_controllers_walletcontroller_purchasecoins",
+      "backend_src_controllers_walletcontroller_requestwithdrawal",
+      "backend_src_routes_walletroutes",
+      "backend_src_routes_walletroutes_router"
+    ],
+    "10": [
+      "admin_panel_vite_config"
+    ]
+  },
+  "cohesion": {
+    "0": 0.1354723707664884,
+    "1": 0.21666666666666667,
+    "2": 0.18947368421052632,
+    "3": 0.10526315789473684,
+    "4": 0.10526315789473684,
+    "5": 0.16993464052287582,
+    "6": 0.15384615384615385,
+    "7": 0.18181818181818182,
+    "8": 0.25,
+    "9": 0.42857142857142855,
+    "10": 1.0
+  },
+  "gods": [
+    {
+      "id": "backend_src_config_db_query",
+      "label": "query()",
+      "degree": 38
+    },
+    {
+      "id": "ref_react",
+      "label": "react",
+      "degree": 14
+    },
+    {
+      "id": "backend_src_config_db_getpool",
+      "label": "getPool()",
+      "degree": 13
+    },
+    {
+      "id": "backend_src_middlewares_authmiddleware_requireauth",
+      "label": "requireAuth()",
+      "degree": 8
+    },
+    {
+      "id": "admin_panel_src_api_api",
+      "label": "api",
+      "degree": 8
+    },
+    {
+      "id": "admin_panel_src_app_app",
+      "label": "App()",
+      "degree": 6
+    },
+    {
+      "id": "admin_panel_src_api_setcurrentuser",
+      "label": "setCurrentUser()",
+      "degree": 5
+    },
+    {
+      "id": "admin_panel_src_api_settoken",
+      "label": "setToken()",
+      "degree": 5
+    },
+    {
+      "id": "admin_panel_package_scripts",
+      "label": "scripts",
+      "degree": 5
+    },
+    {
+      "id": "backend_src_config_jwt_signtoken",
+      "label": "signToken()",
+      "degree": 4
+    }
+  ],
+  "surprises": [
+    {
+      "source": "sendGift()",
+      "target": "getPool()",
+      "source_files": [
+        "backend/src/controllers/giftController.js",
+        "backend/src/config/db.js"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "bridges separate communities"
+    },
+    {
+      "source": "purchaseCoins()",
+      "target": "getPool()",
+      "source_files": [
+        "backend/src/controllers/walletController.js",
+        "backend/src/config/db.js"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "bridges separate communities"
+    },
+    {
+      "source": "requestWithdrawal()",
+      "target": "getPool()",
+      "source_files": [
+        "backend/src/controllers/walletController.js",
+        "backend/src/config/db.js"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "bridges separate communities"
+    },
+    {
+      "source": "login()",
+      "target": "query()",
+      "source_files": [
+        "backend/src/controllers/authController.js",
+        "backend/src/config/db.js"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "bridges separate communities"
+    },
+    {
+      "source": "register()",
+      "target": "query()",
+      "source_files": [
+        "backend/src/controllers/authController.js",
+        "backend/src/config/db.js"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "bridges separate communities"
+    }
+  ],
+  "questions": [
+    {
+      "type": "bridge_node",
+      "question": "Why does `query()` connect `query` to `walletRoutes.js`, `authMiddleware.js`, `server.js`?",
+      "why": "High betweenness centrality (0.060) - this node is a cross-community bridge."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `dependencies` connect `dependencies` to `backend/package.json`?",
+      "why": "High betweenness centrality (0.025) - this node is a cross-community bridge."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `react` connect `App.jsx` to `.oxlintrc.json`?",
+      "why": "High betweenness centrality (0.023) - this node is a cross-community bridge."
+    },
+    {
+      "type": "verify_inferred",
+      "question": "Are the 5 inferred relationships involving `requireAuth()` (e.g. with `adminRoutes.js` and `authRoutes.js`) actually correct?",
+      "why": "`requireAuth()` has 5 INFERRED edges - model-reasoned connections that need verification."
+    },
+    {
+      "type": "isolated_nodes",
+      "question": "What connects `API_BASE`, `router`, `router` to the rest of the system?",
+      "why": "49 weakly-connected nodes found - possible documentation gaps or missing edges."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `App.jsx` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.1354723707664884 - nodes in this community are weakly interconnected."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `admin-panel/package.json` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.10526315789473684 - nodes in this community are weakly interconnected."
+    }
+  ]
+}

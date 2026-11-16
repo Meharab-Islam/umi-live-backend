@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { cache } from '../../config/redis.js';
 import { query } from '../../config/db.js';
-import { generateLiveKitToken, LIVEKIT_URL } from '../../config/livekit.js';
+import { generateLiveKitToken, LIVEKIT_URL, setParticipantPublishPermission, syncRoomPublishPermissions } from '../../config/livekit.js';
 import { sendLiveRoomStartedPushNotification } from '../../config/firebase.js';
 import { cancelHostDisconnectGraceTimer, hostDisconnectGraceTimers, clearRoomMemoryState } from '../../sockets/liveSocket.js';
 import { checkStreamRewardStatus, claimAndAwardLiveReward } from '../../services/liveRewardService.js';
@@ -1130,6 +1130,9 @@ export async function handleUserSeatDeparture(roomId, leavingUserId, io = null) 
       return { success: true, action: 'host_retained_on_main', seatNumber: 1 };
     }
 
+    // Departing user goes back to audience: revoke LiveKit publish permission.
+    await setParticipantPublishPermission(canonicalRoomId, leavingUserId, false);
+
     const wasMainSeat = departingSeat.seat_number === 1 || Boolean(departingSeat.is_main_seat);
 
     if (wasMainSeat && String(leavingUserId) !== String(hostId)) {
@@ -1940,6 +1943,7 @@ export async function takeSeat(req, res) {
        ON DUPLICATE KEY UPDATE user_id = VALUES(user_id), is_camera_on = VALUES(is_camera_on), is_muted = VALUES(is_muted)`,
       [roomId, num, userId, cameraState, muteState]
     );
+    await setParticipantPublishPermission(roomId, userId, true);
 
     if (isVideo) {
       await compactRoomGuestSeats(roomId, room.id, totalSeats);
@@ -2627,6 +2631,7 @@ export async function requestSeat(req, res) {
          ON DUPLICATE KEY UPDATE user_id = VALUES(user_id), is_camera_on = 1, is_muted = 0`,
         [roomId, targetSeatNum, userId]
       );
+      await setParticipantPublishPermission(roomId, userId, true);
 
       // Instant Redis Invalidation
       await Promise.allSettled([
@@ -2988,6 +2993,7 @@ export async function approveSeatRequest(req, res) {
        ON DUPLICATE KEY UPDATE user_id = VALUES(user_id), is_camera_on = 1, is_muted = 0`,
       [canonicalRoomId, assignSeatNum, targetUserId]
     );
+    await setParticipantPublishPermission(canonicalRoomId, targetUserId, true);
 
     // Video Live: Consecutively compact co-hosts without empty gaps
     if (isVideoLive) {
@@ -3561,6 +3567,14 @@ export async function updateRoomSeatsCount(req, res) {
         });
       }
       await query('DELETE FROM live_room_seats WHERE room_id = ? AND seat_number > ?', [roomId, newSeats]);
+      {
+        const hostRows = await query('SELECT host_id FROM live_rooms WHERE room_id = ?', [roomId]);
+        const seated = await query('SELECT user_id FROM live_room_seats WHERE room_id = ? AND user_id IS NOT NULL', [roomId]);
+        await syncRoomPublishPermissions(roomId, {
+          hostId: hostRows[0]?.host_id,
+          seatedUserIds: seated.map((r) => r.user_id),
+        });
+      }
     }
 
     // Update live_rooms DB
@@ -3759,6 +3773,14 @@ export async function kickAllSeatUsers(req, res) {
       'UPDATE live_room_seats SET user_id = NULL, is_camera_on = 0, is_muted = 0 WHERE room_id = ? AND seat_number > 1',
       [roomId]
     );
+    {
+      const hostRows = await query('SELECT host_id FROM live_rooms WHERE room_id = ?', [roomId]);
+      const seated = await query('SELECT user_id FROM live_room_seats WHERE room_id = ? AND user_id IS NOT NULL', [roomId]);
+      await syncRoomPublishPermissions(roomId, {
+        hostId: hostRows[0]?.host_id,
+        seatedUserIds: seated.map((r) => r.user_id),
+      });
+    }
 
     // Instant Redis Invalidation
     await Promise.allSettled([
@@ -4222,11 +4244,12 @@ export async function promoteToMainSeat(req, res) {
     }
 
     // SWAP: Target user -> Seat 1, Previous Seat 1 occupant -> targetSeatNum
+    // Each user keeps their own mic / camera state across the swap (never force on/unmuted).
     const isVideoLive = (room.live_type || '').toLowerCase() === 'video';
-    const newMainCam = isVideoLive ? 1 : targetCamera;
-    const newMainMuted = isVideoLive ? 0 : targetMuted;
-    const newCoHostCam = isVideoLive ? 1 : currentMainCamera;
-    const newCoHostMuted = isVideoLive ? 0 : currentMainMuted;
+    const newMainCam = targetCamera ?? 1;
+    const newMainMuted = targetMuted ?? 0;
+    const newCoHostCam = currentMainCamera ?? 1;
+    const newCoHostMuted = currentMainMuted ?? 0;
 
     await query(
       `INSERT INTO live_room_seats (room_id, seat_number, user_id, is_main_seat, is_camera_on, is_muted)
@@ -5060,8 +5083,11 @@ export async function getLiveKitToken(req, res) {
       [canonicalRoomId, String(roomId), userId]
     );
     const isSeated = seatRows.length > 0;
-    // Allow publishing so when camera/mic is toggled by user, WebRTC publish succeeds seamlessly
-    const canPublish = true;
+    // Only the host and users currently on a seat may publish. Audience tokens are
+    // subscribe-only; permission is granted/revoked live when seats change
+    // (see setParticipantPublishPermission). LIVEKIT_ENFORCE_PUBLISH_PERMISSION=false
+    // restores the old behaviour.
+    const canPublish = isHost || isSeated;
 
     // 4. Generate LiveKit token
     const tokenData = await generateLiveKitToken({

@@ -1148,6 +1148,32 @@ export function setupLiveSocket(io) {
       try {
         const targetRoom = data?.roomId || data?.room_id || currentRoom;
         if (!targetRoom) return;
+
+        // Only the room host, a room admin or a platform admin may broadcast a
+        // seat arrangement; otherwise any connected client could overwrite the
+        // seat layout shown to every viewer.
+        const senderId = Number(currentUser?.id || socket.userId);
+        if (!(senderId > 0)) return;
+        const isNumRoom = /^\d+$/.test(String(targetRoom).trim());
+        const roomRows = await query(
+          'SELECT id, room_id, host_id FROM live_rooms WHERE (room_id = ? OR id = ?) AND status = "live"',
+          [String(targetRoom), isNumRoom ? Number(targetRoom) : -1]
+        );
+        if (roomRows.length === 0) return;
+        const rearrangeRoom = roomRows[0];
+        const isPlatformAdmin =
+          currentUser?.role === 'admin' || currentUser?.role === 'superadmin' ||
+          socket.user?.role === 'admin' || socket.user?.role === 'superadmin';
+        let canRearrange = isPlatformAdmin || senderId === Number(rearrangeRoom.host_id);
+        if (!canRearrange) {
+          const adminRows = await query(
+            'SELECT id FROM live_room_admins WHERE (room_id = ? OR room_id = ?) AND user_id = ?',
+            [rearrangeRoom.room_id, String(rearrangeRoom.id), senderId]
+          );
+          canRearrange = adminRows.length > 0;
+        }
+        if (!canRearrange) return;
+
         const seatOrder = data?.seatOrder || data?.seat_order;
         const payload = {
           roomId: targetRoom,

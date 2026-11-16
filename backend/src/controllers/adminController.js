@@ -14,6 +14,7 @@ import { invalidateWalletWithdrawalCache } from './walletController.js';
 import { deleteMultipleFilesFromStorage } from '../services/fileStorageService.js';
 import { getLiveIO } from '../sockets/liveSocket.js';
 import { invalidateAgencyCache } from './mobile/agencyController.js';
+import { setDeviceBanState, getUserDeviceIds } from '../services/deviceService.js';
 
 export async function getDashboardStats(req, res) {
   try {
@@ -5136,21 +5137,9 @@ export async function takeAdminReportAction(req, res) {
 
       // 2. Hardware Device Ban
       if (banType === 'device' || banType === 'both') {
-        const devRes = await query(
-          `UPDATE user_devices 
-           SET is_banned = 1, ban_reason = ?, banned_by = ?, banned_at = NOW() 
-           WHERE user_id = ?`,
-          [banReason, req.user?.id || null, targetUserId]
-        );
-        devicesAffected = devRes?.affectedRows || 0;
-
-        // Invalidate Redis cache for each device
-        const userDevs = await query('SELECT device_id FROM user_devices WHERE user_id = ?', [targetUserId]);
-        for (const d of userDevs) {
-          if (d.device_id) {
-            await cache.set(`device:banned:${d.device_id}`, true, 86400 * 30);
-          }
-        }
+        const reportedDeviceIds = await getUserDeviceIds(targetUserId);
+        devicesAffected = reportedDeviceIds.length;
+        await setDeviceBanState(reportedDeviceIds, true, { reason: banReason, bannedBy: req.user?.id || null });
       }
 
       newStatus = 'resolved';
@@ -5180,20 +5169,9 @@ export async function takeAdminReportAction(req, res) {
 
       // 2. Unban Devices
       if (unbanType === 'device' || unbanType === 'both') {
-        const devRes = await query(
-          `UPDATE user_devices 
-           SET is_banned = 0, ban_reason = NULL, banned_at = NULL, banned_by = NULL 
-           WHERE user_id = ?`,
-          [targetUserId]
-        );
-        devicesAffected = devRes?.affectedRows || 0;
-
-        const userDevs = await query('SELECT device_id FROM user_devices WHERE user_id = ?', [targetUserId]);
-        for (const d of userDevs) {
-          if (d.device_id) {
-            await cache.del(`device:banned:${d.device_id}`);
-          }
-        }
+        const reportedDeviceIds = await getUserDeviceIds(targetUserId);
+        devicesAffected = reportedDeviceIds.length;
+        await setDeviceBanState(reportedDeviceIds, false);
       }
 
       if (unbanType === 'both') {
