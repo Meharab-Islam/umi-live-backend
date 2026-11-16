@@ -8,6 +8,71 @@ import { enqueueRoomGift, clearRoomGiftQueue } from '../services/giftQueueServic
 import { checkUserInvisibleRoomEnterPrivilege } from '../services/userPrivilegeService.js';
 import { getRoomMusicState, setRoomMusicState, clearRoomMusicState } from '../services/roomMusicService.js';
 import { resolveAbsoluteUrl } from '../controllers/mobile/giftController.js';
+import {
+  LIVE_SCALE,
+  isBigRoom,
+  takeBudget,
+  throttledRun,
+  syncRoomViewerCount,
+  emitRoomViewerCount,
+  allowChatMessage,
+} from '../services/liveScaleGuard.js';
+
+// Equipped entry-effect lookup (3-table JOIN) cached per user; most users have none,
+// so we cache a "none" sentinel too. Invalidated by entryEffectController equip/unequip.
+async function getEquippedEntryEffect(userId) {
+  if (!userId) return null;
+  const hit = await cache.getOrSet(`user:entry_effects:join:${userId}`, LIVE_SCALE.profileCacheTtl, async () => {
+    const rows = await query(
+      `SELECT ee.id, ee.name, ee.effect_type, ee.preview_image_url, ee.svga_url, ee.gif_url, ee.sound_url,
+              pc.name as vip_tier
+       FROM user_entry_effects uee
+       JOIN entry_effects ee ON ee.id = uee.effect_id AND ee.is_active = 1
+       LEFT JOIN user_package_subscriptions ups ON ups.user_id = uee.user_id AND ups.status = 'active' AND ups.expires_at > NOW() AND ups.is_equipped = 1
+       LEFT JOIN package_categories pc ON pc.id = ups.category_id
+       WHERE uee.user_id = ? AND uee.status = 'active' AND uee.expires_at > NOW() AND uee.is_equipped = 1
+       LIMIT 1`,
+      [userId]
+    );
+    return rows && rows.length > 0 ? rows[0] : { none: true };
+  });
+  return hit && !hit.none ? hit : null;
+}
+
+// Package + agency info shown next to a chat message. Cached per user so a chat burst
+// does not turn into 2 DB queries per message.
+async function getChatProfile(userId) {
+  if (!userId) return {};
+  return (await cache.getOrSet(`live:chat_profile:${userId}`, LIVE_SCALE.profileCacheTtl, async () => {
+    const out = { package: null, agency: null };
+    try {
+      const pkgRows = await query(
+        `SELECT pc.name as package_category_name,
+                COALESCE(pp.image_url, pc.badge_icon, '') as package_image,
+                pc.color_code as package_color
+         FROM user_package_subscriptions ups
+         LEFT JOIN privilege_packages pp ON pp.id = ups.package_id
+         LEFT JOIN package_categories pc ON pc.id = ups.category_id AND pc.is_active = 1
+         WHERE ups.user_id = ? AND ups.status = 'active' AND ups.expires_at > NOW()
+         ORDER BY ups.is_equipped DESC, ups.expires_at DESC
+         LIMIT 1`,
+        [userId]
+      );
+      if (pkgRows.length > 0) out.package = pkgRows[0];
+    } catch (_) {}
+    try {
+      const agencyRows = await query(
+        `SELECT a.id as agency_id, a.name as agency_name
+         FROM users u
+         INNER JOIN agencies a ON a.id = u.agency_id
+         WHERE u.id = ? LIMIT 1`,
+        [userId]
+      );
+      if (agencyRows.length > 0) out.agency = agencyRows[0];
+    } catch (_) {}
+    return out;
+  })) || {};
+}
 
 // Store connected viewers: roomId -> Set of socket IDs (Module-level scope)
 const roomViewers = new Map();
@@ -389,35 +454,24 @@ async function executeGuestSeatAndRoomCleanup(canonicalRoomId, numericRoomId, ho
       [canonicalRoomId, String(numericRoomId || ''), userId]
     );
 
-    // 5. Update real viewer count in live_rooms (excluding host)
-    if (numericRoomId) {
-      await query(
-        `UPDATE live_rooms 
-         SET viewer_count = (SELECT COUNT(*) FROM live_room_viewers WHERE (room_id = ? OR room_id = ?) AND user_id != ?) 
-         WHERE id = ?`,
-        [canonicalRoomId, String(numericRoomId), hostId, numericRoomId]
-      );
-    } else {
-      await query(
-        `UPDATE live_rooms 
-         SET viewer_count = (SELECT COUNT(*) FROM live_room_viewers WHERE room_id = ? AND user_id != ?) 
-         WHERE room_id = ?`,
-        [canonicalRoomId, hostId, canonicalRoomId]
-      );
-    }
+    // 5. Update real viewer count in live_rooms (excluding host).
+    // Coalesced: one COUNT(*)+UPDATE per room per window instead of one per leave.
+    const currentViewerCount = await syncRoomViewerCount({
+      canonicalRoomId,
+      numericRoomId,
+      hostId,
+      onTrailing: (c) => emitRoomViewerCount(io, canonicalRoomId, numericRoomId, c),
+    });
 
-    const [updatedRow] = numericRoomId
-      ? await query('SELECT viewer_count FROM live_rooms WHERE id = ?', [numericRoomId])
-      : await query('SELECT viewer_count FROM live_rooms WHERE room_id = ?', [canonicalRoomId]);
-    const currentViewerCount = updatedRow ? Math.max(0, updatedRow.viewer_count) : 0;
-
-    // 6. Invalidate all Redis caches
+    // 6. Invalidate Redis caches (SCAN-based pattern deletes are throttled; exact keys stay instant)
+    throttledRun('inval:rooms', LIVE_SCALE.cacheInvalidateWindowMs, () => cache.delByPattern('mobile:rooms:*'));
+    throttledRun(`inval:users:${canonicalRoomId}`, LIVE_SCALE.cacheInvalidateWindowMs, async () => {
+      await cache.delByPattern(`mobile:room:users:${canonicalRoomId}*`);
+      if (numericRoomId) await cache.delByPattern(`mobile:room:users:${numericRoomId}*`);
+    });
     await Promise.allSettled([
-      cache.delByPattern('mobile:rooms:*'),
       cache.del(`mobile:room_details:${canonicalRoomId}`),
       numericRoomId ? cache.del(`mobile:room_details:${numericRoomId}`) : null,
-      cache.delByPattern(`mobile:room:users:${canonicalRoomId}*`),
-      numericRoomId ? cache.delByPattern(`mobile:room:users:${numericRoomId}*`) : null,
       cache.del(`mobile:live:seat_requests:${canonicalRoomId}`),
       cache.del(`mobile:live:room_admins:${canonicalRoomId}`),
       cache.del(`room:${canonicalRoomId}`),
@@ -504,15 +558,14 @@ async function executeGuestSeatAndRoomCleanup(canonicalRoomId, numericRoomId, ho
         timestamp: new Date().toISOString(),
       };
 
-      const channels = new Set([canonicalRoomId, String(numericRoomId)].filter(Boolean));
-      for (const ch of channels) {
-        io.to(ch).emit('user-left', leavePayload);
-        io.to(ch).emit('user_left', leavePayload);
-        io.to(ch).emit('viewer_left', leavePayload);
-        io.to(ch).emit('viewer-count-update', { roomId: canonicalRoomId, count: currentViewerCount, viewer_count: currentViewerCount });
-        io.to(ch).emit('room_viewers_updated', { roomId: canonicalRoomId, count: currentViewerCount, viewer_count: currentViewerCount });
+      const chans = [canonicalRoomId, numericRoomId ? String(numericRoomId) : null].filter(Boolean);
+      // Big rooms: cap departure announcements per second; io.to([..]) sends once per socket.
+      if (!isBigRoom(currentViewerCount) || takeBudget(`left:${canonicalRoomId}`, LIVE_SCALE.joinAnnouncePerSec)) {
+        io.to(chans).emit('user-left', leavePayload);
+        io.to(chans).emit('user_left', leavePayload);
+        io.to(chans).emit('viewer_left', leavePayload);
       }
-      io.emit('room_stats_update', { roomId: canonicalRoomId, numericRoomId, viewer_count: currentViewerCount, count: currentViewerCount });
+      emitRoomViewerCount(io, canonicalRoomId, numericRoomId, currentViewerCount);
     }
 
     roomUserJoinAnnounced.delete(`${canonicalRoomId}_${userId}`);
@@ -797,8 +850,10 @@ export function setupLiveSocket(io) {
         const lastCount = roomLastViewerCount.get(canonicalRoomId);
         if (!isStealth && lastCount !== activeCount) {
           roomLastViewerCount.set(canonicalRoomId, activeCount);
-          io.to(canonicalRoomId).emit('viewer-count-update', { roomId: canonicalRoomId, count: activeCount, viewer_count: activeCount });
-          io.emit('room_stats_update', { roomId: canonicalRoomId, numericRoomId, viewer_count: activeCount, count: activeCount });
+          // The joining socket gets the exact count right away; the room and the home feed
+          // get a throttled (leading + trailing) update instead of one emit per join.
+          socket.emit('viewer-count-update', { roomId: canonicalRoomId, count: activeCount, viewer_count: activeCount });
+          emitRoomViewerCount(io, canonicalRoomId, numericRoomId, activeCount);
         }
 
         // Sync room settings (comments & reactions disabled flags) directly to the joining socket (supports late joiners)
@@ -879,6 +934,9 @@ export function setupLiveSocket(io) {
         const shouldAnnounceJoin = !isHost && !isStealth && currentUser?.id && (!lastAnnounced || (now - lastAnnounced > 20000));
         if (shouldAnnounceJoin) {
           roomUserJoinAnnounced.set(userKey, now);
+          // Big rooms: cap "X joined" broadcasts per second (each one fans out to every viewer).
+          const bigRoom = isBigRoom(activeCount);
+          const announceJoin = !bigRoom || takeBudget(`join:${canonicalRoomId}`, LIVE_SCALE.joinAnnouncePerSec);
           const joinedPayload = {
             roomId: canonicalRoomId,
             userId: currentUser.id,
@@ -904,23 +962,13 @@ export function setupLiveSocket(io) {
             is_reaction_disabled: Boolean(dbCountRow ? dbCountRow.is_reaction_disabled : false),
             timestamp: new Date().toISOString(),
           };
-          io.to(canonicalRoomId).emit('user-joined', joinedPayload);
+          if (announceJoin) io.to(canonicalRoomId).emit('user-joined', joinedPayload);
 
           // Broadcast Entry Effect (Mount, Car, Dragon, Pegasus) if user has an active equipped effect
           try {
-            const entryRows = await query(
-              `SELECT ee.id, ee.name, ee.effect_type, ee.preview_image_url, ee.svga_url, ee.gif_url, ee.sound_url,
-                      pc.name as vip_tier
-               FROM user_entry_effects uee
-               JOIN entry_effects ee ON ee.id = uee.effect_id AND ee.is_active = 1
-               LEFT JOIN user_package_subscriptions ups ON ups.user_id = uee.user_id AND ups.status = 'active' AND ups.expires_at > NOW() AND ups.is_equipped = 1
-               LEFT JOIN package_categories pc ON pc.id = ups.category_id
-               WHERE uee.user_id = ? AND uee.status = 'active' AND uee.expires_at > NOW() AND uee.is_equipped = 1
-               LIMIT 1`,
-              [currentUser.id]
-            );
-            if (entryRows && entryRows.length > 0) {
-              const eff = entryRows[0];
+            const eff = await getEquippedEntryEffect(currentUser.id);
+            // Big rooms: effects are budgeted separately so VIP entrances still play without a storm.
+            if (eff && (!bigRoom || takeBudget(`effect:${canonicalRoomId}`, LIVE_SCALE.entryEffectPerSec))) {
               const effectPayload = {
                 roomId: canonicalRoomId,
                 userId: currentUser.id,
@@ -1282,6 +1330,12 @@ export function setupLiveSocket(io) {
       const msg = data?.message || data?.text;
       if (!targetRoom || !msg) return;
 
+      // Per-socket rate limit: drops spam before it costs any DB / fan-out work.
+      if (!allowChatMessage(socket)) {
+        socket.emit('room_chat_rate_limited', { roomId: targetRoom, message: 'You are sending messages too fast.' });
+        return;
+      }
+
       const u = data?.user || currentUser || { full_name: "Guest" };
       const senderUserId = data?.userId || data?.user_id || u?.id;
 
@@ -1289,48 +1343,28 @@ export function setupLiveSocket(io) {
       let packageImage = data?.packageImage || data?.package_image || u?.package_image;
       let packageColor = data?.packageColor || data?.package_color || data?.color || u?.package_color || u?.packageColor || u?.color;
 
-      // If user has an active package in DB but socket payload didn't include it, look it up from active subscription!
+      // Missing package / agency info is looked up once per user and cached (not per message).
+      let chatProfile = null;
       if (senderUserId && (!packageImage || !packageColor)) {
-        try {
-          const pkgRows = await query(
-            `SELECT pc.name as package_category_name,
-                    COALESCE(pp.image_url, pc.badge_icon, '') as package_image,
-                    pc.color_code as package_color
-             FROM user_package_subscriptions ups
-             LEFT JOIN privilege_packages pp ON pp.id = ups.package_id
-             LEFT JOIN package_categories pc ON pc.id = ups.category_id AND pc.is_active = 1
-             WHERE ups.user_id = ? AND ups.status = 'active' AND ups.expires_at > NOW()
-             ORDER BY ups.is_equipped DESC, ups.expires_at DESC
-             LIMIT 1`,
-            [senderUserId]
-          );
-          if (pkgRows.length > 0) {
-            packageCategoryName = packageCategoryName || pkgRows[0].package_category_name;
-            packageImage = packageImage || pkgRows[0].package_image;
-            packageColor = packageColor || pkgRows[0].package_color;
-          }
-        } catch (_) {}
+        chatProfile = await getChatProfile(senderUserId);
+        if (chatProfile.package) {
+          packageCategoryName = packageCategoryName || chatProfile.package.package_category_name;
+          packageImage = packageImage || chatProfile.package.package_image;
+          packageColor = packageColor || chatProfile.package.package_color;
+        }
       }
 
       let agencyId = data?.agencyId || data?.agency_id || u?.agency_id;
       let agencyName = data?.agencyName || data?.agency_name || u?.agency_name;
 
       if (senderUserId && agencyName === undefined) {
-        try {
-          const agencyRows = await query(
-            `SELECT a.id as agency_id, a.name as agency_name
-             FROM users u
-             INNER JOIN agencies a ON a.id = u.agency_id
-             WHERE u.id = ? LIMIT 1`,
-            [senderUserId]
-          );
-          if (agencyRows.length > 0) {
-            agencyId = agencyRows[0].agency_id;
-            agencyName = agencyRows[0].agency_name;
-          } else {
-            agencyName = null;
-          }
-        } catch (_) {}
+        chatProfile = chatProfile || (await getChatProfile(senderUserId));
+        if (chatProfile.agency) {
+          agencyId = chatProfile.agency.agency_id;
+          agencyName = chatProfile.agency.agency_name;
+        } else {
+          agencyName = null;
+        }
       }
 
       const payload = {

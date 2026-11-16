@@ -299,6 +299,7 @@ export async function purchaseEntryEffect(req, res) {
     // 6. Instant Redis Invalidation
     await cache.del(`user:entry_effects:${userId}`);
     await cache.del(`user:entry_effects:active_map:${userId}`);
+    await cache.del(`user:entry_effects:join:${userId}`);
     await cache.del(`user:balance:${userId}`);
     await cache.del(`user:${userId}`);
     await cache.del(`mobile:user:profile:${userId}`);
@@ -379,6 +380,7 @@ export async function toggleEntryEffect(req, res) {
       // Instant Redis Invalidation
       await cache.del(`user:entry_effects:${userId}`);
       await cache.del(`user:entry_effects:active_map:${userId}`);
+    await cache.del(`user:entry_effects:join:${userId}`);
       await cache.del(`user:${userId}`);
       await cache.del(`mobile:user:profile:${userId}`);
 
@@ -399,6 +401,7 @@ export async function toggleEntryEffect(req, res) {
       // Instant Redis Invalidation
       await cache.del(`user:entry_effects:${userId}`);
       await cache.del(`user:entry_effects:active_map:${userId}`);
+    await cache.del(`user:entry_effects:join:${userId}`);
       await cache.del(`user:${userId}`);
       await cache.del(`mobile:user:profile:${userId}`);
 

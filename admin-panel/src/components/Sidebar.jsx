@@ -37,7 +37,6 @@ import {
   UserX,
   FileText,
   MessageSquare,
-  Gamepad2,
   BookmarkCheck,
 } from 'lucide-react';
 
@@ -127,13 +126,6 @@ export default function Sidebar({
           { id: 'resellers', label: 'Resellers', icon: ShoppingBag },
         ],
       },
-      {
-        title: 'Gaming & Entertainment',
-        items: [
-          { id: 'games', label: 'Mini-Games', icon: Gamepad2, badge: '7 Live' },
-        ],
-      },
-
       {
         title: 'Store & Appearance',
         items: [

@@ -9,6 +9,7 @@ import { notifyLiveStarted, handleLiveEndedNotifications } from '../../services/
 import { checkUserSelfSeatAcceptPrivilege, checkUserInvisibleRoomEnterPrivilege } from '../../services/userPrivilegeService.js';
 import { getRoomMusicState, setRoomMusicState, clearRoomMusicState } from '../../services/roomMusicService.js';
 import { getStarProgressionConfig, calculateUserStars } from '../../services/systemService.js';
+import { LIVE_SCALE, isBigRoom, takeBudget, throttledRun, syncRoomViewerCount, emitRoomViewerCount } from '../../services/liveScaleGuard.js';
 
 /**
  * Format elapsed seconds into standard timer format:
@@ -963,24 +964,26 @@ export async function joinRoom(req, res) {
       [canonicalRoomId, String(room.id), room.host_id]
     );
 
-    // Update real viewer count in live_rooms (excluding host)
-    await query(
-      `UPDATE live_rooms SET viewer_count = (SELECT COUNT(*) FROM live_room_viewers WHERE (room_id = ? OR room_id = ?) AND user_id != ?) WHERE id = ?`,
-      [canonicalRoomId, String(room.id), room.host_id, room.id]
-    );
+    // Update real viewer count in live_rooms (excluding host).
+    // Coalesced: one COUNT(*)+UPDATE per room per window instead of one per join (hot-row lock).
+    const currentViewerCount = await syncRoomViewerCount({
+      canonicalRoomId,
+      numericRoomId: room.id,
+      hostId: room.host_id,
+      onTrailing: (c) => emitRoomViewerCount(req.io, canonicalRoomId, room.id, c),
+    });
 
-    const [freshRoomCount] = await query('SELECT viewer_count FROM live_rooms WHERE id = ?', [room.id]);
-    const currentViewerCount = freshRoomCount ? Math.max(0, freshRoomCount.viewer_count) : 0;
-
-    // 2. Instant Redis Invalidation for room lists and details
+    // 2. Redis invalidation: exact keys instantly, SCAN-based pattern deletes throttled.
+    throttledRun('inval:rooms', LIVE_SCALE.cacheInvalidateWindowMs, () => cache.delByPattern('mobile:rooms:*'));
+    throttledRun(`inval:users:${canonicalRoomId}`, LIVE_SCALE.cacheInvalidateWindowMs, async () => {
+      await cache.delByPattern(`mobile:room:users:${roomId}*`);
+      await cache.delByPattern(`mobile:room:users:${canonicalRoomId}*`);
+      await cache.delByPattern(`mobile:room:users:${room.id}*`);
+    });
     await Promise.allSettled([
-      cache.delByPattern('mobile:rooms:*'),
       cache.del(`mobile:room_details:${roomId}`),
       cache.del(`mobile:room_details:${canonicalRoomId}`),
       cache.del(`mobile:room_details:${room.id}`),
-      cache.delByPattern(`mobile:room:users:${roomId}*`),
-      cache.delByPattern(`mobile:room:users:${canonicalRoomId}*`),
-      cache.delByPattern(`mobile:room:users:${room.id}*`),
       cache.del(`room:${canonicalRoomId}`),
       cache.del(`room:${room.id}`),
     ]);
@@ -989,7 +992,7 @@ export async function joinRoom(req, res) {
     // HTTP API only syncs viewer count and joins socket room to prevent duplicate welcome messages.
     // If user entered in invisible stealth mode, suppress viewer-count-update broadcast!
     if (req.io && !isInvisible) {
-      req.io.to(canonicalRoomId).emit('viewer-count-update', { roomId: canonicalRoomId, count: currentViewerCount, viewer_count: currentViewerCount });
+      emitRoomViewerCount(req.io, canonicalRoomId, room.id, currentViewerCount, { toHomeFeed: false });
     }
 
     // 4. Build comprehensive room response with seats and duration
@@ -1591,38 +1594,26 @@ export async function leaveRoom(req, res) {
       [canonicalRoomId, String(numericRoomId || ''), userId]
     );
 
-    // Update real viewer count in live_rooms (excluding host)
+    // Update real viewer count in live_rooms (excluding host) - coalesced per room per window.
     const hostId = room ? room.host_id : 0;
-    if (numericRoomId) {
-      await query(
-        `UPDATE live_rooms 
-         SET viewer_count = (SELECT COUNT(*) FROM live_room_viewers WHERE (room_id = ? OR room_id = ?) AND user_id != ?) 
-         WHERE id = ?`,
-        [canonicalRoomId, String(numericRoomId), hostId, numericRoomId]
-      );
-    } else {
-      await query(
-        `UPDATE live_rooms 
-         SET viewer_count = (SELECT COUNT(*) FROM live_room_viewers WHERE room_id = ? AND user_id != ?) 
-         WHERE room_id = ?`,
-        [canonicalRoomId, hostId, canonicalRoomId]
-      );
-    }
+    const currentViewerCount = await syncRoomViewerCount({
+      canonicalRoomId,
+      numericRoomId,
+      hostId,
+      onTrailing: (c) => emitRoomViewerCount(req.io, canonicalRoomId, numericRoomId, c),
+    });
 
-    const [updatedCountRow] = numericRoomId
-      ? await query('SELECT viewer_count FROM live_rooms WHERE id = ?', [numericRoomId])
-      : await query('SELECT viewer_count FROM live_rooms WHERE room_id = ?', [canonicalRoomId]);
-    const currentViewerCount = updatedCountRow ? Math.max(0, updatedCountRow.viewer_count) : 0;
-
-    // 6. Instant Redis Invalidation for room list and all room-related caches
+    // 6. Redis invalidation: exact keys instantly, SCAN-based pattern deletes throttled.
+    throttledRun('inval:rooms', LIVE_SCALE.cacheInvalidateWindowMs, () => cache.delByPattern('mobile:rooms:*'));
+    throttledRun(`inval:users:${canonicalRoomId}`, LIVE_SCALE.cacheInvalidateWindowMs, async () => {
+      await cache.delByPattern(`mobile:room:users:${roomId}*`);
+      await cache.delByPattern(`mobile:room:users:${canonicalRoomId}*`);
+      if (numericRoomId) await cache.delByPattern(`mobile:room:users:${numericRoomId}*`);
+    });
     await Promise.allSettled([
-      cache.delByPattern('mobile:rooms:*'),
       cache.del(`mobile:room_details:${roomId}`),
       cache.del(`mobile:room_details:${canonicalRoomId}`),
       numericRoomId ? cache.del(`mobile:room_details:${numericRoomId}`) : null,
-      cache.delByPattern(`mobile:room:users:${roomId}*`),
-      cache.delByPattern(`mobile:room:users:${canonicalRoomId}*`),
-      numericRoomId ? cache.delByPattern(`mobile:room:users:${numericRoomId}*`) : null,
       cache.del(`mobile:live:seat_requests:${canonicalRoomId}`),
       cache.del(`mobile:live:room_admins:${canonicalRoomId}`),
       cache.del(`room:${canonicalRoomId}`),
@@ -1662,14 +1653,14 @@ export async function leaveRoom(req, res) {
         timestamp: new Date().toISOString(),
       };
 
-      const channels = new Set([canonicalRoomId, String(numericRoomId), String(roomId)].filter(Boolean));
-      for (const ch of channels) {
-        req.io.to(ch).emit('user-left', leavePayload);
-        req.io.to(ch).emit('user_left', leavePayload);
-        req.io.to(ch).emit('viewer_left', leavePayload);
-        req.io.to(ch).emit('viewer-count-update', { roomId: canonicalRoomId, count: currentViewerCount, viewer_count: currentViewerCount });
-        req.io.to(ch).emit('room_viewers_updated', { roomId: canonicalRoomId, count: currentViewerCount, viewer_count: currentViewerCount });
+      const chans = [...new Set([canonicalRoomId, numericRoomId ? String(numericRoomId) : null, String(roomId)].filter(Boolean))];
+      // Big rooms: cap departure announcements per second; io.to([..]) sends once per socket.
+      if (!isBigRoom(currentViewerCount) || takeBudget(`left:${canonicalRoomId}`, LIVE_SCALE.joinAnnouncePerSec)) {
+        req.io.to(chans).emit('user-left', leavePayload);
+        req.io.to(chans).emit('user_left', leavePayload);
+        req.io.to(chans).emit('viewer_left', leavePayload);
       }
+      emitRoomViewerCount(req.io, canonicalRoomId, numericRoomId, currentViewerCount, { toHomeFeed: false });
 
       // Evict this user's socket connections from the live room socket channel
       const userRoom = `user_${userId}`;

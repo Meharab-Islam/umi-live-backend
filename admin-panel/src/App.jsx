@@ -32,7 +32,6 @@ import AccountDeletionRequests from './pages/AccountDeletionRequests';
 import LegalPolicies from './pages/LegalPolicies';
 import LandingPage from './pages/LandingPage';
 import ChatModeration from './pages/ChatModeration';
-import GamesManagement from './pages/GamesManagement';
 
 
 import { checkHealth, getToken, setToken, getCurrentUser, setCurrentUser } from './api/client';
@@ -76,7 +75,6 @@ const VALID_TABS = [
   'wallpaper-pricing',
   'legal-policies',
   'api-docs',
-  'games',
   'settings',
 ];
 
@@ -507,10 +505,6 @@ export default function App() {
 
           {activeTab === 'api-docs' && (
             <ApiDocs onToast={addToast} />
-          )}
-
-          {activeTab === 'games' && (
-            <GamesManagement onToast={addToast} />
           )}
 
 

@@ -31,13 +31,6 @@ services:
     restart: always
     ports:
       - "${BACKEND_PORT:-5050}:5050"
-      - "${GAME_BIG_EATER_PORT:-5061}:5061"
-      - "${GAME_SLOTE_MECINE_PORT:-5062}:5062"
-      - "${GAME_FERRYWHEEL_PORT:-5063}:5063"
-      - "${GAME_GREEDYBABY_PORT:-5064}:5064"
-      - "${GAME_GREEDYLION_PORT:-5065}:5065"
-      - "${GAME_ROULETTECASINO_PORT:-5066}:5066"
-      - "${GAME_TEENPATTI_PORT:-5067}:5067"
     environment:
       PROJECT_NAME: ${PROJECT_NAME:-umi}
       PORT: 5050
@@ -82,14 +75,6 @@ services:
       REDIS_TTL_CHAT: ${REDIS_TTL_CHAT:-20}
       REDIS_TTL_FEED: ${REDIS_TTL_FEED:-45}
       FIREBASE_CREDENTIALS_PATH: ${FIREBASE_CREDENTIALS_PATH:-/app/umi_firebase.json}
-      GAME_BIG_EATER_PORT: ${GAME_BIG_EATER_PORT:-5061}
-      GAME_SLOTE_MECINE_PORT: ${GAME_SLOTE_MECINE_PORT:-5062}
-      GAME_FERRYWHEEL_PORT: ${GAME_FERRYWHEEL_PORT:-5063}
-      GAME_GREEDYBABY_PORT: ${GAME_GREEDYBABY_PORT:-5064}
-      GAME_GREEDYLION_PORT: ${GAME_GREEDYLION_PORT:-5065}
-      GAME_ROULETTECASINO_PORT: ${GAME_ROULETTECASINO_PORT:-5066}
-      GAME_TEENPATTI_PORT: ${GAME_TEENPATTI_PORT:-5067}
-      GAME_WEBHOOK_SECRET: ${GAME_WEBHOOK_SECRET:-umi_game_webhook_secret_key_2026}
     depends_on:
       mysql:
         condition: service_healthy
@@ -98,8 +83,6 @@ services:
     volumes:
       - ./backend/src:/app/src
       - ./backend/uploads:/app/uploads
-      - ./Games:/app/Games
-      - ./Games:/Games
       - ./umi_firebase.json:/app/umi_firebase.json:ro
     networks:
       - app_network

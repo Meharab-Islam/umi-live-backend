@@ -13,8 +13,8 @@ RUN npm install
 # Copy application source
 COPY . .
 
-# Expose backend port and all 7 mini-game ports
-EXPOSE 5050 5061 5062 5063 5064 5065 5066 5067
+# Expose backend port
+EXPOSE 5050
 
 # Start server
 CMD ["npm", "start"]
