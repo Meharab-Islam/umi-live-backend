@@ -222,7 +222,7 @@ export default function AgxGames({ onToast }) {
               type="number"
               min={0}
               style={{ width: 130 }}
-              value={cfg.win_banner_min_coins ?? 10000}
+              value={cfg.win_banner_min_coins ?? 1000}
               onChange={(e) => setCfg({ ...cfg, win_banner_min_coins: Number(e.target.value) })}
             />
             coins in one round
@@ -271,6 +271,8 @@ export default function AgxGames({ onToast }) {
                 <th>Display name</th>
                 <th>Icon URL (optional)</th>
                 <th>Order</th>
+                <th title="Same value as AGX portal → Manage → Games → Configure">Payout rate %</th>
+                <th title="Same value as AGX portal → Manage → Games → Configure">Commission %</th>
               </tr>
             </thead>
             <tbody>
@@ -306,6 +308,14 @@ export default function AgxGames({ onToast }) {
                       <input className="input-field" type="number" min={1} value={s.sort ?? 1}
                         onChange={(e) => setGame(g.game_id, { sort: Number(e.target.value) })} />
                     </td>
+                    <td style={{ width: 100 }}>
+                      <input className="input-field" type="number" min={10} max={100} value={s.payout_rate ?? 100}
+                        onChange={(e) => setGame(g.game_id, { payout_rate: Number(e.target.value) })} />
+                    </td>
+                    <td style={{ width: 100 }}>
+                      <input className="input-field" type="number" min={0} max={50} value={s.commission ?? 0}
+                        onChange={(e) => setGame(g.game_id, { commission: Number(e.target.value) })} />
+                    </td>
                   </tr>
                 );
               })}
@@ -314,6 +324,8 @@ export default function AgxGames({ onToast }) {
         </div>
         <p style={{ color: 'var(--text-dim)', fontSize: 12.5, marginTop: 10 }}>
           A game appears in the app only when it is switched on here <b>and</b> added in the AGX Game Center. Press <b>Save settings</b> after changes.
+          Payout rate and commission must match what you set in the AGX portal (Manage → Games → Configure); the win banner
+          uses them to show how many coins the player had on the winning table/item.
         </p>
       </div>
 

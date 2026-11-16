@@ -33,6 +33,35 @@ export const AGX_GAME_CATALOG = [
 ];
 const CATALOG_IDS = new Set(AGX_GAME_CATALOG.map((g) => g.game_id));
 
+/** Display names of each game's bet spots (docs: "Bet spots and payouts"). */
+const TARGET_LABELS = {
+  teenpatti: { A: 'Table A', B: 'Table B', C: 'Table C' },
+  fruit_wheel: { 0: 'Carrot', 1: 'Ice cream', 2: 'Noodles', 3: 'Chicken', 4: 'Burger', 5: 'Pizza', 6: 'Strawberry', 7: 'Grapes' },
+  food: { 0: 'Meat', 1: 'Chicken leg', 2: 'Shrimp', 3: 'Steak', 4: 'Tomato', 5: 'Flower', 6: 'Mushroom', 7: 'Corn' },
+  jackpot: { 0: 'Lemon', 1: 'Peach', 2: 'Kiwi', 3: 'Cherry', 5: 'Grape', 6: 'Watermelon', 7: 'Banana', 8: 'Strawberry' },
+};
+
+export function winningTargetLabel(gameId, result) {
+  if (result === undefined || result === null || result === '') return '';
+  if (gameId === 'roulette') return `Number ${result}`;
+  return TARGET_LABELS[gameId]?.[String(result)] || String(result);
+}
+
+/**
+ * Coins the player had on the winning spot. AGX pays stake x multiplier x payout rate x
+ * (1 - commission) on the winning spot only, and the webhook reports the spot's multiplier, so
+ * stake = won / effective multiplier. Roulette reports multiplier 0 (it depends on the bet type),
+ * so there is no single spot stake to show.
+ */
+export function stakeOnWinningSpot({ totalWon, totalBet, multiplier, payoutRate = 100, commission = 0 }) {
+  const m = Number(multiplier);
+  const eff = m * (Number(payoutRate) / 100) * (1 - Number(commission) / 100);
+  if (!(totalWon > 0) || !(m > 0) || !(eff > 0)) return null;
+  const stake = Math.round(totalWon / eff);
+  if (!(stake > 0)) return null;
+  return Math.min(stake, totalBet > 0 ? totalBet : stake);
+}
+
 const envBool = (v, def) => (v === undefined || v === '' ? def : String(v).toLowerCase() === 'true');
 const REQUEST_TIMEOUT_MS = parseInt(process.env.AGX_REQUEST_TIMEOUT_MS || '8000', 10);
 const WEBHOOK_MAX_SKEW_SECONDS = parseInt(process.env.AGX_WEBHOOK_MAX_SKEW_SECONDS || '300', 10);
@@ -46,7 +75,7 @@ function envDefaults() {
     show_in_live_room: true,
     show_on_home: true,
     win_banner_enabled: envBool(process.env.AGX_WIN_BANNER_ENABLED, true),
-    win_banner_min_coins: parseInt(process.env.AGX_WIN_BANNER_MIN_COINS || '10000', 10),
+    win_banner_min_coins: parseInt(process.env.AGX_WIN_BANNER_MIN_COINS || '1000', 10),
     games: {},
   };
 }
@@ -72,6 +101,10 @@ function normalizeConfig(raw = {}) {
       name: String(saved.name || '').trim().slice(0, 64),
       icon_url: String(saved.icon_url || '').trim().slice(0, 500),
       sort: Number.isFinite(Number(saved.sort)) ? Number(saved.sort) : i + 1,
+      // Mirror of the AGX portal's Manage -> Games -> Configure values (used to show the bet on the
+      // winning spot in the win banner).
+      payout_rate: Math.min(100, Math.max(10, Number(saved.payout_rate) || 100)),
+      commission: Math.min(50, Math.max(0, Number(saved.commission) || 0)),
     };
   });
   cfg.games = games;
@@ -446,12 +479,25 @@ async function broadcastSettlements(io, event, touched, toAbsoluteUrl) {
       });
 
       const won = parseInt(r.settlement.total_won, 10) || 0;
-      if (cfg && cfg.win_banner_enabled && net > 0 && won >= cfg.win_banner_min_coins) {
+      // A player "wins" when a bet of theirs paid out this round (Teen Patti pays even when another
+      // hand they backed lost). The banner shows the coins won; the admin sets the minimum.
+      if (cfg && cfg.win_banner_enabled && won > 0 && won >= cfg.win_banner_min_coins) {
         try {
           const [u] = await query('SELECT id, full_name, avatar_url, level FROM users WHERE id = ?', [r.userId]);
+          const gcfg = cfg.games[event.game_id] || {};
+          const totalBet = parseInt(r.settlement.total_bet, 10) || 0;
+          const betOnWin = stakeOnWinningSpot({
+            totalWon: won, totalBet, multiplier: event.multiplier,
+            payoutRate: gcfg.payout_rate, commission: gcfg.commission,
+          });
           io.emit('global_game_win_banner', {
             id: `game_win_${r.settlement.settlement_id}`,
             type: 'game_win',
+            winning_target: event.result ?? '',
+            winning_label: winningTargetLabel(event.game_id, event.result),
+            multiplier: Number(event.multiplier) || 0,
+            bet_on_win: betOnWin,
+            total_bet: totalBet,
             user: {
               id: r.userId,
               name: (u && u.full_name) || r.settlement.username || `User #${r.userId}`,
