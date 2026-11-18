@@ -41,7 +41,10 @@ export async function getRoomMusicState(roomId) {
       isPlaying: Boolean(state.isPlaying),
       positionSeconds: currentPos,
       position_seconds: currentPos,
-      startedAt: state.startedAt || Date.now(),
+      // positionSeconds above is already advanced to "now", so startedAt must be "now" too.
+      // Sending the original start time made clients add the elapsed time a second time
+      // (late joiners were seeked far ahead, often past the end of the track).
+      startedAt: Date.now(),
       updatedAt: state.updatedAt || Date.now(),
       action: state.action || (state.isPlaying ? 'play' : 'pause'),
     };
