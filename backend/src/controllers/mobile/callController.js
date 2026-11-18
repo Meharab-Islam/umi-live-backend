@@ -5,6 +5,12 @@ import { generateLiveKitToken, getLiveKitConfig } from '../../config/livekit.js'
 import { sendChatPushNotification } from '../../config/firebase.js';
 import { recordCoinsSpentAndCheckLevelUp } from '../../services/levelService.js';
 
+/** True when admin has locked [userId]'s coins (they may receive, but never send / spend on others). */
+async function isUserCoinLocked(conn, userId) {
+  const [rows] = await conn.execute('SELECT is_coin_locked FROM users WHERE id = ? LIMIT 1', [userId]);
+  return rows.length > 0 && Number(rows[0].is_coin_locked) === 1;
+}
+
 /**
  * Fetch dynamic call settings from Database/Redis
  */
@@ -99,7 +105,7 @@ export async function initiateCall(req, res) {
 
     // Check caller balance
     const [callerRows] = await conn.execute(
-      'SELECT id, full_name, avatar_url, coins, is_banned FROM users WHERE id = ? LIMIT 1',
+      'SELECT id, full_name, avatar_url, coins, is_banned, is_coin_locked FROM users WHERE id = ? LIMIT 1',
       [callerId]
     );
 
@@ -109,6 +115,15 @@ export async function initiateCall(req, res) {
     }
 
     const caller = callerRows[0];
+    // Admin coin lock: a paid call sends the caller's coins to the receiver, so it is blocked too.
+    if (Number(caller.is_coin_locked) === 1) {
+      conn.release();
+      return res.status(403).json({
+        success: false,
+        code: 'COIN_LOCKED',
+        message: 'Your coins are locked by admin. You cannot send coins, gifts or make paid calls right now.',
+      });
+    }
     if ((caller.coins || 0) < ratePerMinute) {
       conn.release();
       return res.status(402).json({
@@ -321,30 +336,34 @@ export async function acceptCall(req, res) {
     const sharePercent = call.receiver_share_percent;
     const earnedDiamonds = Math.floor((rate * sharePercent) / 100);
 
-    // 1. Deduct first minute coins from caller
+    // 1. Deduct first minute coins from caller (is_coin_locked = 0: a lock applied while ringing blocks it)
     const [deductRes] = await conn.execute(
-      'UPDATE users SET coins = coins - ? WHERE id = ? AND coins >= ?',
+      'UPDATE users SET coins = coins - ? WHERE id = ? AND coins >= ? AND is_coin_locked = 0',
       [rate, call.caller_id, rate]
     );
 
     if (deductRes.affectedRows === 0) {
-      // Caller has insufficient coins now
+      const callerLocked = await isUserCoinLocked(conn, call.caller_id);
+      const reason = callerLocked ? 'coin_locked' : 'insufficient_balance';
       await conn.execute(
-        "UPDATE p2p_calls SET status = 'failed', end_reason = 'insufficient_balance' WHERE id = ?",
-        [call.id]
+        "UPDATE p2p_calls SET status = 'failed', end_reason = ? WHERE id = ?",
+        [reason, call.id]
       );
       await conn.commit();
       conn.release();
 
       const io = req.io || req.app.get('io');
       if (io) {
-        io.to(`user_${call.caller_id}`).emit('call:ended', { callId: call.call_id, reason: 'insufficient_balance' });
-        io.to(`user_${receiverId}`).emit('call:ended', { callId: call.call_id, reason: 'insufficient_balance' });
+        io.to(`user_${call.caller_id}`).emit('call:ended', { callId: call.call_id, reason });
+        io.to(`user_${receiverId}`).emit('call:ended', { callId: call.call_id, reason });
       }
 
-      return res.status(402).json({
+      return res.status(callerLocked ? 403 : 402).json({
         success: false,
-        message: 'Caller has insufficient coins to proceed with the call.',
+        ...(callerLocked ? { code: 'COIN_LOCKED' } : {}),
+        message: callerLocked
+          ? "The caller's coins are locked by admin. The call cannot start."
+          : 'Caller has insufficient coins to proceed with the call.',
       });
     }
 
@@ -544,14 +563,15 @@ export async function heartbeatCall(req, res) {
     const rate = call.rate_per_minute;
     const earnedDiamonds = Math.floor((rate * call.receiver_share_percent) / 100);
 
-    // Attempt to deduct next minute's coins from caller
+    // Attempt to deduct next minute's coins from caller (a coin lock applied mid-call ends the call)
     const [deductRes] = await conn.execute(
-      'UPDATE users SET coins = coins - ? WHERE id = ? AND coins >= ?',
+      'UPDATE users SET coins = coins - ? WHERE id = ? AND coins >= ? AND is_coin_locked = 0',
       [rate, call.caller_id, rate]
     );
 
     if (deductRes.affectedRows === 0) {
-      // Caller has run out of coins! Terminate call now
+      // Caller has run out of coins (or was coin-locked)! Terminate call now
+      const reason = (await isUserCoinLocked(conn, call.caller_id)) ? 'coin_locked' : 'insufficient_balance';
       const [durRows] = await conn.execute(
         'SELECT TIMESTAMPDIFF(SECOND, started_at, NOW()) as dur FROM p2p_calls WHERE id = ?',
         [call.id]
@@ -560,9 +580,9 @@ export async function heartbeatCall(req, res) {
 
       await conn.execute(
         `UPDATE p2p_calls 
-         SET status = 'ended', ended_at = NOW(), end_reason = 'insufficient_balance', duration_seconds = ?
+         SET status = 'ended', ended_at = NOW(), end_reason = ?, duration_seconds = ?
          WHERE id = ?`,
-        [finalDur, call.id]
+        [reason, finalDur, call.id]
       );
 
       await conn.commit();
@@ -572,7 +592,7 @@ export async function heartbeatCall(req, res) {
       if (io) {
         const endPayload = {
           callId: call.call_id,
-          reason: 'insufficient_balance',
+          reason,
           duration_seconds: finalDur,
           total_coins_spent: call.total_coins_spent,
         };
@@ -580,11 +600,15 @@ export async function heartbeatCall(req, res) {
         io.to(`user_${call.receiver_id}`).emit('call:ended', endPayload);
       }
 
+      const locked = reason === 'coin_locked';
       return res.json({
         success: false,
-        insufficient_balance: true,
+        insufficient_balance: !locked,
+        ...(locked ? { code: 'COIN_LOCKED' } : {}),
         is_ended: true,
-        message: 'Caller has insufficient coins. Call terminated.',
+        message: locked
+          ? "The caller's coins are locked by admin. Call terminated."
+          : 'Caller has insufficient coins. Call terminated.',
       });
     }
 
