@@ -19,7 +19,7 @@ function formatDuration(totalSeconds) {
  */
 function resolveHostId(req) {
   if (req.user) {
-    if (req.user.role === 'admin' || req.user.role === 'superadmin' || req.user.role === 'agency') {
+    if (req.user.role === 'admin' || req.user.role === 'superadmin' || req.user.role === 'agency' || req.user.role === 'moderator') {
       const specified = req.query.hostId || req.body?.hostId || req.params.hostId;
       return specified ? parseInt(specified, 10) : req.user.id;
     }

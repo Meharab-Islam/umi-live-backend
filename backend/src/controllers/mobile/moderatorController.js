@@ -453,6 +453,25 @@ export async function toggleDeviceBan(req, res) {
       return res.status(400).json({ success: false, message: 'Valid Device ID, Record ID, or Device Model is required.' });
     }
 
+    // Lifting a ban only needs the hardware device id (the ban is on the device itself),
+    // so a moderator can unban straight from the banned-devices list.
+    if (!rawUserId && req.body?.isBanned === false) {
+      const known = await query('SELECT id FROM user_devices WHERE device_id = ? LIMIT 1', [cleanDeviceId]);
+      if (!known || known.length === 0) {
+        return res.status(404).json({ success: false, message: `Device "${cleanDeviceId}" was not found.` });
+      }
+      await setDeviceBanState(cleanDeviceId, false);
+      await Promise.all([
+        cache.delByPattern('moderator:banned_devices:*'),
+        cache.delByPattern('moderator:search_users:*'),
+      ]);
+      return res.json({
+        success: true,
+        message: 'Device unbanned successfully.',
+        device: { device_id: cleanDeviceId, is_banned: false },
+      });
+    }
+
     // Step 1: Moderator MUST select target user ID first
     if (!rawUserId) {
       return res.status(400).json({

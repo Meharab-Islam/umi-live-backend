@@ -1,5 +1,5 @@
 import express from 'express';
-import { getTopGifters, getTopAgencies } from '../../controllers/mobile/leaderboardController.js';
+import { getTopGifters, getTopAgencies, getTopHosts } from '../../controllers/mobile/leaderboardController.js';
 
 const router = express.Router();
 
@@ -15,5 +15,8 @@ router.get('/top-gifters', getTopGifters);
 
 router.get('/agencies', getTopAgencies);
 router.get('/top-agencies', getTopAgencies);
+
+router.get('/hosts', getTopHosts);
+router.get('/top-hosts', getTopHosts);
 
 export default router;

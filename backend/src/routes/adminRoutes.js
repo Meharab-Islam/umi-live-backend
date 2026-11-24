@@ -166,6 +166,7 @@ import {
 } from '../controllers/adminThemeController.js';
 import { upload, optionalFeedMediaUpload } from '../middleware/upload.js';
 import { requireAuth, requireAdmin } from '../middlewares/authMiddleware.js';
+import { getBannedDevices, unbanDevices } from '../controllers/adminDeviceController.js';
 import {
   getAgxGamesConfig,
   updateAgxGamesConfig,
@@ -386,6 +387,10 @@ router.put('/reports/:id/status', updateAdminReportStatus);
 router.post('/reports/:id/action', takeAdminReportAction);
 router.delete('/reports/:id', deleteAdminReport);
 router.post('/reports/bulk-delete', bulkDeleteReports);
+
+// Banned Devices (list + unban)
+router.get('/devices/banned', getBannedDevices);
+router.post('/devices/unban', unbanDevices);
 
 // Live Streaming Duration & Session Reward Engine
 router.get('/live-rewards/settings', getLiveRewardSettingsAdmin);

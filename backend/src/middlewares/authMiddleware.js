@@ -161,7 +161,7 @@ export function requireHost(req, res, next) {
     return res.status(401).json({ success: false, message: 'Authentication required. No session found.' });
   }
 
-  if (req.user.role !== 'host' && req.user.role !== 'agency' && req.user.role !== 'admin' && req.user.role !== 'superadmin') {
+  if (req.user.role !== 'host' && req.user.role !== 'agency' && req.user.role !== 'moderator' && req.user.role !== 'admin' && req.user.role !== 'superadmin') {
     return res.status(403).json({ success: false, message: 'Forbidden. Host privileges required.' });
   }
 

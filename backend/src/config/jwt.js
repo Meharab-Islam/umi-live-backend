@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import { randomUUID } from 'crypto';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -19,6 +20,9 @@ export function signToken(payload) {
   return jwt.sign(payload, JWT_SECRET, {
     expiresIn: JWT_EXPIRES_IN,
     issuer: JWT_ISSUER,
+    // Unique id per login: two logins in the same second must never yield the same token,
+    // otherwise the single-device check could not tell the devices apart.
+    jwtid: randomUUID(),
   });
 }
 

@@ -289,7 +289,103 @@ export async function getTopAgencies(req, res) {
   }
 }
 
+/**
+ * Public Mobile Endpoint: Get Top Hosts Leaderboard
+ * Only agency-affiliated hosts, ranked by total live time in the current calendar month.
+ * GET /api/mobile/leaderboard/hosts
+ * Query params: page, limit
+ */
+export async function getTopHosts(req, res) {
+  try {
+    const page = Math.max(1, parseInt(req.query.page || '1', 10));
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit || '20', 10)));
+    const offset = (page - 1) * limit;
+
+    const cacheKey = `leaderboard:hosts:month:${page}:${limit}`;
+
+    const data = await cache.getOrSet(cacheKey, 60, async () => {
+      const monthStart = "DATE_FORMAT(NOW(), '%Y-%m-01')";
+      const where = `
+        WHERE u.agency_id IS NOT NULL
+          AND u.role != 'superadmin'
+          AND COALESCE(lr.ended_at, NOW()) >= ${monthStart}
+      `;
+      const sql = `
+        SELECT
+          u.id AS user_id,
+          u.full_name,
+          u.avatar_url,
+          u.level,
+          u.role,
+          a.name AS agency_name,
+          COALESCE(SUM(GREATEST(0, TIMESTAMPDIFF(SECOND,
+            GREATEST(lr.started_at, ${monthStart}),
+            COALESCE(lr.ended_at, NOW())))), 0) AS live_seconds,
+          COUNT(lr.id) AS total_sessions
+        FROM live_rooms lr
+        JOIN users u ON u.id = lr.host_id
+        LEFT JOIN agencies a ON a.id = u.agency_id
+        ${where}
+        GROUP BY u.id, u.full_name, u.avatar_url, u.level, u.role, a.name
+        HAVING live_seconds > 0
+        ORDER BY live_seconds DESC, total_sessions DESC
+        LIMIT ? OFFSET ?
+      `;
+      const rows = await query(sql, [limit, offset]);
+
+      const [summary] = await query(`
+        SELECT COUNT(*) AS total_hosts FROM (
+          SELECT u.id
+          FROM live_rooms lr
+          JOIN users u ON u.id = lr.host_id
+          ${where}
+          GROUP BY u.id
+          HAVING SUM(GREATEST(0, TIMESTAMPDIFF(SECOND,
+            GREATEST(lr.started_at, ${monthStart}),
+            COALESCE(lr.ended_at, NOW())))) > 0
+        ) t
+      `);
+      const totalHosts = parseInt(summary?.total_hosts || 0, 10);
+
+      const hosts = (rows || []).map((row, index) => ({
+        rank: offset + index + 1,
+        user_id: row.user_id,
+        full_name: row.full_name || 'Host',
+        avatar_url: row.avatar_url ? resolveFullAvatarUrl(req, row.avatar_url) : '',
+        level: parseInt(row.level || 1, 10),
+        role: row.role || 'host',
+        agency_name: row.agency_name || '',
+        live_seconds: parseInt(row.live_seconds || 0, 10),
+        total_sessions: parseInt(row.total_sessions || 0, 10),
+      }));
+
+      return {
+        timeframe: 'month',
+        page,
+        limit,
+        total_hosts: totalHosts,
+        total_pages: Math.ceil(totalHosts / limit) || 1,
+        hosts,
+      };
+    });
+
+    return res.json({
+      success: true,
+      message: 'Top hosts retrieved successfully.',
+      ...data,
+    });
+  } catch (error) {
+    console.error('[getTopHosts Error]:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to fetch top hosts leaderboard.',
+      error: error.message,
+    });
+  }
+}
+
 export default {
   getTopGifters,
   getTopAgencies,
+  getTopHosts,
 };

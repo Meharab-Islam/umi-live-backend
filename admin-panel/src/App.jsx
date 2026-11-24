@@ -26,6 +26,7 @@ import AgxGames from './pages/AgxGames';
 import TopContributors from './pages/TopContributors';
 import Posts from './pages/Posts';
 import Reports from './pages/Reports';
+import BannedDevices from './pages/BannedDevices';
 import AppThemes from './pages/AppThemes';
 import LiveRewards from './pages/LiveRewards';
 import Levels from './pages/Levels';
@@ -53,6 +54,7 @@ const VALID_TABS = [
   'users',
   'deletion-requests',
   'reports',
+  'banned-devices',
   'chats',
   'posts',
   'account-merge',
@@ -439,6 +441,10 @@ export default function App() {
 
           {activeTab === 'reports' && (
             <Reports onToast={addToast} />
+          )}
+
+          {activeTab === 'banned-devices' && (
+            <BannedDevices onToast={addToast} />
           )}
 
           {activeTab === 'chats' && (

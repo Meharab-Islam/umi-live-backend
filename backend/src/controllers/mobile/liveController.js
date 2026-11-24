@@ -2574,6 +2574,41 @@ export async function endRoom(req, res) {
 }
 
 /**
+ * Broadcast a user taking a seat to every socket channel of the room (canonical room id and
+ * numeric id), together with the full seat list, so all viewers see the new seat holder.
+ */
+function broadcastSeatTaken(io, { roomId, numericRoomId, seatNumber, userId, userData, roomData }) {
+  if (!io) return;
+  const seats = roomData?.seats || [];
+  const seatPayload = {
+    seatIndex: seatNumber,
+    seat_index: seatNumber,
+    isLocked: false,
+    isMuted: false,
+    isVideoMuted: false,
+    user: userData,
+  };
+  const channels = new Set([roomId, numericRoomId ? String(numericRoomId) : null].filter(Boolean));
+  for (const ch of channels) {
+    io.to(ch).emit('seat_updated', {
+      roomId,
+      numericRoomId,
+      seatNumber,
+      seatIndex: seatNumber,
+      seat_index: seatNumber,
+      action: 'take',
+      userId: Number(userId),
+      user: userData,
+      seat: seatPayload,
+      seats,
+      rawSeats: seats,
+    });
+    io.to(ch).emit('seats_updated', { roomId, seats, rawSeats: seats });
+    io.to(ch).emit('seats-sync', { roomId, seats, rawSeats: seats });
+  }
+}
+
+/**
  * Mobile Request a Seat in Room (Video / Audio Multi-Seat Request)
  * POST /api/mobile/live/rooms/:roomId/seats/request
  */
@@ -2603,7 +2638,40 @@ export async function requestSeat(req, res) {
     // Check if user already on a seat in this room
     const existingSeat = await query('SELECT seat_number FROM live_room_seats WHERE room_id = ? AND user_id = ?', [roomId, userId]);
     if (existingSeat.length > 0) {
-      return res.status(400).json({ success: false, message: `You are already occupying seat #${existingSeat[0].seat_number}.` });
+      // Already seated (e.g. the client missed the first response): succeed idempotently and
+      // re-broadcast so every viewer sees this user on the seat.
+      const seatNum = existingSeat[0].seat_number;
+      const roomDataExisting = await buildRoomResponse(roomId, req.user);
+      broadcastSeatTaken(req.io, {
+        roomId,
+        numericRoomId: room.id,
+        seatNumber: seatNum,
+        userId,
+        userData: {
+          id: Number(req.user.id),
+          fullName: req.user.full_name,
+          full_name: req.user.full_name,
+          name: req.user.full_name,
+          avatarUrl: req.user.avatar_url,
+          avatar_url: req.user.avatar_url,
+          profile: req.user.avatar_url,
+          coin: Number(req.user.coins || 0),
+          coins: Number(req.user.coins || 0),
+          role: req.user.role,
+          level: Number(req.user.level || 1),
+          vipLevel: Number(req.user.level || 1),
+          vip_level: Number(req.user.level || 1),
+        },
+        roomData: roomDataExisting,
+      });
+      return res.json({
+        success: true,
+        auto_accepted: true,
+        already_seated: true,
+        message: `You are already on seat #${seatNum}.`,
+        seat_number: seatNum,
+        room: roomDataExisting,
+      });
     }
 
     // Check VIP privilege self_seat_accept
@@ -2682,22 +2750,13 @@ export async function requestSeat(req, res) {
           vipLevel: Number(req.user.level || 1),
           vip_level: Number(req.user.level || 1),
         };
-        req.io.to(roomId).emit('seat_updated', {
+        broadcastSeatTaken(req.io, {
           roomId,
+          numericRoomId: room.id,
           seatNumber: targetSeatNum,
-          seatIndex: targetSeatNum,
-          seat_index: targetSeatNum,
-          action: 'take',
-          userId: Number(userId),
-          user: userData,
-          seat: {
-            seatIndex: targetSeatNum,
-            seat_index: targetSeatNum,
-            isLocked: false,
-            isMuted: false,
-            isVideoMuted: false,
-            user: userData,
-          },
+          userId,
+          userData,
+          roomData,
         });
       }
 

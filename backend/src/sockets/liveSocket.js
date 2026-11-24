@@ -775,6 +775,21 @@ export function setupLiveSocket(io) {
         socket.user = { id: Number(decoded.id), role: decoded.role || 'user' };
         socket.join(`user_${decoded.id}`);
         socket.join(`user:${decoded.id}`);
+
+        // Single-device session: a socket opened with a token that is no longer the active one
+        // (the account logged in elsewhere) is told to log out and dropped immediately.
+        cache.get(`user:session:${decoded.id}`).then((activeToken) => {
+          if (activeToken && activeToken !== cleanToken) {
+            const payload = {
+              success: false,
+              code: 'SESSION_TERMINATED',
+              message: 'Your account was logged in from another device.',
+            };
+            socket.emit('auth:force_logout', payload);
+            socket.emit('account:force_logout', payload);
+            socket.disconnect(true);
+          }
+        }).catch(() => {});
       }
     }
 

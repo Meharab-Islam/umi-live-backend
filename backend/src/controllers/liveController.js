@@ -161,7 +161,7 @@ export async function getRooms(req, res) {
                 pc.name as host_vip_category,
                 pc.badge_icon as host_vip_icon,
                 pc.color_code as host_vip_color,
-                COALESCE(CASE WHEN pc.top_live_list = 1 THEN pc.display_order ELSE 999999 END, 999999) as vip_rank
+                COALESCE(pc.display_order, 999999) as vip_rank
          FROM live_rooms r
          JOIN users u ON r.host_id = u.id
          LEFT JOIN user_package_subscriptions ups 
