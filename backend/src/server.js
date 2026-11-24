@@ -232,6 +232,22 @@ function escapeHtml(str) {
     .replace(/'/g, '&#039;');
 }
 
+const ANDROID_PACKAGE = process.env.ANDROID_PACKAGE_NAME || 'com.bm.pro';
+const PLAY_STORE_URL = process.env.PLAY_STORE_URL || `https://play.google.com/store/apps/details?id=${ANDROID_PACKAGE}`;
+
+// Android App Links verification. Set ANDROID_APP_SHA256_FINGERPRINTS (comma separated) to the
+// SHA-256 of the signing certificate(s): the upload/release key AND the Play App Signing key from
+// Play Console > Release > Setup > App signing. Until then links still work via the landing page.
+app.get('/.well-known/assetlinks.json', (req, res) => {
+  const fingerprints = String(process.env.ANDROID_APP_SHA256_FINGERPRINTS || '')
+    .split(',').map((f) => f.trim().toUpperCase()).filter(Boolean);
+  if (fingerprints.length === 0) return res.status(404).json({ error: 'assetlinks not configured' });
+  res.type('application/json').json([{
+    relation: ['delegate_permission/common.handle_all_urls'],
+    target: { namespace: 'android_app', package_name: ANDROID_PACKAGE, sha256_cert_fingerprints: fingerprints },
+  }]);
+});
+
 // Live Stream Share Landing Route (Web Preview & Deep Link Auto-Redirect)
 app.get(['/room', '/room/:roomId'], (req, res) => {
   const roomId = req.params.roomId || req.query.id || req.query.roomId || '';
@@ -239,7 +255,12 @@ app.get(['/room', '/room/:roomId'], (req, res) => {
   const rawHostName = req.query.hostName || req.query.name || 'Host';
   const hostName = escapeHtml(rawHostName);
 
-  const deepLink = `umilive://room?roomId=${encodeURIComponent(roomId)}&liveType=${encodeURIComponent(liveType)}&hostName=${encodeURIComponent(rawHostName)}`;
+  const deepLinkQuery = `roomId=${encodeURIComponent(roomId)}&liveType=${encodeURIComponent(liveType)}&hostName=${encodeURIComponent(rawHostName)}`;
+  const deepLink = `umilive://room?${deepLinkQuery}`;
+  // Chrome on Android: opens the app if installed, otherwise goes straight to the Play Store.
+  const intentLink = `intent://room?${deepLinkQuery}#Intent;scheme=umilive;package=${ANDROID_PACKAGE};S.browser_fallback_url=${encodeURIComponent(PLAY_STORE_URL)};end`;
+  // Safe to embed in an inline <script> (no </script> or HTML breakouts).
+  const js = (v) => JSON.stringify(v).replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026');
 
   res.send(`<!DOCTYPE html>
 <html lang="en">
@@ -311,13 +332,22 @@ app.get(['/room', '/room/:roomId'], (req, res) => {
   <div class="card">
     <div class="badge">🔴 LIVE NOW</div>
     <h2 style="margin: 0 0 8px 0;">${hostName}'s Room</h2>
-    <p style="color: #94A3B8; margin: 0; font-size: 14px;">Connecting to Umi Live App...</p>
-    <a href="${deepLink}" class="btn">Open in Umi Live 🚀</a>
+    <p style="color: #94A3B8; margin: 0; font-size: 14px;">Opening the app... If it is not installed you will be taken to the Play Store.</p>
+    <a href="${escapeHtml(intentLink)}" id="openApp" class="btn">Open in App 🚀</a><br>
+    <a href="${escapeHtml(PLAY_STORE_URL)}" class="btn" style="background:#16A34A;margin-top:12px;">Get it on Play Store ▶</a>
   </div>
 
   <script>
-    // Automatically trigger app launch
-    window.location.href = "${deepLink}";
+    (function () {
+      var deepLink = ${js(deepLink)};
+      var intentLink = ${js(intentLink)};
+      var isAndroid = /Android/i.test(navigator.userAgent);
+      var target = isAndroid ? intentLink : deepLink;
+      document.getElementById('openApp').setAttribute('href', target);
+      // Try to launch automatically; the buttons above work as a manual fallback
+      // (the tap on "Open in App" falls back to the Play Store when the app is missing).
+      if (isAndroid) { window.location.href = target; }
+    })();
   </script>
 </body>
 </html>`);
