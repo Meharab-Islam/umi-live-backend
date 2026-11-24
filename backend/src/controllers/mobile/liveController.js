@@ -3238,6 +3238,11 @@ export async function rejectSeatRequest(req, res) {
     }
 
     // 1. Remove rejected request from waiting list table in database
+    const rejectedRows = await query(
+      'SELECT user_id FROM live_room_seat_requests WHERE id = ? AND (room_id = ? OR room_id = ?)',
+      [requestId, canonicalRoomId, String(numericRoomId)]
+    );
+    const rejectedUserId = rejectedRows.length > 0 ? Number(rejectedRows[0].user_id) : null;
     await query(
       'DELETE FROM live_room_seat_requests WHERE id = ? AND (room_id = ? OR room_id = ?)',
       [requestId, canonicalRoomId, String(numericRoomId)]
@@ -3250,13 +3255,15 @@ export async function rejectSeatRequest(req, res) {
       req.io.to(canonicalRoomId).emit('seat_request_rejected', {
         roomId: canonicalRoomId,
         numericRoomId,
-        requestId,
+        requestId: Number(requestId),
+        userId: rejectedUserId,
       });
       if (numericRoomId) {
         req.io.to(String(numericRoomId)).emit('seat_request_rejected', {
           roomId: canonicalRoomId,
           numericRoomId,
-          requestId,
+          requestId: Number(requestId),
+          userId: rejectedUserId,
         });
       }
     }
@@ -4188,19 +4195,35 @@ export async function kickUserFromRoom(req, res) {
       cache.del(`mobile:live:room_admins:${roomId}`),
     ]);
 
-    // 7. Socket broadcast user_kicked and viewer_left
+    // 7. Socket broadcast user_kicked and viewer_left (with names/avatars so clients can
+    // post "<kicker> kicked <user>" and drop the user from the header avatars in real time)
+    let kickedUserName = '', kickedUserAvatar = '', kickedByName = '', kickedByAvatar = '';
+    try {
+      const nameRows = await query('SELECT id, full_name, avatar_url FROM users WHERE id IN (?, ?)', [targetUserId, callerId]);
+      for (const u of nameRows) {
+        if (Number(u.id) === Number(targetUserId)) { kickedUserName = u.full_name || ''; kickedUserAvatar = u.avatar_url || ''; }
+        if (Number(u.id) === Number(callerId)) { kickedByName = u.full_name || ''; kickedByAvatar = u.avatar_url || ''; }
+      }
+    } catch (_) { /* names are best-effort */ }
     if (req.io) {
       req.io.to(roomId).emit('user_kicked', {
         roomId,
         userId: targetUserId,
         kickedUserId: targetUserId,
         kicked_user_id: targetUserId,
+        kickedUserName,
+        kickedUserAvatar,
         kickedBy: callerId,
+        kickedByName,
+        kickedByAvatar,
         reason,
       });
       req.io.to(roomId).emit('viewer_left', {
         roomId,
         userId: targetUserId,
+        userName: kickedUserName,
+        userAvatar: kickedUserAvatar,
+        kicked: true,
       });
     }
 

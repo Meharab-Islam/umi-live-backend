@@ -14,6 +14,10 @@ import {
   TrendingUp,
   Filter,
   Sparkles,
+  Crown,
+  Image,
+  Palette,
+  ShoppingBag,
 } from 'lucide-react';
 import StatCard from '../components/StatCard';
 import Loader from '../components/Loader';
@@ -100,6 +104,18 @@ export default function Dashboard({ stats: initialStats, onNavigate, onTerminate
     pendingWithdrawalCount: 0,
     pendingWithdrawalUsd: '0.00',
   };
+
+  // Coins users paid for store items. Admin-granted items are never counted.
+  const emptySale = { coins: 0, count: 0 };
+  const itemSalesPeriod = stats?.itemSales?.period || {};
+  const itemSalesAll = stats?.itemSales?.allTime || {};
+  const saleCards = [
+    { key: 'vipPackage', label: 'VIP Packages', icon: Crown, color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.15)' },
+    { key: 'entryEffect', label: 'Entry Effects', icon: Sparkles, color: '#8b5cf6', bg: 'rgba(139, 92, 246, 0.15)' },
+    { key: 'thumbnail', label: 'Thumbnails', icon: Image, color: '#3b82f6', bg: 'rgba(59, 130, 246, 0.15)' },
+    { key: 'theme', label: 'App Themes', icon: Palette, color: '#ec4899', bg: 'rgba(236, 72, 153, 0.15)' },
+  ];
+  const fmt = (n) => Number(n || 0).toLocaleString();
 
   const recentGifts = stats?.recentGifts || [];
   const activeStreams = stats?.activeStreams || [];
@@ -307,6 +323,32 @@ export default function Dashboard({ stats: initialStats, onNavigate, onTerminate
             />
           );
         })()}
+      </div>
+
+      {/* Store sales paid with coins (excludes admin-granted items) */}
+      <div style={{ margin: '1.25rem 0 0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <ShoppingBag size={18} color="#f59e0b" />
+        <h3 style={{ margin: 0, fontSize: '1rem' }}>Store Sales — Coins Earned ({getPeriodLabel()})</h3>
+        <span style={{ fontSize: '0.78rem', color: 'var(--text-dim)' }}>
+          Total: {fmt((itemSalesPeriod.total || emptySale).coins)} Coins • Admin-granted items not included
+        </span>
+      </div>
+      <div className="stats-grid">
+        {saleCards.map((c) => {
+          const cur = itemSalesPeriod[c.key] || emptySale;
+          const all = itemSalesAll[c.key] || emptySale;
+          return (
+            <StatCard
+              key={c.key}
+              label={`${c.label} Sales`}
+              value={`${fmt(cur.coins)} 🪙`}
+              subtext={`🛒 ${cur.count} sold • All-Time: ${fmt(all.coins)} (${all.count})`}
+              icon={c.icon}
+              iconColor={c.color}
+              bgColor={c.bg}
+            />
+          );
+        })}
       </div>
 
       <div className="dashboard-columns-grid">

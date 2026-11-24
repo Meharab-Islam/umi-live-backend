@@ -17,6 +17,20 @@ import { getLiveIO } from '../sockets/liveSocket.js';
 import { invalidateAgencyCache } from './mobile/agencyController.js';
 import { setDeviceBanState, getUserDeviceIds } from '../services/deviceService.js';
 
+// Coin-purchased store items (users pay with coins). Admin grants never write these
+// transactions, so admin-given packages/effects/thumbnails are not counted as sales.
+const ITEM_SALE_CONDITIONS = {
+  vipPackage: "(type = 'coin_purchase' AND description LIKE 'Purchased Privilege Package:%')",
+  entryEffect: "(type = 'coin_purchase' AND description LIKE 'Purchased Entry Effect:%')",
+  thumbnail: "(type = 'coin_purchase' AND (description LIKE 'Purchased Special Thumbnail:%' OR description LIKE 'Custom Room Background Thumbnail Upload Fee:%'))",
+  theme: "(type = 'theme_purchase')",
+};
+// IFNULL: a NULL description must not turn `NOT (...)` into NULL and drop normal coin sales.
+const ANY_ITEM_SALE = `IFNULL((${Object.values(ITEM_SALE_CONDITIONS).join(' OR ')}), 0)`;
+const itemSalesSelect = () => Object.entries(ITEM_SALE_CONDITIONS).map(([k, cond]) =>
+  `COALESCE(SUM(CASE WHEN ${cond} AND status = 'completed' THEN amount ELSE 0 END), 0) AS ${k}_coins,
+   COUNT(CASE WHEN ${cond} AND status = 'completed' THEN 1 END) AS ${k}_count`).join(',\n');
+
 export async function getDashboardStats(req, res) {
   try {
     const { period = 'all', start_date, end_date } = req.query;
@@ -77,11 +91,11 @@ export async function getDashboardStats(req, res) {
       // 4. Period-filtered financial metrics (Coins Sold, Admin Commission, Gift Coins Spent)
       const [financeCounts] = await query(
         `SELECT 
-          COALESCE(SUM(CASE WHEN (type = 'coin_purchase' OR description LIKE '[Recharge]%') THEN amount ELSE 0 END), 0) as total_coins_sold,
+          COALESCE(SUM(CASE WHEN ((type = 'coin_purchase' AND NOT ${ANY_ITEM_SALE}) OR description LIKE '[Recharge]%') THEN amount ELSE 0 END), 0) as total_coins_sold,
           COALESCE(SUM(CASE WHEN type = 'gift_sent' THEN amount ELSE 0 END), 0) as total_gift_coins_spent,
           COALESCE(SUM(CASE WHEN type = 'gift_received' THEN amount ELSE 0 END), 0) as total_diamonds_rewarded,
           COALESCE(SUM(CASE WHEN type IN ('platform_commission', 'admin_commission') THEN amount ELSE 0 END), 0) as total_admin_commission,
-          COUNT(CASE WHEN (type = 'coin_purchase' OR description LIKE '[Recharge]%') THEN 1 END) as total_coin_sales_count,
+          COUNT(CASE WHEN ((type = 'coin_purchase' AND NOT ${ANY_ITEM_SALE}) OR description LIKE '[Recharge]%') THEN 1 END) as total_coin_sales_count,
           COUNT(CASE WHEN type IN ('platform_commission', 'admin_commission') THEN 1 END) as total_commission_count
         FROM transactions
         WHERE 1=1 ${dateCondition}`,
@@ -91,11 +105,29 @@ export async function getDashboardStats(req, res) {
       // 5. All-Time financial metrics for comparison
       const [allTimeFinance] = await query(`
         SELECT 
-          COALESCE(SUM(CASE WHEN (type = 'coin_purchase' OR description LIKE '[Recharge]%') THEN amount ELSE 0 END), 0) as all_time_coins_sold,
+          COALESCE(SUM(CASE WHEN ((type = 'coin_purchase' AND NOT ${ANY_ITEM_SALE}) OR description LIKE '[Recharge]%') THEN amount ELSE 0 END), 0) as all_time_coins_sold,
           COALESCE(SUM(CASE WHEN type = 'gift_sent' THEN amount ELSE 0 END), 0) as all_time_gift_coins_spent,
           COALESCE(SUM(CASE WHEN type IN ('platform_commission', 'admin_commission') THEN amount ELSE 0 END), 0) as all_time_admin_commission
         FROM transactions
       `);
+
+      // 5b. Store item sales paid with coins (VIP packages, entry effects, thumbnails, themes)
+      const [itemSalesPeriod] = await query(
+        `SELECT ${itemSalesSelect()} FROM transactions WHERE 1=1 ${dateCondition}`,
+        dateParams
+      );
+      const [itemSalesAll] = await query(`SELECT ${itemSalesSelect()} FROM transactions`);
+      const buildItemSales = (row) => {
+        const out = {};
+        let totalCoins = 0, totalCount = 0;
+        for (const k of Object.keys(ITEM_SALE_CONDITIONS)) {
+          const coins = Number(row[`${k}_coins`]) || 0, count = Number(row[`${k}_count`]) || 0;
+          out[k] = { coins, count };
+          totalCoins += coins; totalCount += count;
+        }
+        out.total = { coins: totalCoins, count: totalCount };
+        return out;
+      };
 
       // 6. Pending withdrawals & Diamond Conversion setting
       const diamondSettingRows = await query("SELECT key_value FROM system_settings WHERE key_name = 'is_convert_to_diamond' LIMIT 1");
@@ -170,6 +202,10 @@ export async function getDashboardStats(req, res) {
           pendingWithdrawalCoins: Number(withdrawalStats.pending_coins || 0),
           pendingWithdrawalDiamonds: Number(withdrawalStats.pending_diamonds || 0),
           pendingWithdrawalUsd: parseFloat(withdrawalStats.pending_usd || 0).toFixed(2),
+        },
+        itemSales: {
+          period: buildItemSales(itemSalesPeriod),
+          allTime: buildItemSales(itemSalesAll),
         },
         recentGifts,
         activeStreams: activeStreamsList,
