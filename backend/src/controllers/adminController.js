@@ -32,8 +32,9 @@ const itemSalesSelect = () => Object.entries(ITEM_SALE_CONDITIONS).map(([k, cond
 
 export async function getDashboardStats(req, res) {
   try {
-    const { period = 'all', start_date, end_date } = req.query;
-    const cacheKey = `admin:dashboard:${period}:${start_date || ''}:${end_date || ''}`;
+    const { period = 'all', start_date, end_date, month } = req.query;
+    const monthKey = /^\d{4}-(0[1-9]|1[0-2])$/.test(String(month || '')) ? String(month) : '';
+    const cacheKey = `admin:dashboard:${period}:${start_date || ''}:${end_date || ''}:${monthKey}`;
 
     const statsData = await cache.getOrSet(cacheKey, 20, async () => {
       // 1. Time filter condition for transactions & activity
@@ -48,6 +49,10 @@ export async function getDashboardStats(req, res) {
         dateCondition = ' AND created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)';
       } else if (period === 'month') {
         dateCondition = ' AND created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)';
+      } else if (period === 'monthly' && monthKey) {
+        // One calendar month, e.g. 2026-03 -> 2026-03-01 <= created_at < 2026-04-01
+        dateCondition = " AND created_at >= ? AND created_at < DATE_ADD(?, INTERVAL 1 MONTH)";
+        dateParams.push(`${monthKey}-01 00:00:00`, `${monthKey}-01 00:00:00`);
       } else if (period === 'custom' && start_date) {
         if (end_date) {
           dateCondition = ' AND created_at >= ? AND created_at <= ?';
@@ -128,6 +133,56 @@ export async function getDashboardStats(req, res) {
         return out;
       };
 
+      // 5c. Month-by-month breakdown (last 12 calendar months, independent of the selected filter)
+      const monthKeys = [];
+      {
+        const d = new Date();
+        d.setDate(1);
+        for (let i = 0; i < 12; i++) {
+          monthKeys.unshift(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`);
+          d.setMonth(d.getMonth() - 1);
+        }
+      }
+      let monthly = [];
+      try {
+        const monthStart = `${monthKeys[0]}-01 00:00:00`;
+        const monthTx = await query(
+          `SELECT DATE_FORMAT(created_at, '%Y-%m') AS ym,
+            COALESCE(SUM(CASE WHEN ((type = 'coin_purchase' AND NOT ${ANY_ITEM_SALE}) OR description LIKE '[Recharge]%') THEN amount ELSE 0 END), 0) AS coins_sold,
+            COALESCE(SUM(CASE WHEN type = 'gift_sent' THEN amount ELSE 0 END), 0) AS gift_coins,
+            COALESCE(SUM(CASE WHEN type IN ('platform_commission', 'admin_commission') THEN amount ELSE 0 END), 0) AS commission,
+            ${itemSalesSelect()}
+           FROM transactions WHERE created_at >= ? GROUP BY ym`,
+          [monthStart]
+        );
+        const monthUsers = await query(
+          `SELECT DATE_FORMAT(created_at, '%Y-%m') AS ym, COUNT(*) AS c FROM users
+           WHERE role != 'superadmin' AND created_at >= ? GROUP BY ym`,
+          [monthStart]
+        );
+        monthly = monthKeys.map((ym) => {
+          const t = monthTx.find((r) => r.ym === ym) || {};
+          const u = monthUsers.find((r) => r.ym === ym);
+          const row = {
+            month: ym,
+            newUsers: Number(u?.c) || 0,
+            coinsSold: Number(t.coins_sold) || 0,
+            giftCoinsSpent: Number(t.gift_coins) || 0,
+            adminCommission: Number(t.commission) || 0,
+          };
+          let storeTotal = 0;
+          for (const k of Object.keys(ITEM_SALE_CONDITIONS)) {
+            row[k] = Number(t[`${k}_coins`]) || 0;
+            storeTotal += row[k];
+          }
+          row.storeTotal = storeTotal;
+          return row;
+        }).reverse();
+      } catch (monthErr) {
+        // The month table is optional: never let it break the whole dashboard.
+        console.error('dashboard monthly breakdown error:', monthErr.message);
+      }
+
       // 6. Pending withdrawals & Diamond Conversion setting
       const diamondSettingRows = await query("SELECT key_value FROM system_settings WHERE key_name = 'is_convert_to_diamond' LIMIT 1");
       const isDiamondMode = diamondSettingRows && diamondSettingRows.length > 0
@@ -202,6 +257,7 @@ export async function getDashboardStats(req, res) {
           pendingWithdrawalDiamonds: Number(withdrawalStats.pending_diamonds || 0),
           pendingWithdrawalUsd: parseFloat(withdrawalStats.pending_usd || 0).toFixed(2),
         },
+        monthly,
         itemSales: {
           period: buildItemSales(itemSalesPeriod),
           allTime: buildItemSales(itemSalesAll),

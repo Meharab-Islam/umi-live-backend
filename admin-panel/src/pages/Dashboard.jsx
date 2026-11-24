@@ -24,12 +24,20 @@ import dashboardApi from '../api/dashboardApi';
 import { useEconomy } from '../context/EconomyContext';
 import { useBranding } from '../context/BrandingContext';
 
+const monthLabel = (ym) => {
+  if (!/^\d{4}-\d{2}$/.test(ym || '')) return 'Month';
+  const [y, m] = ym.split('-').map(Number);
+  return new Date(y, m - 1, 1).toLocaleString('en-US', { month: 'long', year: 'numeric' });
+};
+
 export default function Dashboard({ stats: initialStats, onNavigate, onTerminateStream }) {
   const { isDiamondMode } = useEconomy();
   const { brandName } = useBranding();
   const [stats, setStats] = useState(initialStats);
   const [loading, setLoading] = useState(!initialStats);
   const [period, setPeriod] = useState('all'); // 'all' | 'today' | 'yesterday' | 'week' | 'month' | 'custom'
+  const currentMonth = new Date().toISOString().slice(0, 7);
+  const [selectedMonth, setSelectedMonth] = useState(currentMonth);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -41,7 +49,7 @@ export default function Dashboard({ stats: initialStats, onNavigate, onTerminate
     }
   }, [initialStats]);
 
-  const fetchFilteredStats = async (selectedPeriod = period, customStart = startDate, customEnd = endDate) => {
+  const fetchFilteredStats = async (selectedPeriod = period, customStart = startDate, customEnd = endDate, monthValue = selectedMonth) => {
     try {
       setIsRefreshing(true);
       const params = { period: selectedPeriod };
@@ -49,6 +57,7 @@ export default function Dashboard({ stats: initialStats, onNavigate, onTerminate
         params.start_date = customStart;
         if (customEnd) params.end_date = customEnd;
       }
+      if (selectedPeriod === 'monthly' && monthValue) params.month = monthValue;
       const res = await dashboardApi.getStats(params);
       if (res.success && res.stats) {
         setStats(res.stats);
@@ -61,9 +70,18 @@ export default function Dashboard({ stats: initialStats, onNavigate, onTerminate
     }
   };
 
+  const handleMonthPick = (ym) => {
+    if (!ym) return;
+    setSelectedMonth(ym);
+    setPeriod('monthly');
+    fetchFilteredStats('monthly', startDate, endDate, ym);
+  };
+
   const handlePeriodChange = (newPeriod) => {
     setPeriod(newPeriod);
-    if (newPeriod !== 'custom') {
+    if (newPeriod === 'monthly') {
+      handleMonthPick(selectedMonth);
+    } else if (newPeriod !== 'custom') {
       fetchFilteredStats(newPeriod);
     }
   };
@@ -128,6 +146,8 @@ export default function Dashboard({ stats: initialStats, onNavigate, onTerminate
         return 'Past 7 Days';
       case 'month':
         return 'Past 30 Days';
+      case 'monthly':
+        return monthLabel(selectedMonth);
       case 'custom':
         return startDate ? `${startDate} to ${endDate || 'Now'}` : 'Custom Range';
       default:
@@ -166,6 +186,7 @@ export default function Dashboard({ stats: initialStats, onNavigate, onTerminate
               { id: 'yesterday', label: 'Yesterday' },
               { id: 'week', label: '7 Days' },
               { id: 'month', label: '30 Days' },
+              { id: 'monthly', label: 'Month Wise 📅' },
               { id: 'custom', label: 'Custom Range' },
             ].map((p) => {
               const active = period === p.id;
@@ -194,6 +215,34 @@ export default function Dashboard({ stats: initialStats, onNavigate, onTerminate
         </div>
 
 
+
+        {/* Month picker */}
+        {period === 'monthly' && (
+          <div
+            style={{
+              width: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.75rem',
+              paddingTop: '0.75rem',
+              borderTop: '1px solid var(--border-color)',
+              flexWrap: 'wrap',
+            }}
+          >
+            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Select Month:</span>
+            <input
+              type="month"
+              className="form-input"
+              style={{ padding: '0.35rem 0.6rem', fontSize: '0.82rem' }}
+              value={selectedMonth}
+              max={currentMonth}
+              onChange={(e) => handleMonthPick(e.target.value)}
+            />
+            <span style={{ fontSize: '0.78rem', color: 'var(--text-dim)' }}>
+              All cards below show only {monthLabel(selectedMonth)}. Click a row in the table to switch month.
+            </span>
+          </div>
+        )}
 
         {/* Custom Date Pickers Drawer */}
         {period === 'custom' && (
@@ -348,6 +397,57 @@ export default function Dashboard({ stats: initialStats, onNavigate, onTerminate
           );
         })}
       </div>
+
+      {/* Month-by-month overview (last 12 months) */}
+      {(stats?.monthly || []).length > 0 && (
+        <div className="panel-card" style={{ marginTop: '1.25rem', marginBottom: '1.25rem' }}>
+          <div className="panel-header">
+            <div className="panel-title">
+              <Calendar size={20} color="#3b82f6" />
+              <span>Month-wise Overview (Last 12 Months)</span>
+            </div>
+          </div>
+          <div style={{ overflowX: 'auto' }}>
+            <table className="data-table" style={{ width: '100%', fontSize: '0.82rem' }}>
+              <thead>
+                <tr>
+                  <th style={{ textAlign: 'left' }}>Month</th>
+                  <th style={{ textAlign: 'right' }}>Coins Sold</th>
+                  <th style={{ textAlign: 'right' }}>VIP</th>
+                  <th style={{ textAlign: 'right' }}>Entry Effects</th>
+                  <th style={{ textAlign: 'right' }}>Thumbnails</th>
+                  <th style={{ textAlign: 'right' }}>Store Total</th>
+                  <th style={{ textAlign: 'right' }}>Gifts Spent</th>
+                  <th style={{ textAlign: 'right' }}>Commission</th>
+                  <th style={{ textAlign: 'right' }}>New Users</th>
+                </tr>
+              </thead>
+              <tbody>
+                {stats.monthly.map((m) => {
+                  const active = period === 'monthly' && selectedMonth === m.month;
+                  return (
+                    <tr
+                      key={m.month}
+                      onClick={() => handleMonthPick(m.month)}
+                      style={{ cursor: 'pointer', background: active ? 'rgba(59, 130, 246, 0.12)' : undefined }}
+                    >
+                      <td style={{ fontWeight: 700 }}>{monthLabel(m.month)}</td>
+                      <td style={{ textAlign: 'right' }}>{fmt(m.coinsSold)}</td>
+                      <td style={{ textAlign: 'right' }}>{fmt(m.vipPackage)}</td>
+                      <td style={{ textAlign: 'right' }}>{fmt(m.entryEffect)}</td>
+                      <td style={{ textAlign: 'right' }}>{fmt(m.thumbnail)}</td>
+                      <td style={{ textAlign: 'right', fontWeight: 700 }}>{fmt(m.storeTotal)}</td>
+                      <td style={{ textAlign: 'right' }}>{fmt(m.giftCoinsSpent)}</td>
+                      <td style={{ textAlign: 'right' }}>{fmt(m.adminCommission)}</td>
+                      <td style={{ textAlign: 'right' }}>{fmt(m.newUsers)}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
       <div className="dashboard-columns-grid">
         {/* Active Streams Monitoring Radar */}
