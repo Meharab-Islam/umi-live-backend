@@ -16,7 +16,6 @@ import {
   Sparkles,
   Crown,
   Image,
-  Palette,
   ShoppingBag,
 } from 'lucide-react';
 import StatCard from '../components/StatCard';
@@ -113,7 +112,6 @@ export default function Dashboard({ stats: initialStats, onNavigate, onTerminate
     { key: 'vipPackage', label: 'VIP Packages', icon: Crown, color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.15)' },
     { key: 'entryEffect', label: 'Entry Effects', icon: Sparkles, color: '#8b5cf6', bg: 'rgba(139, 92, 246, 0.15)' },
     { key: 'thumbnail', label: 'Thumbnails', icon: Image, color: '#3b82f6', bg: 'rgba(59, 130, 246, 0.15)' },
-    { key: 'theme', label: 'App Themes', icon: Palette, color: '#ec4899', bg: 'rgba(236, 72, 153, 0.15)' },
   ];
   const fmt = (n) => Number(n || 0).toLocaleString();
 

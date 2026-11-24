@@ -17,13 +17,12 @@ import { getLiveIO } from '../sockets/liveSocket.js';
 import { invalidateAgencyCache } from './mobile/agencyController.js';
 import { setDeviceBanState, getUserDeviceIds } from '../services/deviceService.js';
 
-// Coin-purchased store items (users pay with coins). Admin grants never write these
+// Coin-purchased store items (VIP packages, entry effects, thumbnails; users pay with coins). Admin grants never write these
 // transactions, so admin-given packages/effects/thumbnails are not counted as sales.
 const ITEM_SALE_CONDITIONS = {
   vipPackage: "(type = 'coin_purchase' AND description LIKE 'Purchased Privilege Package:%')",
   entryEffect: "(type = 'coin_purchase' AND description LIKE 'Purchased Entry Effect:%')",
   thumbnail: "(type = 'coin_purchase' AND (description LIKE 'Purchased Special Thumbnail:%' OR description LIKE 'Custom Room Background Thumbnail Upload Fee:%'))",
-  theme: "(type = 'theme_purchase')",
 };
 // IFNULL: a NULL description must not turn `NOT (...)` into NULL and drop normal coin sales.
 const ANY_ITEM_SALE = `IFNULL((${Object.values(ITEM_SALE_CONDITIONS).join(' OR ')}), 0)`;
