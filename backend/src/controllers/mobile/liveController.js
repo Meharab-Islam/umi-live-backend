@@ -449,7 +449,11 @@ export async function getRooms(req, res) {
          FROM live_rooms r
          JOIN users u ON r.host_id = u.id
          LEFT JOIN user_package_subscriptions ups 
-           ON ups.user_id = u.id AND ups.status = 'active' AND ups.expires_at > NOW()
+           ON ups.id = (
+             SELECT id FROM user_package_subscriptions 
+             WHERE user_id = u.id AND status = 'active' AND expires_at > NOW() 
+             ORDER BY is_equipped DESC, expires_at DESC LIMIT 1
+           )
          LEFT JOIN package_categories pc 
            ON pc.id = ups.category_id AND pc.is_active = 1
          LEFT JOIN privilege_packages pp 
