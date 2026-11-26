@@ -51,7 +51,8 @@ export async function buildRoomResponse(roomId, currentUser = null) {
             u.coins as host_coins, u.diamonds as host_diamonds, u.role as host_role,
             COALESCE(pp.image_url, pc.badge_icon, '') as host_package_image,
             pc.color_code as host_package_color,
-            pc.name as host_package_category_name
+            pc.name as host_package_category_name,
+            COALESCE(CASE WHEN pc.top_live_list = 1 THEN pc.display_order ELSE 999999 END, 999999) as vip_rank
      FROM live_rooms r
      JOIN users u ON r.host_id = u.id
      LEFT JOIN user_package_subscriptions ups 
@@ -181,6 +182,8 @@ export async function buildRoomResponse(roomId, currentUser = null) {
       package_image: room.host_package_image || null,
       package_color: room.host_package_color || null,
       package_category_name: room.host_package_category_name || null,
+      vip_rank: Number(room.vip_rank || 999999),
+      vip_category: room.host_package_category_name || null,
     };
   }
 
@@ -262,6 +265,9 @@ export async function buildRoomResponse(roomId, currentUser = null) {
     thumbnail_url: bgUrl,
     background_thumbnail: bgUrl,
     status: room.status,
+    vip_rank: Number(room.vip_rank || 999999),
+    host_vip_category: room.host_package_category_name || null,
+    host_vip_icon: room.host_package_image || null,
     viewer_count: room.viewer_count,
     total_diamonds: room.total_diamonds,
     is_comment_disabled: Boolean(room.is_comment_disabled),
@@ -295,6 +301,8 @@ export async function buildRoomResponse(roomId, currentUser = null) {
       package_image: room.host_package_image || null,
       package_color: room.host_package_color || null,
       package_category_name: room.host_package_category_name || null,
+      vip_rank: Number(room.vip_rank || 999999),
+      vip_category: room.host_package_category_name || null,
       ...(isDiamondMode ? { diamond: room.host_diamonds || 0 } : {}),
     },
     seats,
