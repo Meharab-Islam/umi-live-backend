@@ -428,6 +428,12 @@ export async function updateUser(req, res) {
     const updates = [];
     const params = [];
 
+    // New hosts start with their coins locked. MySQL evaluates SET left-to-right, so this
+    // must come BEFORE `role = ?` to still see the previous role. An explicit
+    // is_coin_locked in the same request wins (it is applied later in the list).
+    if (role === 'host') {
+      updates.push("is_coin_locked = IF(role = 'host', is_coin_locked, 1)");
+    }
     if (role !== undefined) {
       updates.push('role = ?');
       params.push(role);
@@ -1972,7 +1978,7 @@ export async function assignUserToAgency(req, res) {
 
     // Assign user to agency, elevate to 'host', and set host_type ('video' or 'audio')
     await connection.execute(
-      "UPDATE users SET agency_id = ?, role = 'host', host_type = ? WHERE id = ?",
+      "UPDATE users SET is_coin_locked = IF(role = 'host', is_coin_locked, 1), agency_id = ?, role = 'host', host_type = ? WHERE id = ?",
       [id, cleanHostType, userId]
     );
 
@@ -3134,6 +3140,94 @@ export async function bulkDelete(req, res) {
 // HOST MANAGEMENT CONTROLLERS
 // ==========================================
 
+/**
+ * Lock / unlock the coins of many hosts in ONE call.
+ *
+ * Body: { locked: boolean, scope?: 'agency_hosts' | 'all_hosts' | 'agency', agencyId?: number }
+ *   - scope 'agency_hosts' (default): every host that belongs to an agency
+ *   - scope 'all_hosts'             : every host, including independent ones
+ *   - scope 'agency' + agencyId     : only the hosts of that agency
+ * Optional hostType ('video' | 'audio') narrows any scope.
+ *
+ * A locked host cannot spend coins (gifts etc. check users.is_coin_locked).
+ */
+export async function bulkSetHostCoinLock(req, res) {
+  try {
+    const { locked, scope = 'agency_hosts', agencyId, hostType } = req.body || {};
+    if (typeof locked !== 'boolean') {
+      return res.status(400).json({ success: false, message: '`locked` must be true or false.' });
+    }
+
+    const conditions = ["role = 'host'"];
+    const params = [];
+    if (scope === 'agency') {
+      const aId = parseInt(agencyId, 10);
+      if (!aId) {
+        return res.status(400).json({ success: false, message: '`agencyId` is required when scope is "agency".' });
+      }
+      conditions.push('agency_id = ?');
+      params.push(aId);
+    } else if (scope === 'agency_hosts') {
+      conditions.push('agency_id IS NOT NULL');
+    } else if (scope !== 'all_hosts') {
+      return res.status(400).json({ success: false, message: 'Invalid scope.' });
+    }
+    if (hostType === 'video' || hostType === 'audio') {
+      conditions.push('host_type = ?');
+      params.push(hostType);
+    }
+    const where = conditions.join(' AND ');
+    const target = locked ? 1 : 0;
+
+    // Only touch rows that actually change, and remember who they are so each one can be
+    // refreshed (cache + realtime) and the app reflects the new lock immediately.
+    const rows = await query(`SELECT id FROM users WHERE ${where} AND is_coin_locked <> ?`, [...params, target]);
+    const ids = rows.map((r) => r.id);
+
+    if (ids.length > 0) {
+      for (let i = 0; i < ids.length; i += 1000) {
+        const chunk = ids.slice(i, i + 1000);
+        await query(
+          `UPDATE users SET is_coin_locked = ? WHERE id IN (${chunk.map(() => '?').join(',')})`,
+          [target, ...chunk]
+        );
+      }
+      // Light per-user refresh (no pattern scans — those would be thousands of Redis SCANs
+      // for a big roster). Fire-and-forget so the admin's click returns immediately.
+      Promise.allSettled(
+        ids.flatMap((id) => [
+          cache.del(`mobile:user:profile:${id}`),
+          cache.del(`mobile:user:public:${id}`),
+          cache.del(`user:${id}`),
+          cache.del(`admin:user:${id}`),
+        ])
+      ).catch(() => {});
+      if (req.io) {
+        const payload = { is_coin_locked: locked, timestamp: Date.now() };
+        for (const id of ids) {
+          req.io.to(`user_${id}`).emit('user_profile_updated', { userId: id, user_id: id, ...payload });
+          req.io.to(`user:${id}`).emit('user_profile_updated', { userId: id, user_id: id, ...payload });
+        }
+      }
+      await Promise.allSettled([
+        cache.delByPattern('hosts:*'),
+        cache.delByPattern('admin:users*'),
+        cache.delByPattern('agencies:*'),
+      ]);
+    }
+
+    return res.json({
+      success: true,
+      message: `${ids.length} host(s) ${locked ? 'locked' : 'unlocked'}.`,
+      locked,
+      scope,
+      affected: ids.length,
+    });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: 'Failed to update host coin lock.' });
+  }
+}
+
 export async function getHosts(req, res) {
   try {
     const { search, hostType, agencyId, page = 1, limit = 20 } = req.query;
@@ -3178,7 +3272,7 @@ export async function getHosts(req, res) {
         `SELECT 
           u.id, u.email, u.full_name, u.avatar_url, u.bio, u.role, u.host_type,
           u.agency_id, a.name as agency_name, a.agency_code, a.commission_rate,
-          u.coins, u.diamonds, u.level, u.vip_package, u.is_banned, u.created_at,
+          u.coins, u.diamonds, u.level, u.vip_package, u.is_banned, u.is_coin_locked, u.created_at,
           (SELECT COUNT(*) FROM live_rooms lr WHERE lr.host_id = u.id) as stream_count,
           (SELECT COALESCE(SUM(total_diamonds), 0) FROM live_rooms lr WHERE lr.host_id = u.id) as stream_diamonds
          FROM users u
@@ -3198,6 +3292,8 @@ export async function getHosts(req, res) {
           SUM(CASE WHEN host_type = 'audio' THEN 1 ELSE 0 END) as audio_hosts,
           SUM(CASE WHEN agency_id IS NOT NULL THEN 1 ELSE 0 END) as agency_hosts,
           SUM(CASE WHEN agency_id IS NULL THEN 1 ELSE 0 END) as independent_hosts,
+          SUM(CASE WHEN is_coin_locked = 1 THEN 1 ELSE 0 END) as locked_hosts,
+          SUM(CASE WHEN agency_id IS NOT NULL AND is_coin_locked = 1 THEN 1 ELSE 0 END) as locked_agency_hosts,
           COALESCE(SUM(coins), 0) as total_host_coins,
           COALESCE(SUM(diamonds), 0) as total_host_diamonds
         FROM users
@@ -3560,7 +3656,7 @@ export async function processHostRequest(req, res) {
       // Elevate user to host, assign host_type and agency_id
       await connection.execute(
         `UPDATE users 
-         SET role = 'host', host_type = ?, agency_id = ?, agency_joined_at = CURRENT_TIMESTAMP 
+         SET is_coin_locked = IF(role = 'host', is_coin_locked, 1), role = 'host', host_type = ?, agency_id = ?, agency_joined_at = CURRENT_TIMESTAMP 
          WHERE id = ?`,
         [hostType, agencyId, userId]
       );

@@ -1231,7 +1231,7 @@ export async function approveHostRequest(req, res) {
     // 2. MySQL SSOT: Update user and request record
     await query(
       `UPDATE users 
-       SET agency_id = ?, role = 'host', host_type = ?, agency_joined_at = CURRENT_TIMESTAMP 
+       SET is_coin_locked = IF(role = 'host', is_coin_locked, 1), agency_id = ?, role = 'host', host_type = ?, agency_joined_at = CURRENT_TIMESTAMP 
        WHERE id = ?`,
       [agency.id, hostType, userId]
     );

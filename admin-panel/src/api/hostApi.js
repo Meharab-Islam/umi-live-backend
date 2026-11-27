@@ -13,6 +13,17 @@ export const hostApi = {
     });
   },
 
+  /**
+   * Lock / unlock coins for many hosts at once.
+   * scope: 'agency_hosts' (default) | 'all_hosts' | 'agency' (+ agencyId)
+   */
+  bulkSetCoinLock: async ({ locked, scope = 'agency_hosts', agencyId, hostType }) => {
+    return await request('/admin/hosts/coin-lock', {
+      method: 'POST',
+      body: JSON.stringify({ locked, scope, agencyId, hostType }),
+    });
+  },
+
   getHostRequests: async (params = {}) => {
     const query = new URLSearchParams(params).toString();
     return await request(`/admin/host-requests?${query}`);

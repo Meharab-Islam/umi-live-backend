@@ -30,6 +30,8 @@ import {
   Radio,
   ExternalLink,
   Edit,
+  Lock,
+  Unlock,
 } from 'lucide-react';
 import hostApi from '../api/hostApi';
 import agencyApi from '../api/agencyApi';
@@ -305,6 +307,54 @@ export default function HostManagement({ onToast }) {
       }
     } catch (err) {
       onToast(err.message, 'error');
+    }
+  };
+
+  // ---- Coin lock (hosts are locked by default when they become a host) ----
+  const [bulkLockScope, setBulkLockScope] = useState('agency_hosts'); // 'agency_hosts' | 'all_hosts' | 'current_agency'
+  const [bulkLocking, setBulkLocking] = useState(false);
+  const [lockingHostId, setLockingHostId] = useState(null);
+
+  const handleToggleHostCoinLock = async (host) => {
+    const willLock = !Number(host.is_coin_locked);
+    try {
+      setLockingHostId(host.id);
+      const res = await userApi.updateUser(host.id, { is_coin_locked: willLock });
+      if (res.success) {
+        setHosts((prev) => prev.map((h) => (h.id === host.id ? { ...h, is_coin_locked: willLock ? 1 : 0 } : h)));
+        onToast(`Host #${host.id} coins ${willLock ? 'locked' : 'unlocked'}.`, 'success');
+        fetchHosts();
+      }
+    } catch (err) {
+      onToast(err.message, 'error');
+    } finally {
+      setLockingHostId(null);
+    }
+  };
+
+  const handleBulkCoinLock = async (locked) => {
+    const isAgencySel = agencyFilter !== 'all' && agencyFilter !== 'none';
+    const scope = bulkLockScope === 'current_agency' && isAgencySel ? 'agency' : (bulkLockScope === 'all_hosts' ? 'all_hosts' : 'agency_hosts');
+    const label =
+      scope === 'agency' ? `all hosts of agency #${agencyFilter}`
+      : scope === 'all_hosts' ? 'ALL hosts (including independent)'
+      : 'ALL agency hosts';
+    if (!window.confirm(`${locked ? 'Lock' : 'Unlock'} the coins of ${label}?`)) return;
+    try {
+      setBulkLocking(true);
+      const res = await hostApi.bulkSetCoinLock({
+        locked,
+        scope,
+        agencyId: scope === 'agency' ? agencyFilter : undefined,
+      });
+      if (res.success) {
+        onToast(res.message || `${res.affected} host(s) ${locked ? 'locked' : 'unlocked'}.`, 'success');
+        fetchHosts();
+      }
+    } catch (err) {
+      onToast(err.message, 'error');
+    } finally {
+      setBulkLocking(false);
     }
   };
 
@@ -701,6 +751,60 @@ export default function HostManagement({ onToast }) {
             </div>
           </div>
 
+          {/* Coin Lock controls */}
+          <div className="panel-card" style={{
+            padding: '1rem 1.15rem',
+            marginBottom: '1.5rem',
+            display: 'flex',
+            gap: '1rem',
+            flexWrap: 'wrap',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            borderRadius: '14px',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <Lock size={18} color="#f59e0b" />
+              <div>
+                <div style={{ fontWeight: 800, fontSize: '0.92rem' }}>Host Coin Lock</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>
+                  New hosts are locked by default.
+                  {hostSummary ? ` Locked: ${hostSummary.locked_hosts || 0} / ${hostSummary.total_hosts || 0} hosts` : ''}
+                </div>
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap', alignItems: 'center' }}>
+              <select
+                className="input-field"
+                style={{ width: 'auto', padding: '0.45rem 0.85rem', borderRadius: '10px' }}
+                value={bulkLockScope}
+                onChange={(e) => setBulkLockScope(e.target.value)}
+                disabled={bulkLocking}
+              >
+                <option value="agency_hosts">All agency hosts</option>
+                <option value="all_hosts">All hosts (incl. independent)</option>
+                {agencyFilter !== 'all' && agencyFilter !== 'none' && (
+                  <option value="current_agency">Only agency #{agencyFilter} (current filter)</option>
+                )}
+              </select>
+              <button
+                className="btn btn-sm"
+                disabled={bulkLocking}
+                onClick={() => handleBulkCoinLock(true)}
+                style={{ borderRadius: '10px', display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b', border: '1px solid rgba(245, 158, 11, 0.4)' }}
+              >
+                <Lock size={14} /> <span>{bulkLocking ? 'Working…' : 'Lock All'}</span>
+              </button>
+              <button
+                className="btn btn-sm"
+                disabled={bulkLocking}
+                onClick={() => handleBulkCoinLock(false)}
+                style={{ borderRadius: '10px', display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(16, 185, 129, 0.15)', color: '#10b981', border: '1px solid rgba(16, 185, 129, 0.4)' }}
+              >
+                <Unlock size={14} /> <span>{bulkLocking ? 'Working…' : 'Unlock All'}</span>
+              </button>
+            </div>
+          </div>
+
           {/* Hosts Content */}
           {loading ? (
             <div style={{ padding: '4rem', textAlign: 'center' }}>
@@ -897,6 +1001,11 @@ export default function HostManagement({ onToast }) {
                             <div style={{ fontSize: '0.7rem', color: 'var(--text-dim)' }}>
                               Host Coins
                             </div>
+                            {Number(h.is_coin_locked) === 1 && (
+                              <div style={{ marginTop: '3px', fontSize: '0.68rem', fontWeight: 800, color: '#f59e0b' }}>
+                                🔒 Locked
+                              </div>
+                            )}
                           </td>
 
                           {/* Diamonds */}
@@ -923,6 +1032,16 @@ export default function HostManagement({ onToast }) {
 
                           {/* Actions */}
                           <td style={{ textAlign: 'right' }}>
+                            <button
+                              className="btn btn-secondary btn-sm"
+                              disabled={lockingHostId === h.id}
+                              onClick={() => handleToggleHostCoinLock(h)}
+                              title={Number(h.is_coin_locked) === 1 ? 'Unlock this host\'s coins' : 'Lock this host\'s coins'}
+                              style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '5px 10px', borderRadius: '8px', marginRight: '6px', color: Number(h.is_coin_locked) === 1 ? '#10b981' : '#f59e0b' }}
+                            >
+                              {Number(h.is_coin_locked) === 1 ? <Unlock size={13} /> : <Lock size={13} />}
+                              <span>{Number(h.is_coin_locked) === 1 ? 'Unlock' : 'Lock'}</span>
+                            </button>
                             <button
                               className="btn btn-primary btn-sm"
                               onClick={() => setDetailsUserId(h.id)}

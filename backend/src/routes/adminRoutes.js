@@ -48,6 +48,7 @@ import {
   updateModerator,
   deleteModerator,
   getHosts,
+  bulkSetHostCoinLock,
   updateHostDetails,
   getHostRequests,
   createHostRequest,
@@ -231,6 +232,7 @@ router.delete('/chats/conversations/:id', deleteAdminConversation);
 
 // Host Management
 router.get('/hosts', getHosts);
+router.post('/hosts/coin-lock', bulkSetHostCoinLock);
 router.patch('/hosts/:id', updateHostDetails);
 router.get('/host-requests', getHostRequests);
 router.post('/host-requests', createHostRequest);
